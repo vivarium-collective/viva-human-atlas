@@ -4,14 +4,20 @@
 // index.html (unpkg CDN). All data comes from sibling files discovered
 // through `config.json` — there are no query params to parse:
 //   config.json        -> {glb, organ, coverage, links, node_field}
-//   <config.coverage>   -> {coverage: [{uberon, label, organ_glb, n_models,
-//                            model_ids, covered}, ...], summary: {...}}
+//   <config.coverage>   -> {coverage: [{uberon, label, organ_glb, node_name,
+//                            n_models, model_ids, covered}, ...],
+//                            summary: {...}}
 //   <config.links>      -> {links: [{biomodel_id, uberon, node_name,
 //                            organ_glb, ...}], summary: {...}}  (optional)
 //
-// Coverage rows are keyed multiple ways (uberon / organ_glb / the row's
-// `node_field` value, e.g. `node_name` for links rows) so scene meshes can be
-// matched by whichever identifier the GLB actually uses for node names.
+// Scene nodes are matched to a coverage row primarily by the row's
+// `node_field` value (`node_name` by default — the crosswalk's own GLB
+// scene-node name, the most reliable key), case-insensitively: exact match
+// first, then a normalized (lowercase, non-alnum stripped) match so minor
+// naming-convention drift between the crosswalk and the exported GLB still
+// lines up. If neither matches, fall back to substring matching against
+// uberon / organ_glb / the node-field value, for GLBs whose node names don't
+// line up with the crosswalk at all.
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -30,26 +36,48 @@ function setStatus(text) {
   if (statusEl) statusEl.textContent = text;
 }
 
-// ---- coverage index: uberon / organ_glb / node_field value -> row --------
+// ---- coverage index: node-name (exact/normalized) -> row, with a
+// uberon/organ_glb/node-field substring fallback --------------------------
+function normalizeKey(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
 function buildCoverageIndex(coverageData, nodeField) {
-  const index = new Map();
+  const index = { exact: new Map(), normalized: new Map(), substring: new Map() };
   const rows = (coverageData && coverageData.coverage) || [];
   for (const row of rows) {
-    const keys = [row.uberon, row.organ_glb, row[nodeField]];
-    for (const key of keys) {
-      if (key) index.set(String(key), row);
-    }
+    addRowToIndex(index, row, nodeField);
   }
   return index;
 }
 
+function addRowToIndex(index, row, nodeField) {
+  const nameKey = row[nodeField] != null ? row[nodeField] : row.node_name;
+  if (nameKey) {
+    const lower = String(nameKey).toLowerCase();
+    if (!index.exact.has(lower)) index.exact.set(lower, row);
+    const norm = normalizeKey(nameKey);
+    if (!index.normalized.has(norm)) index.normalized.set(norm, row);
+  }
+  const keys = [row.uberon, row.organ_glb, row[nodeField]];
+  for (const key of keys) {
+    if (key && !index.substring.has(String(key))) index.substring.set(String(key), row);
+  }
+}
+
 function lookupRow(index, name) {
   if (!name) return null;
-  if (index.has(name)) return index.get(name);
-  // GLB exporters sometimes suffix/prefix node names (e.g. "VH_F_Liver_mesh");
-  // fall back to a substring match against every known key.
-  for (const [key, row] of index) {
-    if (name.includes(key) || key.includes(name)) return row;
+  // 1. node-name match, case-insensitive: exact first, then normalized.
+  const lower = String(name).toLowerCase();
+  if (index.exact.has(lower)) return index.exact.get(lower);
+  const norm = normalizeKey(name);
+  if (index.normalized.has(norm)) return index.normalized.get(norm);
+  // 2. fall back to a substring match against uberon/organ_glb/node-field
+  // keys — GLB exporters sometimes suffix/prefix node names (e.g.
+  // "VH_F_Liver_mesh") in ways normalization alone won't reconcile.
+  for (const [key, row] of index.substring) {
+    const keyLower = key.toLowerCase();
+    if (lower.includes(keyLower) || keyLower.includes(lower)) return row;
   }
   return null;
 }
@@ -77,10 +105,7 @@ async function main() {
   // wouldn't carry it.
   if (linksData && Array.isArray(linksData.links)) {
     for (const row of linksData.links) {
-      const keys = [row.uberon, row.organ_glb, row[nodeField]];
-      for (const key of keys) {
-        if (key && !coverageIndex.has(String(key))) coverageIndex.set(String(key), row);
-      }
+      addRowToIndex(coverageIndex, row, nodeField);
     }
   }
 

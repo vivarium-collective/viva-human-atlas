@@ -1,6 +1,6 @@
 {
-  "glb": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-female-left/v1.3/assets/3d-vh-f-kidney-l.glb",
-  "organ": "kidney",
+  "glb": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-female/v1.2/assets/3d-vh-f-liver.glb",
+  "organ": "liver",
   "coverage": "coverage.json",
   "links": "spatial-links.json",
   "node_field": "node_name"

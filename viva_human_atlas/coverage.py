@@ -12,15 +12,30 @@ its own Uberon has annotated models, *or* its source-organ GLB
 from the organ's reference-organ Uberon down to every AS node cut from that
 organ's GLB) — not per-AS-node model matching, which nothing in the current
 BioModels/HRA data supports yet.
+
+The crosswalk's `organ_glb` (e.g. `"VH_F_Liver"`) and the reference-organ
+asset stems used to compute which GLBs are covered (e.g.
+`"3d-vh-f-liver"`) come from two different naming conventions, so the
+propagation compares a **normalized organ key** on both sides
+(`_normalize_organ_key`: lowercase, strip a leading naming-convention
+prefix, drop all non-alphanumerics) rather than the raw strings.
 """
 from __future__ import annotations
 
+import re
 from typing import Callable, Optional
 
 from process_bigraph import Step
 
 from viva_human_atlas.biomodel_do import build_biomodel_do_catalog
 from viva_human_atlas.hra_api import fetch_crosswalk
+
+# Naming-convention prefixes seen on reference-organ asset stems / crosswalk
+# `organ_glb` values, longest/most-specific first so e.g. "3d-vh-f-" is
+# stripped before the more general "3d-vh-" would otherwise match.
+_ORGAN_KEY_PREFIXES = (
+    "3d-vh-f-", "3d-vh-m-", "3d-vh-", "vh-f-", "vh-m-", "vh_f_", "vh_m_", "vh-", "vh_",
+)
 
 
 def _glb_stem(asset_url: str) -> str:
@@ -29,6 +44,18 @@ def _glb_stem(asset_url: str) -> str:
     if name.endswith(".glb"):
         name = name[: -len(".glb")]
     return name
+
+
+def _normalize_organ_key(name: str) -> str:
+    """Canonicalize a crosswalk `organ_glb` or a reference-organ asset stem
+    to a bare organ key so the two naming conventions compare equal, e.g.
+    both `"3d-vh-f-liver"` and `"VH_F_Liver"` normalize to `"liver"`."""
+    key = (name or "").lower()
+    for prefix in _ORGAN_KEY_PREFIXES:
+        if key.startswith(prefix):
+            key = key[len(prefix):]
+            break
+    return re.sub(r"[^a-z0-9]", "", key)
 
 
 def build_coverage(
@@ -57,16 +84,20 @@ def build_coverage(
         entry["uberon"]: entry for entry in organ_index.values() if entry.get("uberon")
     }
 
-    # covered_glbs: source-organ GLB stems (e.g. "VH_F_Liver") belonging to an
-    # organ whose Uberon has annotated models — this is what lets coverage
-    # propagate from a reference organ's Uberon down to every AS node cut
-    # from that organ's GLB, even when the AS node's own Uberon differs.
+    # covered_glbs: normalized organ keys (e.g. "liver", from GLB stems like
+    # "3d-vh-f-liver") belonging to an organ whose Uberon has annotated
+    # models — this is what lets coverage propagate from a reference organ's
+    # Uberon down to every AS node cut from that organ's GLB, even when the
+    # AS node's own Uberon differs. Normalizing both sides is what makes the
+    # propagation actually fire: crosswalk `organ_glb` values (e.g.
+    # "VH_F_Liver") and reference-organ asset stems (e.g. "3d-vh-f-liver")
+    # use different naming conventions and never match as raw strings.
     covered_glbs = set()
     for uberon, entry in organ_by_uberon.items():
         if uberon not in uberon_models:
             continue
         for asset_url in entry.get("asset_urls") or []:
-            covered_glbs.add(_glb_stem(asset_url))
+            covered_glbs.add(_normalize_organ_key(_glb_stem(asset_url)))
 
     coverage = []
     organs_glb_seen = set()
@@ -77,7 +108,7 @@ def build_coverage(
             continue
         organ_glb = row.get("organ_glb", "")
         model_ids = uberon_models.get(uberon, [])
-        covered = bool(model_ids) or (organ_glb in covered_glbs)
+        covered = bool(model_ids) or (_normalize_organ_key(organ_glb) in covered_glbs)
 
         if organ_glb:
             organs_glb_seen.add(organ_glb)
@@ -89,6 +120,7 @@ def build_coverage(
                 "uberon": uberon,
                 "label": row.get("label", ""),
                 "organ_glb": organ_glb,
+                "node_name": row.get("node_name", ""),
                 "node_type": row.get("node_type", ""),
                 "n_models": len(model_ids),
                 "model_ids": model_ids,
@@ -153,9 +185,13 @@ CoverageStep.contract = {
         "coverage": (
             "One `coverage_row` per crosswalk anatomical-structure node with "
             "a resolvable Uberon: `uberon`, `label`, `organ_glb` (source-organ "
-            "GLB name), `node_type`, `n_models`/`model_ids` (annotated "
-            "biomodel-DO hits), `covered` (True if its own Uberon has models "
-            "or its `organ_glb` belongs to a covered organ)."
+            "GLB name), `node_name` (the crosswalk row's own GLB scene-node "
+            "name, for coloring the 3D viewer), `node_type`, "
+            "`n_models`/`model_ids` (annotated biomodel-DO hits), `covered` "
+            "(True if its own Uberon has models, or its `organ_glb` "
+            "normalizes to the same organ key as a covered organ's "
+            "reference-organ GLB — this propagation actually fires now that "
+            "both sides are normalized through `_normalize_organ_key`)."
         ),
         "coverage_summary": (
             "Aggregate counts: `n_as`/`n_as_covered` (anatomical-structure "
