@@ -53,3 +53,19 @@ def test_get_viewers_no_studies_dir_at_all(tmp_path):
     viewer = get_viewers(tmp_path)[0]
     assert viewer["applies"](tmp_path) is False
     assert viewer["targets"](tmp_path) == []
+
+
+def test_get_viewers_has_launch_callback_for_live_env_worker_path(tmp_path):
+    # The installed vivarium-workbench's live env-worker path strips `href`
+    # from targets and instead calls this `launch` callback, so it must
+    # independently reconstruct the same href from `study` alone.
+    ws_root = _make_ws_with_hra_study(tmp_path, slug="model-coverage-3d")
+    viewer = get_viewers(ws_root)[0]
+
+    assert callable(viewer["launch"])
+    result = viewer["launch"](ws_root, study="model-coverage-3d")
+    assert result["url"] == "studies/model-coverage-3d/viz/hra/index.html"
+
+    error = viewer["launch"](ws_root)
+    assert error["status"] == 400
+    assert "error" in error

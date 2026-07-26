@@ -10,8 +10,18 @@ This viewer is a plain static launcher: any study that has materialized a
 ``viz/hra/`` viewer pack (via ``viva_human_atlas.viewer_pack.materialize_viewer``)
 gets a target whose ``href`` points straight at that study's
 ``viz/hra/index.html`` — a self-contained three.js page that reads its own
-``config.json``/``coverage.json``/``spatial-links.json`` siblings, so there is
-no ``launch`` callback to resolve server-side.
+``config.json``/``coverage.json``/``spatial-links.json`` siblings, so no
+server-side rendering is needed either way.
+
+Both a ``targets`` (``href``-carrying) list *and* a ``launch`` callback are
+provided, belt-and-suspenders, because the two paths through the workbench
+differ: the published (gh-pages) snapshot may serve ``targets`` with ``href``
+verbatim, but the installed vivarium-workbench's live env-worker path
+(``_av_resolve_targets`` in ``env_worker.py``) strips each target down to
+``{study, label, detail}`` before it reaches the browser, and clicking the
+card instead calls ``/api/analysis-viewer/<id>/launch`` -> ``_av_resolve_launch``,
+which 400s without a ``launch`` callable. So ``launch`` must independently
+reconstruct the same ``href``.
 """
 from __future__ import annotations
 
@@ -45,6 +55,15 @@ def _targets(ws_root) -> list:
     ]
 
 
+def _launch(ws_root, study=None, run=None, ctx=None) -> dict:
+    """Live-path launcher callback: resolve `study` straight to its
+    materialized `viz/hra/index.html` href (`run`/`ctx` accepted for contract
+    compatibility but unused — this viewer needs no server-side rendering)."""
+    if not study:
+        return {"error": "no study selected", "status": 400}
+    return {"url": f"studies/{study}/viz/hra/index.html"}
+
+
 def get_viewers(ws_root) -> list:
     """Contribute the HRA Organ Viewer launcher (one target per study with a
     materialized `viz/hra/` pack)."""
@@ -56,5 +75,6 @@ def get_viewers(ws_root) -> list:
             "kind": "launcher",
             "applies": lambda ws: bool(_studies_with_hra(ws)),
             "targets": _targets,
+            "launch": _launch,
         }
     ]
