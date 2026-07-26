@@ -1,0 +1,28 @@
+schema_version: 2
+name: glucose-regulation
+title: "Glucose Regulation — COPASI vs Tellurium"
+created: '2026-07-26'
+status: running
+
+question: |
+  For BioModels matching "glucose regulation", do COPASI and Tellurium agree on
+  the time-course dynamics — and which models diverge or fail to load in one engine?
+
+hypothesis: |
+  Most curated glucose-regulation SBML models integrate to near-identical
+  trajectories under COPASI and Tellurium; disagreements flag either engine-
+  specific loading issues or genuinely stiff/edge-case models worth follow-up.
+
+lead: |
+  This is the first investigation in viva-human-atlas (HRA / Whole Person
+  Physiome). It reuses pbg-biomodels' multi-simulator comparison, scoped to the
+  glucose-regulation query and the COPASI + Tellurium engines, to establish a
+  trustworthy fetch-and-compare spine. Ontology linking and the 3D-spatial
+  connection are deferred to later investigations (see
+  references/sources/hra-wpp-context.md).
+
+studies:
+  - glucose-regulation
+
+expert_docs: []
+acceptance_criteria: []
