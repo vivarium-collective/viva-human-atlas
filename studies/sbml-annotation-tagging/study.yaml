@@ -1,0 +1,67 @@
+schema_version: 4
+name: sbml-annotation-tagging
+title: "SBML MIRIAM-Annotation Organ Tagging (Planned)"
+created: '2026-07-26'
+status: planned
+design_status: not-started
+implementation_status: not-started
+simulation_status: pending
+phase: Design
+
+question: |
+  Can parsing curated SBML MIRIAM annotations (Uberon/taxon/GO terms embedded
+  as RDF in each BioModels entry) lift organ-tag recall past the current
+  name-only synonym-match ceiling (~20% on the 25-result glucose-regulation
+  query, 7.5% at full-corpus scale), while preserving the precision the
+  existing matcher already demonstrates?
+
+study_card:
+  goal: "For each BioModels entry, parse embedded MIRIAM RDF annotations for Uberon/taxon/GO terms and cross them against the HRA reference-organ Uberon set, comparing tagged-model count and per-organ precision against the current name-only synonym match."
+  mechanism: "Planned: an SBML/MIRIAM-annotation reader (parse <bqbiol:is>/<bqbiol:isVersionOf> RDF triples from each model's XML) feeding the same organ_to_models index shape glucose-biomodel-do already produces, run alongside the existing synonym matcher for a side-by-side recall/precision comparison."
+  expected_result: "A materially higher tagged-model fraction than the current 20% (25-result query) / 7.5% (full corpus) name-only ceiling, without degrading the precision glucose-biomodel-do already demonstrated (organ assignments concentrating correctly on pancreas/liver for glucose-regulation models)."
+  main_expert_question: "Is annotation-based tagging precise enough (curated models are not guaranteed to carry complete or correct MIRIAM annotations) to fully replace name-only synonym matching, or should the two be combined (union of hits, annotation-first)?"
+  future_work: "The real MIRIAM-annotation parser/composite is not yet implemented. This scaffold's baseline placeholder reuses the existing glucose-biomodel-do composite (name-only synonym matching) purely so the study resolves and renders; the annotation-based tagging mechanism itself is future work."
+
+biological_summary: |
+  glucose-biomodel-do demonstrated that scanning only a BioModels entry's
+  *name* for HRA reference-organ synonyms is precise (it correctly
+  concentrated glucose-regulation hits on pancreas and liver, the two
+  organs glucose-homeostasis biology predicts) but recall-limited: 80% of
+  the 25-result query and 92.5% of the full 1,096-model curated corpus went
+  untagged. Curated BioModels entries, however, frequently carry embedded
+  MIRIAM (Minimum Information Requested In the Annotation of Models) RDF
+  annotations that cross-reference standard ontologies — Uberon (anatomy),
+  NCBI Taxonomy (species), and GO (biological process/function) — directly
+  on model or species elements. Parsing those structured annotations,
+  rather than pattern-matching free-text titles, is a natural next lever to
+  raise recall: an entry whose name never says "pancreas" may still declare
+  a Uberon pancreas term on one of its species or compartments.
+
+pipeline_gate:
+  prerequisites:
+    - study: glucose-biomodel-do
+      relation: leads-to
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.biomodel_do_composite.glucose-biomodel-do
+    params:
+      query: "glucose regulation"
+      max_results: 25
+
+conclusion_verdicts:
+  regression_compatibility:
+    basis: ""
+  biological_validation:
+    basis: ""
+  explanatory_gain:
+    basis: ""
+
+limitations:
+  - "TBD — planned study, not yet implemented."
+
+discovery_implications:
+  resolved_uncertainties: []
+  remaining_uncertainties:
+    - "Is name-only synonym matching precise enough to trust for downstream multiscale coupling, or does it need SBML MIRIAM-annotation-based tagging to raise recall?"
+  followup_study_proposals: []

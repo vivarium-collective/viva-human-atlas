@@ -65,6 +65,8 @@ scientific_argument:
 
 studies:
   - glucose-regulation
+  - multiorgan-glucose-m4
+  - load-failure-recovery
 
 inputs:
   references:

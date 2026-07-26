@@ -77,6 +77,7 @@ studies:
   - hra-cell-types
   - hra-anatomical-structures
   - glucose-biomodel-do
+  - sbml-annotation-tagging
 
 inputs:
   references:
