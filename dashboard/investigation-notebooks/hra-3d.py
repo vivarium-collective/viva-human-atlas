@@ -234,48 +234,6 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `coverage-gap-analysis`
-#
-# **Question.** Which HRA organs and FTUs have ZERO mechanistic-model coverage even at
-# full-corpus scale (635/1,730 AS nodes covered across 31/114 organ GLBs),
-# and can they be ranked into a prioritized modeling-gap report?
-
-# ### Parameters
-
-# ### Run
-#
-# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
-
-# === Study: coverage-gap-analysis ===
-STUDY = 'coverage-gap-analysis'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-print("No recorded runs for this study; nothing to reproduce.")
-
-# ## Study: `result-driven-spatial-link`
-#
-# **Question.** Can the placeholder `readout` string on every (model, AS-node) spatial
-# link be replaced with a real steady-state species concentration drawn
-# from the committed corpus COPASI/Tellurium comparison dataset, so the 3D
-# viewer colors nodes by an actual result instead of by coverage/presence
-# alone?
-
-# ### Parameters
-
-# ### Run
-#
-# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
-
-# === Study: result-driven-spatial-link ===
-STUDY = 'result-driven-spatial-link'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-print("No recorded runs for this study; nothing to reproduce.")
-
 # ## Open decisions
 # - Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?
 # - Does organ-granularity coverage overstate AS-level coverage — can we get finer?

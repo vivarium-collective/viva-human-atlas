@@ -918,6 +918,33 @@ rule fires correctly rather than overstating coverage at this scope.
       
       
       
+      <div class="di-group">
+        <h3>Follow-up study proposals
+          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
+        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
+        <div class="followup-list">
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">AS-level (sub-organ) model coverage</strong>
+              <span class="di-chip">method-upgrade</span>
+              <span class="di-chip">model-coverage-3d</span>
+              <span class="di-chip di-gain-high">gain: high</span>
+              
+            </div>
+            <div class="di-card-why">Parse SBML MIRIAM/Uberon annotations at the anatomical-structure level (not just organ-name synonym matching) for the biomodel-DO catalog, cross the result directly against crosswalk AS nodes, and compare AS-level covered counts against the current organ-granularity-propagated coverage to quantify the overstatement.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('model-coverage-3d', "fp-as-level-coverage")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
     </div>
     
 

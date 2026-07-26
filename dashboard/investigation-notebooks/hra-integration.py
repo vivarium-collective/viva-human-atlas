@@ -205,28 +205,6 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `sbml-annotation-tagging`
-#
-# **Question.** Can parsing curated SBML MIRIAM annotations (Uberon/taxon/GO terms embedded
-# as RDF in each BioModels entry) lift organ-tag recall past the current
-# name-only synonym-match ceiling (~20% on the 25-result glucose-regulation
-# query, 7.5% at full-corpus scale), while preserving the precision the
-# existing matcher already demonstrates?
-
-# ### Parameters
-
-# ### Run
-#
-# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
-
-# === Study: sbml-annotation-tagging ===
-STUDY = 'sbml-annotation-tagging'
-STUDY_DIR = REPO / 'studies' / STUDY
-STUDY_YAML = str(STUDY_DIR / "study.yaml")
-RUNS_DB = str(STUDY_DIR / "runs.db")
-
-print("No recorded runs for this study; nothing to reproduce.")
-
 # ## Open decisions
 # - What is the organ-tag recall ceiling with names alone (currently ~20% on this query, 7.5% at full-corpus scale)? Move to SBML MIRIAM annotations?
 # - Which organs are systematically under-tagged?
