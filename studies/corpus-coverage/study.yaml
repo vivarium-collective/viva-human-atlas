@@ -1,0 +1,82 @@
+schema_version: 4
+name: corpus-coverage
+title: "Corpus Coverage — Full 1,096-Model BioModels Catalog on HRA 3D Anatomy"
+created: '2026-07-26'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  Of the HRA ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical structures
+  (across 114 source-organ GLBs), how many are covered once every curated
+  BioModels model — not just a narrow search query — is crossed against
+  them, and does full-corpus coverage reach organs a single-query search
+  misses (e.g. kidney)?
+
+study_card:
+  goal: "Cross the ASCT+B-3D crosswalk's anatomical structures with the committed full-corpus catalog's organ->models index (1,096 curated BioModels, 82 organ-tagged) and confirm the composite loads a non-empty per-AS coverage list plus summary counts, at full-catalog scale."
+  mechanism: "CoverageStep.update (catalog_path set) -> build_corpus_coverage(catalog_path) -> load_corpus_catalog(datasets/biomodel_corpus_catalog.json) x fetch_crosswalk(...) -> per-AS `covered` flag (own Uberon has models, or its organ_glb belongs to a covered organ) -> coverage + coverage_summary -> RAMEmitter."
+  expected_result: "Coverage substantially wider than the 25-result query-scoped model-coverage-3d study — more organs, more AS nodes covered — including kidney, which the narrower glucose-regulation query does not cover."
+  main_expert_question: "Does full-corpus organ-tagging (82/1,096 models tagged with a resolvable HRA organ) undercount real anatomical relevance — i.e. are many of the untagged 1,014 models actually organ-specific but missed by the current synonym/reference-organ-name matching?"
+
+biological_summary: |
+  A single BioModels search query (as in `model-coverage-3d`) only ever
+  samples the corpus through the lens of its search terms. This study
+  instead retrieves and organ-tags the full curated BioModels catalog
+  (1,096 `BIOMD*` models, Task A) and crosses every organ it can tag against
+  the ASCT+B-3D crosswalk, giving the ceiling on how much of the HRA's
+  fine-grained 3D anatomy the *entire* published mechanistic-modeling
+  literature (as indexed by BioModels) actually touches — not just the
+  glucose-regulation slice. This directly measures how much anatomy is
+  "dark" (unmodeled) versus "lit" (has at least one curated model),
+  informing where new HRA-3D coverage work would have the most impact.
+
+readouts:
+  - "coverage_summary.n_as / n_as_covered (anatomical-structure-node granularity)"
+  - "coverage_summary.n_organs_glb / n_organs_glb_covered (source-organ-GLB granularity)"
+  - "catalog n_ids / n_named / n_tagged (corpus retrieval + organ-tagging yield)"
+
+report:
+  title: "Corpus Coverage — 635/1,730 AS nodes covered across 31/114 organs, kidney included"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Crossing the full 1,096-model curated BioModels catalog against the
+    ASCT+B-3D crosswalk, how many anatomical structures/organs are covered,
+    and does it reach organs a narrow query misses?
+  conclusion: |
+    The committed catalog (`datasets/biomodel_corpus_catalog.json`) retrieved
+    1,096/1,096 curated BioModels IDs, named all 1,096, and organ-tagged
+    82 (7.5%) against HRA reference-organ names. Crossing that catalog's
+    organ->models index with the live crosswalk (1,730 Uberon-keyed AS
+    rows / 114 source-organ GLBs) covers 635 AS nodes (36.7%) across 31
+    distinct organ GLBs (27.2%) — an order of magnitude wider than the
+    25-result glucose-regulation query's 58 AS nodes / 4 organs
+    (`model-coverage-3d`). Critically, kidney is now covered
+    (`VH_F_Kidney_L`/`_R`, `VH_M_Kidney_L`/`_R`), which the narrower query
+    missed entirely, confirming full-corpus retrieval finds anatomically
+    relevant models a single search term does not.
+  caveat: |
+    Organ-tagging yield is low relative to catalog size (82/1,096 = 7.5%
+    tagged) — the remaining 1,014 models are either genuinely
+    organ-agnostic (pathway/signaling models with no single anatomical
+    site) or are organ-specific but missed by the current
+    synonym/reference-organ-name matching (the study's main expert
+    question). Coverage is still organ-granularity, not per-AS-node model
+    matching: a covered organ's Uberon marks every AS node cut from its
+    GLB as covered, which can overstate coverage for anatomically distinct
+    sub-structures with no direct model evidence.
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage
+    params:
+      catalog_path: "datasets/biomodel_corpus_catalog.json"
+
+embed_visualizations:
+  - name: "Coverage per organ (full corpus)"
+    url: "/reports/figures/corpus-coverage/coverage-per-organ.html"
+    description: "Bar chart of models-per-organ from the full 1,096-model catalog's coverage crossing: 635/1,730 AS nodes covered across 31/114 organ GLBs, including kidney."

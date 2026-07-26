@@ -19,10 +19,48 @@ study_card:
   expected_result: "A non-empty coverage list where at least one anatomical structure/organ is covered by the glucose-regulation biomodel-DO set (pancreas/kidney/liver expected to dominate)."
   main_expert_question: "Is organ-granularity coverage (propagating from a reference organ's Uberon to every AS node cut from its GLB) a meaningful enough proxy for 'this anatomy is modeled', or does it overstate coverage for fine-grained AS nodes with no direct model evidence?"
 
+biological_summary: |
+  Glucose regulation is a whole-body, multi-organ circuit: the liver
+  buffers glucose via glycogen synthesis/breakdown, the pancreatic islets
+  set the hormonal signal (insulin/glucagon) that drives that buffering,
+  and the kidney contributes via gluconeogenesis and glucose reabsorption.
+  A BioModels search for "glucose regulation" surfaces the mechanistic
+  models literature has built for this circuit, and this study asks how
+  much of the HRA's fine-grained 3D anatomy those models actually touch
+  once their organ annotations are crossed with the ASCT+B-3D crosswalk —
+  the query-scoped companion to `corpus-coverage`'s full-catalog sweep.
+
 readouts:
   - "coverage_summary.n_as / n_as_covered (anatomical-structure-node granularity)"
   - "coverage_summary.n_organs_glb / n_organs_glb_covered (source-organ-GLB granularity)"
   - "per-AS covered flag + n_models/model_ids in the coverage list"
+
+report:
+  title: "Model Coverage 3D — glucose-regulation query covers liver + pancreas only"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Of the HRA ASCT+B-3D crosswalk's anatomical structures, which are
+    covered by the glucose-regulation BioModels search set (25 results),
+    and can that coverage be viewed on the 3D anatomy?
+  conclusion: |
+    Crossing the 25-result "glucose regulation" biomodel-DO catalog against
+    the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes covered (3.4%),
+    all propagating from 4 of 114 source-organ GLBs: `VH_F_Liver`,
+    `VH_M_Liver`, `VH_F_Pancreas`, `VH_M_Pancreas` (both sexes of liver and
+    pancreas). No kidney coverage at this query scope — organ-granularity
+    coverage is exactly as broad as the underlying BioModels search/organ
+    annotation, confirming the propagation rule fires correctly (liver and
+    pancreas AS nodes light up, nothing else does) rather than overstating
+    coverage.
+  caveat: |
+    Coverage here is bounded by the 25-result query scope, not model
+    availability — the full 1,096-model corpus covers far more (see
+    `corpus-coverage`: 635/1,730 AS nodes, 31/114 organs, including
+    kidney). Organ-granularity propagation also still overstates
+    fine-grained coverage: a covered organ's Uberon marks every AS node
+    cut from its GLB, not just nodes with direct model evidence.
 
 baseline:
   - name: baseline
@@ -30,3 +68,8 @@ baseline:
     params:
       query: "glucose regulation"
       max_results: 25
+
+embed_visualizations:
+  - name: "Coverage per organ (glucose-regulation query)"
+    url: "/reports/figures/model-coverage-3d/coverage-per-organ.html"
+    description: "Bar chart of models-per-organ from the glucose-regulation query's coverage crossing: 58/1,730 AS nodes covered, concentrated in liver + pancreas (4/114 organ GLBs)."

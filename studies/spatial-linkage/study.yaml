@@ -19,9 +19,46 @@ study_card:
   expected_result: "At least one (biomodel, crosswalk AS node) link, each carrying the exact `node_name` a viewer should color; `readout` is a placeholder string in v1 (no simulation output wired yet)."
   main_expert_question: "Is Uberon-CURIE-only join precise enough (a model's organ can link to multiple GLB nodes cut from the same reference-organ GLB), or does a real viewer need a single 'best' node resolved per model?"
 
+biological_summary: |
+  Marking an organ "covered" is a coarse signal; a 3D viewer needs to know
+  exactly which GLB scene node to color for a given model. This study joins
+  each biomodel-DO organ annotation directly to the crosswalk rows sharing
+  its Uberon CURIE, producing the (model, GLB node) pairs a viewer renders
+  against. Because HRA ships separate male/female reference-organ GLBs, one
+  organ annotation legitimately links to two nodes (one per sex) — the join
+  is deliberately Uberon-only in v1, deferring "pick the single best node"
+  resolution to a future viewer-side step.
+
 readouts:
   - "spatial_link_summary.n_links / n_models"
   - "per-link node_name (the GLB scene node a model's organ maps to)"
+
+report:
+  title: "Spatial Linkage — 10 model->AS->node links across 5 models, liver + pancreas"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    For each glucose-regulation biomodel-DO organ annotation, which
+    ASCT+B-3D crosswalk GLB scene node(s) does it join to, precisely enough
+    for a 3D viewer to color the right node per model?
+  conclusion: |
+    The live join produces 10 links across 5 distinct biomodels (25-result
+    "glucose regulation" query): BIOMD0000000633 (Bulik2016 hepatic glucose
+    metabolism) -> VH_F_liver/VH_M_liver; MODEL2001080002 (Topp2000 b-cell
+    mass/insulin/glucose), MODEL1112110004 (Silber2007 IV glucose), and
+    BIOMD0000000382 (Sturis1991 ultradian oscillations) and
+    BIOMD0000000372 (Tolic2000 insulin-glucose feedback) each ->
+    VH_F_pancreas/VH_M_pancreas. Every model links to exactly 2 nodes (one
+    per sex), confirming the Uberon-only join fires correctly and is fully
+    reproducible from the shared organ Uberon.
+  caveat: |
+    `readout` is a literal placeholder string (`"pending time-series"`) in
+    v1 for every link — no simulation output is wired to a node yet, so
+    this study demonstrates the join topology only, not a live-data 3D
+    viewer. The 2-links-per-model pattern (one per sex) also means a
+    viewer must still resolve "which sex's GLB is currently displayed" to
+    color a single node, not both.
 
 baseline:
   - name: baseline
@@ -29,3 +66,8 @@ baseline:
     params:
       query: "glucose regulation"
       max_results: 25
+
+embed_visualizations:
+  - name: "Model->AS links per organ"
+    url: "/reports/figures/spatial-linkage/links-per-organ.html"
+    description: "Bar chart of (model, GLB-node) link counts per organ label from the live join: 10 links / 5 models, all liver or pancreas."
