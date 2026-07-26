@@ -166,6 +166,47 @@ def table_html(headers, rows, *, title: str = "") -> str:
     return fig.to_html(include_plotlyjs="cdn", full_html=True)
 
 
+def glucose_scenario_html(
+    runs: dict, *, title: str = "Glucose vs islet beta-cell composition (Topp2000)"
+) -> str:
+    """Self-contained Plotly HTML: glucose `G(t)` overlaid across islet-
+    composition scenarios (e.g. healthy vs beta-depleted), one trace per
+    entry in `runs`.
+
+    `runs` is `{label: run_dict}`, each `run_dict` shaped like
+    `ctpop_islet.run_topp_with_composition`'s return (`time`, `G`,
+    `beta_fraction`); falsy/empty entries (a failed fetch/solve) are
+    skipped.
+    """
+    fig = go.Figure()
+    for label, run in (runs or {}).items():
+        if not run:
+            continue
+        beta_fraction = run.get("beta_fraction")
+        name = f"{label} (beta={beta_fraction:.2f})" if beta_fraction is not None else label
+        fig.add_trace(
+            go.Scatter(
+                x=run.get("time") or [],
+                y=run.get("G") or [],
+                mode="lines",
+                name=name,
+            )
+        )
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="time (model days)",
+        yaxis_title="glucose G (mg/dL)",
+        height=480,
+        margin=dict(l=70, r=30, t=70, b=70),
+        font=dict(size=13),
+        title_font_size=15,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+        hovermode="x unified",
+    )
+    return fig.to_html(include_plotlyjs="cdn", full_html=True)
+
+
 def write_study_figure(study_slug: str, name: str, html: str, ws_root: str = ".") -> str:
     """Write `html` to `<ws_root>/reports/figures/<study_slug>/<name>.html`
     (creating parent dirs as needed) and return the path relative to

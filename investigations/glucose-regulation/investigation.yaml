@@ -65,6 +65,7 @@ scientific_argument:
 
 studies:
   - glucose-regulation
+  - ctpop-islet-parameterization
 
 inputs:
   references:
