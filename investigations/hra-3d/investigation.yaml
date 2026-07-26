@@ -97,6 +97,7 @@ studies:
   - ftu-glomerulus
   - corpus-coverage
   - ftu-model-coverage
+  - ctpop-islet-parameterization
 
 inputs:
   references:

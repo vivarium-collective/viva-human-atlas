@@ -164,3 +164,4 @@ discovery_implications:
       proposed_experiment: "Fetch a real HRA CTpop result for a RUI-registered pancreatic-islet tissue block (per-anatomical-structure beta/alpha/delta-cell counts/proportions), map those counts onto the Topp2000/Jiang2007/Bertram2007 islet models' beta-cell-mass (or equivalent cell-population) parameters, and compare simulated output against the models' literature-default parameterization."
       expected_information_gain: high
       source_trigger: ftu-model-coverage
+      seeded_study: ctpop-islet-parameterization

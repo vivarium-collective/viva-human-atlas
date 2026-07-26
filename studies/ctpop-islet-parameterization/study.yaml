@@ -120,6 +120,14 @@ runs:
 pipeline_gate:
   gate_evaluator:
     result: needs_calibration
+  # Downstream of the FTU-model survey (which surfaced the islet models) AND the
+  # glucose-regulation base (whose glucose models it parameterizes) — so the
+  # investigation graph shows it as a downstream child, not an unlinked seed.
+  prerequisites:
+    - study: ftu-model-coverage
+      relation: leads-to
+    - study: glucose-regulation
+      relation: leads-to
 
 findings:
   - id: F-01
