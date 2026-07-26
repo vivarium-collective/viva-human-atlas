@@ -1,0 +1,32 @@
+schema_version: 4
+name: hra-3d-crosswalk
+title: "HRA 3D Crosswalk — Full ASCT+B-3D Anatomical-Structure Tree"
+created: '2026-07-26'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  Does the HRA CDN's ASCT+B-3D models crosswalk load into a Step-driven
+  composite, giving the full 1,400+ anatomical-structure (AS) tree — not
+  just the ~81 per-organ reference-organ GLBs — with resolvable Uberon CURIEs
+  and source-organ GLB names?
+
+study_card:
+  goal: "Fetch the ASCT+B-3D crosswalk CSV via HRACrosswalkStep and confirm the composite loads a non-empty, Uberon-annotated anatomical-structure list."
+  mechanism: "HRACrosswalkStep.update -> fetch_crosswalk(CROSSWALK_URL) -> parse CSV rows after the `anatomical_structure_of` header -> one store -> RAMEmitter."
+  expected_result: "1,400+ anatomical-structure rows load, most with a resolvable Uberon CURIE (`mesh` rows) and some `organizational` rows with no Uberon, each carrying its source-organ GLB name and parent node."
+  main_expert_question: "Is the crosswalk's Uberon coverage complete/stable enough to key organ-granularity model coverage off of (Task B), or does its `organizational`/missing-Uberon fraction undercut that?"
+
+readouts:
+  - "count of anatomical-structure rows loaded"
+  - "fraction of rows with a resolvable UBERON: CURIE (vs organizational/empty)"
+  - "count of distinct source-organ GLBs referenced"
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.hra_steps.hra-3d-crosswalk
+    params:
+      url: "https://cdn.humanatlas.io/digital-objects/ref-organ/asct-b-3d-models-crosswalk/latest/assets/asct-b-3d-models-crosswalk.csv"

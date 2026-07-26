@@ -1,0 +1,31 @@
+schema_version: 4
+name: spatial-linkage
+title: "Spatial Linkage — Model -> AS -> GLB Scene-Node Links"
+created: '2026-07-26'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
+  GLB scene node(s) does it correspond to — precise enough for a 3D viewer
+  to color/label the right node per model?
+
+study_card:
+  goal: "Join biomodel-DO organ annotations to crosswalk anatomical-structure nodes on shared Uberon CURIE, and confirm the composite loads a non-empty per-link list plus summary counts."
+  mechanism: "SpatialLinkStep.update -> build_spatial_links(query, max_results) = build_biomodel_do_catalog(...) organs joined against fetch_crosswalk(...) rows sharing the same Uberon -> links + spatial_link_summary -> RAMEmitter."
+  expected_result: "At least one (biomodel, crosswalk AS node) link, each carrying the exact `node_name` a viewer should color; `readout` is a placeholder string in v1 (no simulation output wired yet)."
+  main_expert_question: "Is Uberon-CURIE-only join precise enough (a model's organ can link to multiple GLB nodes cut from the same reference-organ GLB), or does a real viewer need a single 'best' node resolved per model?"
+
+readouts:
+  - "spatial_link_summary.n_links / n_models"
+  - "per-link node_name (the GLB scene node a model's organ maps to)"
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.spatial_link_composite.spatial-linkage
+    params:
+      query: "glucose regulation"
+      max_results: 25

@@ -15,6 +15,21 @@ returns (Uberon-keyed, per-sex GLB asset). `cell_type_term` /
 list (`biomodel_do.annotate_biomodel`); `biomodel_do` is the annotated
 BioModels hit `build_biomodel_do_catalog` emits, and `organ_to_models` is its
 inverted Uberon-CURIE -> biomodel-id index.
+
+`as_3d` is the per-row shape `hra_api.fetch_crosswalk` returns (one ASCT+B-3D
+anatomical-structure node from the crosswalk); `ftu` is the shape
+`hra_api.fetch_ftu` returns (a 3D functional-tissue-unit digital object).
+
+`coverage_row` is the per-anatomical-structure shape `coverage.build_coverage`
+returns (crosswalk AS node x biomodel-DO organ annotations, organ-granularity
+`covered` flag, plus the crosswalk row's own `node_name` so viewers can key
+scene-node coloring directly off it); `coverage_summary` is its
+aggregate-counts shape.
+
+`spatial_link_row` is the per-link shape `spatial_link.build_spatial_links`
+returns (one biomodel-DO organ joined to a crosswalk AS node sharing its
+Uberon CURIE — the exact GLB scene node a model's organ maps to; `readout` is
+a placeholder string in v1).
 """
 from __future__ import annotations
 
@@ -46,6 +61,48 @@ WORKSPACE_TYPES = {
         "provenance": "tree",
     },
     "organ_to_models": "map[list[string]]",
+    "as_3d": {
+        "node_name": "string",
+        "label": "string",
+        "uberon": "string",
+        "representation_of": "string",
+        "node_type": "string",
+        "organ_glb": "string",
+        "parent": "string",
+    },
+    "ftu": {
+        "slug": "string",
+        "title": "string",
+        "description": "string",
+        "glb": "string",
+        "glb_url": "string",
+    },
+    "coverage_row": {
+        "uberon": "string",
+        "label": "string",
+        "organ_glb": "string",
+        "node_name": "string",
+        "node_type": "string",
+        "n_models": "integer",
+        "model_ids": "list[string]",
+        "covered": "boolean",
+    },
+    "coverage_summary": {
+        "n_as": "integer",
+        "n_as_covered": "integer",
+        "n_organs_glb": "integer",
+        "n_organs_glb_covered": "integer",
+        "query": "string",
+    },
+    "spatial_link_row": {
+        "biomodel_id": "string",
+        "name": "string",
+        "uberon": "string",
+        "label": "string",
+        "organ_glb": "string",
+        "node_name": "string",
+        "readout": "string",
+    },
 }
 
 

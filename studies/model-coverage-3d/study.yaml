@@ -1,0 +1,32 @@
+schema_version: 4
+name: model-coverage-3d
+title: "Model Coverage 3D — AS/Organ Coverage from BioModel-DO Annotations"
+created: '2026-07-26'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  Of the HRA ASCT+B-3D crosswalk's 1,400+ anatomical structures (and ~81
+  reference organs), which are covered by a mechanistic model — and can
+  that coverage be viewed directly on the 3D anatomy?
+
+study_card:
+  goal: "Cross the ASCT+B-3D crosswalk's anatomical structures with the biomodel-DO organ->models index, at organ granularity, and confirm the composite loads a non-empty per-AS coverage list plus summary counts."
+  mechanism: "CoverageStep.update -> build_coverage(query, max_results) = build_biomodel_do_catalog(...) x fetch_crosswalk(...) -> per-AS `covered` flag (own Uberon has models, or its organ_glb belongs to a covered organ) -> coverage + coverage_summary -> RAMEmitter."
+  expected_result: "A non-empty coverage list where at least one anatomical structure/organ is covered by the glucose-regulation biomodel-DO set (pancreas/kidney/liver expected to dominate)."
+  main_expert_question: "Is organ-granularity coverage (propagating from a reference organ's Uberon to every AS node cut from its GLB) a meaningful enough proxy for 'this anatomy is modeled', or does it overstate coverage for fine-grained AS nodes with no direct model evidence?"
+
+readouts:
+  - "coverage_summary.n_as / n_as_covered (anatomical-structure-node granularity)"
+  - "coverage_summary.n_organs_glb / n_organs_glb_covered (source-organ-GLB granularity)"
+  - "per-AS covered flag + n_models/model_ids in the coverage list"
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.coverage_composite.model-coverage-3d
+    params:
+      query: "glucose regulation"
+      max_results: 25

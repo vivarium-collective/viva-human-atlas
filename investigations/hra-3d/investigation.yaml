@@ -1,0 +1,53 @@
+schema_version: 2
+name: hra-3d
+title: "HRA-3D — Model Coverage on the Human Reference Atlas 3D Anatomy"
+created: '2026-07-26'
+status: running
+
+question: |
+  Which of the 1,400+ HRA AS / 81 organs are covered by mechanistic models,
+  and can we view model coverage on the 3D anatomy?
+
+hypothesis: |
+  The full ASCT+B-3D anatomical-structure crosswalk (1,400+ nodes, below the
+  ~81 per-organ reference-organ GLBs) and a sub-organ-scale FTU digital
+  object (glomerulus) are both loadable via thin Steps; crossing the
+  crosswalk with the hra-integration investigation's biomodel-DO
+  organ->models index (at organ granularity) is enough to mark model
+  coverage over anatomical structures/organs and to join each covered
+  model to the exact GLB scene node it maps to — giving a coverage/linkage
+  layer that a three.js viewer can render directly on a reference-organ 3D
+  model, without a heavyweight per-AS-node model-matching pipeline.
+
+lead: |
+  This investigation follows hra-integration and builds the 3D-anatomy side
+  of the fetch-and-compare spine: the full ASCT+B-3D crosswalk + a
+  glomerulus FTU digital object (Task A), organ-granularity model coverage
+  crossed with the biomodel-DO index (Task B), model->AS->GLB-node spatial
+  linkage (Task C), and a materialized, self-contained three.js GLB viewer
+  pack that renders coverage/links on a kidney reference-organ 3D model
+  (Task D). This realizes the DynXR proposal's Aim 2 T2.1 (HRA 3D dataset
+  access) and T2.2/T2.4 (spatially-grounded, transparent model-coverage
+  visualization); see references/sources/dynxr-proposal.md and
+  references/sources/hra-wpp-context.md.
+
+studies:
+  - hra-3d-crosswalk
+  - model-coverage-3d
+  - spatial-linkage
+  - ftu-glomerulus
+
+inputs:
+  references:
+    - Boerner2021HRA
+    - Bidanta2025FTU
+    - Bueckle2025HRAKG
+    - Mungall2012Uberon
+  expert_docs:
+    - name: viva-human-atlas — instructions
+      path: references/sources/instructions.md
+    - name: DynXR/DynKG proposal relevance (Aim 2)
+      path: references/sources/dynxr-proposal.md
+
+expert_docs: []
+acceptance_criteria: []
