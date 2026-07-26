@@ -1,0 +1,1 @@
+{"investigation": "glucose-regulation", "studies": [{"id": "study/glucose-regulation", "slug": "glucose-regulation", "type": "study", "label": "Glucose Regulation \u2014 COPASI vs Tellurium", "status": "running"}], "study_edges": [], "chains": {"glucose-regulation": {"nodes": [], "edges": [], "violations": [], "derived": false}}}
