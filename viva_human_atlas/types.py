@@ -19,6 +19,10 @@ inverted Uberon-CURIE -> biomodel-id index.
 `as_3d` is the per-row shape `hra_api.fetch_crosswalk` returns (one ASCT+B-3D
 anatomical-structure node from the crosswalk); `ftu` is the shape
 `hra_api.fetch_ftu` returns (a 3D functional-tissue-unit digital object).
+
+`coverage_row` is the per-anatomical-structure shape `coverage.build_coverage`
+returns (crosswalk AS node x biomodel-DO organ annotations, organ-granularity
+`covered` flag); `coverage_summary` is its aggregate-counts shape.
 """
 from __future__ import annotations
 
@@ -65,6 +69,22 @@ WORKSPACE_TYPES = {
         "description": "string",
         "glb": "string",
         "glb_url": "string",
+    },
+    "coverage_row": {
+        "uberon": "string",
+        "label": "string",
+        "organ_glb": "string",
+        "node_type": "string",
+        "n_models": "integer",
+        "model_ids": "list[string]",
+        "covered": "boolean",
+    },
+    "coverage_summary": {
+        "n_as": "integer",
+        "n_as_covered": "integer",
+        "n_organs_glb": "integer",
+        "n_organs_glb_covered": "integer",
+        "query": "string",
     },
 }
 
