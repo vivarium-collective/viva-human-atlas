@@ -9,3 +9,4 @@ models/
 .superpowers/
 reports/published/
 .contracts-*.md
+studies/*/viz/report_card/

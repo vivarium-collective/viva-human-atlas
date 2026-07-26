@@ -17,6 +17,21 @@ INTERACTIVE_URL="https://github.com/vivarium-collective/viva-human-atlas"
 PY="$WS_ROOT/.venv/bin"
 
 rm -rf "$OUT"
+# Generate each study's DEFAULT "conclusion" report card (workbench #608) so the
+# three-track verdict is a real, discoverable report-card artifact in the bundle
+# (viz/report_card/conclusion.{html,verdict.json}); the publisher's
+# _stage_report_cards copies them in. Regenerated fresh each publish (gitignored).
+PYTHONUTF8=1 PYTHONPATH="$WS_ROOT" "$PY/python" - <<'PY' || echo "conclusion-card gen skipped (workbench too old?)"
+from pathlib import Path
+try:
+    from vivarium_workbench.lib.conclusion_card import write_conclusion_card
+except Exception:
+    raise SystemExit(0)
+for sd in sorted(Path("studies").glob("*")):
+    if (sd / "study.yaml").exists():
+        try: write_conclusion_card(sd)
+        except Exception: pass
+PY
 # PYTHONUTF8=1 so the notebook exporter reads non-ASCII study text (Börner, β, →).
 PYTHONUTF8=1 PYTHONPATH="$WS_ROOT" "$PY/vivarium-workbench-publish" \
   --workspace "$WS_ROOT" --out "$OUT" \
