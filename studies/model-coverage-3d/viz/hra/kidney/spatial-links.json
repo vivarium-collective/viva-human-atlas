@@ -1,6 +1,960 @@
 {
   "links": [
     {
+      "biomodel_id": "BIOMD0000000126",
+      "name": "Clancy2002_CardiacSodiumChannel_WT",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_F_Heart",
+      "node_name": "VH_F_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000126",
+      "name": "Clancy2002_CardiacSodiumChannel_WT",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_M_Heart",
+      "node_name": "VH_M_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000137",
+      "name": "Sedaghat2002_InsulinSignalling_noFeedback",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000137",
+      "name": "Sedaghat2002_InsulinSignalling_noFeedback",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000223",
+      "name": "Borisov2009_EGF_Insulin_Crosstalk",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000223",
+      "name": "Borisov2009_EGF_Insulin_Crosstalk",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000225",
+      "name": "Westermark2003_Pancreatic_GlycOsc_basic",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000225",
+      "name": "Westermark2003_Pancreatic_GlycOsc_basic",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000236",
+      "name": "Westermark2003_Pancreatic_GlycOsc_extended",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000236",
+      "name": "Westermark2003_Pancreatic_GlycOsc_extended",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000239",
+      "name": "Jiang2007 - GSIS system, Pancreatic Beta Cells",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000239",
+      "name": "Jiang2007 - GSIS system, Pancreatic Beta Cells",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000327",
+      "name": "Whitcomb2004_Bicarbonate_Pancreas",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000327",
+      "name": "Whitcomb2004_Bicarbonate_Pancreas",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000332",
+      "name": "Bungay2006_Plasma",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000332",
+      "name": "Bungay2006_Plasma",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000335",
+      "name": "Hockin2002_BloodCoagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000335",
+      "name": "Hockin2002_BloodCoagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000336",
+      "name": "Jones1994_BloodCoagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000336",
+      "name": "Jones1994_BloodCoagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000338",
+      "name": "Wajima2009_BloodCoagulation_aPTTtest",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000338",
+      "name": "Wajima2009_BloodCoagulation_aPTTtest",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000339",
+      "name": "Wajima2009_BloodCoagulation_PTtest",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000339",
+      "name": "Wajima2009_BloodCoagulation_PTtest",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000340",
+      "name": "Wajima2009_BloodCoagulation_warfarin_heparin",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000340",
+      "name": "Wajima2009_BloodCoagulation_warfarin_heparin",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000343",
+      "name": "Brannmark2010_InsulinSignalling_Mifamodel",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000343",
+      "name": "Brannmark2010_InsulinSignalling_Mifamodel",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000345",
+      "name": "Koschorreck2008_InsulinClearance",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000345",
+      "name": "Koschorreck2008_InsulinClearance",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000356",
+      "name": "Nyman2011_M3Hierarachical_InsulinGlucosedynamics",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000356",
+      "name": "Nyman2011_M3Hierarachical_InsulinGlucosedynamics",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000362",
+      "name": "Butenas2004_BloodCoagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000362",
+      "name": "Butenas2004_BloodCoagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000365",
+      "name": "Hockin1999_BloodCoagulation_VaInactivation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000365",
+      "name": "Hockin1999_BloodCoagulation_VaInactivation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000371",
+      "name": "DeVries2000_PancreaticBetaCells_InsulinSecretion",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000371",
+      "name": "DeVries2000_PancreaticBetaCells_InsulinSecretion",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000372",
+      "name": "Tolic2000_InsulinGlucoseFeedback",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000372",
+      "name": "Tolic2000_InsulinGlucoseFeedback",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000373",
+      "name": "Bertram2004_PancreaticBetaCell_modelB",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000373",
+      "name": "Bertram2004_PancreaticBetaCell_modelB",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000374",
+      "name": "Bertram1995_PancreaticBetaCell_CRAC",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000374",
+      "name": "Bertram1995_PancreaticBetaCell_CRAC",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000375",
+      "name": "Mears1997_CRAC_PancreaticBetaCells",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000375",
+      "name": "Mears1997_CRAC_PancreaticBetaCells",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000376",
+      "name": "Bertram2007_IsletCell_Oscillations",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000376",
+      "name": "Bertram2007_IsletCell_Oscillations",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000377",
+      "name": "Bertram2000_PancreaticBetaCells_Oscillations",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000377",
+      "name": "Bertram2000_PancreaticBetaCells_Oscillations",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000379",
+      "name": "DallaMan2007_MealModel_GlucoseInsulinSystem",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000379",
+      "name": "DallaMan2007_MealModel_GlucoseInsulinSystem",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000382",
+      "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000382",
+      "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000400",
+      "name": "Cooling2007_IP3transients_CardiacMyocyte",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_F_Heart",
+      "node_name": "VH_F_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000400",
+      "name": "Cooling2007_IP3transients_CardiacMyocyte",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_M_Heart",
+      "node_name": "VH_M_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000423",
+      "name": "Nyman2012_InsulinSignalling",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000423",
+      "name": "Nyman2012_InsulinSignalling",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000427",
+      "name": "Bianconi2012 - EGFR and IGF1R pathway in lung cancer",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-f-united",
+      "node_name": "VH_F_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000427",
+      "name": "Bianconi2012 - EGFR and IGF1R pathway in lung cancer",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-m-united",
+      "node_name": "VH_M_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000428",
+      "name": "Achcar2012 - Glycolysis in bloodstream form T. brucei",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000428",
+      "name": "Achcar2012 - Glycolysis in bloodstream form T. brucei",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000435",
+      "name": "deBack2012 - Lineage Specification in Pancreas Development",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000435",
+      "name": "deBack2012 - Lineage Specification in Pancreas Development",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue",
+      "organ_glb": "VH_F_Adipose",
+      "node_name": "VH_F_subcutaneous_abdominal_adipose_tissue",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue LUQ area",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue_LUQ_area",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue RUQ area",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue_RUQ_area",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue umbilicus area",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue_umbilicus_area",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000448",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue",
+      "organ_glb": "VH_F_Adipose",
+      "node_name": "VH_F_subcutaneous_abdominal_adipose_tissue",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue LUQ area",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue_LUQ_area",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue RUQ area",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue_RUQ_area",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0014455",
+      "label": "subcutaneous abdominal adipose tissue umbilicus area",
+      "organ_glb": "VH_M_Adipose",
+      "node_name": "VH_M_subcutaneous_abdominal_adipose_tissue_umbilicus_area",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000449",
+      "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000450",
+      "name": "Reyes-Palomares2012 -  a combined model hepatic polyamine and sulfur aminoacid metabolism - version2",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000450",
+      "name": "Reyes-Palomares2012 -  a combined model hepatic polyamine and sulfur aminoacid metabolism - version2",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000474",
+      "name": "Smith2013 - Regulation of Insulin Signalling by Oxidative Stress",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000474",
+      "name": "Smith2013 - Regulation of Insulin Signalling by Oxidative Stress",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000482",
+      "name": "Noguchi2013 - Insulin dependent glucose metabolism",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000482",
+      "name": "Noguchi2013 - Insulin dependent glucose metabolism",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000498",
+      "name": "Mitchell2013 - Liver Iron Metabolism",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000498",
+      "name": "Mitchell2013 - Liver Iron Metabolism",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000540",
+      "name": "Yugi2014 - Insulin induced signalling (PFKL phosphorylation) - model 1",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000540",
+      "name": "Yugi2014 - Insulin induced signalling (PFKL phosphorylation) - model 1",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000541",
+      "name": "Yugi2014 - Insulin induced signalling (PFKL phosphorylation) - model 2",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000541",
+      "name": "Yugi2014 - Insulin induced signalling (PFKL phosphorylation) - model 2",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000554",
+      "name": "Cloutier2009 - Brain Energy Metabolism",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_F_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000554",
+      "name": "Cloutier2009 - Brain Energy Metabolism",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_M_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000568",
+      "name": "Mueller2015 - Hepatocyte proliferation, T160 phosphorylation of CDK2",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000568",
+      "name": "Mueller2015 - Hepatocyte proliferation, T160 phosphorylation of CDK2",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000570",
+      "name": "Aubert2002 - Coupling between Brain electrical activity, Metabolism and Hemodynamics",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_F_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000570",
+      "name": "Aubert2002 - Coupling between Brain electrical activity, Metabolism and Hemodynamics",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_M_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000580",
+      "name": "Sonntag2012 - mTOR model - IRS dependent regulation of AMPK by insulin",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000580",
+      "name": "Sonntag2012 - mTOR model - IRS dependent regulation of AMPK by insulin",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000583",
+      "name": "Leber2015 - Mucosal immunity and gut microbiome interaction during C. difficile infection",
+      "uberon": "UBERON:0000059",
+      "label": "large intestine",
+      "organ_glb": "SBU_F_Intestine_Large",
+      "node_name": "VH_F_colon",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000583",
+      "name": "Leber2015 - Mucosal immunity and gut microbiome interaction during C. difficile infection",
+      "uberon": "UBERON:0000059",
+      "label": "large intestine",
+      "organ_glb": "SBU_M_Intestine_Large",
+      "node_name": "VH_M_colon",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000602",
+      "name": "Stavrum2013 - Tryptophan Metabolism in Liver",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000602",
+      "name": "Stavrum2013 - Tryptophan Metabolism in Liver",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000611",
+      "name": "Nayak2015 - Blood Coagulation Network - Predicting the Effects of Various Therapies on Biomarkers",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000611",
+      "name": "Nayak2015 - Blood Coagulation Network - Predicting the Effects of Various Therapies on Biomarkers",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000627",
+      "name": "Winter2017 - Brain Energy Metabolism with PPP",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_F_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000627",
+      "name": "Winter2017 - Brain Energy Metabolism with PPP",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_M_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
       "biomodel_id": "BIOMD0000000633",
       "name": "Bulik2016 - Regulation of hepatic glucose metabolism",
       "uberon": "UBERON:0002107",
@@ -19,8 +973,8 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "MODEL2001080002",
-      "name": "Topp200 -  Model of b-Cell Mass, Insulin, and Glucose Kinetics:Pathways to Diabetes",
+      "biomodel_id": "BIOMD0000000668",
+      "name": "Zhu2015 - Combined gemcitabine and birinapant in pancreatic cancer cells - basic PD model",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_F_Pancreas",
@@ -28,8 +982,8 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "MODEL2001080002",
-      "name": "Topp200 -  Model of b-Cell Mass, Insulin, and Glucose Kinetics:Pathways to Diabetes",
+      "biomodel_id": "BIOMD0000000668",
+      "name": "Zhu2015 - Combined gemcitabine and birinapant in pancreatic cancer cells - basic PD model",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_M_Pancreas",
@@ -37,8 +991,8 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "MODEL1112110004",
-      "name": "Silber2007_IntravenousGlucose_IntegratedGlucoseInsulinModel",
+      "biomodel_id": "BIOMD0000000669",
+      "name": "Zhu2015 - Combined gemcitabine and birinapant in pancreatic cancer cells - mechanistic PD model",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_F_Pancreas",
@@ -46,8 +1000,8 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "MODEL1112110004",
-      "name": "Silber2007_IntravenousGlucose_IntegratedGlucoseInsulinModel",
+      "biomodel_id": "BIOMD0000000669",
+      "name": "Zhu2015 - Combined gemcitabine and birinapant in pancreatic cancer cells - mechanistic PD model",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_M_Pancreas",
@@ -55,8 +1009,44 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "BIOMD0000000382",
-      "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+      "biomodel_id": "BIOMD0000000672",
+      "name": "Brown1997 - Plasma Melatonin Levels",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000672",
+      "name": "Brown1997 - Plasma Melatonin Levels",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000674",
+      "name": "Reyes-Palomares2012 - a combined model hepatic polyamine and sulfur aminoacid metabolism - version1",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000674",
+      "name": "Reyes-Palomares2012 - a combined model hepatic polyamine and sulfur aminoacid metabolism - version1",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000682",
+      "name": "Wierschem2004 - Electrical bursting activity in Pancreatic Islets",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_F_Pancreas",
@@ -64,8 +1054,8 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "BIOMD0000000382",
-      "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+      "biomodel_id": "BIOMD0000000682",
+      "name": "Wierschem2004 - Electrical bursting activity in Pancreatic Islets",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_M_Pancreas",
@@ -73,8 +1063,44 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "BIOMD0000000372",
-      "name": "Tolic2000_InsulinGlucoseFeedback",
+      "biomodel_id": "BIOMD0000000739",
+      "name": "Bravo2012 - Modelling blood coagulation factor Va inactivation by APC",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000739",
+      "name": "Bravo2012 - Modelling blood coagulation factor Va inactivation by APC",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000740",
+      "name": "Panteleev2010 - Blood Coagulation: Full Model",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000740",
+      "name": "Panteleev2010 - Blood Coagulation: Full Model",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000744",
+      "name": "Hu2019 - Pancreatic cancer dynamics",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_F_Pancreas",
@@ -82,17 +1108,485 @@
       "readout": "pending time-series"
     },
     {
-      "biomodel_id": "BIOMD0000000372",
-      "name": "Tolic2000_InsulinGlucoseFeedback",
+      "biomodel_id": "BIOMD0000000744",
+      "name": "Hu2019 - Pancreatic cancer dynamics",
       "uberon": "UBERON:0001264",
       "label": "Pancreas",
       "organ_glb": "VH_M_Pancreas",
       "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000747",
+      "name": "Nagashima2002 - Simulating blood coagulation inhibitory effects",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000747",
+      "name": "Nagashima2002 - Simulating blood coagulation inhibitory effects",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000755",
+      "name": "Hansen2019 - Nine species reduced model of blood coagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000755",
+      "name": "Hansen2019 - Nine species reduced model of blood coagulation",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000775",
+      "name": "Iarosz2015 - brain tumor",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_F_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000775",
+      "name": "Iarosz2015 - brain tumor",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_M_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000792",
+      "name": "Hu2019 - Modeling Pancreatic Cancer Dynamics with Immunotherapy",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000792",
+      "name": "Hu2019 - Modeling Pancreatic Cancer Dynamics with Immunotherapy",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000811",
+      "name": "He2017 - A mathematical model of pancreatic cancer with two kinds of treatments",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000811",
+      "name": "He2017 - A mathematical model of pancreatic cancer with two kinds of treatments",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000827",
+      "name": "Ito2019 - gefitnib resistance of lung adenocarcinoma caused by MET amplification",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-f-united",
+      "node_name": "VH_F_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000827",
+      "name": "Ito2019 - gefitnib resistance of lung adenocarcinoma caused by MET amplification",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-m-united",
+      "node_name": "VH_M_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000833",
+      "name": "DiCamillo2016 - Insulin signalling pathway - Rule-based model",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000833",
+      "name": "DiCamillo2016 - Insulin signalling pathway - Rule-based model",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000834",
+      "name": "Verma2016 - Ca(2+) Signal Propagation Along Hepatocyte Cords",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000834",
+      "name": "Verma2016 - Ca(2+) Signal Propagation Along Hepatocyte Cords",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000865",
+      "name": "Nikolaev2019 - Immunobiochemical reconstruction of influenza lung infection-melanoma skin cancer interactions",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-f-united",
+      "node_name": "VH_F_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000865",
+      "name": "Nikolaev2019 - Immunobiochemical reconstruction of influenza lung infection-melanoma skin cancer interactions",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-m-united",
+      "node_name": "VH_M_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000865",
+      "name": "Nikolaev2019 - Immunobiochemical reconstruction of influenza lung infection-melanoma skin cancer interactions",
+      "uberon": "UBERON:0002097",
+      "label": "skin of body",
+      "organ_glb": "VH_F_Skin",
+      "node_name": "VH_F_skin",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000865",
+      "name": "Nikolaev2019 - Immunobiochemical reconstruction of influenza lung infection-melanoma skin cancer interactions",
+      "uberon": "UBERON:0002097",
+      "label": "skin of body",
+      "organ_glb": "VH_M_Skin",
+      "node_name": "VH_M_skin",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000878",
+      "name": "Lenbury2001_InsulinKineticsModel_A",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000878",
+      "name": "Lenbury2001_InsulinKineticsModel_A",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000895",
+      "name": "Schokker2013 - A mathematical model representing cellular immune development and response to Salmonella of chicken intestinal tissue",
+      "uberon": "UBERON:0000059",
+      "label": "large intestine",
+      "organ_glb": "SBU_F_Intestine_Large",
+      "node_name": "VH_F_colon",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000895",
+      "name": "Schokker2013 - A mathematical model representing cellular immune development and response to Salmonella of chicken intestinal tissue",
+      "uberon": "UBERON:0000059",
+      "label": "large intestine",
+      "organ_glb": "SBU_M_Intestine_Large",
+      "node_name": "VH_M_colon",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000908",
+      "name": "dePillis2013 - Mathematical modeling of regulatory T cell effects on renal cell carcinoma treatment",
+      "uberon": "UBERON:0004538",
+      "label": "left kidney",
+      "organ_glb": "VH_F_Kidney_L",
+      "node_name": "VH_F_left_kidney",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000908",
+      "name": "dePillis2013 - Mathematical modeling of regulatory T cell effects on renal cell carcinoma treatment",
+      "uberon": "UBERON:0004538",
+      "label": "left kidney",
+      "organ_glb": "VH_M_Kidney_L",
+      "node_name": "VH_M_left_kidney",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000921",
+      "name": "Khajanchi2017 - Uniform Persistence and Global Stability for a Brain Tumor and Immune System Interaction",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_F_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000921",
+      "name": "Khajanchi2017 - Uniform Persistence and Global Stability for a Brain Tumor and Immune System Interaction",
+      "uberon": "UBERON:0000955",
+      "label": "brain",
+      "organ_glb": "Allen_M_Brain",
+      "node_name": "Allen_brain",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000924",
+      "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-f-united",
+      "node_name": "VH_F_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000924",
+      "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-m-united",
+      "node_name": "VH_M_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000929",
+      "name": "Li2016 - Model for pancreatic cancer patients receiving immunotherapy",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000929",
+      "name": "Li2016 - Model for pancreatic cancer patients receiving immunotherapy",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000951",
+      "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000951",
+      "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000961",
+      "name": "McDougal2017 - Metabolism in ischemic cardiomyocytes",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_F_Heart",
+      "node_name": "VH_F_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000961",
+      "name": "McDougal2017 - Metabolism in ischemic cardiomyocytes",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_M_Heart",
+      "node_name": "VH_M_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001005",
+      "name": "Bae2017 - Mathematical analysis of circadian disruption and metabolic re-entrainment of hepatic gluconeogenesis",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001005",
+      "name": "Bae2017 - Mathematical analysis of circadian disruption and metabolic re-entrainment of hepatic gluconeogenesis",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001026",
+      "name": "Kurlovics2021 - Metformin partitioning between plasma and RBC with independent Kin and Kout coefficients",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001026",
+      "name": "Kurlovics2021 - Metformin partitioning between plasma and RBC with independent Kin and Kout coefficients",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001040",
+      "name": "Kurlovics2021 - Metformin partitioning from plasma to RBC,  single coefficient",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001040",
+      "name": "Kurlovics2021 - Metformin partitioning from plasma to RBC,  single coefficient",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001069",
+      "name": "Alam2019 - Machine learning approach of automatic identification and counting of blood cells",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-f-blood-vasculature",
+      "node_name": "VH_F_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001069",
+      "name": "Alam2019 - Machine learning approach of automatic identification and counting of blood cells",
+      "uberon": "UBERON:0004537",
+      "label": "blood vasculature",
+      "organ_glb": "3d-vh-m-blood-vasculature",
+      "node_name": "VH_M_blood_vasculature",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001074",
+      "name": "Liu2023 - Predicting the efficacy of immune checkpoint inhibitors monotherapy in advanced non-small cell lung cancer: a machine learning method based on multidimensional data",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-f-united",
+      "node_name": "VH_F_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001074",
+      "name": "Liu2023 - Predicting the efficacy of immune checkpoint inhibitors monotherapy in advanced non-small cell lung cancer: a machine learning method based on multidimensional data",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-m-united",
+      "node_name": "VH_M_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001077",
+      "name": "Adlung2021 - Cell-to-cell variability in JAK2/STAT5 pathway",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-f-united",
+      "node_name": "VH_F_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001077",
+      "name": "Adlung2021 - Cell-to-cell variability in JAK2/STAT5 pathway",
+      "uberon": "UBERON:0001004",
+      "label": "respiratory system",
+      "organ_glb": "3d-vh-m-united",
+      "node_name": "VH_M_respiratory_system",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001100",
+      "name": "Mohr2022 - Rabbit Purkinje Cardiac Electrophysiology",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_F_Heart",
+      "node_name": "VH_F_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001100",
+      "name": "Mohr2022 - Rabbit Purkinje Cardiac Electrophysiology",
+      "uberon": "UBERON:0000948",
+      "label": "heart",
+      "organ_glb": "VH_M_Heart",
+      "node_name": "VH_M_heart",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001102",
+      "name": "Burbano2023 - HGFsignaling_in_FattyLiverDisease",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000001102",
+      "name": "Burbano2023 - HGFsignaling_in_FattyLiverDisease",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
       "readout": "pending time-series"
     }
   ],
   "summary": {
-    "n_links": 10,
-    "n_models": 5
+    "n_links": 176,
+    "n_models": 82
   }
 }

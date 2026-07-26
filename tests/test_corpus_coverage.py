@@ -160,6 +160,8 @@ def test_build_corpus_coverage_uses_catalog_and_injected_xwalk(tmp_path, monkeyp
 
     assert out["summary"]["n_as"] == 2
     assert out["summary"]["n_as_covered"] == 1
+    assert out["summary"]["query"] == "corpus (1096 curated)"
+    assert out["summary"]["query"] != "glucose regulation"
 
 
 def test_discover_generators_includes_corpus_coverage():

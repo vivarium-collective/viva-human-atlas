@@ -1,0 +1,66 @@
+schema_version: 4
+name: result-driven-spatial-link
+title: "Result-Driven Spatial Linkage — Coloring AS Nodes by Model Readout (Planned)"
+created: '2026-07-26'
+status: planned
+design_status: not-started
+implementation_status: not-started
+simulation_status: pending
+phase: Design
+
+question: |
+  Can the placeholder `readout` string on every (model, AS-node) spatial
+  link be replaced with a real steady-state species concentration drawn
+  from the committed corpus COPASI/Tellurium comparison dataset, so the 3D
+  viewer colors nodes by an actual result instead of by coverage/presence
+  alone?
+
+study_card:
+  goal: "Extract steady-state species concentrations from the committed corpus COPASI/Tellurium comparison dataset and attach them as the `readout` field on each (model, AS-node) link, replacing the placeholder 'pending time-series' string; re-render the 3D viewer pack colored by that value."
+  mechanism: "Planned: a readout-extraction Step reusing spatial-linkage's join output (10 links/5 models today) plus the committed corpus simulation dataset, resolving each linked model's final/steady-state timepoint per shared species and attaching it as `readout`; downstream viewer-pack generation recolors nodes by that value instead of a boolean covered/uncovered flag."
+  expected_result: "Every (model, AS-node) link that has a corresponding entry in the committed corpus dataset carries a real numeric readout; links with no matching dataset entry remain explicitly flagged as unresolved rather than silently defaulting."
+  main_expert_question: "Which species/readout should be chosen when a model has many state variables (e.g. glucose vs insulin vs glycogen) — a single canonical readout per organ, or a viewer-selectable set?"
+  future_work: "The real readout-extraction and re-coloring mechanism is not yet implemented. This scaffold's baseline placeholder reuses the existing spatial-linkage composite (Uberon-only join, placeholder readout) purely so the study resolves and renders; wiring real dataset values onto `readout` is future work."
+
+biological_summary: |
+  spatial-linkage proved the join topology is correct and deterministic (10
+  links across 5 models, exactly 2 nodes per model — one per sex GLB) but
+  every link's `readout` field is a literal placeholder string
+  ("pending time-series"): no simulation result is actually attached to a
+  scene node yet. The committed full-corpus COPASI/Tellurium comparison
+  dataset (used by glucose-biomodel-do and glucose-regulation for
+  cross-engine agreement) already contains per-species time-course data for
+  several of the same linked models (e.g. BIOMD0000000633's hepatic glucose
+  species). This study is the natural next step: pull a steady-state value
+  per linked species out of that existing dataset and attach it as the
+  link's real readout, so a downstream 3D viewer can finally color AS nodes
+  by biological result, not just by which organ has a model at all.
+
+pipeline_gate:
+  prerequisites:
+    - study: spatial-linkage
+      relation: leads-to
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.spatial_link_composite.spatial-linkage
+    params:
+      query: "glucose regulation"
+      max_results: 25
+
+conclusion_verdicts:
+  regression_compatibility:
+    basis: ""
+  biological_validation:
+    basis: ""
+  explanatory_gain:
+    basis: ""
+
+limitations:
+  - "TBD — planned study, not yet implemented."
+
+discovery_implications:
+  resolved_uncertainties: []
+  remaining_uncertainties:
+    - "Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?"
+  followup_study_proposals: []

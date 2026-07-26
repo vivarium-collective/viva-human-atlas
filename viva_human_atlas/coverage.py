@@ -33,6 +33,7 @@ from viva_human_atlas.biomodel_do import build_biomodel_do_catalog
 from viva_human_atlas.hra_api import fetch_crosswalk
 
 _DEFAULT_CORPUS_CATALOG_PATH = "datasets/biomodel_corpus_catalog.json"
+_CORPUS_QUERY_LABEL = "corpus (1096 curated)"
 
 # Naming-convention prefixes seen on reference-organ asset stems / crosswalk
 # `organ_glb` values, longest/most-specific first so e.g. "3d-vh-f-" is
@@ -174,8 +175,16 @@ def build_corpus_coverage(
     """`build_coverage` over the full committed corpus catalog (Task A) —
     loads `catalog_path` (default the committed
     `datasets/biomodel_corpus_catalog.json`) via `load_corpus_catalog` and
-    crosses it with the live ASCT+B-3D crosswalk."""
-    return build_coverage(catalog=load_corpus_catalog(catalog_path), _get_xwalk=_get_xwalk)
+    crosses it with the live ASCT+B-3D crosswalk.
+
+    Passes an explicit `query=_CORPUS_QUERY_LABEL` so the returned
+    `summary["query"]` carries corpus provenance instead of `build_coverage`'s
+    misleading live-search default (`"glucose regulation"`)."""
+    return build_coverage(
+        query=_CORPUS_QUERY_LABEL,
+        catalog=load_corpus_catalog(catalog_path),
+        _get_xwalk=_get_xwalk,
+    )
 
 
 class CoverageStep(Step):

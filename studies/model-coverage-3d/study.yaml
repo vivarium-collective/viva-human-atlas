@@ -78,3 +78,46 @@ embed_visualizations:
   - name: "Coverage per organ (glucose-regulation query)"
     url: "/reports/figures/model-coverage-3d/coverage-per-organ.html"
     description: "Bar chart of models-per-organ from the glucose-regulation query's coverage crossing: 58/1,730 AS nodes covered, concentrated in liver + pancreas (4/114 organ GLBs)."
+
+runs:
+  - name: baseline
+    status: completed
+
+pipeline_gate:
+  gate_evaluator:
+    result: needs_calibration
+
+findings:
+  - id: F-01
+    tier: interpretation
+    mechanism_origin: engineered
+    claim_scope: mechanism
+    statement: |
+      Crossing the 25-result "glucose regulation" biomodel-DO catalog
+      against the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes
+      covered (3.4%), all propagating from exactly the 4 source-organ GLBs
+      whose Uberon is organ-tagged by the underlying catalog (liver +
+      pancreas, both sexes) -- confirming the organ-granularity propagation
+      rule fires correctly rather than overstating coverage at this scope.
+    evidence:
+      summary: "58/1,730 AS nodes covered (3.4%), 4/114 organ GLBs (VH_F_Liver, VH_M_Liver, VH_F_Pancreas, VH_M_Pancreas); no kidney coverage at this query scope."
+
+conclusion_verdicts:
+  regression_compatibility:
+    basis: "The baseline coverage-crossing composite (25-result query x crosswalk) completed without error."
+  biological_validation:
+    basis: "Coverage is organ-granularity, name-based propagation from a 25-result query, not calibrated per-AS-node model evidence -- real (liver+pancreas light up exactly where the underlying catalog is organ-tagged, nothing else does) but recall-limited to this query's scope, so gated needs_calibration rather than passed."
+  explanatory_gain:
+    basis: "F-01 confirms the propagation rule is correct at this scope, but organ-granularity still overstates fine-grained coverage (a covered organ's Uberon marks every AS node cut from its GLB, not just nodes with direct model evidence) -- the study's central caveat."
+
+limitations:
+  - "Coverage here is bounded by the 25-result query scope, not model availability -- the full 1,096-model corpus covers far more (see corpus-coverage: 635/1,730 AS nodes, 31/114 organs, including kidney)."
+  - "Organ-granularity propagation overstates fine-grained coverage: a covered organ's Uberon marks every AS node cut from its GLB, not just nodes with direct model evidence."
+
+discovery_implications:
+  resolved_uncertainties:
+    - "The organ-granularity propagation rule is verified correct at this scope: coverage is exactly as broad as the underlying organ annotation (liver+pancreas), not artificially inflated."
+  remaining_uncertainties:
+    - "Does full-corpus retrieval reach organs this query misses (kidney)? See corpus-coverage."
+    - "Does organ-granularity propagation overstate coverage for fine AS nodes with no direct model evidence?"
+  followup_study_proposals: []

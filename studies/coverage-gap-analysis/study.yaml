@@ -1,0 +1,61 @@
+schema_version: 4
+name: coverage-gap-analysis
+title: "Coverage Gap Analysis — HRA Modeling White-Space (Planned)"
+created: '2026-07-26'
+status: planned
+design_status: not-started
+implementation_status: not-started
+simulation_status: pending
+phase: Design
+
+question: |
+  Which HRA organs and FTUs have ZERO mechanistic-model coverage even at
+  full-corpus scale (635/1,730 AS nodes covered across 31/114 organ GLBs),
+  and can they be ranked into a prioritized modeling-gap report?
+
+study_card:
+  goal: "Cross the full corpus-coverage organ->models index against the complete 114-organ-GLB / 1,730-AS-node crosswalk to list every organ/AS-node with zero covering models, ranked by AS-node count, as a prioritized modeling-gap report."
+  mechanism: "Planned: a gap-report Step reusing corpus-coverage's coverage/coverage_summary output, inverting the covered-set against the full crosswalk to enumerate the complement (uncovered organs/AS-nodes) and rank it by AS-node count per organ."
+  expected_result: "A ranked list of the 83 organs (114 minus the 31 already covered) with zero mechanistic-model coverage, surfacing which carry the most AS nodes (i.e. the highest-value modeling targets) at the top."
+  main_expert_question: "Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models — i.e. is the 'white-space' this study reports really unmodeled biology, or partly an artifact of the current name-only tagger's recall ceiling (see sbml-annotation-tagging)?"
+  future_work: "The real gap-ranking composite is not yet implemented. This scaffold's baseline placeholder reuses the existing corpus-coverage composite purely so the study resolves and renders; the enumeration/ranking mechanism itself is future work."
+
+biological_summary: |
+  corpus-coverage established that crossing the full 1,096-model curated
+  BioModels catalog against the ASCT+B-3D crosswalk covers 635/1,730 AS
+  nodes (36.7%) across 31/114 organ GLBs (27.2%) — an order of magnitude
+  wider than a single search query, and wide enough to newly reach kidney.
+  That leaves 83 organs and their associated AS nodes with no mechanistic
+  model at all in the current index: the "dark" (unmodeled) anatomy this
+  study aims to enumerate and rank, so downstream modeling effort (new
+  curation, new model authorship, or import work like
+  multiorgan-glucose-m4) can be prioritized toward the organs/FTUs where
+  covering even one model would unlock the most AS-node coverage.
+
+pipeline_gate:
+  prerequisites:
+    - study: corpus-coverage
+      relation: leads-to
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage
+    params:
+      catalog_path: "datasets/biomodel_corpus_catalog.json"
+
+conclusion_verdicts:
+  regression_compatibility:
+    basis: ""
+  biological_validation:
+    basis: ""
+  explanatory_gain:
+    basis: ""
+
+limitations:
+  - "TBD — planned study, not yet implemented."
+
+discovery_implications:
+  resolved_uncertainties: []
+  remaining_uncertainties:
+    - "Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?"
+  followup_study_proposals: []

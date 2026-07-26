@@ -29,8 +29,44 @@ lead: |
   connection are deferred to later investigations (see
   references/sources/hra-wpp-context.md).
 
+executive:
+  what_is_this: |
+    The first investigation in viva-human-atlas: a cross-engine (COPASI vs
+    Tellurium) correctness check on BioModels matching "glucose regulation",
+    establishing a trustworthy fetch-and-compare spine before ontology
+    linking and the 3D-spatial connection build on top of it.
+  verdict: |
+    The one curated model that loaded in both engines (BIOMD0000000633,
+    Bulik2016 hepatic glucose metabolism) agrees near-perfectly (mean nRMSE
+    2.05e-07, cross-validated by an independent 1.61e-07 measurement on the
+    committed full-corpus dataset); the study's real finding is that
+    load-time failures (4/5, all non-curated MODEL* entries missing
+    SED-ML), not numerical disagreement, dominate this query.
+  verdict_status: passing-with-caveats
+  decisions_needed:
+    - question: "Why do most curated glucose models fail to load in both engines (missing SED-ML)? Recover them?"
+      context: "Only 1/5 loaded; engines agree when they do."
+    - question: "Which models genuinely disagree vs. merely fail to load?"
+      context: "The load-failure diagnosis (missing SED-ML) is inferred from an identical exception message across all 4 failures, not independently verified per model; no model in this run has yet shown genuine numerical disagreement."
+
+scientific_argument:
+  main_claim: |
+    Independent numerical engines (COPASI, Tellurium) integrate the same
+    curated glucose-regulation SBML to near-identical trajectories;
+    apparent "disagreement" at this query's scale is actually a load-time
+    SED-ML gap, not solver-level divergence.
+  evidence_for:
+    - "BIOMD0000000633 (Bulik2016 hepatic glucose metabolism) agrees at mean nRMSE 2.05e-07 (bucket 'Good') across 30 shared species, this run."
+    - "Independent cross-validation: the committed full-corpus dataset measures the same model at 1.61e-07, also 'good'."
+  evidence_against: []
+  caveats:
+    - "Only 1/5 models in the live 5-model sample actually exercised the COPASI-vs-Tellurium comparison; n=1 is too small to generalize the agreement statistic."
+    - "The 80% load-failure rate is driven entirely by non-curated MODEL* search hits lacking SED-ML, not by curated BIOMD* models — a curated_only filter would likely raise the load-success rate."
+
 studies:
   - glucose-regulation
+  - multiorgan-glucose-m4
+  - load-failure-recovery
 
 inputs:
   references:
@@ -48,4 +84,6 @@ inputs:
       path: references/sources/hra-wpp-context.md
 
 expert_docs: []
-acceptance_criteria: []
+acceptance_criteria:
+  - study: glucose-regulation
+    behavior: "At least one queried BioModel loads and runs under both COPASI and Tellurium, with per-model nRMSE reported and bucketed, and every load failure attributed to a specific cause (missing SED-ML vs numerical divergence)."
