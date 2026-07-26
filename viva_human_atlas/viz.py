@@ -56,7 +56,17 @@ def timecourse_overlay_html(bid, df, *, name: str = "", max_species: int = 6) ->
             )
 
     title = f"{bid} — {name}" if name else str(bid)
-    fig.update_layout(title=title, xaxis_title="time", yaxis_title="value")
+    fig.update_layout(
+        title=title,
+        xaxis_title="time",
+        yaxis_title="value",
+        height=480,
+        margin=dict(l=70, r=30, t=70, b=70),
+        font=dict(size=13),
+        title_font_size=15,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+        hovermode="x unified",
+    )
     return fig.to_html(include_plotlyjs="cdn", full_html=True)
 
 
@@ -97,7 +107,62 @@ def coverage_bar_html(coverage_summary: dict, per_organ) -> str:
     if n_as is not None and n_as_covered is not None:
         title += f" ({n_as_covered}/{n_as} anatomical structures covered)"
 
-    fig.update_layout(title=title, xaxis_title="organ", yaxis_title="models")
+    fig.update_layout(
+        title=title,
+        xaxis_title="organ",
+        yaxis_title="models",
+        height=470,
+        margin=dict(l=80, r=30, t=70, b=170),
+        font=dict(size=13),
+        title_font_size=15,
+        xaxis_tickangle=-45,
+        bargap=0.25,
+    )
+    return fig.to_html(include_plotlyjs="cdn", full_html=True)
+
+
+def bar_html(x, y, *, title: str = "", xaxis_title: str = "", yaxis_title: str = "") -> str:
+    """Self-contained Plotly HTML: a generic labeled count-bar chart, for
+    figures whose title/axis semantics don't fit `coverage_bar_html`'s
+    BioModels-coverage-specific title (e.g. reference organs by sex, top
+    HRA cell-type/anatomical-structure terms, AS nodes per organ-GLB,
+    model->AS links per organ). Same tall/readable layout treatment as the
+    other builders — explicit height, generous margins for rotated tick
+    labels, readable font."""
+    fig = go.Figure(go.Bar(x=list(x), y=list(y)))
+    fig.update_layout(
+        title=title,
+        xaxis_title=xaxis_title,
+        yaxis_title=yaxis_title,
+        height=470,
+        margin=dict(l=80, r=30, t=70, b=170),
+        font=dict(size=13),
+        title_font_size=15,
+        xaxis_tickangle=-45,
+        bargap=0.25,
+    )
+    return fig.to_html(include_plotlyjs="cdn", full_html=True)
+
+
+def table_html(headers, rows, *, title: str = "") -> str:
+    """Self-contained Plotly HTML: a left-aligned info table (e.g. a single
+    digital object's field/value pairs). `rows` is a list of tuples/lists,
+    one per table row, each with `len(headers)` cells."""
+    rows = list(rows)
+    columns = list(zip(*rows)) if rows else [[] for _ in headers]
+    fig = go.Figure(
+        go.Table(
+            header=dict(values=list(headers), align="left"),
+            cells=dict(values=[list(col) for col in columns], align="left"),
+        )
+    )
+    fig.update_layout(
+        title=title,
+        height=470,
+        margin=dict(l=30, r=30, t=70, b=30),
+        font=dict(size=13),
+        title_font_size=15,
+    )
     return fig.to_html(include_plotlyjs="cdn", full_html=True)
 
 

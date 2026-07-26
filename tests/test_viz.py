@@ -9,6 +9,8 @@ environments where the real viva-biomodels dataset isn't present.
 """
 from __future__ import annotations
 
+import re
+
 import pandas as pd
 
 from viva_human_atlas import viz
@@ -16,6 +18,8 @@ from viva_human_atlas.results_source import (
     _dataset_path,
     load_corpus_timecourse,
 )
+
+_EXPLICIT_HEIGHT_RE = re.compile(r'"height":\s*4\d\d|height\s*=\s*4\d\d')
 
 
 def _synthetic_timecourse_df() -> pd.DataFrame:
@@ -46,6 +50,7 @@ def test_timecourse_overlay_html_contains_plotly_engines_and_species():
     assert "tellurium" in lower
     assert "S" in html
     assert "BIOMD0000000001" in html
+    assert _EXPLICIT_HEIGHT_RE.search(html), "expected an explicit height >= 400 in the figure layout"
 
 
 def test_coverage_bar_html_contains_organ_labels():
@@ -60,6 +65,7 @@ def test_coverage_bar_html_contains_organ_labels():
     assert "plotly" in html.lower()
     assert "liver" in html
     assert "kidney" in html
+    assert _EXPLICIT_HEIGHT_RE.search(html), "expected an explicit height >= 400 in the figure layout"
 
 
 def test_coverage_bar_html_derives_per_organ_from_raw_coverage_rows():
