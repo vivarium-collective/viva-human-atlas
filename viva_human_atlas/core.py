@@ -44,8 +44,10 @@ def build_core():
     # Register pbg-biomodels' simulator backends + types (reused by our composites).
     from pbg_biomodels.simulators import register_simulator_backends
     from pbg_biomodels import register_types as register_biomodels_types
+    from viva_human_atlas.types import register_workspace_types
     register_simulator_backends(core)
     register_biomodels_types(core)
+    register_workspace_types(core)
     # Register this workspace's local Steps by dotted path and short name.
     for cls, dotted in _iter_workspace_edges(viva_human_atlas):
         core.register_link(dotted, cls)
