@@ -249,7 +249,7 @@
           <span class="narrative-label">Confidence</span>
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
-            <option value="high" >high</option>
+            <option value="high" selected>high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select>
@@ -257,7 +257,7 @@
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
+                 value="measured"
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
@@ -269,13 +269,26 @@
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">&#34;Uberon-keyed&#34; here means the parsed CURIE prefix is literally
+`UBERON:`; the 14.8% FMA-prefixed entries are not un-annotated, just on
+a different ontology, so downstream Uberon-keyed matching
+(`glucose-biomodel-do`&#39;s organ index, `hra-3d`&#39;s crosswalk) silently
+drops them rather than flagging a translation gap.
+</textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">A live run against `https://apps.humanatlas.io/api/v1/reference-organs`
+returned 81 reference-organ entries spanning 58 distinct organ slugs
+(bilateral/sex-specific organs like kidney or ovary contribute more
+than one entry). 69/81 (85.2%) carry a UBERON-prefixed CURIE; the
+remaining 12 (14.8%) parse to a non-Uberon (FMA) identifier. The set
+splits 45 female-specific / 36 male-specific entries, reflecting
+per-sex organ GLBs (breast, reproductive organs) plus duplicated
+unisex organs modeled once per sex.
+</textarea>
         </label>
       </div>
     </div>
@@ -285,7 +298,16 @@
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">The HRA reference-organ set is the atlas&#39;s per-sex, whole-organ 3D
+scaffold: each entry is a single named organ (or organ pair, e.g. kidney
+left/right) rendered as its own GLB asset, sex-split where anatomy
+differs (breast, reproductive organs) and unsplit where it doesn&#39;t (most
+visceral organs). This set is the anchor everything else in
+`hra-integration` keys off of: `glucose-biomodel-do`&#39;s synonym matching
+scans these organ slugs, and `hra-3d`&#39;s crosswalk propagates coverage
+from each organ&#39;s Uberon CURIE down to every anatomical-structure node
+cut from its GLB.
+</textarea>
       
     </div>
 
@@ -547,6 +569,26 @@ composite, giving an Uberon-keyed organ set (with per-sex GLB assets)?
     </div>
 
     
+    
+    <div class="embed-viz-section" style="margin-bottom:22px">
+      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
+      
+      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+          <strong style="flex:1">Reference organs by sex</strong>
+          <a href="/viva-human-atlas/dashboard/reports/figures/hra-reference-organs/organs-by-sex.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
+        </div>
+        
+        <p class="muted" style="margin:6px 12px;font-size:0.88em">Bar chart of the 81 loaded reference-organ entries split by sex (45 female-specific, 36 male-specific), 69/81 Uberon-keyed.</p>
+        
+        <iframe src="/viva-human-atlas/dashboard/reports/figures/hra-reference-organs/organs-by-sex.html"
+                style="width:100%;min-height:200px;border:0;display:block"
+                loading="lazy" title="Reference organs by sex"
+                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+                ></iframe>
+      </div>
+      
+    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>

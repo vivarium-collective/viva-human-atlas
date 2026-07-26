@@ -249,7 +249,7 @@
           <span class="narrative-label">Confidence</span>
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
-            <option value="high" >high</option>
+            <option value="high" selected>high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select>
@@ -257,7 +257,7 @@
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
+                 value="measured"
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
@@ -269,13 +269,28 @@
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">`readout` is a literal placeholder string (`&#34;pending time-series&#34;`) in
+v1 for every link — no simulation output is wired to a node yet, so
+this study demonstrates the join topology only, not a live-data 3D
+viewer. The 2-links-per-model pattern (one per sex) also means a
+viewer must still resolve &#34;which sex&#39;s GLB is currently displayed&#34; to
+color a single node, not both.
+</textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">The live join produces 10 links across 5 distinct biomodels (25-result
+&#34;glucose regulation&#34; query): BIOMD0000000633 (Bulik2016 hepatic glucose
+metabolism) -&gt; VH_F_liver/VH_M_liver; MODEL2001080002 (Topp2000 b-cell
+mass/insulin/glucose), MODEL1112110004 (Silber2007 IV glucose), and
+BIOMD0000000382 (Sturis1991 ultradian oscillations) and
+BIOMD0000000372 (Tolic2000 insulin-glucose feedback) each -&gt;
+VH_F_pancreas/VH_M_pancreas. Every model links to exactly 2 nodes (one
+per sex), confirming the Uberon-only join fires correctly and is fully
+reproducible from the shared organ Uberon.
+</textarea>
         </label>
       </div>
     </div>
@@ -285,7 +300,15 @@
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">Marking an organ &#34;covered&#34; is a coarse signal; a 3D viewer needs to know
+exactly which GLB scene node to color for a given model. This study joins
+each biomodel-DO organ annotation directly to the crosswalk rows sharing
+its Uberon CURIE, producing the (model, GLB node) pairs a viewer renders
+against. Because HRA ships separate male/female reference-organ GLBs, one
+organ annotation legitimately links to two nodes (one per sex) — the join
+is deliberately Uberon-only in v1, deferring &#34;pick the single best node&#34;
+resolution to a future viewer-side step.
+</textarea>
       
     </div>
 
@@ -548,6 +571,26 @@ to color/label the right node per model?
     </div>
 
     
+    
+    <div class="embed-viz-section" style="margin-bottom:22px">
+      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
+      
+      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+          <strong style="flex:1">Model-&gt;AS links per organ</strong>
+          <a href="/viva-human-atlas/dashboard/reports/figures/spatial-linkage/links-per-organ.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
+        </div>
+        
+        <p class="muted" style="margin:6px 12px;font-size:0.88em">Bar chart of (model, GLB-node) link counts per organ label from the live join: 10 links / 5 models, all liver or pancreas.</p>
+        
+        <iframe src="/viva-human-atlas/dashboard/reports/figures/spatial-linkage/links-per-organ.html"
+                style="width:100%;min-height:200px;border:0;display:block"
+                loading="lazy" title="Model-&gt;AS links per organ"
+                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+                ></iframe>
+      </div>
+      
+    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>

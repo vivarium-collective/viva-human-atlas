@@ -249,7 +249,7 @@
           <span class="narrative-label">Confidence</span>
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
-            <option value="high" >high</option>
+            <option value="high" selected>high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select>
@@ -257,7 +257,7 @@
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
+                 value="measured"
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
@@ -269,13 +269,28 @@
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">288 terms is well below the ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed
+anatomical-structure nodes (`hra-3d-crosswalk`) — this endpoint only
+surfaces structures that appear in HRA&#39;s *annotated* datasets, so most
+of the crosswalk&#39;s fine-grained 3D anatomy has zero recorded usage here
+even though it exists as a named 3D structure.
+</textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">A live run against
+`https://apps.humanatlas.io/api/v1/ontology-term-occurences` returned
+288 distinct anatomical-structure terms, sorted by occurrence count
+descending. The top term (UBERON:0013702) occurs 2,762 times —
+matching `hra-cell-types`&#39; top CL-term count exactly, consistent with
+both endpoints counting the same underlying per-record annotations from
+the same HRA dataset corpus. The next 9 terms (UBERON:0002113,
+UBERON:0000948, UBERON:0001004, UBERON:0002048, UBERON:0001987,
+UBERON:0000955, UBERON:0002189, UBERON:0002015, UBERON:0004027) range
+231-336 occurrences, an order of magnitude below the top term.
+</textarea>
         </label>
       </div>
     </div>
@@ -285,7 +300,15 @@
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">This histogram counts, across every HRA dataset, how often each
+anatomy-ontology (mostly Uberon) term is annotated as the anatomical
+structure a sample/observation was taken from. Unlike `hra-reference-organs`
+(the fixed ~81-entry whole-organ 3D scaffold) or the 1,730-node ASCT+B-3D
+crosswalk (`hra-3d-crosswalk`, every fine-grained anatomical structure
+whether or not it has been used), this is usage-weighted: it reflects
+which anatomical structures HRA&#39;s contributing datasets actually sample
+from, not the full catalog of structures that exist.
+</textarea>
       
     </div>
 
@@ -547,6 +570,26 @@ Step-driven composite, giving an anatomical-structure term occurrence list?
     </div>
 
     
+    
+    <div class="embed-viz-section" style="margin-bottom:22px">
+      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
+      
+      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+          <strong style="flex:1">Top anatomical-structure terms by occurrence count</strong>
+          <a href="/viva-human-atlas/dashboard/reports/figures/hra-anatomical-structures/top-anatomical-structures.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
+        </div>
+        
+        <p class="muted" style="margin:6px 12px;font-size:0.88em">Bar chart of the top 15 of 288 loaded anatomical-structure terms by HRA occurrence count; the top term (UBERON:0013702) occurs 2,762 times, matching hra-cell-types&#39; top count exactly.</p>
+        
+        <iframe src="/viva-human-atlas/dashboard/reports/figures/hra-anatomical-structures/top-anatomical-structures.html"
+                style="width:100%;min-height:200px;border:0;display:block"
+                loading="lazy" title="Top anatomical-structure terms by occurrence count"
+                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+                ></iframe>
+      </div>
+      
+    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>

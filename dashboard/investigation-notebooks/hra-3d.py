@@ -21,8 +21,11 @@ if _os.environ.get("PYTHONUTF8") != "1":
 #
 # _Investigation `hra-3d` — coder reproduction notebook._
 #
-# **Question.** Which of the 1,400+ HRA AS / 81 organs are covered by mechanistic models,
-# and can we view model coverage on the 3D anatomy?
+# **Question.** Which of the HRA's 1,730 Uberon-keyed anatomical structures (2,295 raw
+# ASCT+B-3D crosswalk rows, 114 source-organ GLBs) are covered by a
+# mechanistic model — at a single query's scale and at the full
+# 1,096-model curated-corpus scale — and can we view that coverage/linkage
+# directly on the 3D anatomy?
 #
 # ---
 #
@@ -197,6 +200,28 @@ print("No recorded runs for this study; nothing to reproduce.")
 
 # === Study: ftu-glomerulus ===
 STUDY = 'ftu-glomerulus'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Study: `corpus-coverage`
+#
+# **Question.** Of the HRA ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical structures
+# (across 114 source-organ GLBs), how many are covered once every curated
+# BioModels model — not just a narrow search query — is crossed against
+# them, and does full-corpus coverage reach organs a single-query search
+# misses (e.g. kidney)?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: corpus-coverage ===
+STUDY = 'corpus-coverage'
 STUDY_DIR = REPO / 'studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")

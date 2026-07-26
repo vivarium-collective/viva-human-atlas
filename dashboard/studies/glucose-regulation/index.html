@@ -17,7 +17,7 @@
     
     
     
-    <span class="status-pill status-pending" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">pending</span>
+    <span class="status-pill status-ran" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">ran</span>
     
     
     
@@ -74,7 +74,7 @@
   
   <div class="status-detail-row">
     <span class="status-detail-axis">Simulation</span>
-    <span class="status-chip ">pending</span>
+    <span class="status-chip ">ran</span>
   </div>
   
   
@@ -250,14 +250,14 @@
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
             <option value="high" >high</option>
-            <option value="medium" >medium</option>
+            <option value="medium" selected>medium</option>
             <option value="low" >low</option>
           </select>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
+                 value="measured"
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
@@ -269,13 +269,35 @@
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">Small sample (5 models, capped for run time); the 80% load-failure rate
+is driven entirely by non-curated `MODEL*` search hits lacking SED-ML,
+not by curated `BIOMD*` models — a `curated_only` filter (as used by the
+full-corpus catalog, Task A) would likely raise the load-success rate.
+Only one model actually exercised the COPASI-vs-Tellurium agreement
+comparison this run; broader agreement-bucket statistics come from the
+committed corpus dataset (`glucose-biomodel-do`/`corpus-coverage`
+studies), not this study&#39;s own baseline scope.
+</textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">A live run (`run_glucose_regulation(max_results=5)`) against the top 5
+&#34;glucose regulation&#34; BioModels search hits loaded only 1/5
+(BIOMD0000000633, Bulik2016 hepatic glucose metabolism) successfully
+under both COPASI and Tellurium: 30 shared species, mean nRMSE
+2.05e-07, bucket &#34;Good (&lt;=1%)&#34; — near-perfect cross-engine agreement.
+This matches the committed full-corpus comparison dataset&#39;s independent
+measurement for the same model (auto_ten_seconds job: mean nRMSE
+1.61e-07, also &#34;good&#34;), cross-validating both runs. The other 4/5
+(MODEL2001080002, MODEL1112110004, MODEL1806080001, MODEL2005050001 —
+all non-curated `MODEL*` BioModels preprint entries, not `BIOMD*`
+curated models) failed identically with
+`ValueError: could not find a .sedml file in entry` — a load-time
+gap (no SED-ML simulation protocol packaged with the entry), not a
+numerical-agreement failure.
+</textarea>
         </label>
       </div>
     </div>
@@ -285,7 +307,17 @@
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">Hepatic and pancreatic glucose-regulation models (Bulik2016 hepatic glucose
+metabolism, Sturis/Tolic insulin-glucose ultradian oscillators, Topp/Silber
+beta-cell mass models) are stiff ODE systems spanning enzymatic and
+hormonal timescales. Running the same SBML under two independent
+numerical engines (COPASI&#39;s LSODA-based integrator vs Tellurium&#39;s
+libRoadRunner/CVODE) is a cross-engine correctness check: close agreement
+means the dynamics are numerically robust to the solver, not an artifact
+of one engine&#39;s defaults; disagreement or a load failure flags either a
+genuinely stiff/edge-case model or an engine-specific SBML-loading gap
+(e.g. no SED-ML present to fix a simulation protocol).
+</textarea>
       
     </div>
 
@@ -547,6 +579,26 @@
     </div>
 
     
+    
+    <div class="embed-viz-section" style="margin-bottom:22px">
+      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
+      
+      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+          <strong style="flex:1">COPASI vs Tellurium overlay — BIOMD0000000633</strong>
+          <a href="/viva-human-atlas/dashboard/reports/figures/glucose-regulation/copasi-vs-tellurium-BIOMD0000000633.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
+        </div>
+        
+        <p class="muted" style="margin:6px 12px;font-size:0.88em">Time-course overlay (from the committed full-corpus dataset) of COPASI (solid) vs Tellurium (dashed) trajectories for Bulik2016 hepatic glucose metabolism, the one model in this study&#39;s live 5-model run that loaded in both engines (mean nRMSE 2.05e-07, &#39;Good&#39;).</p>
+        
+        <iframe src="/viva-human-atlas/dashboard/reports/figures/glucose-regulation/copasi-vs-tellurium-BIOMD0000000633.html"
+                style="width:100%;min-height:200px;border:0;display:block"
+                loading="lazy" title="COPASI vs Tellurium overlay — BIOMD0000000633"
+                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+                ></iframe>
+      </div>
+      
+    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>

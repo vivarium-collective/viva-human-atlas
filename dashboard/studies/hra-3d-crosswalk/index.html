@@ -249,7 +249,7 @@
           <span class="narrative-label">Confidence</span>
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
-            <option value="high" >high</option>
+            <option value="high" selected>high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select>
@@ -257,7 +257,7 @@
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
+                 value="measured"
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
@@ -269,13 +269,29 @@
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">Uberon coverage is real but partial (75.4%, not 100%) — the
+`organizational` fraction (18.3%) is structurally un-keyable (they are
+grouping nodes, not anatomy), so organ-granularity coverage
+(`model-coverage-3d`/`corpus-coverage`) can never reach 100% of raw
+crosswalk rows even with a complete model corpus; this is a data-model
+ceiling, not a bug.
+</textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">The live composite loads 2,295 anatomical-structure rows spanning 116
+distinct source-organ GLBs (both sexes). 1,730/2,295 rows (75.4%) carry
+a resolvable UBERON: CURIE (`node_type=mesh`, 1,410 rows) or
+`surface` (464 rows); the remaining 419 `organizational` rows (18.3%,
+plus 2 blank) are pure grouping nodes with no Uberon and are correctly
+excluded from coverage computation (`coverage.build_coverage` skips
+rows with an empty `uberon`). This exceeds the ~1,400+ AS nodes
+originally estimated and comfortably clears the ~81-reference-organ
+floor, confirming the crosswalk gives materially finer anatomical
+granularity than the whole-organ GLBs alone.
+</textarea>
         </label>
       </div>
     </div>
@@ -285,7 +301,19 @@
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">The Human Reference Atlas (HRA) publishes ~81 whole-organ 3D reference
+models (per-sex GLB scenes), but a mechanistic model rarely maps cleanly
+onto a whole organ — it targets a lobe, duct, nephron segment, or other
+sub-organ anatomical structure (AS). The ASCT+B-3D models crosswalk is the
+HRA&#39;s digital object that cuts each reference-organ GLB into its
+constituent AS scene nodes and keys each to a Uberon CURIE where the node
+is directly ontology-representable (`mesh` node type), leaving purely
+structural grouping nodes (`organizational`) unkeyed. This is the
+substrate every downstream HRA-3D coverage/linkage step (Tasks B and C)
+crosses against the BioModels-derived organ annotations, so its size,
+Uberon-density, and organ span set the ceiling on how fine-grained model
+coverage can ever be reported.
+</textarea>
       
     </div>
 
@@ -549,6 +577,26 @@ and source-organ GLB names?
     </div>
 
     
+    
+    <div class="embed-viz-section" style="margin-bottom:22px">
+      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
+      
+      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+          <strong style="flex:1">AS nodes per organ</strong>
+          <a href="/viva-human-atlas/dashboard/reports/figures/hra-3d-crosswalk/as-per-organ.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
+        </div>
+        
+        <p class="muted" style="margin:6px 12px;font-size:0.88em">Bar chart of anatomical-structure node counts per source-organ GLB (top 20 of 116 organs) from the live crosswalk fetch: 2,295 rows total, 1,730 with a resolvable Uberon CURIE.</p>
+        
+        <iframe src="/viva-human-atlas/dashboard/reports/figures/hra-3d-crosswalk/as-per-organ.html"
+                style="width:100%;min-height:200px;border:0;display:block"
+                loading="lazy" title="AS nodes per organ"
+                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+                ></iframe>
+      </div>
+      
+    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>

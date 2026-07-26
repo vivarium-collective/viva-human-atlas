@@ -1,0 +1,7 @@
+{
+  "glb": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-female-left/v1.3/assets/3d-vh-f-kidney-l.glb",
+  "organ": "kidney",
+  "coverage": "coverage.json",
+  "links": "spatial-links.json",
+  "node_field": "node_name"
+}

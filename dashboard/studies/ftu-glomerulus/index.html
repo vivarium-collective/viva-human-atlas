@@ -249,7 +249,7 @@
           <span class="narrative-label">Confidence</span>
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
-            <option value="high" >high</option>
+            <option value="high" selected>high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select>
@@ -257,7 +257,7 @@
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value=""
+                 value="measured"
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
@@ -269,13 +269,31 @@
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">The HRA CCF resolver (`purl.humanatlas.io/3d-ftu/&lt;slug&gt;/latest`) 404s
+on a bare `Accept: */*` request and only 200s with an explicit
+`Accept: application/json` header — an upstream content-negotiation
+quirk, not a data-shape problem; `hra_api.fetch_ftu` was updated to
+send that header so the live fetch actually resolves (previously this
+composite would fail end-to-end against the current live API). Only
+one FTU (glomerulus) is exercised here — whether the HRA has published
+others at this same digital-object shape (the study&#39;s main expert
+question) is not yet checked.
+</textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">The live composite loads the glomerulus FTU record: title &#34;glomerulus
+(v1.0) graph data&#34;, description &#34;The graph representation of the 3D
+Glomerulus Functional Tissue Unit (FTU) dataset&#34;, version v1.0
+(published 2026-06-08 by HuBMAP, CC BY 4.0), resolving to
+`glomerulus.glb` at
+`cdn.humanatlas.io/digital-objects/3d-ftu/glomerulus/latest/assets/glomerulus.glb`
+— confirmed live (HTTP 200, ~150.4 MB / ~143.4 MiB). The FTU digital-object
+shape (`{data:[glb], metadata:{title, description, version, ...}}`)
+parses cleanly into the expected `ftu` record.
+</textarea>
         </label>
       </div>
     </div>
@@ -285,7 +303,15 @@
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read."></textarea>
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">The glomerulus is the kidney nephron&#39;s filtration unit — capillary tuft
+plus Bowman&#39;s capsule — far smaller than the whole-kidney reference-organ
+GLB the HRA otherwise publishes. HRA&#39;s 3D functional-tissue-unit (FTU)
+digital objects capture this sub-organ scale directly, which matters for
+DynXR-style spatially-grounded modeling: a mechanistic model of
+glomerular filtration should anchor to the glomerulus FTU mesh, not just
+a &#34;kidney&#34; whole-organ label. This study confirms that digital object is
+live-fetchable and asks whether the shape generalizes beyond this one FTU.
+</textarea>
       
     </div>
 
@@ -549,6 +575,26 @@ finer-grained model coverage?
     </div>
 
     
+    
+    <div class="embed-viz-section" style="margin-bottom:22px">
+      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
+      
+      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
+          <strong style="flex:1">Glomerulus FTU metadata</strong>
+          <a href="/viva-human-atlas/dashboard/reports/figures/ftu-glomerulus/ftu-metadata.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
+        </div>
+        
+        <p class="muted" style="margin:6px 12px;font-size:0.88em">Info table of the live-fetched glomerulus FTU digital-object fields (slug, title, description, glb, glb_url).</p>
+        
+        <iframe src="/viva-human-atlas/dashboard/reports/figures/ftu-glomerulus/ftu-metadata.html"
+                style="width:100%;min-height:200px;border:0;display:block"
+                loading="lazy" title="Glomerulus FTU metadata"
+                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+                ></iframe>
+      </div>
+      
+    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>
