@@ -24,6 +24,11 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # **Question.** For BioModels matching "glucose regulation", do COPASI and Tellurium agree on
 # the time-course dynamics — and which models diverge or fail to load in one engine?
 #
+# The first investigation in viva-human-atlas: a cross-engine (COPASI vs
+# Tellurium) correctness check on BioModels matching "glucose regulation",
+# establishing a trustworthy fetch-and-compare spine before ontology
+# linking and the 3D-spatial connection build on top of it.
+#
 # ---
 #
 # This notebook re-runs each study with the workspace's own process-bigraph protocol and renders its figures. The text states the **question and parameters** only — the figures produced by each run are the results. Set `RERUN = False` in the setup cell to render the committed `runs.db` without re-simulating.
@@ -139,3 +144,51 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Study: `multiorgan-glucose-m4`
+#
+# **Question.** Can the M4/Herrgårdh multi-organ (liver-pancreas-periphery) glucose
+# homeostasis model be imported and wired into a viva-human-atlas
+# composite, and do its organ-level fluxes stay consistent with the
+# single-organ BioModels already catalogued (Bulik2016 hepatic glucose
+# metabolism, Topp/Silber/Sturis/Tolic pancreatic beta-cell models)?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: multiorgan-glucose-m4 ===
+STUDY = 'multiorgan-glucose-m4'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Study: `load-failure-recovery`
+#
+# **Question.** Can a default UTC (uniform time-course) SED-ML simulation protocol be
+# auto-generated for BioModels entries that fail to load with
+# "could not find a .sedml file in entry", recovering the 4/5 models this
+# investigation's own glucose-regulation run could not load in either
+# engine?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: load-failure-recovery ===
+STUDY = 'load-failure-recovery'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Open decisions
+# - Why do most curated glucose models fail to load in both engines (missing SED-ML)? Recover them?
+# - Which models genuinely disagree vs. merely fail to load?

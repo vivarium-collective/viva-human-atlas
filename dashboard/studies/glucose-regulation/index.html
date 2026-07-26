@@ -128,7 +128,7 @@
     <button class="study-tab" data-kind="report-cards" data-pillar="tests" onclick="_setStudyTab('report-cards')">Report Cards</button>
     <button class="study-tab" data-kind="tests" data-pillar="tests" onclick="_setStudyTab('tests')">Behavioral Tests</button>
     
-    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Conclusions</button>
+    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Decide</button>
     <button class="study-tab" data-kind="data" data-pillar="data" onclick="_setStudyTab('data')">Exports</button>
   </div>
 </nav>
@@ -242,7 +242,7 @@
           <span class="narrative-label">Verdict</span>
           <span class="narrative-input verdict-badge-computed"
                 title="Computed from the gate evaluator (read-only)"
-                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">not_started</span>
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">passed</span>
           <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
         </label>
         <label class="narrative-row">
@@ -262,7 +262,16 @@
         </label>
         <div class="narrative-row narrative-row-wide">
           <span class="narrative-label">Main insight</span>
-          <span class="narrative-input" style="background:transparent;border:0;color:#334155">(computed from findings in the report)
+          <span class="narrative-input" style="background:transparent;border:0;color:#334155">The one curated model that loaded in both engines (BIOMD0000000633,
+Bulik2016 hepatic glucose metabolism) shows near-perfect cross-engine
+agreement (mean nRMSE 2.05e-07, bucket &#34;Good&#34;), independently
+cross-validated by the committed full-corpus dataset&#39;s measurement of
+the same model (1.61e-07, also &#34;good&#34;) -- confirming COPASI and
+Tellurium integrate this stiff hepatic-glucose ODE system to
+numerically indistinguishable trajectories. The other 4/5 models fail
+identically on a missing SED-ML file, a load-time gap rather than a
+numerical disagreement.
+
             <span class="muted small">— computed from findings</span></span>
         </div>
         <label class="narrative-row narrative-row-wide">
@@ -345,6 +354,52 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
 
     
     
+    <div class="overview-section findings-section">
+      <h2 class="overview-label">🔬 Findings — what this study taught us</h2>
+      
+      
+      
+      <div class="finding-card finding-kind-other finding-status-novel">
+        <div class="finding-header">
+          <span class="finding-status-glyph">◆</span>
+          <span class="finding-id">F-01</span>
+          <span class="finding-kind">other</span>
+          <span class="finding-status-text">novel literature</span>
+        </div>
+        <div class="finding-statement">The one curated model that loaded in both engines (BIOMD0000000633,
+Bulik2016 hepatic glucose metabolism) shows near-perfect cross-engine
+agreement (mean nRMSE 2.05e-07, bucket &#34;Good&#34;), independently
+cross-validated by the committed full-corpus dataset&#39;s measurement of
+the same model (1.61e-07, also &#34;good&#34;) -- confirming COPASI and
+Tellurium integrate this stiff hepatic-glucose ODE system to
+numerically indistinguishable trajectories. The other 4/5 models fail
+identically on a missing SED-ML file, a load-time gap rather than a
+numerical disagreement.
+</div>
+        
+        
+        
+        
+        <div class="finding-evidence">
+          
+          
+          
+          
+          
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+      
+    </div>
+    
 
     
     
@@ -362,7 +417,7 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
           <div>
             <strong style="color:#1e293b">alternative-not-excluded</strong>
             <code style="font-size:0.82em">alternatives</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no alternative hypotheses declared</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">interpretation-tier finding(s) present but no competing explanations considered (add alternative_hypotheses + how the evidence discriminates)</div>
           </div>
         </div>
         
@@ -384,9 +439,9 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
           <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">claim-untested</strong>
-            <code style="font-size:0.82em">replication</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">single run — no replication across seeds declared (add robustness.seeds or simulation_set.seeds)</div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
           </div>
         </div>
         
@@ -394,11 +449,35 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
         
         
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <span style="padding:1px 8px;border-radius:9999px;background:#fef9c3;color:#854d0e;font-weight:600;font-size:0.72em;white-space:nowrap">medium</span>
           <div>
-            <strong style="color:#1e293b">control-absent</strong>
-            <code style="font-size:0.82em">negative_control</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">replication</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">only 2 replicates — add seeds for a robustness claim</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Why do most curated glucose models fail to load in both engines (missing SED-ML)? Can they be recovered?</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Which models, if any, genuinely disagree in dynamics vs merely fail to load?</div>
           </div>
         </div>
         
@@ -411,13 +490,33 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
       <summary class="overview-label">Plan &amp; provenance</summary>
 
       
-
+      <div class="overview-section">
+        <h3 class="overview-label">Pipeline gate</h3>
+        <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
+          Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
+        </p>
+        
+        <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+        
+        
+        
+      </div>
       
 
       
 
       
 
+      
+
+      
+      <div class="overview-section">
+        <h2 class="overview-label">Limitations</h2>
+        <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
+        <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
+          <li style="margin:2px 0">Only 1/5 models in this run&#39;s 5-model sample loaded in both engines; the study&#39;s own agreement statistic (n=1) is too small to generalize -- broader nRMSE-bucket statistics come from the separately-committed full-corpus dataset, not this study&#39;s baseline run.</li><li style="margin:2px 0">The load-failure diagnosis (missing SED-ML) is inferred from an identical exception message across all 4 failures, not independently verified per model.</li>
+        </ul>
+      </div>
       
 
       
@@ -450,7 +549,7 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
           <span class="count-label">requirements</span>
         </div>
         <div class="count-cell">
-          <strong>0</strong>
+          <strong>2</strong>
           <span class="count-label">runs</span>
         </div>
       </div>
@@ -491,6 +590,13 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
       
+      
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
+        
+        
+        
+        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
+      </div>
       
     </div>
     
@@ -690,6 +796,12 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
   <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
 
     
+    <p class="muted" style="margin:0 0 16px 0;font-size:0.9em">
+      Synthesises the latest run's outcomes against the pre-stated
+      <code>conclusion_logic</code>, then surfaces concrete follow-up actions
+      you can either review (existing studies) or seed (new ones).
+    </p>
+    
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
       <h3 class="overview-label">⚖️ Verdicts — three-track outcome
@@ -715,7 +827,7 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline composite run (live 5-model fetch + COPASI/Tellurium compare) completed end-to-end without error.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Biological validation</span>
@@ -728,7 +840,7 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
           <span class="narrative-label">Biological basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The one model that loaded in both engines agrees to nRMSE 2.05e-07 (bucket &#39;Good&#39;), cross-validated by an independent 1.61e-07 measurement on the committed corpus dataset -- genuine cross-engine numerical agreement on real dynamics, not calibrated against experimental data.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -741,11 +853,17 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 reframes the 80% load-failure rate as a load-time SED-ML gap (non-curated MODEL* entries), not a genuine engine disagreement -- the study&#39;s central interpretive claim.</textarea>
         </label>
       </div>
     </div>
 
+    
+    
+    
+
+    
+    
     
 
   </div>
@@ -755,22 +873,21 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
 
     
     
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.85em">
-      Synthesised read-only from canonical fields — edit <code>findings</code>,
-      <code>limitations</code>, and <code>discovery_implications</code> to change
-      this (and the generated report) together.
-    </p>
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Claims <span class="muted small">(from findings)</span></h3>
-        <p class="muted">No findings recorded yet.</p>
+    
+    
+    <div class="decide-section">
+      <h3 class="overview-label">Latest run outcomes</h3>
+      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
+        baseline · seed ? ·
+        ?s simulated ·
+        ? history rows ·
+        started ?
       </div>
-      <div class="conclusion-field">
-        <h3>Evidence <span class="muted small">(from findings)</span></h3>
-        
-        <p class="muted">No evidence recorded on findings yet.</p>
-      </div>
+      
+      
+      
     </div>
+    
     
 
   </div>
@@ -780,30 +897,90 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
 
     
     
+    
+    <div class="overview-section" id="discovery-implications-section" style="margin-top:18px">
+      <h3 class="overview-label">Discovery implications</h3>
+      <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">Where this study's results leave the mechanism model — and what to investigate next.</p>
 
+      
+      <div class="di-uncertainties">
+        
+        <div class="di-unc di-unc-resolved">
+          <h4>✓ Resolved uncertainties</h4>
+          <ul><li>Divergence in this query is driven by non-curated MODEL* entries lacking SED-ML, not by genuine COPASI/Tellurium numerical disagreement.</li></ul>
+        </div>
+        
+        
+        <div class="di-unc di-unc-remaining">
+          <h4>● Remaining uncertainties</h4>
+          <ul><li>Why do most curated glucose models fail to load in both engines (missing SED-ML)? Can they be recovered?</li><li>Which models, if any, genuinely disagree in dynamics vs merely fail to load?</li></ul>
+        </div>
+        
+      </div>
+      
+
+      
+
+      
+
+      
+      
+      
+      <div class="di-group">
+        <h3>Follow-up study proposals
+          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(2)</span></h3>
+        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
+        <div class="followup-list">
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">Multi-organ glucose homeostasis (M4/Herrgardh)</strong>
+              <span class="di-chip">model-import</span>
+              <span class="di-chip">glucose-regulation</span>
+              <span class="di-chip di-gain-high">gain: high</span>
+              
+            </div>
+            <div class="di-card-why">Wire the M4/Herrgardh multi-organ (liver-pancreas-periphery) glucose model into a viva-human-atlas composite and run it as a coupled demo, comparing organ-level fluxes against the single-organ models already catalogued here.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('glucose-regulation', "fp-multiorgan-glucose-m4")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">Load-failure recovery (auto-generate default SED-ML)</strong>
+              <span class="di-chip">infrastructure</span>
+              <span class="di-chip">glucose-regulation</span>
+              <span class="di-chip di-gain-high">gain: high</span>
+              
+            </div>
+            <div class="di-card-why">For each MODEL* entry that fails with &#39;could not find a .sedml file&#39;, auto-generate a minimal uniform-time-course SED-ML wrapper (default duration/steps inferred from the SBML&#39;s own units) and re-attempt the COPASI/Tellurium load+compare.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('glucose-regulation', "fp-load-failure-recovery")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+
+    
+    
+    
     
 
   </div>
 
   
-  
-  <details class="overview-section"><summary class="overview-label">Limitations &amp; provenance</summary>
-
-    
-    
-    
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Limitations <span class="muted small">(from limitations)</span></h3>
-        <p class="muted">None recorded.</p>
-      </div>
-      <div class="conclusion-field">
-        <h3>Next steps <span class="muted small">(from discovery implications)</span></h3>
-        <p class="muted">No follow-up proposals recorded yet.</p>
-      </div>
-    </div>
-
-  </details>
   
 
 </section>

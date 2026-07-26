@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Study: hra-cell-types</title>
+<title>Study: multiorgan-glucose-m4</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
 </head>
@@ -11,13 +11,13 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="hra-cell-types" title="hra-cell-types">HRA Cell-Type Term Occurrences</span>
+    <span class="study-name" id="study-name" data-slug="multiorgan-glucose-m4" title="multiorgan-glucose-m4">Multi-Organ Glucose Homeostasis (M4/Herrgårdh) — Coupled Aim-2 Demo (Planned)</span>
     
-    <span class="phase-pill phase-evaluate" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Evaluate</span>
+    <span class="phase-pill phase-design" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Design</span>
     
     
     
-    <span class="status-pill status-ran" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">ran</span>
+    <span class="status-pill status-pending" title="Headline status derived from the highest-precedence multi-axis field (or legacy `status` as fallback).">pending</span>
     
     
     
@@ -33,7 +33,7 @@
 
 
 
-<div id="readiness-panel" data-slug="hra-cell-types"></div>
+<div id="readiness-panel" data-slug="multiorgan-glucose-m4"></div>
 
 
 
@@ -60,21 +60,21 @@
   
   <div class="status-detail-row">
     <span class="status-detail-axis">Design</span>
-    <span class="status-chip ">complete</span>
+    <span class="status-chip ">not-started</span>
   </div>
   
   
   
   <div class="status-detail-row">
     <span class="status-detail-axis">Implementation</span>
-    <span class="status-chip ">complete</span>
+    <span class="status-chip ">not-started</span>
   </div>
   
   
   
   <div class="status-detail-row">
     <span class="status-detail-axis">Simulation</span>
-    <span class="status-chip ">ran</span>
+    <span class="status-chip ">pending</span>
   </div>
   
   
@@ -105,7 +105,7 @@
 .spine-chip-warn{display:inline-block;font-size:0.82em;font-weight:600;padding:1px 8px;border-radius:9999px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;margin-left:6px}
 .spine-div{font-weight:600;color:#92400e}
 </style>
-<div id="spine-summary" class="spine-summary" data-slug="hra-cell-types"></div>
+<div id="spine-summary" class="spine-summary" data-slug="multiorgan-glucose-m4"></div>
 
 <nav class="study-tabs" aria-label="Study sections">
   <div class="study-pillars">
@@ -242,14 +242,14 @@
           <span class="narrative-label">Verdict</span>
           <span class="narrative-input verdict-badge-computed"
                 title="Computed from the gate evaluator (read-only)"
-                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">passed</span>
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">not_started</span>
           <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Confidence</span>
           <select class="narrative-input" data-narrative-path="report.confidence">
             <option value="">(unset)</option>
-            <option value="high" selected>high</option>
+            <option value="high" >high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select>
@@ -257,45 +257,25 @@
         <label class="narrative-row">
           <span class="narrative-label">Evidence quality</span>
           <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value="measured"
+                 value=""
                  placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
         </label>
         <div class="narrative-row narrative-row-wide">
           <span class="narrative-label">Main insight</span>
-          <span class="narrative-input" style="background:transparent;border:0;color:#334155">The HRA cell-type-term-occurences endpoint returns 149 distinct Cell
-Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs
-2,762 times, an order of magnitude above an 8-term tier that clusters
-at exactly 266 occurrences each -- consistent with those terms
-co-occurring as a fixed per-record annotation bundle in whatever HRA
-datasets contribute them.
-
+          <span class="narrative-input" style="background:transparent;border:0;color:#334155">(computed from findings in the report)
             <span class="muted small">— computed from findings</span></span>
         </div>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Caveat</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know.">The dominant top term (2,762 occurrences, ~4x the next tier) reads as a
-broad/root-level CL annotation rather than a specific, glucose-relevant
-cell type — this endpoint answers &#34;which CL terms are most annotated
-across HRA datasets&#34;, not &#34;which cell types matter most for glucose
-regulation&#34; (pancreatic beta cells, hepatocytes, adipocytes do not
-appear in the top 10 by this measure).
-</textarea>
+                    placeholder="One sentence: the headline limitation a reviewer needs to know."></textarea>
         </label>
         <label class="narrative-row narrative-row-wide">
           <span class="narrative-label">Conclusion</span>
           <textarea class="narrative-input narrative-textarea" rows="3"
                     data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated.">A live run against
-`https://apps.humanatlas.io/api/v1/cell-type-term-occurences` returned
-149 distinct CL terms, sorted by occurrence count descending. The top
-term (CL:0000000) occurs 2,762 times — an order of magnitude above the
-#2-#9 tier, which cluster at exactly 266 occurrences each (CL:0010008,
-CL:0000084, CL:0000236, CL:0000576, CL:0000623, CL:0011005, CL:4023011,
-CL:4023016), suggesting those co-occur as a fixed per-record annotation
-bundle in whatever HRA datasets contribute them.
-</textarea>
+                    placeholder="Multi-sentence: what the runs + tests demonstrated."></textarea>
         </label>
       </div>
     </div>
@@ -305,14 +285,21 @@ bundle in whatever HRA datasets contribute them.
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">The HRA&#39;s cell-type-term-occurrence histogram counts, across every HRA
-dataset (tissue block, single-cell, spatial), how often each Cell
-Ontology (CL) term is annotated on a cell population. A term&#39;s occurrence
-count is a proxy for how broadly that cell type has been profiled across
-organs/datasets, not for its abundance in the body — a near-universal
-term (e.g. an ontology root) will out-rank a rare-but-important cell type
-like a pancreatic beta cell simply because it is annotated on almost
-every dataset.
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">glucose-regulation&#39;s live run compared single-organ SBML models
+(Bulik2016 hepatic glucose metabolism; Topp/Silber/Sturis/Tolic
+pancreatic beta-cell/insulin-glucose models) independently, each treating
+its organ in isolation. Real glucose homeostasis, however, is a coupled
+liver-pancreas-periphery circuit: the pancreas senses blood glucose and
+secretes insulin/glucagon, the liver reads those hormones to switch
+between glycogen synthesis and glycogenolysis/gluconeogenesis, and
+peripheral tissue (muscle/fat) absorbs glucose under insulin&#39;s influence.
+The M4/Herrgårdh model (Herrgårdh2021Glucose, already cited in this
+investigation&#39;s references) explicitly represents this coupling as a
+single multi-compartment ODE system. Importing it is the natural
+&#34;Aim 2&#34; multiscale demonstration this investigation has been building
+toward: moving from independently-run single-organ SBML comparisons to
+one coupled model whose organ-level fluxes can be cross-checked against
+the single-organ models already in hand.
 </textarea>
       
     </div>
@@ -325,8 +312,11 @@ every dataset.
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true"
            data-field="question"
-           data-placeholder="(what research question is this study asking?)">Does the HRA CCF API&#39;s cell-type-term-occurences endpoint load into a
-Step-driven composite, giving a Cell Ontology (CL) term occurrence list?
+           data-placeholder="(what research question is this study asking?)">Can the M4/Herrgårdh multi-organ (liver-pancreas-periphery) glucose
+homeostasis model be imported and wired into a viva-human-atlas
+composite, and do its organ-level fluxes stay consistent with the
+single-organ BioModels already catalogued (Bulik2016 hepatic glucose
+metabolism, Topp/Silber/Sturis/Tolic pancreatic beta-cell models)?
 </div>
     </div>
     <div class="overview-section">
@@ -340,49 +330,6 @@ Step-driven composite, giving a Cell Ontology (CL) term occurrence list?
     
 
     
-    
-    <div class="overview-section findings-section">
-      <h2 class="overview-label">🔬 Findings — what this study taught us</h2>
-      
-      
-      
-      <div class="finding-card finding-kind-other finding-status-novel">
-        <div class="finding-header">
-          <span class="finding-status-glyph">◆</span>
-          <span class="finding-id">F-01</span>
-          <span class="finding-kind">other</span>
-          <span class="finding-status-text">novel literature</span>
-        </div>
-        <div class="finding-statement">The HRA cell-type-term-occurences endpoint returns 149 distinct Cell
-Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs
-2,762 times, an order of magnitude above an 8-term tier that clusters
-at exactly 266 occurrences each -- consistent with those terms
-co-occurring as a fixed per-record annotation bundle in whatever HRA
-datasets contribute them.
-</div>
-        
-        
-        
-        
-        <div class="finding-evidence">
-          
-          
-          
-          
-          
-        </div>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-      </div>
-      
-    </div>
     
 
     
@@ -401,7 +348,7 @@ datasets contribute them.
           <div>
             <strong style="color:#1e293b">alternative-not-excluded</strong>
             <code style="font-size:0.82em">alternatives</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">interpretation-tier finding(s) present but no competing explanations considered (add alternative_hypotheses + how the evidence discriminates)</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no alternative hypotheses declared</div>
           </div>
         </div>
         
@@ -423,9 +370,9 @@ datasets contribute them.
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
           <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">control-absent</strong>
-            <code style="font-size:0.82em">negative_control</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">replication</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">single run — no replication across seeds declared (add robustness.seeds or simulation_set.seeds)</div>
           </div>
         </div>
         
@@ -433,11 +380,11 @@ datasets contribute them.
         
         
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#fef9c3;color:#854d0e;font-weight:600;font-size:0.72em;white-space:nowrap">medium</span>
+          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">claim-untested</strong>
-            <code style="font-size:0.82em">replication</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">only 2 replicates — add seeds for a robustness claim</div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
           </div>
         </div>
         
@@ -449,7 +396,7 @@ datasets contribute them.
           <div>
             <strong style="color:#1e293b">region-unexplored</strong>
             <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Do any of the 149 terms map to glucose-relevant cell types (beta cells, hepatocytes, adipocytes) further down the occurrence list, and should the study re-rank by relevance rather than raw occurrence?</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Does a coupled multi-organ model change qualitative dynamics relative to running the single-organ models independently?</div>
           </div>
         </div>
         
@@ -468,7 +415,9 @@ datasets contribute them.
           Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
         </p>
         
-        <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+        <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+          <code>{&#39;study&#39;: &#39;glucose-regulation&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+        </div>
         
         
         
@@ -486,7 +435,7 @@ datasets contribute them.
         <h2 class="overview-label">Limitations</h2>
         <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
         <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-          <li style="margin:2px 0">Occurrence count is a proxy for dataset-annotation breadth, not cell abundance in the body or physiological relevance to glucose regulation; pancreatic beta cells, hepatocytes, and adipocytes do not appear in the top 10 by this measure.</li>
+          <li style="margin:2px 0">TBD — planned study, not yet implemented.</li>
         </ul>
       </div>
       
@@ -503,7 +452,7 @@ datasets contribute them.
         
 
         
-        <p class="muted" style="margin:6px 0 0 0;font-size:0.85em">Lifecycle phase: <strong>Evaluate</strong> (Design → Build → Simulate → Evaluate → Decide).</p>
+        <p class="muted" style="margin:6px 0 0 0;font-size:0.85em">Lifecycle phase: <strong>Design</strong> (Design → Build → Simulate → Evaluate → Decide).</p>
         
       </div>
 
@@ -513,7 +462,7 @@ datasets contribute them.
           <span class="count-label">variants</span>
         </div>
         <div class="count-cell">
-          <strong>2</strong>
+          <strong>0</strong>
           <span class="count-label">readouts</span>
         </div>
         <div class="count-cell">
@@ -521,7 +470,7 @@ datasets contribute them.
           <span class="count-label">requirements</span>
         </div>
         <div class="count-cell">
-          <strong>2</strong>
+          <strong>0</strong>
           <span class="count-label">runs</span>
         </div>
       </div>
@@ -548,13 +497,13 @@ datasets contribute them.
     <h3>Model <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     <p class="muted" style="font-size:0.88em">Each row runs one composite. Below it: the composite address (open it in the bigraph-loom explorer), the resolved configuration that actually executes, and the run settings.</p>
     
-    <div class="cond-block" data-model-composite="viva_human_atlas.composites.hra_steps.hra-cell-types" data-model-overrides='{"base_url": "https://apps.humanatlas.io/api"}'>
+    <div class="cond-block" data-model-composite="viva_human_atlas.composites.glucose_regulation.glucose-regulation" data-model-overrides='{"max_results": 10, "query": "glucose regulation", "simulators": "copasi,tellurium"}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.hra_steps.hra-cell-types</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.glucose_regulation.glucose-regulation</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('viva_human_atlas.composites.hra_steps.hra-cell-types')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('viva_human_atlas.composites.glucose_regulation.glucose-regulation')">🧬 explore &amp; run ↗</button>
         
       </div>
       
@@ -562,13 +511,6 @@ datasets contribute them.
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
       
-      
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
-        
-        
-        
-        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
-      </div>
       
     </div>
     
@@ -637,7 +579,7 @@ datasets contribute them.
     
     <div id="readouts-download" style="margin:0 0 16px 0"></div>
 
-    <div id="readouts-table" data-study="hra-cell-types">
+    <div id="readouts-table" data-study="multiorgan-glucose-m4">
       <p class="empty-message">Loading readouts from the composite emit plan…</p>
     </div>
 
@@ -657,26 +599,6 @@ datasets contribute them.
     </div>
 
     
-    
-    <div class="embed-viz-section" style="margin-bottom:22px">
-      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
-      
-      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
-        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
-          <strong style="flex:1">Top cell-type (CL) terms by occurrence count</strong>
-          <a href="/viva-human-atlas/dashboard/reports/figures/hra-cell-types/top-cell-types.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
-        </div>
-        
-        <p class="muted" style="margin:6px 12px;font-size:0.88em">Bar chart of the top 15 of 149 loaded CL terms by HRA occurrence count; the top term (CL:0000000) occurs 2,762 times, ~4x the next tier.</p>
-        
-        <iframe src="/viva-human-atlas/dashboard/reports/figures/hra-cell-types/top-cell-types.html"
-                style="width:100%;min-height:200px;border:0;display:block"
-                loading="lazy" title="Top cell-type (CL) terms by occurrence count"
-                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
-                ></iframe>
-      </div>
-      
-    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>
@@ -702,14 +624,14 @@ datasets contribute them.
     <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
       <h3 class="section-title" style="margin-right:auto">Analysis result files</h3>
       <a id="data-download-all" class="btn-mini" style="display:none"
-         href="/api/study-analysis-zip?study=hra-cell-types">Download all (.zip)</a>
+         href="/api/study-analysis-zip?study=multiorgan-glucose-m4">Download all (.zip)</a>
     </div>
     <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">
       Tabular outputs (<code>.csv</code> / <code>.tsv</code>) written by this study's
       Analysis steps — e.g. per-run analysis tables and exports. Click a file to
       download it.
     </p>
-    <div id="data-files" data-study="hra-cell-types">
+    <div id="data-files" data-study="multiorgan-glucose-m4">
       <p class="empty-message">Loading result files…</p>
     </div>
 
@@ -799,7 +721,7 @@ datasets contribute them.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline live fetch against the HRA CCF cell-type-term-occurences endpoint completed without error.</textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Biological validation</span>
@@ -812,7 +734,7 @@ datasets contribute them.
           <span class="narrative-label">Biological basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The endpoint returns the expected data shape and counts: 149 CL terms sorted by occurrence count descending, matching the live HRA corpus.</textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -825,7 +747,7 @@ datasets contribute them.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 identifies the top term as a broad/root-level CL annotation, not a glucose-relevant cell type, answering &#39;which terms are most annotated&#39; rather than &#39;which cell types matter most for glucose regulation&#39;.</textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
         </label>
       </div>
     </div>
@@ -847,19 +769,6 @@ datasets contribute them.
     
     
     
-    <div class="decide-section">
-      <h3 class="overview-label">Latest run outcomes</h3>
-      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
-        baseline · seed ? ·
-        ?s simulated ·
-        ? history rows ·
-        started ?
-      </div>
-      
-      
-      
-    </div>
-    
     
 
   </div>
@@ -877,15 +786,10 @@ datasets contribute them.
       
       <div class="di-uncertainties">
         
-        <div class="di-unc di-unc-resolved">
-          <h4>✓ Resolved uncertainties</h4>
-          <ul><li>149 distinct CL terms load cleanly, count-sorted, confirming the endpoint&#39;s shape is stable and non-empty.</li></ul>
-        </div>
-        
         
         <div class="di-unc di-unc-remaining">
           <h4>● Remaining uncertainties</h4>
-          <ul><li>Do any of the 149 terms map to glucose-relevant cell types (beta cells, hepatocytes, adipocytes) further down the occurrence list, and should the study re-rank by relevance rather than raw occurrence?</li></ul>
+          <ul><li>Does a coupled multi-organ model change qualitative dynamics relative to running the single-organ models independently?</li></ul>
         </div>
         
       </div>
@@ -917,7 +821,7 @@ datasets contribute them.
 <script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main" };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
-window._studyName = "hra-cell-types";
+window._studyName = "multiorgan-glucose-m4";
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
@@ -1046,9 +950,9 @@ window._seedFollowupProposal = _seedFollowupProposal;
   var el = document.getElementById("study-configure-run");
   if (!el || !window.ConfigureRun) return;
   
-  var compositeRef = "viva_human_atlas.composites.hra_steps.hra-cell-types";
+  var compositeRef = "viva_human_atlas.composites.glucose_regulation.glucose-regulation";
   
-  var slug = window._studyName || "hra-cell-types";
+  var slug = window._studyName || "multiorgan-glucose-m4";
   ConfigureRun.mount(el, { composite: compositeRef, target: "study", study: slug });
   // Read-only bundle: there's no live backend to run on — hide the remote-run
   // launcher (the Configure & Run widget already renders a disabled preview).

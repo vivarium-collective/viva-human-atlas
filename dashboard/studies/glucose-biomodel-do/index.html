@@ -128,7 +128,7 @@
     <button class="study-tab" data-kind="report-cards" data-pillar="tests" onclick="_setStudyTab('report-cards')">Report Cards</button>
     <button class="study-tab" data-kind="tests" data-pillar="tests" onclick="_setStudyTab('tests')">Behavioral Tests</button>
     
-    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Conclusions</button>
+    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Decide</button>
     <button class="study-tab" data-kind="data" data-pillar="data" onclick="_setStudyTab('data')">Exports</button>
   </div>
 </nav>
@@ -242,7 +242,7 @@
           <span class="narrative-label">Verdict</span>
           <span class="narrative-input verdict-badge-computed"
                 title="Computed from the gate evaluator (read-only)"
-                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">not_started</span>
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">passed</span>
           <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
         </label>
         <label class="narrative-row">
@@ -262,7 +262,15 @@
         </label>
         <div class="narrative-row narrative-row-wide">
           <span class="narrative-label">Main insight</span>
-          <span class="narrative-input" style="background:transparent;border:0;color:#334155">(computed from findings in the report)
+          <span class="narrative-input" style="background:transparent;border:0;color:#334155">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+BioModels to an HRA organ, correctly concentrating on pancreas (4
+models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
+insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
+glucose metabolism) -- exactly the two organs glucose-homeostasis
+biology predicts (insulin/glucagon secretion + hepatic glucose
+buffering), confirming the synonym-match mechanism assigns organs
+correctly when it fires.
+
             <span class="muted small">— computed from findings</span></span>
         </div>
         <label class="narrative-row narrative-row-wide">
@@ -341,6 +349,51 @@ of treating the whole search-result set as anatomically undifferentiated.
 
     
     
+    <div class="overview-section findings-section">
+      <h2 class="overview-label">🔬 Findings — what this study taught us</h2>
+      
+      
+      
+      <div class="finding-card finding-kind-other finding-status-novel">
+        <div class="finding-header">
+          <span class="finding-status-glyph">◆</span>
+          <span class="finding-id">F-01</span>
+          <span class="finding-kind">other</span>
+          <span class="finding-status-text">novel literature</span>
+        </div>
+        <div class="finding-statement">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+BioModels to an HRA organ, correctly concentrating on pancreas (4
+models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
+insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
+glucose metabolism) -- exactly the two organs glucose-homeostasis
+biology predicts (insulin/glucagon secretion + hepatic glucose
+buffering), confirming the synonym-match mechanism assigns organs
+correctly when it fires.
+</div>
+        
+        
+        
+        
+        <div class="finding-evidence">
+          
+          
+          
+          
+          
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+      
+    </div>
+    
 
     
     
@@ -358,7 +411,7 @@ of treating the whole search-result set as anatomically undifferentiated.
           <div>
             <strong style="color:#1e293b">alternative-not-excluded</strong>
             <code style="font-size:0.82em">alternatives</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no alternative hypotheses declared</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">interpretation-tier finding(s) present but no competing explanations considered (add alternative_hypotheses + how the evidence discriminates)</div>
           </div>
         </div>
         
@@ -380,9 +433,9 @@ of treating the whole search-result set as anatomically undifferentiated.
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
           <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">claim-untested</strong>
-            <code style="font-size:0.82em">replication</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">single run — no replication across seeds declared (add robustness.seeds or simulation_set.seeds)</div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
           </div>
         </div>
         
@@ -390,11 +443,23 @@ of treating the whole search-result set as anatomically undifferentiated.
         
         
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <span style="padding:1px 8px;border-radius:9999px;background:#fef9c3;color:#854d0e;font-weight:600;font-size:0.72em;white-space:nowrap">medium</span>
           <div>
-            <strong style="color:#1e293b">control-absent</strong>
-            <code style="font-size:0.82em">negative_control</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">replication</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">only 2 replicates — add seeds for a robustness claim</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Is name-only synonym matching precise enough to trust for downstream multiscale coupling, or does it need SBML MIRIAM-annotation-based tagging to raise recall?</div>
           </div>
         </div>
         
@@ -407,13 +472,33 @@ of treating the whole search-result set as anatomically undifferentiated.
       <summary class="overview-label">Plan &amp; provenance</summary>
 
       
-
+      <div class="overview-section">
+        <h3 class="overview-label">Pipeline gate</h3>
+        <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
+          Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
+        </p>
+        
+        <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+        
+        
+        
+      </div>
       
 
       
 
       
 
+      
+
+      
+      <div class="overview-section">
+        <h2 class="overview-label">Limitations</h2>
+        <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
+        <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
+          <li style="margin:2px 0">Synonym matching scans only the model name, not full description/annotations, so the 80% unmatched rate (20/25) likely undercounts real anatomical relevance.</li><li style="margin:2px 0">Sample is a single 25-result search query, not the full BioModels corpus (see corpus-coverage for the full-catalog organ-tagging yield, 82/1,096).</li>
+        </ul>
+      </div>
       
 
       
@@ -446,7 +531,7 @@ of treating the whole search-result set as anatomically undifferentiated.
           <span class="count-label">requirements</span>
         </div>
         <div class="count-cell">
-          <strong>0</strong>
+          <strong>2</strong>
           <span class="count-label">runs</span>
         </div>
       </div>
@@ -487,6 +572,13 @@ of treating the whole search-result set as anatomically undifferentiated.
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
       
+      
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
+        
+        
+        
+        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
+      </div>
       
     </div>
     
@@ -686,6 +778,12 @@ of treating the whole search-result set as anatomically undifferentiated.
   <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
 
     
+    <p class="muted" style="margin:0 0 16px 0;font-size:0.9em">
+      Synthesises the latest run's outcomes against the pre-stated
+      <code>conclusion_logic</code>, then surfaces concrete follow-up actions
+      you can either review (existing studies) or seed (new ones).
+    </p>
+    
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
       <h3 class="overview-label">⚖️ Verdicts — three-track outcome
@@ -711,7 +809,7 @@ of treating the whole search-result set as anatomically undifferentiated.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline biomodel-DO catalog build (25-result query x 81-organ HRA reference set) completed without error.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Biological validation</span>
@@ -724,7 +822,7 @@ of treating the whole search-result set as anatomically undifferentiated.
           <span class="narrative-label">Biological basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The organ_to_models index correctly concentrates on pancreas (4 models) and liver (1 model) -- precisely the two organs glucose-homeostasis biology implicates -- confirming the synonym-match mechanism works, though only on the 20% of titles containing a matching organ synonym (name-only, recall-limited).</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -737,11 +835,17 @@ of treating the whole search-result set as anatomically undifferentiated.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 shows precision (organ assignment matches expected biology) is real, but the 80% unmatched rate is the study&#39;s central caveat: recall trades off against precision when scanning only model names.</textarea>
         </label>
       </div>
     </div>
 
+    
+    
+    
+
+    
+    
     
 
   </div>
@@ -751,22 +855,21 @@ of treating the whole search-result set as anatomically undifferentiated.
 
     
     
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.85em">
-      Synthesised read-only from canonical fields — edit <code>findings</code>,
-      <code>limitations</code>, and <code>discovery_implications</code> to change
-      this (and the generated report) together.
-    </p>
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Claims <span class="muted small">(from findings)</span></h3>
-        <p class="muted">No findings recorded yet.</p>
+    
+    
+    <div class="decide-section">
+      <h3 class="overview-label">Latest run outcomes</h3>
+      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
+        baseline · seed ? ·
+        ?s simulated ·
+        ? history rows ·
+        started ?
       </div>
-      <div class="conclusion-field">
-        <h3>Evidence <span class="muted small">(from findings)</span></h3>
-        
-        <p class="muted">No evidence recorded on findings yet.</p>
-      </div>
+      
+      
+      
     </div>
+    
     
 
   </div>
@@ -776,30 +879,73 @@ of treating the whole search-result set as anatomically undifferentiated.
 
     
     
+    
+    <div class="overview-section" id="discovery-implications-section" style="margin-top:18px">
+      <h3 class="overview-label">Discovery implications</h3>
+      <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">Where this study's results leave the mechanism model — and what to investigate next.</p>
 
+      
+      <div class="di-uncertainties">
+        
+        <div class="di-unc di-unc-resolved">
+          <h4>✓ Resolved uncertainties</h4>
+          <ul><li>Pancreas and liver dominate the organ-&gt;models index exactly as glucose-homeostasis biology predicts, validating the synonym-match mechanism&#39;s precision.</li></ul>
+        </div>
+        
+        
+        <div class="di-unc di-unc-remaining">
+          <h4>● Remaining uncertainties</h4>
+          <ul><li>Is name-only synonym matching precise enough to trust for downstream multiscale coupling, or does it need SBML MIRIAM-annotation-based tagging to raise recall?</li></ul>
+        </div>
+        
+      </div>
+      
+
+      
+
+      
+
+      
+      
+      
+      <div class="di-group">
+        <h3>Follow-up study proposals
+          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
+        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
+        <div class="followup-list">
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">SBML MIRIAM-annotation organ tagging</strong>
+              <span class="di-chip">method-upgrade</span>
+              <span class="di-chip">glucose-biomodel-do</span>
+              <span class="di-chip di-gain-high">gain: high</span>
+              
+            </div>
+            <div class="di-card-why">For each BioModels entry, parse embedded MIRIAM RDF annotations for Uberon/taxon/GO terms and cross them against the HRA reference-organ Uberon set, comparing tagged-model count and per-organ precision against the current name-only synonym match.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('glucose-biomodel-do', "fp-sbml-annotation-tagging")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+
+    
+    
+    
     
 
   </div>
 
   
-  
-  <details class="overview-section"><summary class="overview-label">Limitations &amp; provenance</summary>
-
-    
-    
-    
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Limitations <span class="muted small">(from limitations)</span></h3>
-        <p class="muted">None recorded.</p>
-      </div>
-      <div class="conclusion-field">
-        <h3>Next steps <span class="muted small">(from discovery implications)</span></h3>
-        <p class="muted">No follow-up proposals recorded yet.</p>
-      </div>
-    </div>
-
-  </details>
   
 
 </section>

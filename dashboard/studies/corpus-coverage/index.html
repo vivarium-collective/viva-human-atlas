@@ -128,7 +128,7 @@
     <button class="study-tab" data-kind="report-cards" data-pillar="tests" onclick="_setStudyTab('report-cards')">Report Cards</button>
     <button class="study-tab" data-kind="tests" data-pillar="tests" onclick="_setStudyTab('tests')">Behavioral Tests</button>
     
-    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Conclusions</button>
+    <button class="study-tab" data-kind="conclusions" data-pillar="decide" onclick="_setStudyTab('conclusions')">Decide</button>
     <button class="study-tab" data-kind="data" data-pillar="data" onclick="_setStudyTab('data')">Exports</button>
   </div>
 </nav>
@@ -242,7 +242,7 @@
           <span class="narrative-label">Verdict</span>
           <span class="narrative-input verdict-badge-computed"
                 title="Computed from the gate evaluator (read-only)"
-                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">not_started</span>
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">needs_calibration</span>
           <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
         </label>
         <label class="narrative-row">
@@ -262,7 +262,14 @@
         </label>
         <div class="narrative-row narrative-row-wide">
           <span class="narrative-label">Main insight</span>
-          <span class="narrative-input" style="background:transparent;border:0;color:#334155">(computed from findings in the report)
+          <span class="narrative-input" style="background:transparent;border:0;color:#334155">Crossing the full 1,096-model curated BioModels catalog (82/1,096,
+7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
+nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
+magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS
+nodes / 4 organs, and critically newly reaches kidney, confirming
+full-corpus retrieval finds anatomically relevant models a single
+search term misses entirely.
+
             <span class="muted small">— computed from findings</span></span>
         </div>
         <label class="narrative-row narrative-row-wide">
@@ -346,6 +353,50 @@ misses (e.g. kidney)?
 
     
     
+    <div class="overview-section findings-section">
+      <h2 class="overview-label">🔬 Findings — what this study taught us</h2>
+      
+      
+      
+      <div class="finding-card finding-kind-other finding-status-novel">
+        <div class="finding-header">
+          <span class="finding-status-glyph">◆</span>
+          <span class="finding-id">F-01</span>
+          <span class="finding-kind">other</span>
+          <span class="finding-status-text">novel literature</span>
+        </div>
+        <div class="finding-statement">Crossing the full 1,096-model curated BioModels catalog (82/1,096,
+7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
+nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
+magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS
+nodes / 4 organs, and critically newly reaches kidney, confirming
+full-corpus retrieval finds anatomically relevant models a single
+search term misses entirely.
+</div>
+        
+        
+        
+        
+        <div class="finding-evidence">
+          
+          
+          
+          
+          
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+      
+    </div>
+    
 
     
     
@@ -363,7 +414,7 @@ misses (e.g. kidney)?
           <div>
             <strong style="color:#1e293b">alternative-not-excluded</strong>
             <code style="font-size:0.82em">alternatives</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no alternative hypotheses declared</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">interpretation-tier finding(s) present but no competing explanations considered (add alternative_hypotheses + how the evidence discriminates)</div>
           </div>
         </div>
         
@@ -385,9 +436,9 @@ misses (e.g. kidney)?
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
           <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">claim-untested</strong>
-            <code style="font-size:0.82em">replication</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">single run — no replication across seeds declared (add robustness.seeds or simulation_set.seeds)</div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
           </div>
         </div>
         
@@ -395,11 +446,35 @@ misses (e.g. kidney)?
         
         
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <span style="padding:1px 8px;border-radius:9999px;background:#fef9c3;color:#854d0e;font-weight:600;font-size:0.72em;white-space:nowrap">medium</span>
           <div>
-            <strong style="color:#1e293b">control-absent</strong>
-            <code style="font-size:0.82em">negative_control</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">replication</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">only 2 replicates — add seeds for a robustness claim</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models?</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?</div>
           </div>
         </div>
         
@@ -412,13 +487,33 @@ misses (e.g. kidney)?
       <summary class="overview-label">Plan &amp; provenance</summary>
 
       
-
+      <div class="overview-section">
+        <h3 class="overview-label">Pipeline gate</h3>
+        <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
+          Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
+        </p>
+        
+        <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+        
+        
+        
+      </div>
       
 
       
 
       
 
+      
+
+      
+      <div class="overview-section">
+        <h2 class="overview-label">Limitations</h2>
+        <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
+        <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
+          <li style="margin:2px 0">92.5% of the corpus (1,014/1,096) is untagged -- either genuinely organ-agnostic (pathway/signaling models with no single anatomical site) or organ-specific but missed by the current synonym/reference-organ-name matching.</li><li style="margin:2px 0">Coverage is still organ-granularity, not per-AS-node model matching: a covered organ&#39;s Uberon marks every AS node cut from its GLB as covered, which can overstate coverage for anatomically distinct sub-structures with no direct model evidence.</li>
+        </ul>
+      </div>
       
 
       
@@ -451,7 +546,7 @@ misses (e.g. kidney)?
           <span class="count-label">requirements</span>
         </div>
         <div class="count-cell">
-          <strong>0</strong>
+          <strong>2</strong>
           <span class="count-label">runs</span>
         </div>
       </div>
@@ -492,6 +587,13 @@ misses (e.g. kidney)?
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
       
+      
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
+        
+        
+        
+        <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
+      </div>
       
     </div>
     
@@ -691,6 +793,12 @@ misses (e.g. kidney)?
   <div class="overview-section"><h2 class="overview-label">Verdict &amp; conclusion</h2>
 
     
+    <p class="muted" style="margin:0 0 16px 0;font-size:0.9em">
+      Synthesises the latest run's outcomes against the pre-stated
+      <code>conclusion_logic</code>, then surfaces concrete follow-up actions
+      you can either review (existing studies) or seed (new ones).
+    </p>
+    
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
       <h3 class="overview-label">⚖️ Verdicts — three-track outcome
@@ -716,7 +824,7 @@ misses (e.g. kidney)?
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline full-corpus coverage-crossing composite (committed catalog x crosswalk) completed without error.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Biological validation</span>
@@ -729,7 +837,7 @@ misses (e.g. kidney)?
           <span class="narrative-label">Biological basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">Coverage is organ-granularity, name-based tagging (82/1,096 = 7.5% of the corpus tagged), not calibrated per-AS-node model evidence -- real and an order of magnitude wider than the query-scoped study (635 vs 58 AS nodes), but recall-limited by the current synonym-matching tagger, so gated needs_calibration rather than passed.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -742,11 +850,17 @@ misses (e.g. kidney)?
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 shows full-corpus retrieval, not just query choice, is the coverage bottleneck -- it finds anatomically relevant models a single search term misses entirely (kidney newly covered) -- the study&#39;s central interpretive claim.</textarea>
         </label>
       </div>
     </div>
 
+    
+    
+    
+
+    
+    
     
 
   </div>
@@ -756,22 +870,21 @@ misses (e.g. kidney)?
 
     
     
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.85em">
-      Synthesised read-only from canonical fields — edit <code>findings</code>,
-      <code>limitations</code>, and <code>discovery_implications</code> to change
-      this (and the generated report) together.
-    </p>
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Claims <span class="muted small">(from findings)</span></h3>
-        <p class="muted">No findings recorded yet.</p>
+    
+    
+    <div class="decide-section">
+      <h3 class="overview-label">Latest run outcomes</h3>
+      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
+        baseline · seed ? ·
+        ?s simulated ·
+        ? history rows ·
+        started ?
       </div>
-      <div class="conclusion-field">
-        <h3>Evidence <span class="muted small">(from findings)</span></h3>
-        
-        <p class="muted">No evidence recorded on findings yet.</p>
-      </div>
+      
+      
+      
     </div>
+    
     
 
   </div>
@@ -781,30 +894,73 @@ misses (e.g. kidney)?
 
     
     
+    
+    <div class="overview-section" id="discovery-implications-section" style="margin-top:18px">
+      <h3 class="overview-label">Discovery implications</h3>
+      <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">Where this study's results leave the mechanism model — and what to investigate next.</p>
 
+      
+      <div class="di-uncertainties">
+        
+        <div class="di-unc di-unc-resolved">
+          <h4>✓ Resolved uncertainties</h4>
+          <ul><li>Full-corpus retrieval materially widens coverage over a single query (635 vs 58 AS nodes) and newly reaches kidney, confirming retrieval breadth is a real, measurable lever independent of query choice.</li></ul>
+        </div>
+        
+        
+        <div class="di-unc di-unc-remaining">
+          <h4>● Remaining uncertainties</h4>
+          <ul><li>Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models?</li><li>Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?</li></ul>
+        </div>
+        
+      </div>
+      
+
+      
+
+      
+
+      
+      
+      
+      <div class="di-group">
+        <h3>Follow-up study proposals
+          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
+        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
+        <div class="followup-list">
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">Coverage gap analysis</strong>
+              <span class="di-chip">analysis</span>
+              <span class="di-chip">corpus-coverage</span>
+              <span class="di-chip di-gain-high">gain: high</span>
+              
+            </div>
+            <div class="di-card-why">Cross the full corpus-coverage organ-&gt;models index against the complete 114-organ-GLB / 1,730-AS-node crosswalk to list every organ/AS-node with zero covering models, ranked by AS-node count, as a prioritized modeling-gap report.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('corpus-coverage', "fp-coverage-gap-analysis")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+    
+
+    
+    
+    
     
 
   </div>
 
   
-  
-  <details class="overview-section"><summary class="overview-label">Limitations &amp; provenance</summary>
-
-    
-    
-    
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Limitations <span class="muted small">(from limitations)</span></h3>
-        <p class="muted">None recorded.</p>
-      </div>
-      <div class="conclusion-field">
-        <h3>Next steps <span class="muted small">(from discovery implications)</span></h3>
-        <p class="muted">No follow-up proposals recorded yet.</p>
-      </div>
-    </div>
-
-  </details>
   
 
 </section>
