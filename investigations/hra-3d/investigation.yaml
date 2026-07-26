@@ -96,6 +96,7 @@ studies:
   - spatial-linkage
   - ftu-glomerulus
   - corpus-coverage
+  - ftu-model-coverage
 
 inputs:
   references:
@@ -121,3 +122,5 @@ acceptance_criteria:
     behavior: "The glomerulus FTU digital object loads with a non-empty title/description and a resolvable GLB asset URL."
   - study: corpus-coverage
     behavior: "Crossing the full curated BioModels catalog against the crosswalk covers materially more AS nodes/organs than the single-query model-coverage-3d study, including organs the narrow query misses."
+  - study: ftu-model-coverage
+    behavior: "Crossing the full curated BioModels catalog against a curated HRA functional-tissue-unit (FTU) list by name/synonym match marks at least one FTU covered, matching Katy Boerner's question of whether existing models try to model FTUs."

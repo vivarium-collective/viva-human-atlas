@@ -30,6 +30,13 @@ aggregate-counts shape.
 returns (one biomodel-DO organ joined to a crosswalk AS node sharing its
 Uberon CURIE — the exact GLB scene node a model's organ maps to; `readout` is
 a placeholder string in v1).
+
+`ftu_cell_type` is the per-cell-type shape inside an `HRA_FTUS` entry's
+`cell_types` (and `ftu_coverage.ctpop_parameter_stub`'s output) — a
+Cell-Ontology-keyed candidate CTpop-parameterizable input. `ftu_coverage_row`
+is the per-FTU shape `ftu_coverage.build_ftu_model_coverage` returns (which
+curated HRA functional tissue units have a name/synonym-matching BioModels
+model); `ftu_coverage_summary` is its aggregate-counts shape.
 """
 from __future__ import annotations
 
@@ -102,6 +109,22 @@ WORKSPACE_TYPES = {
         "organ_glb": "string",
         "node_name": "string",
         "readout": "string",
+    },
+    "ftu_cell_type": {
+        "cl": "string",
+        "label": "string",
+    },
+    "ftu_coverage_row": {
+        "ftu": "string",
+        "organ": "string",
+        "n_models": "integer",
+        "model_ids": "list[string]",
+        "covered": "boolean",
+    },
+    "ftu_coverage_summary": {
+        "n_ftus": "integer",
+        "n_ftus_covered": "integer",
+        "n_models_matched": "integer",
     },
 }
 
