@@ -108,4 +108,11 @@ discovery_implications:
     - "The reference-organ set is stable, complete (81 entries), and predominantly Uberon-keyed (85.2%) -- a trustworthy anchor for downstream annotation."
   remaining_uncertainties:
     - "Should the 12 FMA-only organs be cross-walked to Uberon so downstream matching doesn't silently drop them?"
-  followup_study_proposals: []
+  followup_study_proposals:
+    - id: fp-organ-result-overlay
+      title: "Result-driven reference-organ overlay"
+      motivation: "Overlay model readouts (steady-state values) on the reference-organ 3D GLBs, feeding the result-driven spatial-link viewer."
+      study_type: data-pipeline
+      proposed_experiment: "Extract per-organ steady-state readouts from the committed corpus COPASI/Tellurium comparison dataset and attach them to the matching reference-organ entries (by Uberon), rendering the reference-organ 3D viewer colored by that value instead of a flat coverage flag."
+      expected_information_gain: medium
+      source_trigger: hra-reference-organs

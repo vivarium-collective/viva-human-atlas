@@ -108,4 +108,11 @@ discovery_implications:
     - "The top occurrence count (2,762) matches hra-cell-types' top CL term exactly, confirming both endpoints draw from the same underlying per-record annotation corpus."
   remaining_uncertainties:
     - "Do the top-occurrence anatomical structures correspond to whole organs (matching reference-organs) or finer sub-structures -- has this been checked directly?"
-  followup_study_proposals: []
+  followup_study_proposals:
+    - id: fp-anatomical-term-coverage
+      title: "Anatomical-term x model-coverage cross"
+      motivation: "Cross the HRA anatomical-structure term occurrences with model coverage to find which structures have mechanistic models."
+      study_type: analysis
+      proposed_experiment: "Join the 288 usage-weighted anatomical-structure terms against the corpus-coverage organ->models index (via Uberon CURIE / organ propagation) and report, per term, whether it has >=1 covering model, ranked by occurrence count."
+      expected_information_gain: medium
+      source_trigger: hra-anatomical-structures

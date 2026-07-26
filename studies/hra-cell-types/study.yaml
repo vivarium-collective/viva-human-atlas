@@ -108,4 +108,11 @@ discovery_implications:
     - "149 distinct CL terms load cleanly, count-sorted, confirming the endpoint's shape is stable and non-empty."
   remaining_uncertainties:
     - "Do any of the 149 terms map to glucose-relevant cell types (beta cells, hepatocytes, adipocytes) further down the occurrence list, and should the study re-rank by relevance rather than raw occurrence?"
-  followup_study_proposals: []
+  followup_study_proposals:
+    - id: fp-cell-type-coverage
+      title: "Cell-type (CL) model coverage"
+      motivation: "Determine which BioModels represent which HRA cell types (CL terms) via SBML species annotations — extend coverage from organs to cell types."
+      study_type: analysis
+      proposed_experiment: "Parse SBML species/compartment MIRIAM annotations for Cell Ontology (CL) terms across the curated BioModels corpus, cross them against the 149 HRA cell-type term occurrences, and report a cell-type->models index alongside the existing organ-granularity coverage."
+      expected_information_gain: high
+      source_trigger: hra-cell-types

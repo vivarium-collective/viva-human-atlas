@@ -117,4 +117,11 @@ discovery_implications:
     - "The crosswalk exceeds the original ~1,400+ AS-node estimate (2,295 rows / 1,730 Uberon-keyed), confirming it gives materially finer granularity than the 81 whole-organ GLBs."
   remaining_uncertainties:
     - "Can the 18.3% organizational/unkeyed rows ever be resolved to Uberon, or is that a permanent ceiling on organ-granularity coverage?"
-  followup_study_proposals: []
+  followup_study_proposals:
+    - id: fp-resolve-organizational-rows
+      title: "Resolve organizational-row Uberon gap"
+      motivation: "Attempt to Uberon-key the ~18% organizational/un-keyed crosswalk rows (or confirm the ceiling), improving the AS coverage denominator."
+      study_type: analysis
+      proposed_experiment: "For each of the 419 `organizational` crosswalk rows, check whether its `parent`/`label` or an adjacent `mesh`/`surface` sibling node resolves to a Uberon CURIE it could inherit, and report how many of the 18.3% un-keyed rows are recoverable vs a genuine structural-grouping ceiling."
+      expected_information_gain: medium
+      source_trigger: hra-3d-crosswalk

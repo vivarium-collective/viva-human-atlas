@@ -120,4 +120,11 @@ discovery_implications:
   remaining_uncertainties:
     - "Does full-corpus retrieval reach organs this query misses (kidney)? See corpus-coverage."
     - "Does organ-granularity propagation overstate coverage for fine AS nodes with no direct model evidence?"
-  followup_study_proposals: []
+  followup_study_proposals:
+    - id: fp-as-level-coverage
+      title: "AS-level (sub-organ) model coverage"
+      motivation: "Annotate models to specific anatomical structures (not just whole organs) so coverage reflects direct per-AS evidence rather than organ-granularity propagation."
+      study_type: method-upgrade
+      proposed_experiment: "Parse SBML MIRIAM/Uberon annotations at the anatomical-structure level (not just organ-name synonym matching) for the biomodel-DO catalog, cross the result directly against crosswalk AS nodes, and compare AS-level covered counts against the current organ-granularity-propagated coverage to quantify the overstatement."
+      expected_information_gain: high
+      source_trigger: model-coverage-3d

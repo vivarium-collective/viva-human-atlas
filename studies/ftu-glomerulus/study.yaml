@@ -114,4 +114,11 @@ discovery_implications:
     - "The glomerulus FTU digital object is live, correctly shaped, and resolves to a real GLB asset (after the Accept-header fix)."
   remaining_uncertainties:
     - "Are enough FTUs beyond glomerulus published at this same digital-object shape to generalize sub-organ-scale model coverage?"
-  followup_study_proposals: []
+  followup_study_proposals:
+    - id: fp-ftu-scale-coverage
+      title: "FTU-scale model coverage"
+      motivation: "Extend model coverage from whole-organ GLBs down to functional tissue units (glomerulus + other published FTUs) so sub-organ models can be anchored."
+      study_type: analysis
+      proposed_experiment: "Fetch every published HRA FTU digital object (not just glomerulus), cross their sub-organ anatomical structures against the biomodel-DO organ->models index, and report coverage at FTU granularity alongside the existing organ-granularity figures."
+      expected_information_gain: medium
+      source_trigger: ftu-glomerulus
