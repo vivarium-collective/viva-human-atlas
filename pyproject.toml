@@ -29,3 +29,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
+
+[tool.pytest.ini_options]
+markers = ["network: hits external services; deselect with -m 'not network'"]
