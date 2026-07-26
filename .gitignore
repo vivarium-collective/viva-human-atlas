@@ -8,3 +8,4 @@ build/
 models/
 .superpowers/
 reports/published/
+.contracts-*.md
