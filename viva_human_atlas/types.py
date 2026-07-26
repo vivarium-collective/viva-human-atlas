@@ -15,6 +15,10 @@ returns (Uberon-keyed, per-sex GLB asset). `cell_type_term` /
 list (`biomodel_do.annotate_biomodel`); `biomodel_do` is the annotated
 BioModels hit `build_biomodel_do_catalog` emits, and `organ_to_models` is its
 inverted Uberon-CURIE -> biomodel-id index.
+
+`as_3d` is the per-row shape `hra_api.fetch_crosswalk` returns (one ASCT+B-3D
+anatomical-structure node from the crosswalk); `ftu` is the shape
+`hra_api.fetch_ftu` returns (a 3D functional-tissue-unit digital object).
 """
 from __future__ import annotations
 
@@ -46,6 +50,22 @@ WORKSPACE_TYPES = {
         "provenance": "tree",
     },
     "organ_to_models": "map[list[string]]",
+    "as_3d": {
+        "node_name": "string",
+        "label": "string",
+        "uberon": "string",
+        "representation_of": "string",
+        "node_type": "string",
+        "organ_glb": "string",
+        "parent": "string",
+    },
+    "ftu": {
+        "slug": "string",
+        "title": "string",
+        "description": "string",
+        "glb": "string",
+        "glb_url": "string",
+    },
 }
 
 
