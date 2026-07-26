@@ -72,20 +72,28 @@ IDs to the existing by-ID fetcher in `pbg-biomodels`.
 - **Outputs:** `model_ids: list[string]`, `model_index: map[...]` (id → metadata)
 - **Dependency:** `requests` (or urllib); mockable in tests.
 
-### `dual_sim_biomodel` composite
+### Reuse: pbg-biomodels `compare-simulators` (no new comparison code)
 
-Parameterized by `model_id`. Fetches the SBML once (pbg-biomodels loader), reads
-the model's SED-ML UniformTimeCourse, runs the same time course through
-`CopasiUTCStep` and `TelluriumUTCStep`, then `SimulatorComparisonStep` compares
-the trajectories and emits a per-species agreement metric. Records load/run
-failure per engine rather than aborting.
+The fetch → multi-engine run → all-pairs comparison already exists in
+`pbg_biomodels.composites.compare_simulators`:
+`build_compare_document(biomodel_ids, simulators=...)` builds the composite (one
+`LoadBiomodelStep` + per-engine UTC step via `utc_step_address` +
+`MultiSimulatorComparisonStep`), and `run_comparison(biomodel_ids, simulators=...)`
+runs each model in an **isolated** composite (one bad model records an `error`
+instead of sinking the batch). `resolve_simulators` already knows `"copasi"` and
+`"tellurium"`. So "dual-sim compare" = these functions called with
+`simulators="copasi,tellurium"`. **We reuse them; we do not reimplement the
+comparison.**
 
-### `glucose_regulation_batch` composite
+### `glucose_regulation` composite generator (the one new composite)
 
-Runs `BioModelsSearchStep(query="glucose regulation")` → gets IDs → fans out
-`dual_sim_biomodel` over them → aggregates a cross-model COPASI-vs-Tellurium
-agreement table (and a per-model overlay). Reuses the batch-comparison muscle
-already proven in pbg-biomodels (892 models × 5 engines).
+`@composite_generator(name="glucose-regulation", ...)` with params `query`
+(default `"glucose regulation"`), `max_results`, `simulators` (default
+`"copasi,tellurium"`). Its build function calls `search_biomodels(query,
+max_results)` to resolve IDs, then delegates to
+`build_compare_document(ids, simulators=...)`. A sibling
+`run_glucose_regulation(query, max_results, simulators)` helper searches then
+calls `run_comparison(...)` for the study runner.
 
 ## First investigation: `glucose-regulation`
 
