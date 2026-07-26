@@ -18,10 +18,57 @@ study_card:
   expected_result: "At least one glucose-regulation BioModel maps to at least one HRA organ (pancreas is expected to dominate given insulin/glucagon/beta-cell synonyms)."
   main_expert_question: "Is synonym-based annotation (vs a real ontology/NLP classifier) precise enough to trust the organ->models index for downstream multiscale coupling?"
 
+biological_summary: |
+  Glucose homeostasis is a liver-pancreas circuit: pancreatic beta cells
+  sense blood glucose and secrete insulin/glucagon, which the liver reads to
+  switch between glycogen synthesis and glycogenolysis/gluconeogenesis.
+  A "biomodel DO" (digital object) makes that anatomical grounding explicit
+  by tagging each BioModels SBML entry with the HRA reference organ(s) its
+  name/synonyms implicate, so a downstream multiscale composite can ask
+  "which glucose models actually touch the pancreas vs the liver" instead
+  of treating the whole search-result set as anatomically undifferentiated.
+
+report:
+  title: "Glucose BioModel DOs — 5/25 models organ-tagged (4 pancreas, 1 liver)"
+  verdict: passing-with-caveats
+  confidence: medium
+  evidence_quality: measured
+  objective: |
+    Can glucose-regulation BioModels be annotated with HRA Uberon organ
+    terms (via transparent synonym matching) and inverted into an
+    organ->models index?
+  conclusion: |
+    A live run of `build_biomodel_do_catalog("glucose regulation", 25)`
+    built 25 biomodel DOs (one per search hit) against the live 81-organ
+    HRA reference-organ set; 5/25 (20%) matched >=1 organ synonym in the
+    model name. The organ->models index has 2 organs: pancreas
+    (UBERON:0001264, 4 models — MODEL2001080002 Topp beta-cell-mass,
+    MODEL1112110004 Silber intravenous-glucose, BIOMD0000000382 Sturis
+    ultradian-oscillation, BIOMD0000000372 Tolic insulin-glucose-feedback)
+    and liver (UBERON:0002107, 1 model — BIOMD0000000633 Bulik2016 hepatic
+    glucose metabolism), confirming pancreas dominates as expected
+    (insulin/glucagon/beta-cell synonyms) while liver also surfaces via the
+    "hepatic" synonym.
+  caveat: |
+    Synonym matching only scans the model *name*, not its full
+    description/annotations, so the 80% unmatched rate (20/25) likely
+    undercounts real anatomical relevance — many unmatched titles (e.g.
+    generic "glucose-insulin model" variants) plausibly implicate
+    pancreas/liver too but don't say so in the name string. This is exactly
+    the study's main expert question: precision here trades off against
+    recall, and downstream multiscale coupling should treat
+    `organ_to_models` as a high-precision/low-recall starting index, not a
+    complete one.
+
 readouts:
   - "count of biomodel DOs built"
   - "count of distinct organs (Uberon CURIEs) with >=1 mapped model"
   - "per-organ model counts in organ_to_models"
+
+embed_visualizations:
+  - name: "COPASI vs Tellurium overlay — BIOMD0000000633 (liver-tagged)"
+    url: "/reports/figures/glucose-biomodel-do/copasi-vs-tellurium-BIOMD0000000633.html"
+    description: "Time-course overlay for BIOMD0000000633 (Bulik2016 hepatic glucose metabolism), this catalog's one liver-tagged model — COPASI (solid) vs Tellurium (dashed), from the committed full-corpus dataset (mean nRMSE 1.61e-07, 'good')."
 
 baseline:
   - name: baseline

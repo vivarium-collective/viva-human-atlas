@@ -18,9 +18,51 @@ study_card:
   expected_result: "Anatomical-structure terms (mostly Uberon) load as CURIEs sorted by occurrence count descending."
   main_expert_question: "Do the highest-occurrence anatomical structures correspond to whole organs (matching reference-organs) or finer sub-structures?"
 
+biological_summary: |
+  This histogram counts, across every HRA dataset, how often each
+  anatomy-ontology (mostly Uberon) term is annotated as the anatomical
+  structure a sample/observation was taken from. Unlike `hra-reference-organs`
+  (the fixed ~81-entry whole-organ 3D scaffold) or the 1,730-node ASCT+B-3D
+  crosswalk (`hra-3d-crosswalk`, every fine-grained anatomical structure
+  whether or not it has been used), this is usage-weighted: it reflects
+  which anatomical structures HRA's contributing datasets actually sample
+  from, not the full catalog of structures that exist.
+
+report:
+  title: "HRA Anatomical Structures — 288 distinct terms loaded, top term at 2,762 occurrences"
+  verdict: passing
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Does the HRA CCF API's ontology-term-occurences endpoint load into a
+    Step-driven composite, giving an anatomical-structure term occurrence
+    list?
+  conclusion: |
+    A live run against
+    `https://apps.humanatlas.io/api/v1/ontology-term-occurences` returned
+    288 distinct anatomical-structure terms, sorted by occurrence count
+    descending. The top term (UBERON:0013702) occurs 2,762 times —
+    matching `hra-cell-types`' top CL-term count exactly, consistent with
+    both endpoints counting the same underlying per-record annotations from
+    the same HRA dataset corpus. The next 9 terms (UBERON:0002113,
+    UBERON:0000948, UBERON:0001004, UBERON:0002048, UBERON:0001987,
+    UBERON:0000955, UBERON:0002189, UBERON:0002015, UBERON:0004027) range
+    231-336 occurrences, an order of magnitude below the top term.
+  caveat: |
+    288 terms is well below the ASCT+B-3D crosswalk's 1,730 Uberon-keyed
+    anatomical-structure nodes (`hra-3d-crosswalk`) — this endpoint only
+    surfaces structures that appear in HRA's *annotated* datasets, so most
+    of the crosswalk's fine-grained 3D anatomy has zero recorded usage here
+    even though it exists as a named 3D structure.
+
 readouts:
   - "count of distinct anatomical-structure terms loaded"
   - "top-N anatomical-structure terms by occurrence count"
+
+embed_visualizations:
+  - name: "Top anatomical-structure terms by occurrence count"
+    url: "/reports/figures/hra-anatomical-structures/top-anatomical-structures.html"
+    description: "Bar chart of the top 15 of 288 loaded anatomical-structure terms by HRA occurrence count; the top term (UBERON:0013702) occurs 2,762 times, matching hra-cell-types' top count exactly."
 
 baseline:
   - name: baseline

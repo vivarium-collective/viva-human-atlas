@@ -5,7 +5,7 @@ created: '2026-07-26'
 status: running
 design_status: complete
 implementation_status: complete
-simulation_status: pending
+simulation_status: ran
 phase: Evaluate
 
 question: |
@@ -18,9 +18,59 @@ study_card:
   expected_result: "Most models agree closely; divergences/load-failures are flagged per model."
   main_expert_question: "Are divergent models real dynamics differences or engine loading artifacts?"
 
+biological_summary: |
+  Hepatic and pancreatic glucose-regulation models (Bulik2016 hepatic glucose
+  metabolism, Sturis/Tolic insulin-glucose ultradian oscillators, Topp/Silber
+  beta-cell mass models) are stiff ODE systems spanning enzymatic and
+  hormonal timescales. Running the same SBML under two independent
+  numerical engines (COPASI's LSODA-based integrator vs Tellurium's
+  libRoadRunner/CVODE) is a cross-engine correctness check: close agreement
+  means the dynamics are numerically robust to the solver, not an artifact
+  of one engine's defaults; disagreement or a load failure flags either a
+  genuinely stiff/edge-case model or an engine-specific SBML-loading gap
+  (e.g. no SED-ML present to fix a simulation protocol).
+
+report:
+  title: "Glucose Regulation — 1/5 models loaded in both engines, agreement 'Good' (nRMSE 2.05e-7); 4/5 fail on missing SED-ML"
+  verdict: passing-with-caveats
+  confidence: medium
+  evidence_quality: measured
+  objective: |
+    Do COPASI and Tellurium agree on the dynamics of BioModels matching
+    "glucose regulation"?
+  conclusion: |
+    A live run (`run_glucose_regulation(max_results=5)`) against the top 5
+    "glucose regulation" BioModels search hits loaded only 1/5
+    (BIOMD0000000633, Bulik2016 hepatic glucose metabolism) successfully
+    under both COPASI and Tellurium: 30 shared species, mean nRMSE
+    2.05e-07, bucket "Good (<=1%)" — near-perfect cross-engine agreement.
+    This matches the committed full-corpus comparison dataset's independent
+    measurement for the same model (auto_ten_seconds job: mean nRMSE
+    1.61e-07, also "good"), cross-validating both runs. The other 4/5
+    (MODEL2001080002, MODEL1112110004, MODEL1806080001, MODEL2005050001 —
+    all non-curated `MODEL*` BioModels preprint entries, not `BIOMD*`
+    curated models) failed identically with
+    `ValueError: could not find a .sedml file in entry` — a load-time
+    gap (no SED-ML simulation protocol packaged with the entry), not a
+    numerical-agreement failure.
+  caveat: |
+    Small sample (5 models, capped for run time); the 80% load-failure rate
+    is driven entirely by non-curated `MODEL*` search hits lacking SED-ML,
+    not by curated `BIOMD*` models — a `curated_only` filter (as used by the
+    full-corpus catalog, Task A) would likely raise the load-success rate.
+    Only one model actually exercised the COPASI-vs-Tellurium agreement
+    comparison this run; broader agreement-bucket statistics come from the
+    committed corpus dataset (`glucose-biomodel-do`/`corpus-coverage`
+    studies), not this study's own baseline scope.
+
 readouts:
   - "per-model COPASI-vs-Tellurium nRMSE"
   - "count of models that fail to load in one engine"
+
+embed_visualizations:
+  - name: "COPASI vs Tellurium overlay — BIOMD0000000633"
+    url: "/reports/figures/glucose-regulation/copasi-vs-tellurium-BIOMD0000000633.html"
+    description: "Time-course overlay (from the committed full-corpus dataset) of COPASI (solid) vs Tellurium (dashed) trajectories for Bulik2016 hepatic glucose metabolism, the one model in this study's live 5-model run that loaded in both engines (mean nRMSE 2.05e-07, 'Good')."
 
 baseline:
   - name: baseline

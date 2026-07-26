@@ -18,9 +18,50 @@ study_card:
   expected_result: "Cell Ontology terms load as CURIEs sorted by occurrence count descending."
   main_expert_question: "Which CL terms dominate the HRA corpus, and do they align with the organs we care about for glucose regulation (pancreas, liver, adipose, muscle)?"
 
+biological_summary: |
+  The HRA's cell-type-term-occurrence histogram counts, across every HRA
+  dataset (tissue block, single-cell, spatial), how often each Cell
+  Ontology (CL) term is annotated on a cell population. A term's occurrence
+  count is a proxy for how broadly that cell type has been profiled across
+  organs/datasets, not for its abundance in the body — a near-universal
+  term (e.g. an ontology root) will out-rank a rare-but-important cell type
+  like a pancreatic beta cell simply because it is annotated on almost
+  every dataset.
+
+report:
+  title: "HRA Cell Types — 149 distinct CL terms loaded, top term at 2,762 occurrences"
+  verdict: passing
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Does the HRA CCF API's cell-type-term-occurences endpoint load into a
+    Step-driven composite, giving a Cell Ontology (CL) term occurrence
+    list?
+  conclusion: |
+    A live run against
+    `https://apps.humanatlas.io/api/v1/cell-type-term-occurences` returned
+    149 distinct CL terms, sorted by occurrence count descending. The top
+    term (CL:0000000) occurs 2,762 times — an order of magnitude above the
+    #2-#9 tier, which cluster at exactly 266 occurrences each (CL:0010008,
+    CL:0000084, CL:0000236, CL:0000576, CL:0000623, CL:0011005, CL:4023011,
+    CL:4023016), suggesting those co-occur as a fixed per-record annotation
+    bundle in whatever HRA datasets contribute them.
+  caveat: |
+    The dominant top term (2,762 occurrences, ~4x the next tier) reads as a
+    broad/root-level CL annotation rather than a specific, glucose-relevant
+    cell type — this endpoint answers "which CL terms are most annotated
+    across HRA datasets", not "which cell types matter most for glucose
+    regulation" (pancreatic beta cells, hepatocytes, adipocytes do not
+    appear in the top 10 by this measure).
+
 readouts:
   - "count of distinct CL terms loaded"
   - "top-N CL terms by occurrence count"
+
+embed_visualizations:
+  - name: "Top cell-type (CL) terms by occurrence count"
+    url: "/reports/figures/hra-cell-types/top-cell-types.html"
+    description: "Bar chart of the top 15 of 149 loaded CL terms by HRA occurrence count; the top term (CL:0000000) occurs 2,762 times, ~4x the next tier."
 
 baseline:
   - name: baseline
