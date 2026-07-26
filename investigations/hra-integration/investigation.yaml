@@ -35,5 +35,21 @@ studies:
   - hra-anatomical-structures
   - glucose-biomodel-do
 
+inputs:
+  references:
+    - Boerner2021HRA
+    - Bueckle2025HRAKG
+    - Bidanta2025FTU
+    - Mungall2012Uberon
+    - Diehl2016CellOntology
+    - Carmody2023MAxO
+    - Juty2013SBO
+    - MalikSheriff2020BioModels
+  expert_docs:
+    - name: viva-human-atlas — instructions
+      path: references/sources/instructions.md
+    - name: DynXR/DynKG proposal relevance (Aim 2)
+      path: references/sources/dynxr-proposal.md
+
 expert_docs: []
 acceptance_criteria: []

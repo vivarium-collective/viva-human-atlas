@@ -17,7 +17,8 @@ INTERACTIVE_URL="https://github.com/vivarium-collective/viva-human-atlas"
 PY="$WS_ROOT/.venv/bin"
 
 rm -rf "$OUT"
-PYTHONPATH="$WS_ROOT" "$PY/vivarium-workbench-publish" \
+# PYTHONUTF8=1 so the notebook exporter reads non-ASCII study text (Börner, β, →).
+PYTHONUTF8=1 PYTHONPATH="$WS_ROOT" "$PY/vivarium-workbench-publish" \
   --workspace "$WS_ROOT" --out "$OUT" \
   --base-path "$BASE_PATH" --interactive-url "$INTERACTIVE_URL"
 find "$OUT" -name '*.map' -delete || true

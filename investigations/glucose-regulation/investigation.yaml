@@ -24,5 +24,20 @@ lead: |
 studies:
   - glucose-regulation
 
+inputs:
+  references:
+    - MalikSheriff2020BioModels
+    - Hucka2003SBML
+    - Hoops2006COPASI
+    - Somogyi2015libRoadRunner
+    - Agmon2022Vivarium
+    - Shaikh2022BioSimulators
+    - Herrgardh2021Glucose
+  expert_docs:
+    - name: viva-human-atlas — instructions
+      path: references/sources/instructions.md
+    - name: HRA / WPP context sources
+      path: references/sources/hra-wpp-context.md
+
 expert_docs: []
 acceptance_criteria: []
