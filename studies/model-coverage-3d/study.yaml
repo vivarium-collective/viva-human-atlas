@@ -61,6 +61,11 @@ report:
     kidney). Organ-granularity propagation also still overstates
     fine-grained coverage: a covered organ's Uberon marks every AS node
     cut from its GLB, not just nodes with direct model evidence.
+    NOTE: the embedded 3D viewer packs under this study's `viz/hra/` are
+    rendered from the FULL-CORPUS coverage (635/1,730, kidney included),
+    NOT this study's glucose-query baseline — so the 3D organs show more
+    green than the 58/1,730 figure above. See the `corpus-coverage` study
+    for the matching corpus report.
 
 baseline:
   - name: baseline
