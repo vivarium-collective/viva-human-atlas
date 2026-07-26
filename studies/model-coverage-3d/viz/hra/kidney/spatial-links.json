@@ -1,0 +1,98 @@
+{
+  "links": [
+    {
+      "biomodel_id": "BIOMD0000000633",
+      "name": "Bulik2016 - Regulation of hepatic glucose metabolism",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_F_Liver",
+      "node_name": "VH_F_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000633",
+      "name": "Bulik2016 - Regulation of hepatic glucose metabolism",
+      "uberon": "UBERON:0002107",
+      "label": "liver",
+      "organ_glb": "VH_M_Liver",
+      "node_name": "VH_M_liver",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "MODEL2001080002",
+      "name": "Topp200 -  Model of b-Cell Mass, Insulin, and Glucose Kinetics:Pathways to Diabetes",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "MODEL2001080002",
+      "name": "Topp200 -  Model of b-Cell Mass, Insulin, and Glucose Kinetics:Pathways to Diabetes",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "MODEL1112110004",
+      "name": "Silber2007_IntravenousGlucose_IntegratedGlucoseInsulinModel",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "MODEL1112110004",
+      "name": "Silber2007_IntravenousGlucose_IntegratedGlucoseInsulinModel",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000382",
+      "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000382",
+      "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000372",
+      "name": "Tolic2000_InsulinGlucoseFeedback",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_F_Pancreas",
+      "node_name": "VH_F_pancreas",
+      "readout": "pending time-series"
+    },
+    {
+      "biomodel_id": "BIOMD0000000372",
+      "name": "Tolic2000_InsulinGlucoseFeedback",
+      "uberon": "UBERON:0001264",
+      "label": "Pancreas",
+      "organ_glb": "VH_M_Pancreas",
+      "node_name": "VH_M_pancreas",
+      "readout": "pending time-series"
+    }
+  ],
+  "summary": {
+    "n_links": 10,
+    "n_models": 5
+  }
+}

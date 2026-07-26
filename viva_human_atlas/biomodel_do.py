@@ -26,6 +26,7 @@ ORGAN_SYNONYMS: Dict[str, List[str]] = {
     "muscle": ["skeletal muscle", "myocyte", "myotube"],
     "intestine": ["intestine", "intestinal", "gut", "enteric"],
     "blood": ["blood", "plasma", "circulation"],
+    "heart": ["heart", "cardiac", "cardiomyocyte", "myocardial", "myocardium"],
 }
 
 
@@ -103,20 +104,21 @@ def annotate_biomodel(
     }
 
 
-def build_biomodel_do_catalog(
-    query: str = "glucose regulation",
-    max_results: int = 25,
+def build_catalog_from_models(
+    models: List[dict],
     *,
-    _get_search: Optional[Callable] = None,
     _get_hra: Optional[Callable] = None,
 ) -> dict:
-    """Search BioModels, annotate each hit with HRA organs, and invert into
+    """Annotate each `{"id", "name"}` model with HRA organs, and invert into
     an organ(Uberon CURIE)->model-ids index.
+
+    This is the annotate-all core shared by `build_biomodel_do_catalog`
+    (search-query driven, up to `max_results`) and the full-corpus catalog
+    build (`scripts/build_biomodel_catalog.py`, all 1,096 curated models).
 
     Returns `{"biomodel_dos": [...], "organ_index": {...},
     "organ_to_models": {uberon: [biomodel_id, ...]}}`.
     """
-    models = search_biomodels_detailed(query, max_results, _get=_get_search)
     organ_index = build_organ_index(_get=_get_hra)
 
     biomodel_dos = [
@@ -136,6 +138,23 @@ def build_biomodel_do_catalog(
         "organ_index": organ_index,
         "organ_to_models": organ_to_models,
     }
+
+
+def build_biomodel_do_catalog(
+    query: str = "glucose regulation",
+    max_results: int = 25,
+    *,
+    _get_search: Optional[Callable] = None,
+    _get_hra: Optional[Callable] = None,
+) -> dict:
+    """Search BioModels, annotate each hit with HRA organs, and invert into
+    an organ(Uberon CURIE)->model-ids index.
+
+    Returns `{"biomodel_dos": [...], "organ_index": {...},
+    "organ_to_models": {uberon: [biomodel_id, ...]}}`.
+    """
+    models = search_biomodels_detailed(query, max_results, _get=_get_search)
+    return build_catalog_from_models(models, _get_hra=_get_hra)
 
 
 class BiomodelDOCatalogStep(Step):

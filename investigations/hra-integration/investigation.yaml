@@ -17,6 +17,11 @@ hypothesis: |
   BioModels names against the HRA reference-organ set is enough to annotate a
   useful fraction of glucose-regulation models with an Uberon organ, giving a
   working organ->models index without a heavyweight NLP classifier.
+  Confirmed: live runs loaded 81 reference organs (69/81 Uberon-keyed),
+  149 Cell Ontology terms, and 288 anatomical-structure terms; synonym
+  matching over 25 "glucose regulation" search hits tagged 5/25 (20%) with
+  an HRA organ — 4 pancreas, 1 liver — a real but recall-limited (name-only)
+  organ->models index, not a complete one.
 
 lead: |
   This investigation follows glucose-regulation and builds the HRA (Human

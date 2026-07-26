@@ -18,9 +18,50 @@ study_card:
   expected_result: "The full HRA reference-organ set (~77 organs, some sex-split) loads with a parsed organ slug, Uberon (or FMA) CURIE, sex, and GLB asset URL per entry."
   main_expert_question: "Is the reference-organ set stable enough (schema + coverage) to key downstream biomodel annotation off of?"
 
+biological_summary: |
+  The HRA reference-organ set is the atlas's per-sex, whole-organ 3D
+  scaffold: each entry is a single named organ (or organ pair, e.g. kidney
+  left/right) rendered as its own GLB asset, sex-split where anatomy
+  differs (breast, reproductive organs) and unsplit where it doesn't (most
+  visceral organs). This set is the anchor everything else in
+  `hra-integration` keys off of: `glucose-biomodel-do`'s synonym matching
+  scans these organ slugs, and `hra-3d`'s crosswalk propagates coverage
+  from each organ's Uberon CURIE down to every anatomical-structure node
+  cut from its GLB.
+
+report:
+  title: "HRA Reference Organs — 81 organs loaded, 69/81 (85.2%) Uberon-keyed, 45 female / 36 male"
+  verdict: passing
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Does the HRA CCF API's reference-organs endpoint load into a
+    Step-driven composite, giving an Uberon-keyed organ set (with per-sex
+    GLB assets)?
+  conclusion: |
+    A live run against `https://apps.humanatlas.io/api/v1/reference-organs`
+    returned 81 reference-organ entries spanning 58 distinct organ slugs
+    (bilateral/sex-specific organs like kidney or ovary contribute more
+    than one entry). 69/81 (85.2%) carry a UBERON-prefixed CURIE; the
+    remaining 12 (14.8%) parse to a non-Uberon (FMA) identifier. The set
+    splits 45 female-specific / 36 male-specific entries, reflecting
+    per-sex organ GLBs (breast, reproductive organs) plus duplicated
+    unisex organs modeled once per sex.
+  caveat: |
+    "Uberon-keyed" here means the parsed CURIE prefix is literally
+    `UBERON:`; the 14.8% FMA-prefixed entries are not un-annotated, just on
+    a different ontology, so downstream Uberon-keyed matching
+    (`glucose-biomodel-do`'s organ index, `hra-3d`'s crosswalk) silently
+    drops them rather than flagging a translation gap.
+
 readouts:
   - "count of reference organs loaded"
   - "fraction of organs with a UBERON-prefixed uberon CURIE (vs FMA)"
+
+embed_visualizations:
+  - name: "Reference organs by sex"
+    url: "/reports/figures/hra-reference-organs/organs-by-sex.html"
+    description: "Bar chart of the 81 loaded reference-organ entries split by sex (45 female-specific, 36 male-specific), 69/81 Uberon-keyed."
 
 baseline:
   - name: baseline

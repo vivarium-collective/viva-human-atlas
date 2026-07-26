@@ -5,19 +5,26 @@ created: '2026-07-26'
 status: running
 
 question: |
-  Which of the 1,400+ HRA AS / 81 organs are covered by mechanistic models,
-  and can we view model coverage on the 3D anatomy?
+  Which of the HRA's 1,730 Uberon-keyed anatomical structures (2,295 raw
+  ASCT+B-3D crosswalk rows, 114 source-organ GLBs) are covered by a
+  mechanistic model — at a single query's scale and at the full
+  1,096-model curated-corpus scale — and can we view that coverage/linkage
+  directly on the 3D anatomy?
 
 hypothesis: |
-  The full ASCT+B-3D anatomical-structure crosswalk (1,400+ nodes, below the
-  ~81 per-organ reference-organ GLBs) and a sub-organ-scale FTU digital
-  object (glomerulus) are both loadable via thin Steps; crossing the
-  crosswalk with the hra-integration investigation's biomodel-DO
-  organ->models index (at organ granularity) is enough to mark model
-  coverage over anatomical structures/organs and to join each covered
-  model to the exact GLB scene node it maps to — giving a coverage/linkage
-  layer that a three.js viewer can render directly on a reference-organ 3D
-  model, without a heavyweight per-AS-node model-matching pipeline.
+  The full ASCT+B-3D anatomical-structure crosswalk (2,295 rows, 1,730 with
+  a resolvable Uberon CURIE, below the ~81 per-organ reference-organ GLBs)
+  and a sub-organ-scale FTU digital object (glomerulus) are both loadable
+  via thin Steps; crossing the crosswalk with the hra-integration
+  investigation's biomodel-DO organ->models index (at organ granularity) is
+  enough to mark model coverage over anatomical structures/organs and to
+  join each covered model to the exact GLB scene node it maps to — giving a
+  coverage/linkage layer that a three.js viewer can render directly on a
+  reference-organ 3D model, without a heavyweight per-AS-node
+  model-matching pipeline. Confirmed: a single 25-result query covers only
+  58/1,730 AS nodes (liver + pancreas), while crossing the full curated
+  1,096-model corpus covers 635/1,730 (31/114 organs) — an order of
+  magnitude wider, and wide enough to newly reach kidney.
 
 lead: |
   This investigation follows hra-integration and builds the 3D-anatomy side
@@ -29,13 +36,18 @@ lead: |
   (Task D). This realizes the DynXR proposal's Aim 2 T2.1 (HRA 3D dataset
   access) and T2.2/T2.4 (spatially-grounded, transparent model-coverage
   visualization); see references/sources/dynxr-proposal.md and
-  references/sources/hra-wpp-context.md.
+  references/sources/hra-wpp-context.md. A later full-corpus pass
+  (`corpus-coverage`) retrieves and organ-tags all 1,096 curated BioModels
+  (82 organ-tagged) and re-crosses them against the same crosswalk, showing
+  the query-scoped `model-coverage-3d` study substantially undercounts real
+  coverage — including missing kidney entirely.
 
 studies:
   - hra-3d-crosswalk
   - model-coverage-3d
   - spatial-linkage
   - ftu-glomerulus
+  - corpus-coverage
 
 inputs:
   references:

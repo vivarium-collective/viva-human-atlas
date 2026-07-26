@@ -169,7 +169,14 @@ def fetch_ftu(
     """
     if _get is None:
         _get = _default_get()
-    resp = _get(f"https://purl.humanatlas.io/3d-ftu/{slug}/latest", timeout=30)
+    # The purl resolver content-negotiates: a bare `Accept: */*` (requests'
+    # default) 404s, but an explicit `Accept: application/json` 200s with
+    # the digital-object JSON this function expects.
+    resp = _get(
+        f"https://purl.humanatlas.io/3d-ftu/{slug}/latest",
+        timeout=30,
+        headers={"Accept": "application/json"},
+    )
     resp.raise_for_status()
     do = resp.json() or {}
     glb = (do.get("data") or [""])[0]
