@@ -38,6 +38,33 @@ def search_biomodels(
     return ids[:max_results]
 
 
+def search_biomodels_detailed(
+    query: str,
+    max_results: int = 25,
+    *,
+    _get: Optional[Callable] = None,
+) -> List[dict]:
+    """Return up to `max_results` `{"id", "name"}` dicts matching `query`.
+
+    Same endpoint/params as `search_biomodels`, but keeps the model name
+    alongside the id (needed to annotate biomodel DOs with an organ).
+    `_get` is an injectable requests.get-compatible callable (for tests);
+    defaults to the real requests.get.
+    """
+    if _get is None:
+        import requests
+        _get = requests.get
+    resp = _get(
+        _SEARCH_URL,
+        params={"query": query, "format": "json", "numResults": int(max_results)},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    models = resp.json().get("models") or []
+    results = [{"id": m["id"], "name": m.get("name", "")} for m in models if m.get("id")]
+    return results[:max_results]
+
+
 class BioModelsSearchStep(Step):
     """Step: text query -> list of BioModels IDs."""
 
