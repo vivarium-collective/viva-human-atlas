@@ -22,13 +22,17 @@ prefix, drop all non-alphanumerics) rather than the raw strings.
 """
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Callable, Optional
 
 from process_bigraph import Step
 
 from viva_human_atlas.biomodel_do import build_biomodel_do_catalog
 from viva_human_atlas.hra_api import fetch_crosswalk
+
+_DEFAULT_CORPUS_CATALOG_PATH = "datasets/biomodel_corpus_catalog.json"
 
 # Naming-convention prefixes seen on reference-organ asset stems / crosswalk
 # `organ_glb` values, longest/most-specific first so e.g. "3d-vh-f-" is
@@ -62,6 +66,7 @@ def build_coverage(
     query: str = "glucose regulation",
     max_results: int = 25,
     *,
+    catalog: Optional[dict] = None,
     _get_search: Optional[Callable] = None,
     _get_hra: Optional[Callable] = None,
     _get_xwalk: Optional[Callable] = None,
@@ -69,10 +74,19 @@ def build_coverage(
     """Build model coverage over the ASCT+B-3D crosswalk's anatomical
     structures, crossed with the biomodel-DO organ->models index.
 
+    When `catalog` (a `{biomodel_dos, organ_index, organ_to_models}` dict —
+    e.g. from `load_corpus_catalog`) is given, it is used directly and the
+    live BioModels search/annotate (`build_biomodel_do_catalog`, `query`/
+    `max_results`/`_get_search`/`_get_hra`) is skipped entirely. When
+    `catalog is None` (the default), behavior is unchanged: `query`/
+    `max_results` drive a live `build_biomodel_do_catalog` call.
+
     Returns `{"coverage": [coverage_row, ...], "summary": {...}}` — see
     module docstring for the organ-granularity coverage rule.
     """
-    cat = build_biomodel_do_catalog(query, max_results, _get_search=_get_search, _get_hra=_get_hra)
+    cat = catalog if catalog is not None else build_biomodel_do_catalog(
+        query, max_results, _get_search=_get_search, _get_hra=_get_hra
+    )
     rows = fetch_crosswalk(_get=_get_xwalk)
 
     uberon_models = cat["organ_to_models"]
@@ -143,6 +157,27 @@ def build_coverage(
     }
 
 
+def load_corpus_catalog(path: str = _DEFAULT_CORPUS_CATALOG_PATH) -> dict:
+    """Load the committed full-corpus catalog (Task A,
+    `datasets/biomodel_corpus_catalog.json` = `{n_ids, n_named, n_tagged,
+    catalog}`) and return just the inner `catalog`
+    (`{biomodel_dos, organ_index, organ_to_models}`)."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return payload["catalog"]
+
+
+def build_corpus_coverage(
+    catalog_path: str = _DEFAULT_CORPUS_CATALOG_PATH,
+    *,
+    _get_xwalk: Optional[Callable] = None,
+) -> dict:
+    """`build_coverage` over the full committed corpus catalog (Task A) —
+    loads `catalog_path` (default the committed
+    `datasets/biomodel_corpus_catalog.json`) via `load_corpus_catalog` and
+    crosses it with the live ASCT+B-3D crosswalk."""
+    return build_coverage(catalog=load_corpus_catalog(catalog_path), _get_xwalk=_get_xwalk)
+
+
 class CoverageStep(Step):
     """Step: build model coverage over the ASCT+B-3D crosswalk's anatomical
     structures, crossed with the biomodel-DO organ->models index.
@@ -163,6 +198,7 @@ class CoverageStep(Step):
     config_schema = {
         "query": "string",
         "max_results": "integer",
+        "catalog_path": "string",
     }
 
     def inputs(self):
@@ -172,10 +208,17 @@ class CoverageStep(Step):
         return {"coverage": "list[coverage_row]", "coverage_summary": "coverage_summary"}
 
     def update(self, inputs):
-        out = build_coverage(
-            self.config.get("query", "glucose regulation"),
-            int(self.config.get("max_results", 25)),
-        )
+        catalog_path = self.config.get("catalog_path")
+        if catalog_path:
+            # Corpus mode (Task B, `corpus-coverage` composite): use the
+            # committed full-corpus catalog instead of a live BioModels
+            # search/annotate.
+            out = build_corpus_coverage(catalog_path)
+        else:
+            out = build_coverage(
+                self.config.get("query", "glucose regulation"),
+                int(self.config.get("max_results", 25)),
+            )
         return {"coverage": out["coverage"], "coverage_summary": out["summary"]}
 
 
