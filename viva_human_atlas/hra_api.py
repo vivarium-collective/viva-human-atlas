@@ -100,7 +100,18 @@ def fetch_anatomical_structure_terms(
 
 
 class HRAReferenceOrgansStep(Step):
-    """Step: fetch HRA reference organs (Uberon-keyed)."""
+    """Step: fetch HRA reference organs (Uberon-keyed).
+
+    Pulls the HRA CCF API's `/v1/reference-organs` list and parses each entry
+    into a `reference_organ` record (Uberon CURIE, organ slug, sex, 3D asset
+    URL) — the per-sex reference-organ 3D models the Human Reference Atlas
+    publishes for anatomical grounding.
+    """
+
+    description = (
+        "Fetch HRA reference organs (Uberon-keyed, per-sex GLB 3D assets) "
+        "from the CCF API's `/v1/reference-organs` endpoint."
+    )
 
     config_schema = {"base_url": "string"}
 
@@ -108,14 +119,38 @@ class HRAReferenceOrgansStep(Step):
         return {}
 
     def outputs(self):
-        return {"reference_organs": "list[tree]"}
+        return {"reference_organs": "list[reference_organ]"}
 
     def update(self, inputs):
         return {"reference_organs": fetch_reference_organs(self.config.get("base_url", HRA_API))}
 
 
+HRAReferenceOrgansStep.contract = {
+    "summary": HRAReferenceOrgansStep.description,
+    "outputs": {
+        "reference_organs": (
+            "One `reference_organ` record per HRA reference organ: "
+            "`ref_organ_id` (source IRI), `organ` (slug, e.g. `liver`), "
+            "`uberon` (Uberon CURIE), `sex` (`Male`/`Female`, if sex-specific), "
+            "`asset_url` (GLB 3D-model URL)."
+        ),
+    },
+}
+
+
 class HRACellTypesStep(Step):
-    """Step: fetch HRA cell-type term occurrences (Cell Ontology)."""
+    """Step: fetch HRA cell-type term occurrences (Cell Ontology).
+
+    Pulls the HRA CCF API's `/v1/cell-type-term-occurences` histogram (Cell
+    Ontology IRI -> occurrence count across HRA datasets) and returns it as a
+    CURIE-keyed, count-descending list of `cell_type_term` records.
+    """
+
+    description = (
+        "Fetch HRA cell-type term occurrences (Cell Ontology, CURIE-keyed) "
+        "from the CCF API's `/v1/cell-type-term-occurences` endpoint, sorted "
+        "by occurrence count descending."
+    )
 
     config_schema = {"base_url": "string"}
 
@@ -123,14 +158,38 @@ class HRACellTypesStep(Step):
         return {}
 
     def outputs(self):
-        return {"cell_types": "list[tree]"}
+        return {"cell_types": "list[cell_type_term]"}
 
     def update(self, inputs):
         return {"cell_types": fetch_cell_type_terms(self.config.get("base_url", HRA_API))}
 
 
+HRACellTypesStep.contract = {
+    "summary": HRACellTypesStep.description,
+    "outputs": {
+        "cell_types": (
+            "One `cell_type_term` record per distinct Cell Ontology term: "
+            "`cl` (CL CURIE) and `count` (occurrences across HRA datasets), "
+            "sorted by `count` descending."
+        ),
+    },
+}
+
+
 class HRAAnatomicalStructuresStep(Step):
-    """Step: fetch HRA anatomical-structure term occurrences."""
+    """Step: fetch HRA anatomical-structure term occurrences.
+
+    Pulls the HRA CCF API's `/v1/ontology-term-occurences` histogram
+    (anatomy-ontology IRI -> occurrence count across HRA datasets) and
+    returns it as a CURIE-keyed, count-descending list of `anatomical_term`
+    records.
+    """
+
+    description = (
+        "Fetch HRA anatomical-structure term occurrences (CURIE-keyed) from "
+        "the CCF API's `/v1/ontology-term-occurences` endpoint, sorted by "
+        "occurrence count descending."
+    )
 
     config_schema = {"base_url": "string"}
 
@@ -138,7 +197,7 @@ class HRAAnatomicalStructuresStep(Step):
         return {}
 
     def outputs(self):
-        return {"anatomical_structures": "list[tree]"}
+        return {"anatomical_structures": "list[anatomical_term]"}
 
     def update(self, inputs):
         return {
@@ -146,3 +205,15 @@ class HRAAnatomicalStructuresStep(Step):
                 self.config.get("base_url", HRA_API)
             )
         }
+
+
+HRAAnatomicalStructuresStep.contract = {
+    "summary": HRAAnatomicalStructuresStep.description,
+    "outputs": {
+        "anatomical_structures": (
+            "One `anatomical_term` record per distinct anatomy-ontology "
+            "term: `term` (CURIE) and `count` (occurrences across HRA "
+            "datasets), sorted by `count` descending."
+        ),
+    },
+}

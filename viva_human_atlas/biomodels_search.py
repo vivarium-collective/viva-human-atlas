@@ -66,7 +66,18 @@ def search_biomodels_detailed(
 
 
 class BioModelsSearchStep(Step):
-    """Step: text query -> list of BioModels IDs."""
+    """Step: text query -> list of BioModels IDs.
+
+    Thin wrapper over `search_biomodels`: queries the BioModels REST search
+    endpoint and returns up to `max_results` matching BioModels accession IDs
+    (e.g. `BIOMD0000000372`), ordered as returned by the API (typically
+    relevance).
+    """
+
+    description = (
+        "Query the BioModels REST search endpoint for a text term and "
+        "return up to `max_results` matching BioModels accession IDs."
+    )
 
     config_schema = {
         "query": "string",
@@ -85,3 +96,15 @@ class BioModelsSearchStep(Step):
             int(self.config.get("max_results", 25)),
         )
         return {"model_ids": ids}
+
+
+BioModelsSearchStep.contract = {
+    "summary": BioModelsSearchStep.description,
+    "config": {
+        "query": "Free-text search term passed to the BioModels search API.",
+        "max_results": "Cap on the number of returned IDs.",
+    },
+    "outputs": {
+        "model_ids": "BioModels accession IDs matching `query`, in API result order.",
+    },
+}
