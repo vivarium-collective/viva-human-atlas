@@ -42,6 +42,54 @@ lead: |
   the query-scoped `model-coverage-3d` study substantially undercounts real
   coverage — including missing kidney entirely.
 
+executive:
+  what_is_this: |
+    Builds the 3D-anatomy side of the fetch-and-compare spine: the full
+    ASCT+B-3D crosswalk and a glomerulus FTU digital object, organ-
+    granularity model coverage crossed with the biomodel-DO index at both
+    query scale and full-corpus scale, model->AS->GLB-node spatial linkage,
+    and a materialized three.js viewer pack.
+  verdict: |
+    The crosswalk loads 2,295 AS rows (1,730 Uberon-keyed, 75.4%) across
+    116 organ GLBs. A single 25-result query covers only 58/1,730 AS nodes
+    (liver+pancreas); crossing the full 1,096-model curated corpus covers
+    635/1,730 (31/114 organs) — an order of magnitude wider, and wide
+    enough to newly reach kidney. Spatial linkage (10 links/5 models) and
+    the glomerulus FTU both load correctly, but neither carries live model
+    results yet: spatial-linkage's readout is a placeholder, and
+    organ-granularity coverage still overstates fine-grained per-AS-node
+    evidence.
+  verdict_status: passing-with-caveats
+  decisions_needed:
+    - question: "Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?"
+      context: "Full-corpus coverage reaches 31/114 organs (27.2%); the other 83 organs, and finer sub-organ FTUs beyond glomerulus, are not yet enumerated as a prioritized gap list."
+    - question: "Does organ-granularity coverage overstate AS-level coverage — can we get finer?"
+      context: "A covered organ's Uberon marks every AS node cut from its GLB as covered, whether or not that specific sub-structure has direct model evidence; 18.3% of crosswalk rows are structurally un-keyable (organizational nodes), a hard ceiling on how fine coverage can ever get."
+    - question: "Can we spatially link model RESULTS (steady-state values) to AS, not just presence?"
+      context: "spatial-linkage's `readout` field is a literal placeholder string ('pending time-series') for all 10 links in v1 — the join topology (model -> AS node) works, but no simulation output is wired to a node yet."
+
+scientific_argument:
+  main_claim: |
+    The full ASCT+B-3D anatomical-structure crosswalk (below the ~81
+    per-organ reference-organ GLBs) and a sub-organ-scale FTU digital
+    object are both loadable via thin Steps; crossing the crosswalk with
+    the hra-integration investigation's biomodel-DO organ->models index is
+    enough to mark model coverage over anatomical structures and to join
+    each covered model to the exact GLB scene node it maps to — without a
+    heavyweight per-AS-node model-matching pipeline.
+  evidence_for:
+    - "hra-3d-crosswalk: 2,295 AS rows load, 1,730 (75.4%) Uberon-keyed, across 116 source-organ GLBs — exceeding the ~1,400+ estimate."
+    - "model-coverage-3d: the organ-granularity propagation rule fires correctly at query scale (58/1,730 AS nodes, exactly liver+pancreas, nothing else)."
+    - "corpus-coverage: full-corpus retrieval widens coverage an order of magnitude (635/1,730 AS nodes, 31/114 organs) and newly reaches kidney, which the narrower query misses entirely."
+    - "spatial-linkage: the Uberon-only join is deterministic and reproducible (10 links across 5 models, exactly 2 nodes per model, one per sex)."
+    - "ftu-glomerulus: the sub-organ-scale FTU digital-object shape is real and live-fetchable (confirmed HTTP 200, ~150.4 MB GLB)."
+  evidence_against: []
+  caveats:
+    - "Organ-granularity coverage overstates fine-grained coverage: it marks every AS node cut from a covered organ's GLB, not just nodes with direct model evidence."
+    - "Organ-tagging yield is low (82/1,096 = 7.5% of the full corpus), so untagged models may include real anatomical relevance the current synonym matcher misses."
+    - "spatial-linkage carries no live model results yet (placeholder readout); the embedded 3D viewer packs render full-corpus coverage, not any single study's own query scope."
+    - "Only one FTU (glomerulus) has been exercised; whether the digital-object shape generalizes to other FTUs is unchecked."
+
 studies:
   - hra-3d-crosswalk
   - model-coverage-3d
@@ -62,4 +110,14 @@ inputs:
       path: references/sources/dynxr-proposal.md
 
 expert_docs: []
-acceptance_criteria: []
+acceptance_criteria:
+  - study: hra-3d-crosswalk
+    behavior: "The ASCT+B-3D crosswalk loads a non-empty anatomical-structure list with resolvable Uberon CURIEs and source-organ GLB names."
+  - study: model-coverage-3d
+    behavior: "Crossing the crosswalk with a query-scoped biomodel-DO catalog marks at least one AS node/organ covered, matching the query's known organ annotations."
+  - study: spatial-linkage
+    behavior: "Each biomodel-DO organ annotation joins to at least one crosswalk AS node precise enough for a viewer to color the right scene node."
+  - study: ftu-glomerulus
+    behavior: "The glomerulus FTU digital object loads with a non-empty title/description and a resolvable GLB asset URL."
+  - study: corpus-coverage
+    behavior: "Crossing the full curated BioModels catalog against the crosswalk covers materially more AS nodes/organs than the single-query model-coverage-3d study, including organs the narrow query misses."

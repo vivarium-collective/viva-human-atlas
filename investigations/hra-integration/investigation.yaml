@@ -34,6 +34,44 @@ lead: |
   T1.1/T2.4 (transparent organ gap-filling for biomodel annotation); see
   references/sources/dynxr-proposal.md.
 
+executive:
+  what_is_this: |
+    Builds the HRA (Human Reference Atlas) side of the fetch-and-compare
+    spine: a thin CCF-API client (reference organs, cell-type terms,
+    anatomical-structure terms) plus a biomodel Digital Object annotation
+    layer that tags glucose-regulation BioModels with an HRA organ via
+    transparent name-synonym matching.
+  verdict: |
+    All three HRA CCF endpoints load real, non-empty, correctly-shaped
+    data (81 reference organs 69/81 Uberon-keyed, 149 CL terms, 288
+    anatomical-structure terms). Synonym matching over the 25-result
+    "glucose regulation" query tagged 5/25 (20%) models with an HRA organ
+    (4 pancreas, 1 liver) — biologically correct where it fires, but
+    recall-limited because it only scans the model name.
+  verdict_status: passing-with-caveats
+  decisions_needed:
+    - question: "What is the organ-tag recall ceiling with names alone (currently ~20% on this query, 7.5% at full-corpus scale)? Move to SBML MIRIAM annotations?"
+      context: "Synonym matching scans only the model title; the unmatched majority (80% of this query, 92.5% of the full corpus) plausibly includes organ-specific models the current matcher simply cannot see."
+    - question: "Which organs are systematically under-tagged?"
+      context: "Only pancreas and liver surface from the glucose-regulation query; the full HRA reference-organ set (81 entries, 58 slugs) is far broader, and it is not yet checked which of those organs never get a synonym hit across any BioModels query."
+
+scientific_argument:
+  main_claim: |
+    A thin Step-based client against the live HRA CCF API is stable enough
+    to drive a process-bigraph composite, and simple name-synonym matching
+    over BioModels titles is enough to build a real, biologically-correct
+    (if recall-limited) organ->models index without a heavyweight NLP
+    classifier.
+  evidence_for:
+    - "hra-reference-organs: 81 organs load, 69/81 (85.2%) Uberon-keyed, 45 female / 36 male entries."
+    - "hra-cell-types: 149 distinct CL terms load, count-sorted, top term at 2,762 occurrences."
+    - "hra-anatomical-structures: 288 distinct terms load, top term matching hra-cell-types' top count exactly (cross-endpoint consistency check)."
+    - "glucose-biomodel-do: organ_to_models correctly concentrates on pancreas (4 models) and liver (1 model) — exactly the two organs glucose-homeostasis biology predicts."
+  evidence_against: []
+  caveats:
+    - "Organ tagging is name-only synonym matching (20% hit rate on this query), not a true ontology/NLP classifier — the study's own main expert question."
+    - "14.8% of reference organs (12/81) parse to a non-Uberon FMA identifier and are silently dropped by downstream Uberon-only matching."
+
 studies:
   - hra-reference-organs
   - hra-cell-types
@@ -57,4 +95,12 @@ inputs:
       path: references/sources/dynxr-proposal.md
 
 expert_docs: []
-acceptance_criteria: []
+acceptance_criteria:
+  - study: hra-reference-organs
+    behavior: "The HRA CCF reference-organs endpoint returns a non-empty, Uberon-annotated organ list with per-sex GLB assets."
+  - study: hra-cell-types
+    behavior: "The HRA CCF cell-type-term-occurences endpoint returns a non-empty, count-sorted Cell Ontology term list."
+  - study: hra-anatomical-structures
+    behavior: "The HRA CCF ontology-term-occurences endpoint returns a non-empty, count-sorted anatomical-structure term list."
+  - study: glucose-biomodel-do
+    behavior: "At least one glucose-regulation BioModel is tagged with at least one HRA organ, and the organ->models index is inspectable (not a black box)."
