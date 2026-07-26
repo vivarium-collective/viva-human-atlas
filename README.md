@@ -11,6 +11,11 @@ ontology-linked outputs that can connect to the HRA's 3D reference organs.
 📊 **Read-only workbench (showcase):**
 https://vivarium-collective.github.io/viva-human-atlas/dashboard/
 
+🧊 **3D coverage viewer (HRA liver, colored by model coverage):**
+https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/model-coverage-3d/viz/hra/index.html
+(Also registered as an "HRA Organ Viewer" analysis tool — launchable from the
+Analyses tab in a live `vivarium-workbench serve`.)
+
 ## Investigations
 
 - **`glucose-regulation`** — query BioModels for "glucose regulation", run each

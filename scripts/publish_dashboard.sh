@@ -22,6 +22,18 @@ PYTHONUTF8=1 PYTHONPATH="$WS_ROOT" "$PY/vivarium-workbench-publish" \
   --workspace "$WS_ROOT" --out "$OUT" \
   --base-path "$BASE_PATH" --interactive-url "$INTERACTIVE_URL"
 find "$OUT" -name '*.map' -delete || true
+# The static publisher doesn't copy arbitrary study viz/ trees, and the analysis-
+# tool launch/href path has no static form — so copy the self-contained HRA viewer
+# packs into the bundle by hand and expose them via a direct link (README / the
+# hra-3d investigation). They work in a live `vivarium-workbench serve` via the
+# tool's launch callback; in the static snapshot they're reached by direct URL.
+for pack in "$WS_ROOT"/studies/*/viz/hra; do
+  [ -d "$pack" ] || continue
+  slug=$(basename "$(dirname "$(dirname "$pack")")")
+  dest="$OUT/studies/$slug/viz/hra"
+  mkdir -p "$dest"; cp -R "$pack"/. "$dest/"
+  echo "copied viewer pack: studies/$slug/viz/hra"
+done
 touch "$OUT/.nojekyll"
 echo "Built bundle at $OUT"
 echo "Preview: (cd $OUT && python -m http.server 8000)  then open http://localhost:8000/viva-human-atlas/dashboard/  (or serve at root)"
