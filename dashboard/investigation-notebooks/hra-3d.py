@@ -255,6 +255,28 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
+# ## Study: `ctpop-islet-parameterization`
+#
+# **Question.** Does binding HRA CTpop islet cell-type composition to the Topp2000
+# beta-cell-mass model (BIOMD0000000341) change the predicted glucose
+# regulation -- realizing the RUI -> CTpop -> model parameterization vision
+# Katy Boerner / Peter Hunter / SPARC describe, for the pancreatic islet FTU
+# `ftu-model-coverage` already found covered?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: ctpop-islet-parameterization ===
+STUDY = 'ctpop-islet-parameterization'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
 # ## Open decisions
 # - Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?
 # - Does organ-granularity coverage overstate AS-level coverage — can we get finer?
