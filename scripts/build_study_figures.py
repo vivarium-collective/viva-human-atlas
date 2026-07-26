@@ -16,6 +16,7 @@ from __future__ import annotations
 from collections import Counter
 
 from viva_human_atlas import coverage, results_source, viz
+from viva_human_atlas.ftu_coverage import build_ftu_model_coverage
 from viva_human_atlas.hra_api import (
     fetch_anatomical_structure_terms,
     fetch_cell_type_terms,
@@ -138,6 +139,23 @@ def build_ftu_glomerulus_figure() -> None:
     _write("ftu-glomerulus", "ftu-metadata", html)
 
 
+def build_ftu_model_coverage_figure() -> None:
+    out = build_ftu_model_coverage()
+    rows = out["ftu_coverage"]
+    summary = out["summary"]
+    html = viz.bar_html(
+        [row["ftu"] for row in rows],
+        [row["n_models"] for row in rows],
+        title=(
+            f"Models per HRA FTU ({summary['n_ftus_covered']}/{summary['n_ftus']} "
+            f"FTUs covered, {summary['n_models_matched']} distinct models)"
+        ),
+        xaxis_title="functional tissue unit",
+        yaxis_title="models",
+    )
+    _write("ftu-model-coverage", "models-per-ftu", html)
+
+
 def build_spatial_linkage_figure() -> None:
     out = build_spatial_links(GLUCOSE_QUERY, GLUCOSE_MAX_RESULTS)
     counts = Counter(link["label"] for link in out["links"])
@@ -165,6 +183,7 @@ def main() -> None:
     build_hra_anatomical_structures_figure()
     build_hra_3d_crosswalk_figure()
     build_ftu_glomerulus_figure()
+    build_ftu_model_coverage_figure()
     build_spatial_linkage_figure()
 
 
