@@ -96,8 +96,6 @@ studies:
   - spatial-linkage
   - ftu-glomerulus
   - corpus-coverage
-  - coverage-gap-analysis
-  - result-driven-spatial-link
 
 inputs:
   references:
