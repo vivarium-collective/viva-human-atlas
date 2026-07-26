@@ -3,3 +3,4 @@ from viva_human_atlas.composites import glucose_regulation  # noqa: F401
 from viva_human_atlas.composites import hra_steps  # noqa: F401
 from viva_human_atlas.composites import biomodel_do_composite  # noqa: F401
 from viva_human_atlas.composites import coverage_composite  # noqa: F401
+from viva_human_atlas.composites import spatial_link_composite  # noqa: F401

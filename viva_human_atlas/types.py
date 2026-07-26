@@ -23,6 +23,11 @@ anatomical-structure node from the crosswalk); `ftu` is the shape
 `coverage_row` is the per-anatomical-structure shape `coverage.build_coverage`
 returns (crosswalk AS node x biomodel-DO organ annotations, organ-granularity
 `covered` flag); `coverage_summary` is its aggregate-counts shape.
+
+`spatial_link_row` is the per-link shape `spatial_link.build_spatial_links`
+returns (one biomodel-DO organ joined to a crosswalk AS node sharing its
+Uberon CURIE — the exact GLB scene node a model's organ maps to; `readout` is
+a placeholder string in v1).
 """
 from __future__ import annotations
 
@@ -85,6 +90,15 @@ WORKSPACE_TYPES = {
         "n_organs_glb": "integer",
         "n_organs_glb_covered": "integer",
         "query": "string",
+    },
+    "spatial_link_row": {
+        "biomodel_id": "string",
+        "name": "string",
+        "uberon": "string",
+        "label": "string",
+        "organ_glb": "string",
+        "node_name": "string",
+        "readout": "string",
     },
 }
 
