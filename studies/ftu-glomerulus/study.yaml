@@ -1,0 +1,31 @@
+schema_version: 4
+name: ftu-glomerulus
+title: "FTU Glomerulus — 3D Functional-Tissue-Unit Digital Object"
+created: '2026-07-26'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  Does the HRA CDN's glomerulus 3D functional-tissue-unit (FTU) digital
+  object load into a Step-driven composite, giving a sub-organ-scale 3D
+  asset (below the per-organ reference-organ GLBs) that could anchor
+  finer-grained model coverage?
+
+study_card:
+  goal: "Fetch the glomerulus FTU digital object via HRAFtuStep and confirm the composite loads a non-empty ftu record with a resolvable GLB asset URL."
+  mechanism: "HRAFtuStep.update -> fetch_ftu(slug='glomerulus') -> HRA CDN 3d-ftu/glomerulus digital object -> {slug, title, description, glb, glb_url} -> one store -> RAMEmitter."
+  expected_result: "The glomerulus FTU record loads with a non-empty title/description and a glb_url pointing at the CDN's 3d-ftu/glomerulus/latest/assets/ directory."
+  main_expert_question: "Are enough FTUs (beyond glomerulus) published at this digital-object shape to generalize sub-organ-scale model coverage, or is glomerulus a one-off?"
+
+readouts:
+  - "ftu.title / ftu.description non-empty"
+  - "ftu.glb_url resolves under the 3d-ftu/glomerulus CDN path"
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.hra_steps.ftu-glomerulus
+    params:
+      slug: "glomerulus"
