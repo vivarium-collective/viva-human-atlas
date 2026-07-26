@@ -140,7 +140,20 @@ def build_biomodel_do_catalog(
 
 class BiomodelDOCatalogStep(Step):
     """Step: build the glucose-regulation biomodel-DO catalog (organs +
-    inverse organ->models index)."""
+    inverse organ->models index).
+
+    Searches BioModels for `query`, annotates each hit with HRA reference
+    organs via transparent keyword/synonym matching over the model name
+    (`annotate_biomodel`), and inverts the result into a Uberon-CURIE ->
+    biomodel-id index (`build_organ_index` / `build_biomodel_do_catalog`).
+    Realizes the DynXR proposal's Aim 2 T2.1/T1.1 minimal "biomodel DO".
+    """
+
+    description = (
+        "Search BioModels for a text query, annotate each hit with HRA "
+        "Uberon organ terms via transparent synonym-matching over the model "
+        "name, and build the inverse organ->models index."
+    )
 
     config_schema = {
         "query": "string",
@@ -151,7 +164,7 @@ class BiomodelDOCatalogStep(Step):
         return {}
 
     def outputs(self):
-        return {"biomodel_dos": "list[tree]", "organ_to_models": "tree"}
+        return {"biomodel_dos": "list[biomodel_do]", "organ_to_models": "organ_to_models"}
 
     def update(self, inputs):
         catalog = build_biomodel_do_catalog(
@@ -160,5 +173,33 @@ class BiomodelDOCatalogStep(Step):
         )
         return {
             "biomodel_dos": catalog["biomodel_dos"],
-            "organ_to_models": catalog["organ_to_models"],
+            # `organ_to_models` is a `map[list[string]]`: unlike `tree`, Map's
+            # apply only updates keys that already exist in state (see
+            # bigraph_schema.methods.apply's Map handler) — brand-new keys
+            # need the `_add` sentinel, same convention used by e.g.
+            # viva_munk's GrowDivide for adding new agents.
+            "organ_to_models": {"_add": catalog["organ_to_models"]},
         }
+
+
+BiomodelDOCatalogStep.contract = {
+    "summary": BiomodelDOCatalogStep.description,
+    "outputs": {
+        "biomodel_dos": (
+            "One `biomodel_do` record per BioModels hit: `biomodel_id`, "
+            "`name`, `organs` (list of `matched_organ` — organ slug + Uberon "
+            "CURIE, one per HRA organ whose name/synonym matched), and "
+            "`provenance` (annotation source/method)."
+        ),
+        "organ_to_models": (
+            "Inverse index: Uberon CURIE -> list of `biomodel_id`s annotated "
+            "with that organ."
+        ),
+    },
+    "assumptions": [
+        "Organ matching is transparent substring synonym-matching over the "
+        "model name (`ORGAN_SYNONYMS`), not a learned classifier — a model "
+        "with no matching synonym contributes no `matched_organ` and is "
+        "absent from `organ_to_models`.",
+    ],
+}
