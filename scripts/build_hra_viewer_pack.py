@@ -17,9 +17,11 @@ Writes:
     kidney, liver, and pancreas (each via a temp-dir + move, since
     `materialize_viewer` always writes to `<study_dir>/viz/hra/`).
 
-Spatial links (Task C, `spatial_link.build_spatial_links`) are still built
-from the default "glucose regulation" query (unchanged / out of this task's
-scope) and reused across all packs.
+Spatial links (Task C, `spatial_link.build_spatial_links`) are also built
+from the committed full-corpus catalog (`catalog=` fast-path, mirroring
+coverage's corpus mode) rather than a single live "glucose regulation"
+query, so every pack's ``spatial-links.json`` reflects corpus-wide
+model->AS links, not just liver/pancreas glucose-query hits.
 
 The committed pack under ``studies/model-coverage-3d/viz/hra/`` is what the
 workbench Analysis Tools viewer + published bundle serve.
@@ -128,8 +130,8 @@ def main() -> None:
         covered = is_organ_covered(coverage, organ)
         print(f"  kidney covered? {covered}" if organ == "kidney" else f"  {organ} covered? {covered}")
 
-    print("Building spatial links (query='glucose regulation')...")
-    links = build_spatial_links()
+    print("Building spatial links (corpus catalog, all organ-tagged models)...")
+    links = build_spatial_links(catalog=catalog)
     print(f"  -> {links['summary']}")
 
     default_organ = most_tagged_organ(catalog)

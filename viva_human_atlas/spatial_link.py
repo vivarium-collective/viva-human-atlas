@@ -27,6 +27,7 @@ def build_spatial_links(
     query: str = "glucose regulation",
     max_results: int = 25,
     *,
+    catalog: Optional[dict] = None,
     _get_search: Optional[Callable] = None,
     _get_hra: Optional[Callable] = None,
     _get_xwalk: Optional[Callable] = None,
@@ -34,12 +35,20 @@ def build_spatial_links(
     """Join each biomodel-DO organ to crosswalk anatomical-structure (AS)
     rows sharing the same Uberon CURIE.
 
+    When `catalog` (a `{biomodel_dos, organ_index, organ_to_models}` dict —
+    e.g. from `coverage.load_corpus_catalog`) is given, it is used directly
+    and the live BioModels search/annotate (`build_biomodel_do_catalog`,
+    `query`/`max_results`/`_get_search`/`_get_hra`) is skipped entirely —
+    mirrors `coverage.build_coverage`'s `catalog=` fast-path. When `catalog
+    is None` (the default), behavior is unchanged: `query`/`max_results`
+    drive a live `build_biomodel_do_catalog` call.
+
     Returns `{"links": [spatial_link_row, ...], "summary": {"n_links",
     "n_models"}}` — one `spatial_link_row` per (biomodel, matching crosswalk
     row) pair, so a viewer can color the exact GLB node
     (`spatial_link_row["node_name"]`) that a model's organ maps to.
     """
-    cat = build_biomodel_do_catalog(
+    cat = catalog if catalog is not None else build_biomodel_do_catalog(
         query, max_results, _get_search=_get_search, _get_hra=_get_hra
     )
     rows = fetch_crosswalk(_get=_get_xwalk)
