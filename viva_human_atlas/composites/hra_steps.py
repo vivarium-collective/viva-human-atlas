@@ -19,9 +19,14 @@ except ModuleNotFoundError:
 
 from viva_human_atlas.hra_api import HRA_API
 
-REFERENCE_ORGANS_STEP_ADDRESS = "local:HRAReferenceOrgansStep"
-CELL_TYPES_STEP_ADDRESS = "local:HRACellTypesStep"
-ANATOMICAL_STRUCTURES_STEP_ADDRESS = "local:HRAAnatomicalStructuresStep"
+# Fully-dotted (not bare-registry-name) addresses: this is what lets
+# vivarium-workbench's process_docs.py resolve each Step's `description`/
+# `describe()`/`contract` for the Composite Explorer without needing a
+# live-built core (see `pbg_biomodels.composites.compare_simulators`, which
+# uses the same `local:<module>.<Class>` convention).
+REFERENCE_ORGANS_STEP_ADDRESS = "local:viva_human_atlas.hra_api.HRAReferenceOrgansStep"
+CELL_TYPES_STEP_ADDRESS = "local:viva_human_atlas.hra_api.HRACellTypesStep"
+ANATOMICAL_STRUCTURES_STEP_ADDRESS = "local:viva_human_atlas.hra_api.HRAAnatomicalStructuresStep"
 
 
 def _single_store_document(store: str, step_address: str, *, base_url: str) -> Dict[str, Any]:

@@ -14,7 +14,9 @@ try:
 except ModuleNotFoundError:
     from pbg_superpowers.composite_generator import composite_generator
 
-CATALOG_STEP_ADDRESS = "local:BiomodelDOCatalogStep"
+# Fully-dotted address (see `hra_steps.py` for why: lets vivarium-workbench
+# resolve this Step's description/contract without a live-built core).
+CATALOG_STEP_ADDRESS = "local:viva_human_atlas.biomodel_do.BiomodelDOCatalogStep"
 
 
 def build_glucose_biomodel_do_document(
