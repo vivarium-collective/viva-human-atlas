@@ -1,4 +1,3 @@
-import json
 from viva_human_atlas.biomodels_search import search_biomodels
 
 
