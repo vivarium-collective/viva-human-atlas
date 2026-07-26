@@ -29,7 +29,8 @@ if [[ "${1:-}" == "--push" ]]; then
   GHP="$(mktemp -d)"
   git -C "$WS_ROOT" worktree add -B gh-pages "$GHP" origin/gh-pages 2>/dev/null \
     || git -C "$WS_ROOT" worktree add -B gh-pages "$GHP" main
-  rm -rf "$GHP"/dashboard "$GHP"/.nojekyll
+  # gh-pages holds ONLY the bundle: clear everything tracked, then add dashboard/.
+  find "$GHP" -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
   mkdir -p "$GHP/dashboard"
   cp -R "$OUT"/. "$GHP/dashboard/"
   touch "$GHP/.nojekyll"
