@@ -24,6 +24,6 @@ readouts:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.hra_steps.build_hra_cell_types
+    composite: viva_human_atlas.composites.hra_steps.hra-cell-types
     params:
       base_url: "https://apps.humanatlas.io/api"

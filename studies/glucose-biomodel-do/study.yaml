@@ -25,7 +25,7 @@ readouts:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.biomodel_do_composite.build_glucose_biomodel_do
+    composite: viva_human_atlas.composites.biomodel_do_composite.glucose-biomodel-do
     params:
       query: "glucose regulation"
       max_results: 25

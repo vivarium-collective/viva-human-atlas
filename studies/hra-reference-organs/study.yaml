@@ -24,6 +24,6 @@ readouts:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.hra_steps.build_hra_reference_organs
+    composite: viva_human_atlas.composites.hra_steps.hra-reference-organs
     params:
       base_url: "https://apps.humanatlas.io/api"
