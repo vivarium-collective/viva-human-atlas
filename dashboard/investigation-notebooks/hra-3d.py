@@ -234,6 +234,27 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
+# ## Study: `ftu-model-coverage`
+#
+# **Question.** Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
+# Boerner's question -- and, for the FTUs that already have models, can HRA
+# CTpop (Cell Type Populations) cell-type counts parameterize them, per the
+# RUI -> CTpop -> model vision Peter Hunter and SPARC-heart describe?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: ftu-model-coverage ===
+STUDY = 'ftu-model-coverage'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
 # ## Open decisions
 # - Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?
 # - Does organ-granularity coverage overstate AS-level coverage — can we get finer?
