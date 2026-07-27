@@ -1,1 +1,1 @@
-{"viewers": [{"uid": "viva_human_atlas::hra-glb-viewer", "id": "hra-glb-viewer", "package": "viva_human_atlas", "title": "HRA Organ Viewer", "description": "3D HRA organ (GLB) colored by mechanistic-model coverage.", "kind": "launcher", "targets": [{"study": "model-coverage-3d", "label": "HRA Organ Viewer \u2014 model-coverage-3d", "detail": "3D organ colored by model coverage"}], "assets": null}]}
+{"viewers": []}
