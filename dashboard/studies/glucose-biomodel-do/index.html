@@ -56,8 +56,7 @@
 
 
 <style>
-.status-detail-panel{margin:8px 0 14px 0;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:0.88em}
-.status-detail-panel h2{margin:0 0 6px 0;font-size:0.82em;text-transform:uppercase;letter-spacing:0.05em;color:#475569;font-weight:600}
+.status-detail-panel{margin:8px 0 12px 0;padding:6px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:0.88em}
 .status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
 .status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
 .status-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;background:#e2e8f0;color:#334155;font-family:ui-monospace,monospace}
@@ -68,37 +67,86 @@
 .gate-status-failed           { background:#fee2e2; color:#991b1b }
 .gate-status-stale            { background:#ede9fe; color:#5b21b6 }
 .status-pill.gate-status{font-weight:500}
+/* Redesign: compact one-line lifecycle stepper; full per-axis rows behind the expander. */
+.status-detail-panel > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.status-detail-panel > summary::-webkit-details-marker{display:none}
+.status-stepper{display:flex;gap:13px;flex-wrap:wrap;align-items:center;flex:1}
+.status-step{display:inline-flex;align-items:center;gap:5px;font-size:0.82em;color:#94a3b8;white-space:nowrap}
+.status-step .dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
+.status-step.set{color:#334155}
+.status-step.set .dot{background:#10b981;box-shadow:none}
+.status-step .step-val{font-family:ui-monospace,monospace;font-size:0.92em;color:#64748b}
+.status-step.gate-status-blocked .dot{background:#9ca3af;box-shadow:none}
+.status-step.gate-status-needs_calibration .dot{background:#f59e0b;box-shadow:none}
+.status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
+.status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
+.status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
+.status-stepper-more{font-size:0.76em;color:#64748b;white-space:nowrap}
+.status-detail-panel[open] .status-stepper-more::after{content:" \25be"}
+.status-detail-panel:not([open]) .status-stepper-more::after{content:" \25b8"}
+.status-stepper-body{margin-top:6px;padding-top:6px;border-top:1px solid #eef2f6}
 </style>
-<details class="status-detail-panel" aria-label="Multi-axis status detail" open>
-  <summary class="study-fold-summary">Status detail (Pass A multi-axis)</summary>
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Design</span>
-    <span class="status-chip ">complete</span>
+<details class="status-detail-panel" aria-label="Multi-axis lifecycle status">
+  <summary>
+    <span class="status-stepper">
+      
+      <span class="status-step axis-design_status set">
+        <span class="dot"></span>Design<span class="step-val">complete</span>
+      </span>
+      
+      <span class="status-step axis-implementation_status set">
+        <span class="dot"></span>Implementation<span class="step-val">complete</span>
+      </span>
+      
+      <span class="status-step axis-simulation_status set">
+        <span class="dot"></span>Simulation<span class="step-val">ran</span>
+      </span>
+      
+      <span class="status-step axis-evaluation_status">
+        <span class="dot"></span>Evaluation
+      </span>
+      
+      <span class="status-step axis-gate_status">
+        <span class="dot"></span>Gate
+      </span>
+      
+      <span class="status-step axis-expert_review_status">
+        <span class="dot"></span>Expert review
+      </span>
+      
+    </span>
+    <span class="status-stepper-more">details</span>
+  </summary>
+  <div class="status-stepper-body">
+    
+    
+    <div class="status-detail-row">
+      <span class="status-detail-axis">Design</span>
+      <span class="status-chip ">complete</span>
+    </div>
+    
+    
+    
+    <div class="status-detail-row">
+      <span class="status-detail-axis">Implementation</span>
+      <span class="status-chip ">complete</span>
+    </div>
+    
+    
+    
+    <div class="status-detail-row">
+      <span class="status-detail-axis">Simulation</span>
+      <span class="status-chip ">ran</span>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
   </div>
-  
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Implementation</span>
-    <span class="status-chip ">complete</span>
-  </div>
-  
-  
-  
-  <div class="status-detail-row">
-    <span class="status-detail-axis">Simulation</span>
-    <span class="status-chip ">ran</span>
-  </div>
-  
-  
-  
-  
-  
-  
-  
-  
 </details>
 
 
@@ -243,92 +291,57 @@
 .di-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
 </style>
 
+<style>
+/* ── Study Overview redesign: narrative order + progressive disclosure ── */
+.is-hidden{display:none !important}
+.narrative-field{margin:6px 0}
+.add-field-btn{background:none;border:1px dashed #cbd5e1;color:#64748b;font-size:0.82em;
+  padding:4px 12px;border-radius:6px;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
+.add-field-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
+.conclusion-block{border-top:2px solid #e2e8f0;padding-top:14px;margin-top:22px}
+.conclusion-insight{font-size:1.02em;line-height:1.55;color:#1e293b;margin:2px 0 12px;font-weight:500}
+.computed-tag{display:inline-block;font-size:0.68em;font-weight:600;text-transform:uppercase;
+  letter-spacing:0.04em;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;
+  padding:1px 7px;border-radius:9999px;margin-left:8px;vertical-align:middle}
+.conclusion-tags{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.tag-control{display:inline-flex;align-items:center;gap:6px}
+.tag-k{font-size:0.72em;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;font-weight:600}
+.tag-select,.tag-input{font-size:0.85em;padding:3px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
+.tag-input{min-width:220px}
+</style>
 <section class="study-tab-panel active" data-kind="overview" id="panel-overview">
   <div class="study-overview">
 
     
     
     
-    <div class="overview-section narrative-card" data-narrative-card="report">
-      <h2 class="overview-label">📋 Summary</h2>
-      <div class="narrative-grid">
-        
-        <label class="narrative-row">
-          <span class="narrative-label">Verdict</span>
-          <span class="narrative-input verdict-badge-computed"
-                title="Computed from the gate evaluator (read-only)"
-                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">passed</span>
-          <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
-        </label>
-        <label class="narrative-row">
-          <span class="narrative-label">Confidence</span>
-          <select class="narrative-input" data-narrative-path="report.confidence">
-            <option value="">(unset)</option>
-            <option value="high" >high</option>
-            <option value="medium" selected>medium</option>
-            <option value="low" >low</option>
-          </select>
-        </label>
-        <label class="narrative-row">
-          <span class="narrative-label">Evidence quality</span>
-          <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
-                 value="measured"
-                 placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
-        </label>
-        <div class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Main insight</span>
-          <span class="narrative-input" style="background:transparent;border:0;color:#334155">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
-BioModels to an HRA organ, correctly concentrating on pancreas (4
-models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
-insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
-glucose metabolism) -- exactly the two organs glucose-homeostasis
-biology predicts (insulin/glucagon secretion + hepatic glucose
-buffering), confirming the synonym-match mechanism assigns organs
-correctly when it fires.
 
-            <span class="muted small">— computed from findings</span></span>
-        </div>
-        <label class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Caveat</span>
-          <textarea class="narrative-input narrative-textarea" rows="2"
-                    data-narrative-path="report.caveat"
-                    placeholder="One sentence: the headline limitation a reviewer needs to know.">Synonym matching only scans the model *name*, not its full
-description/annotations, so the 80% unmatched rate (20/25) likely
-undercounts real anatomical relevance — many unmatched titles (e.g.
-generic &#34;glucose-insulin model&#34; variants) plausibly implicate
-pancreas/liver too but don&#39;t say so in the name string. This is exactly
-the study&#39;s main expert question: precision here trades off against
-recall, and downstream multiscale coupling should treat
-`organ_to_models` as a high-precision/low-recall starting index, not a
-complete one.
-</textarea>
-        </label>
-        <label class="narrative-row narrative-row-wide">
-          <span class="narrative-label">Conclusion</span>
-          <textarea class="narrative-input narrative-textarea" rows="3"
-                    data-narrative-path="report.conclusion"
-                    placeholder="Multi-sentence: what the runs + tests demonstrated.">A live run of `build_biomodel_do_catalog(&#34;glucose regulation&#34;, 25)`
-built 25 biomodel DOs (one per search hit) against the live 81-organ
-HRA reference-organ set; 5/25 (20%) matched &gt;=1 organ synonym in the
-model name. The organ-&gt;models index has 2 organs: pancreas
-(UBERON:0001264, 4 models — MODEL2001080002 Topp beta-cell-mass,
-MODEL1112110004 Silber intravenous-glucose, BIOMD0000000382 Sturis
-ultradian-oscillation, BIOMD0000000372 Tolic insulin-glucose-feedback)
-and liver (UBERON:0002107, 1 model — BIOMD0000000633 Bulik2016 hepatic
-glucose metabolism), confirming pancreas dominates as expected
-(insulin/glucagon/beta-cell synonyms) while liver also surfaces via the
-&#34;hepatic&#34; synonym.
-</textarea>
-        </label>
-      </div>
+    
+    
+
+    
+    
+    <h2 class="overview-label">Question &amp; approach</h2>
+    
+    
+    <div class="overview-section">
+      <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
+           data-placeholder="+ Add the research question this study asks">Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
+(via transparent synonym matching) and inverted into an organ-&gt;models index?
+</div>
+      <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
+           data-placeholder="(predicted outcome)"></div>
+      <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
     </div>
+    
 
     
     <div class="overview-section biology-summary-callout">
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
+      
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">Glucose homeostasis is a liver-pancreas circuit: pancreatic beta cells
+                placeholder="Plain-English mechanism narrative.">Glucose homeostasis is a liver-pancreas circuit: pancreatic beta cells
 sense blood glucose and secrete insulin/glucagon, which the liver reads to
 switch between glycogen synthesis and glycogenolysis/gluconeogenesis.
 A &#34;biomodel DO&#34; (digital object) makes that anatomical grounding explicit
@@ -339,28 +352,6 @@ of treating the whole search-result set as anatomically undifferentiated.
 </textarea>
       
     </div>
-
-    
-    <h2 class="overview-label">Question &amp; approach</h2>
-
-    
-    
-    <div class="overview-section">
-      <div id="question-text" class="overview-prose" data-editable="true"
-           data-field="question"
-           data-placeholder="(what research question is this study asking?)">Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
-(via transparent synonym matching) and inverted into an organ-&gt;models index?
-</div>
-    </div>
-    <div class="overview-section">
-      <div id="hypothesis-text" class="overview-prose" data-editable="true"
-           data-field="hypothesis"
-           data-placeholder="(predicted outcome)"></div>
-    </div>
-    <div class="overview-section">
-      <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
-    </div>
-    
 
     
     
@@ -481,6 +472,75 @@ correctly when it fires.
       </div>
     </div>
     
+
+    
+    
+    <div class="overview-section conclusion-block">
+      <h2 class="overview-label">Conclusion</h2>
+      
+      <p class="conclusion-insight">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+BioModels to an HRA organ, correctly concentrating on pancreas (4
+models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
+insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
+glucose metabolism) -- exactly the two organs glucose-homeostasis
+biology predicts (insulin/glucagon secretion + hepatic glucose
+buffering), confirming the synonym-match mechanism assigns organs
+correctly when it fires.
+<span class="computed-tag">computed from findings</span></p>
+      
+      
+    <div class="narrative-field">
+      <button type="button" class="add-field-btn is-hidden" data-reveal-field="report.conclusion">+ Add conclusion</button>
+      <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
+        <span class="narrative-label">Conclusion</span>
+        <textarea class="narrative-input narrative-textarea" rows="3"
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run of `build_biomodel_do_catalog(&#34;glucose regulation&#34;, 25)`
+built 25 biomodel DOs (one per search hit) against the live 81-organ
+HRA reference-organ set; 5/25 (20%) matched &gt;=1 organ synonym in the
+model name. The organ-&gt;models index has 2 organs: pancreas
+(UBERON:0001264, 4 models — MODEL2001080002 Topp beta-cell-mass,
+MODEL1112110004 Silber intravenous-glucose, BIOMD0000000382 Sturis
+ultradian-oscillation, BIOMD0000000372 Tolic insulin-glucose-feedback)
+and liver (UBERON:0002107, 1 model — BIOMD0000000633 Bulik2016 hepatic
+glucose metabolism), confirming pancreas dominates as expected
+(insulin/glucagon/beta-cell synonyms) while liver also surfaces via the
+&#34;hepatic&#34; synonym.
+</textarea>
+      </label>
+    </div>
+    
+      
+    <div class="narrative-field">
+      <button type="button" class="add-field-btn is-hidden" data-reveal-field="report.caveat">+ Add caveat</button>
+      <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
+        <span class="narrative-label">Caveat</span>
+        <textarea class="narrative-input narrative-textarea" rows="2"
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Synonym matching only scans the model *name*, not its full
+description/annotations, so the 80% unmatched rate (20/25) likely
+undercounts real anatomical relevance — many unmatched titles (e.g.
+generic &#34;glucose-insulin model&#34; variants) plausibly implicate
+pancreas/liver too but don&#39;t say so in the name string. This is exactly
+the study&#39;s main expert question: precision here trades off against
+recall, and downstream multiscale coupling should treat
+`organ_to_models` as a high-precision/low-recall starting index, not a
+complete one.
+</textarea>
+      </label>
+    </div>
+    
+      <div class="conclusion-tags">
+        <label class="tag-control"><span class="tag-k">confidence</span>
+          <select class="narrative-input tag-select" data-narrative-path="report.confidence">
+            <option value="">—</option>
+            <option value="high" >high</option>
+            <option value="medium" selected>medium</option>
+            <option value="low" >low</option>
+          </select></label>
+        <label class="tag-control"><span class="tag-k">evidence</span>
+          <input type="text" class="narrative-input tag-input" data-narrative-path="report.evidence_quality"
+                 value="measured" placeholder="calibrated | literature-matched | …"></label>
+      </div>
+    </div>
 
     
     <details class="overview-section">
@@ -966,7 +1026,7 @@ correctly when it fires.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main" };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "4edbc992f91e9f51d33d6e740ac28779fa289b82", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/4edbc992f91e9f51d33d6e740ac28779fa289b82", "branch": "main", "generated_at": "2026-07-27 15:59 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "glucose-biomodel-do";
