@@ -1,71 +1,19 @@
 #!/usr/bin/env bash
-# Build the read-only (static, view-only) workbench bundle for viva-human-atlas
-# and (optionally) push it to the gh-pages branch under dashboard/.
-#
-# The bundle is a fully static client-side SPA (no server). It is built LOCALLY
-# because this workspace depends on sibling repos by relative path
-# (../pbg-biomodels, ../pbg-copasi, ../pbg-tellurium) that don't exist in CI.
-#
-# Usage:
-#   scripts/publish_dashboard.sh                # build only -> reports/published/dashboard
-#   scripts/publish_dashboard.sh --push         # build, then push to gh-pages
+# Build the read-only dashboard SPA for this workspace (see the companion
+# .github/workflows/publish-dashboard.yml). Scaffolded by
+# `vivarium-workbench add-dashboard`; run it locally to preview the bundle.
 set -euo pipefail
 WS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="$WS_ROOT/reports/published/dashboard"
+OUT="${1:-$WS_ROOT/reports/published/dashboard}"
 BASE_PATH="/viva-human-atlas/dashboard"
 INTERACTIVE_URL="https://github.com/vivarium-collective/viva-human-atlas"
-PY="$WS_ROOT/.venv/bin"
-
 rm -rf "$OUT"
-# Generate each study's DEFAULT "conclusion" report card (workbench #608) so the
-# three-track verdict is a real, discoverable report-card artifact in the bundle
-# (viz/report_card/conclusion.{html,verdict.json}); the publisher's
-# _stage_report_cards copies them in. Regenerated fresh each publish (gitignored).
-PYTHONUTF8=1 PYTHONPATH="$WS_ROOT" "$PY/python" - <<'PY' || echo "conclusion-card gen skipped (workbench too old?)"
-from pathlib import Path
-try:
-    from vivarium_workbench.lib.conclusion_card import write_conclusion_card
-except Exception:
-    raise SystemExit(0)
-for sd in sorted(Path("studies").glob("*")):
-    if (sd / "study.yaml").exists():
-        try: write_conclusion_card(sd)
-        except Exception: pass
-PY
-# PYTHONUTF8=1 so the notebook exporter reads non-ASCII study text (Börner, β, →).
-PYTHONUTF8=1 PYTHONPATH="$WS_ROOT" "$PY/vivarium-workbench-publish" \
-  --workspace "$WS_ROOT" --out "$OUT" \
-  --base-path "$BASE_PATH" --interactive-url "$INTERACTIVE_URL"
-find "$OUT" -name '*.map' -delete || true
-# The static publisher doesn't copy arbitrary study viz/ trees, and the analysis-
-# tool launch/href path has no static form — so copy the self-contained HRA viewer
-# packs into the bundle by hand and expose them via a direct link (README / the
-# hra-3d investigation). They work in a live `vivarium-workbench serve` via the
-# tool's launch callback; in the static snapshot they're reached by direct URL.
-for pack in "$WS_ROOT"/studies/*/viz/hra; do
-  [ -d "$pack" ] || continue
-  slug=$(basename "$(dirname "$(dirname "$pack")")")
-  dest="$OUT/studies/$slug/viz/hra"
-  mkdir -p "$dest"; cp -R "$pack"/. "$dest/"
-  echo "copied viewer pack: studies/$slug/viz/hra"
-done
+PYTHONPATH="$WS_ROOT${PYTHONPATH:+:$PYTHONPATH}" \
+  vivarium-workbench-publish \
+    --workspace "$WS_ROOT" \
+    --out "$OUT" \
+    --base-path "$BASE_PATH" \
+    --interactive-url "$INTERACTIVE_URL"
+find "$OUT" -name '*.map' -delete
 touch "$OUT/.nojekyll"
-echo "Built bundle at $OUT"
-echo "Preview: (cd $OUT && python -m http.server 8000)  then open http://localhost:8000/viva-human-atlas/dashboard/  (or serve at root)"
-
-if [[ "${1:-}" == "--push" ]]; then
-  GHP="$(mktemp -d)"
-  git -C "$WS_ROOT" worktree add -B gh-pages "$GHP" origin/gh-pages 2>/dev/null \
-    || git -C "$WS_ROOT" worktree add -B gh-pages "$GHP" main
-  # gh-pages holds ONLY the bundle: clear everything tracked, then add dashboard/.
-  find "$GHP" -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
-  mkdir -p "$GHP/dashboard"
-  cp -R "$OUT"/. "$GHP/dashboard/"
-  touch "$GHP/.nojekyll"
-  git -C "$GHP" add -A
-  git -C "$GHP" -c user.name="Eran Agmon" -c user.email="agmon.eran@gmail.com" \
-    commit -q -m "Publish read-only workbench ($(git -C "$WS_ROOT" rev-parse --short HEAD))" || echo "no changes"
-  git -C "$GHP" push -u origin gh-pages
-  git -C "$WS_ROOT" worktree remove --force "$GHP"
-  echo "Pushed to gh-pages -> https://vivarium-collective.github.io/viva-human-atlas/dashboard/"
-fi
+echo "built read-only dashboard bundle at $OUT ($(du -sh "$OUT" | cut -f1))"
