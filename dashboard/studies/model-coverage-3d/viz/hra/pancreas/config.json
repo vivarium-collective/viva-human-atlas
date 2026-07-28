@@ -1,0 +1,7 @@
+{
+  "glb": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-female/v1.3/assets/3d-vh-f-pancreas.glb",
+  "organ": "pancreas",
+  "coverage": "coverage.json",
+  "links": "spatial-links.json",
+  "node_field": "node_name"
+}
