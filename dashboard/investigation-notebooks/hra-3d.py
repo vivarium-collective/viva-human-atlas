@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python hra-3d.py
 
-Figures are written to:  reports/published/dashboard/investigation-notebooks/figures
+Figures are written to:  reports/notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os

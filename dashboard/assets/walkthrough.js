@@ -1,4 +1,4 @@
-// walkthrough.js — v0.6.9: registry filter now data-driven (works in Table/Cards/Full); middle Cards zoom is full-row with composite/study usage split + details; double-click zooms in centered; select persists across zoom; run panel input ports as per-field form (type + resolved default, auto-grow) + Copy outputs; loom config bar lightened to match workbench palette. v0.6.8: run panel lazy-loads RESOLVED defaults (core.fill via /api/registry/process-template) into a per-field config form + inputs JSON (no more null-heavy templates); loom card restyled as a crisp rectangle. v0.6.7: Registry Full-view interactive runner — editable config + input-port JSON, Run → outputs (POST /api/registry/run-process; env_worker._run_process instantiates + Step.update / Process.update(interval)); loom inputs left / outputs right. v0.6.6: Registry semantic zoom (compact/detailed/full loom-rectangle: inputs left, outputs right, config top) + Cards⇄Table sortable view (_setRegistryZoom/_setRegistryView/_renderRegistryTable); rail pins hover-only + ungrouped back to a collapsible folder. v0.6.5: Registry processes sorted by USE (most-referenced across composites/runners first) with a use-count badge (build_registry._annotate_use_counts source-scan). v0.6.4: Registry page — "Discovered registry"→"Registry" (main tab), "Modules"→"Marketplace"; rich registry entries (description + inputs/outputs ports/contract + full config schema, loom-like) and a new Report Cards tab (_renderRegistryEntry/_regPortColumn). v0.6.3: STUDIES rail — per-study pin toggle (localStorage) with a "Pinned" strip at the top for quick access, and ungrouped studies rendered as a flat list at the bottom instead of a collapsible dropdown (_toggleStudyPin/_loadPinnedStudies; _railStudyItem + _renderRailInvestigationGroups). v0.6.2: Marketplace merged into the Modules tab — Modules grid loads the FULL ecosystem via /api/marketplace (available modules under the "Available to install" divider), installed cards gain an Uninstall action gated by an impact-confirmation modal (_showUninstallImpactModal via /api/catalog-uninstall-impact), viva-* display names + stat chips. v0.6.1: Marketplace sub-tab — browse the FULL viva ecosystem (unfiltered by registry.include) + install (_loadMarketplace/_renderMarketplace via /api/marketplace; shared _renderModuleGrid/_moduleActionFor with the Modules tab). v0.6.0: system-deps awareness — pre-install check + consent modal (_installFromCatalog → _showSystemDepsModal; new _checkSystemDepsForInstalled on Registry rows); v0.5.3: investigation detail panel — Spec/Runs/Visualizations tabs + Run button + Delete; v0.5.2: composite explorer UX fixes (no focus-mode hijack, one-row-per-param layout, lazy-load composite cache); v0.5.1: composite explorer page (bigraph-viz + test run + promote to simulation); v0.4.14: Available Composites picker + Emitter Use feedback + drop process multi-select; v0.4.5: _renderInstallError structured diagnosis; v0.4.1: _loadCatalog + _installFromCatalog; v0.4.0b: active-branch workstream strip; v0.3.7-A: _installImport; v0.3.6: Registry tab; v0.1.9: drag-drop uploads; v0.1.7: interactive forms.
+// walkthrough.js — v0.8.0: Registry Full view is now directly runnable — the config bar IS the editable config and the left ports ARE the editable input fields (no "Run this process" dropdown); Run lives in the body, outputs on the right. Middle (grid) zoom shows ports+types inline (no dropdown); double-click a card → runnable Full. Modules table split into Installed-here vs Marketplace sections with a Repos (imported-into) column, GitHub link on the name, and Install/Uninstall in one Action column (n_repos from module_stats federation scan). bigraph-loom: Explore (graph) is the default left tab; the right dock defaults to Processes with Nodes/Inspector collapsed. v0.7.0: Composites semantic zoom (Table/Cards full-row compact/Loom on-demand embed) + double-click to zoom in; /api/composites now runs in the WARM pooled worker (flake fix). v0.6.9: registry filter now data-driven (works in Table/Cards/Full); middle Cards zoom is full-row with composite/study usage split + details; double-click zooms in centered; select persists across zoom; run panel input ports as per-field form (type + resolved default, auto-grow) + Copy outputs; loom config bar lightened to match workbench palette. v0.6.8: run panel lazy-loads RESOLVED defaults (core.fill via /api/registry/process-template) into a per-field config form + inputs JSON (no more null-heavy templates); loom card restyled as a crisp rectangle. v0.6.7: Registry Full-view interactive runner — editable config + input-port JSON, Run → outputs (POST /api/registry/run-process; env_worker._run_process instantiates + Step.update / Process.update(interval)); loom inputs left / outputs right. v0.6.6: Registry semantic zoom (compact/detailed/full loom-rectangle: inputs left, outputs right, config top) + Cards⇄Table sortable view (_setRegistryZoom/_setRegistryView/_renderRegistryTable); rail pins hover-only + ungrouped back to a collapsible folder. v0.6.5: Registry processes sorted by USE (most-referenced across composites/runners first) with a use-count badge (build_registry._annotate_use_counts source-scan). v0.6.4: Registry page — "Discovered registry"→"Registry" (main tab), "Modules"→"Marketplace"; rich registry entries (description + inputs/outputs ports/contract + full config schema, loom-like) and a new Report Cards tab (_renderRegistryEntry/_regPortColumn). v0.6.3: STUDIES rail — per-study pin toggle (localStorage) with a "Pinned" strip at the top for quick access, and ungrouped studies rendered as a flat list at the bottom instead of a collapsible dropdown (_toggleStudyPin/_loadPinnedStudies; _railStudyItem + _renderRailInvestigationGroups). v0.6.2: Marketplace merged into the Modules tab — Modules grid loads the FULL ecosystem via /api/marketplace (available modules under the "Available to install" divider), installed cards gain an Uninstall action gated by an impact-confirmation modal (_showUninstallImpactModal via /api/catalog-uninstall-impact), viva-* display names + stat chips. v0.6.1: Marketplace sub-tab — browse the FULL viva ecosystem (unfiltered by registry.include) + install (_loadMarketplace/_renderMarketplace via /api/marketplace; shared _renderModuleGrid/_moduleActionFor with the Modules tab). v0.6.0: system-deps awareness — pre-install check + consent modal (_installFromCatalog → _showSystemDepsModal; new _checkSystemDepsForInstalled on Registry rows); v0.5.3: investigation detail panel — Spec/Runs/Visualizations tabs + Run button + Delete; v0.5.2: composite explorer UX fixes (no focus-mode hijack, one-row-per-param layout, lazy-load composite cache); v0.5.1: composite explorer page (bigraph-viz + test run + promote to simulation); v0.4.14: Available Composites picker + Emitter Use feedback + drop process multi-select; v0.4.5: _renderInstallError structured diagnosis; v0.4.1: _loadCatalog + _installFromCatalog; v0.4.0b: active-branch workstream strip; v0.3.7-A: _installImport; v0.3.6: Registry tab; v0.1.9: drag-drop uploads; v0.1.7: interactive forms.
 (function () {
   "use strict";
 
@@ -49,12 +49,12 @@
   function _setGraphOrientation(o) {
     if (o !== 'LR' && o !== 'TB') return;
     try { window.localStorage.setItem(_graphOrientationKey(window._currentIset), o); } catch (e) { /* ignore */ }
-    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1]);
+    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
   }
   window._setGraphOrientation = _setGraphOrientation;
   function _resetGraphOrientation() {
     try { window.localStorage.removeItem(_graphOrientationKey(window._currentIset)); } catch (e) { /* ignore */ }
-    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1]);
+    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
   }
   window._resetGraphOrientation = _resetGraphOrientation;
   // Reflect the active/override state on the toggle control, if present.
@@ -653,11 +653,12 @@
     var link = document.querySelector('.menu-link[data-page="' + pageId + '"]');
     if (page) page.classList.add('active');
     if (link) link.classList.add('active');
-    // Lazy-load catalog + registry on switch to Registry, Simulation Setup, or Visualizations page.
-    if (pageId === 'registry') {
-      _loadCatalog();
+    // Load the faceted Market on switch, and the build_core() registry on
+    // Modules / Simulation Setup / Visualizations.
+    if (pageId === 'market') {
+      _loadMarket();
     }
-    if (pageId === 'registry' || pageId === 'simulation-setup' || pageId === 'visualizations') {
+    if (pageId === 'modules' || pageId === 'simulation-setup' || pageId === 'visualizations') {
       if (!window._registryLoaded) {
         window._registryLoaded = true;
         _loadRegistry(false);
@@ -714,6 +715,9 @@
     if (pageId === 'workspace-inputs') {
       _loadInputs();
     }
+    if (pageId === 'audit' && typeof window._loadAudit === 'function') {
+      _loadAudit();
+    }
   }
 
   function _initMenuNav() {
@@ -724,8 +728,8 @@
     if (focus) {
       var _snapshot = document.body.classList.contains('snapshot');
       var validPages = _snapshot
-        ? ['workspace-inputs', 'simulation-setup', 'registry', 'investigations', 'simulations', 'visualizations', 'composite-explore', 'github']
-        : ['workspace-inputs', 'simulation-setup', 'visualizations', 'registry', 'investigations', 'studies', 'simulations', 'composite-explore', 'github'];
+        ? ['workspace-inputs', 'simulation-setup', 'modules', 'market', 'investigations', 'simulations', 'visualizations', 'audit', 'composite-explore', 'github']
+        : ['workspace-inputs', 'simulation-setup', 'visualizations', 'modules', 'market', 'investigations', 'studies', 'simulations', 'audit', 'composite-explore', 'github'];
       if (validPages.indexOf(focus) >= 0) {
         document.body.classList.add('focus-mode', 'focus-' + focus);
         _switchPage(focus);
@@ -742,8 +746,8 @@
         var h = (window.location.hash || '').replace(/^#/, '');
         var _snap = document.body.classList.contains('snapshot');
         var validPages = _snap
-          ? ['workspace-inputs', 'registry', 'simulation-setup', 'investigations', 'simulations', 'visualizations', 'composite-explore', 'github']
-          : ['workspace-inputs', 'registry', 'simulation-setup', 'visualizations', 'investigations', 'studies', 'simulations', 'composite-explore', 'github'];
+          ? ['workspace-inputs', 'modules', 'market', 'simulation-setup', 'investigations', 'simulations', 'visualizations', 'audit', 'composite-explore', 'github']
+          : ['workspace-inputs', 'modules', 'market', 'simulation-setup', 'visualizations', 'investigations', 'studies', 'simulations', 'audit', 'composite-explore', 'github'];
         _switchPage(validPages.indexOf(h) >= 0 ? h : 'workspace-inputs');
       }
       window.addEventListener('hashchange', fromHash);
@@ -1966,6 +1970,108 @@
     return (z === 'table' || z === 'grid' || z === 'full') ? z : 'grid';
   })();
 
+  // ── Cards-grid column control (shared: registry / composites / modules) ──
+  // The middle "Cards" view is a multi-column grid. Default is 'auto' (fit
+  // columns to width, auto-fill); a slider overrides with a fixed count.
+  window._cardCols = (function () {
+    var d = {};
+    ['registry', 'composites', 'modules', 'market'].forEach(function (s) {
+      var v; try { v = localStorage.getItem('viv.cols.' + s); } catch (e) { v = null; }
+      d[s] = (v && v !== 'auto' && !isNaN(+v)) ? Math.max(1, Math.min(8, +v)) : 'auto';
+    });
+    return d;
+  })();
+  function _applyCardCols(container, surface) {
+    if (!container) return;
+    container.classList.add('cards-grid-cols');
+    var v = window._cardCols[surface];
+    container.style.gridTemplateColumns = (v === 'auto')
+      ? 'repeat(auto-fill, minmax(300px, 1fr))'
+      : 'repeat(' + v + ', minmax(0, 1fr))';
+  }
+  function _cardContainersFor(surface) {
+    var sel = surface === 'registry' ? '.reg-cards-grid'
+      : (surface === 'composites' ? '.ccard-rows'
+      : (surface === 'market' ? '.market-grid-cards' : '.mrows'));
+    return Array.prototype.slice.call(document.querySelectorAll(sel));
+  }
+  function _colsControl(surface) {
+    var v = window._cardCols[surface], isAuto = (v === 'auto');
+    return '<button class="cols-auto-btn' + (isAuto ? ' active' : '') +
+        '" title="Fit columns to width" onclick="_setCardCols(\'' + surface + '\',\'auto\')">Auto</button>' +
+      '<input type="range" min="1" max="6" value="' + (isAuto ? 3 : v) +
+        '" class="cols-slider" title="Number of columns" oninput="_setCardCols(\'' + surface + '\', this.value)">' +
+      '<span class="cols-count">' + (isAuto ? 'auto' : v) + '</span>';
+  }
+  // The column control only makes sense in the multi-column Cards zoom — hide
+  // it in Table / Full so it doesn't read as a stray slider elsewhere.
+  function _updateColsSlotVisibility() {
+    var show = {
+      registry: (window._registryZoom === 'grid'),
+      composites: ((window._compositesZoom || 'cards') === 'cards'),
+      modules: ((window._catalogZoom || 'cards') === 'cards'),
+      market: ((window._marketZoom || 'cards') === 'cards'),
+    };
+    Object.keys(show).forEach(function (s) {
+      var slot = document.querySelector('.cols-ctl-slot[data-cols-surface="' + s + '"]');
+      if (slot) slot.style.display = show[s] ? '' : 'none';
+    });
+  }
+  function _syncColsControls() {
+    document.querySelectorAll('.cols-ctl-slot').forEach(function (slot) {
+      var s = slot.getAttribute('data-cols-surface');
+      if (s && !slot.innerHTML.trim()) slot.innerHTML = _colsControl(s);
+    });
+    _updateColsSlotVisibility();
+  }
+  window._syncColsControls = _syncColsControls;
+  function _setCardCols(surface, value) {
+    var v = (value === 'auto') ? 'auto' : Math.max(1, Math.min(8, parseInt(value, 10) || 3));
+    window._cardCols[surface] = v;
+    try { localStorage.setItem('viv.cols.' + surface, String(v)); } catch (e) { /* private mode */ }
+    // Update the control label + Auto state in place (do NOT rebuild the slider
+    // mid-drag), then re-apply the grid to the visible cards containers.
+    document.querySelectorAll('.cols-ctl-slot[data-cols-surface="' + surface + '"]').forEach(function (slot) {
+      var cnt = slot.querySelector('.cols-count'); if (cnt) cnt.textContent = (v === 'auto') ? 'auto' : v;
+      var ab = slot.querySelector('.cols-auto-btn'); if (ab) ab.classList.toggle('active', v === 'auto');
+    });
+    _cardContainersFor(surface).forEach(function (c) { _applyCardCols(c, surface); });
+  }
+  window._setCardCols = _setCardCols;
+
+  // ── Light / dark theme toggle ──────────────────────────────────────────
+  // The theme is applied to <html data-theme> before first paint by a small
+  // inline script in <head> (no flash); this drives the toggle + persistence.
+  function _syncThemeLogo() {
+    var img = document.querySelector('.viv-rail-logo');
+    if (!img || !img.dataset) return;
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var next = dark ? img.dataset.darkSrc : img.dataset.lightSrc;
+    if (next && img.getAttribute('src') !== next) img.src = next;
+  }
+  function _setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('viv.theme', t); } catch (e) { /* private mode */ }
+    var b = document.getElementById('viv-theme-toggle');
+    if (b) b.setAttribute('aria-checked', t === 'dark' ? 'true' : 'false');
+    _syncThemeLogo();
+  }
+  function _toggleTheme() {
+    var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    _setTheme(cur === 'dark' ? 'light' : 'dark');
+  }
+  window._toggleTheme = _toggleTheme;
+  window._setTheme = _setTheme;
+  (function () {
+    var sync = function () {
+      var b = document.getElementById('viv-theme-toggle');
+      if (b) b.setAttribute('aria-checked', document.documentElement.getAttribute('data-theme') === 'dark' ? 'true' : 'false');
+      _syncThemeLogo();
+    };
+    if (document.readyState !== 'loading') sync();
+    else document.addEventListener('DOMContentLoaded', sync);
+  })();
+
   function _syncRegistryToolbar() {
     document.querySelectorAll('.reg-zoom-btn').forEach(function (b) {
       b.classList.toggle('active', b.getAttribute('data-zoom') === window._registryZoom);
@@ -1979,6 +2085,7 @@
     window._registryZoom = z;
     try { localStorage.setItem('viv.registryZoom', z); } catch (e) { /* private mode */ }
     _syncRegistryToolbar(); _rerenderRegistryKinds();
+    _updateColsSlotVisibility();   // slider only in Cards zoom (table returns early)
     _refocusRegistrySelection();   // keep the selected process in focus on zoom
   }
   window._setRegistryZoom = _setRegistryZoom;
@@ -2019,8 +2126,43 @@
     return out;
   }
 
-  // Grid card (default zoom): a dense card — name, use, one-line description, and
-  // a "config & ports" dropdown. NO inline ports (those are the Full view).
+  // Inline ports + types for the middle (grid) zoom — read-only detail, always
+  // visible (no dropdown). Double-click a card to reach the runnable Full view.
+  function _regInlinePorts(p) {
+    // Compact bigraph-loom-style layout: config strip on top, input ports down
+    // the left, output ports down the right — small chips with a port dot.
+    function ports(schema, side) {
+      var keys = (schema && typeof schema === 'object') ? Object.keys(schema) : null;
+      if (keys === null) return '<span class="reg-ip-na" title="Ports depend on a configured instance.">—</span>';
+      if (!keys.length) return '<span class="reg-ip-na">(none)</span>';
+      return keys.map(function (k) {
+        var t = _regTypeLabel(schema[k]);
+        return '<span class="reg-ip reg-ip-' + side + '"><span class="reg-ip-dot"></span>' +
+          '<code>' + _esc(k) + '</code>' +
+          (t ? '<span class="reg-ip-type">' + _esc(t) + '</span>' : '') + '</span>';
+      }).join('');
+    }
+    var hasPorts = !(p.inputs === undefined && p.outputs === undefined);
+    var cfgKeys = (p.config_schema && typeof p.config_schema === 'object') ? Object.keys(p.config_schema) : [];
+    if (!hasPorts && !cfgKeys.length) return '';
+    var cfg = cfgKeys.length
+      ? '<div class="reg-mid-config"><span class="reg-mid-label">config</span>' +
+        cfgKeys.slice(0, 16).map(function (k) { return '<code>' + _esc(k) + '</code>'; }).join('') +
+        (cfgKeys.length > 16 ? ' <span class="reg-ip-na">+' + (cfgKeys.length - 16) + '</span>' : '') + '</div>'
+      : '';
+    var portsRow = hasPorts
+      ? '<div class="reg-mid-ports">' +
+          '<div class="reg-mid-col reg-mid-in"><span class="reg-ip-title">inputs</span>' +
+            ports(p.inputs === undefined ? null : p.inputs, 'in') + '</div>' +
+          '<div class="reg-mid-col reg-mid-out"><span class="reg-ip-title">outputs</span>' +
+            ports(p.outputs === undefined ? null : p.outputs, 'out') + '</div>' +
+        '</div>'
+      : '';
+    return '<div class="reg-mid">' + cfg + portsRow + '</div>';
+  }
+
+  // Grid card (middle zoom): name, use, one-line description, and the ports+types
+  // shown inline. Double-click zooms to the runnable Full view.
   function _renderRegistryEntryGrid(p) {
     var sourceAttr = p.source ? ' data-source="' + _esc(p.source) + '"' : '';
     var esc = _esc, addr = _esc(p.address || '');
@@ -2029,18 +2171,36 @@
       : '';
     var desc = (p.description || '').trim();
     var short = desc ? desc.split('\n')[0] : '';
-    var inN = _nPorts(p.inputs), outN = _nPorts(p.outputs);
-    // Usage split — across composites vs studies — plus the port I/O counts.
+    // Usage split — across composites vs studies. Port counts are dropped here:
+    // the middle zoom shows the actual ports+types inline (see _regInlinePorts).
     function stat(glyph, n, singular, plural, title) {
       return '<span class="reg-stat" title="' + esc(title) + '"><span class="reg-stat-glyph">' + glyph +
         '</span><strong>' + n + '</strong> ' + (n === 1 ? singular : plural) + '</span>';
     }
     var stats = [];
     if (p.composite_uses) stats.push(stat('▦', p.composite_uses, 'composite', 'composites', 'Used in this many composite generators'));
-    if (p.study_uses) stats.push(stat('⌥', p.study_uses, 'study', 'studies', 'Referenced by this many study runner scripts'));
-    stats.push(stat('⇄', inN, 'input', 'inputs', 'Input ports'));
-    stats.push(stat('⇄', outN, 'output', 'outputs', 'Output ports'));
-    var details = _regDetailsBody(p);
+    var sp = p.study_participation;
+    if (sp && sp.studies) {
+      var succ = (sp.success_pct != null && sp.total)
+        ? ' <span class="reg-succ-inline ' + (sp.success_pct >= 80 ? 'reg-succ-hi' : (sp.success_pct >= 50 ? 'reg-succ-mid' : 'reg-succ-lo')) + '">' + sp.success_pct + '%</span>'
+        : '';
+      stats.push('<span class="reg-stat reg-stat-part" title="Participates in ' + sp.studies +
+        ' stud' + (sp.studies === 1 ? 'y' : 'ies') + ' (via the composites that contain it); ' +
+        sp.pass + '/' + sp.total + ' report-card outcomes passed"><span class="reg-stat-glyph">◆</span><strong>' +
+        sp.studies + '</strong> stud' + (sp.studies === 1 ? 'y' : 'ies') + succ + '</span>');
+    } else if (p.study_uses) {
+      stats.push(stat('⌥', p.study_uses, 'study', 'studies', 'Referenced by this many study runner scripts'));
+    }
+    var inlinePorts = _regInlinePorts(p);
+    // Collapsed by default: config + input/output ports live behind a click-to-
+    // expand <details> so the middle card stays compact. stopPropagation so the
+    // toggle doesn't select/zoom the card.
+    var _cfgN = (p.config_schema && typeof p.config_schema === 'object') ? Object.keys(p.config_schema).length : 0;
+    var _detail = inlinePorts
+      ? '<details class="reg-mid-details" onclick="event.stopPropagation()"><summary>config &amp; ports' +
+        ' <span class="reg-mid-sum">' + _cfgN + ' config · ' + _nPorts(p.inputs) + ' in · ' + _nPorts(p.outputs) + ' out</span></summary>' +
+        inlinePorts + '</details>'
+      : '';
     var selCls = (window._registrySelected && window._registrySelected === p.address) ? ' reg-selected' : '';
     return '<div class="registry-card' + selCls + '"' + sourceAttr + ' data-address="' + addr + '"' +
         ' onclick="_selectRegistryEntry(\'' + addr + '\')" ondblclick="_zoomInOn(\'' + addr + '\')"' +
@@ -2053,7 +2213,7 @@
         '</div>' +
         '<div class="reg-card-stats">' + stats.join('') + '</div>' +
       '</div>' +
-      (details ? '<details class="reg-card-details"><summary>config &amp; ports</summary>' + details + '</details>' : '') +
+      _detail +
     '</div>';
   }
 
@@ -2063,6 +2223,12 @@
   function _renderRegistryEntryFull(p) {
     var sourceAttr = p.source ? ' data-source="' + _esc(p.source) + '"' : '';
     var kind = p.kind || 'process';
+    var runnable = (kind === 'process' || kind === 'step');
+    var desc = (p.description || '').trim();
+    var selClsFull = (window._registrySelected && window._registrySelected === p.address) ? ' reg-selected' : '';
+    var addrAttr = ' data-address="' + _esc(p.address || '') + '" data-kind="' + kind + '"';
+    // Static port column (used for outputs always, and for both sides on
+    // non-runnable kinds). Runnable inputs are rendered as editable fields.
     function ports(schema, side) {
       var keys = (schema && typeof schema === 'object') ? Object.keys(schema) : [];
       if (!keys.length) return '<div class="loom-port loom-port-empty">—</div>';
@@ -2075,65 +2241,166 @@
           '</div>';
       }).join('');
     }
-    var cfgKeys = (p.config_schema && typeof p.config_schema === 'object') ? Object.keys(p.config_schema) : [];
-    var cfgTop = cfgKeys.length
-      ? '<div class="loom-config"><span class="loom-config-label">config</span>' +
-        cfgKeys.slice(0, 14).map(function (k) { return '<code>' + _esc(k) + '</code>'; }).join('') +
-        (cfgKeys.length > 14 ? ' <span class="muted">+' + (cfgKeys.length - 14) + '</span>' : '') + '</div>'
-      : '';
-    var desc = (p.description || '').trim();
-    // Interactive run panel: editable config + inputs, then Run → outputs (or a
-    // validation/run error). Only for runnable kinds (process/step).
-    var runPanel = '';
-    if (kind === 'process' || kind === 'step') {
-      runPanel = '<details class="loom-run" data-address="' + _esc(p.address || '') + '" data-kind="' + kind + '" ontoggle="_loadRunPanel(this)">' +
-        '<summary>Run this ' + kind + '</summary>' +
-        '<div class="loom-run-body"><p class="muted" style="font-size:0.83em;padding:10px 18px 14px">Open to load defaults &amp; run…</p></div>' +
-        '</details>';
-    }
-    var selClsFull = (window._registrySelected && window._registrySelected === p.address) ? ' reg-selected' : '';
-    return '<div class="registry-entry registry-entry-full' + selClsFull + '"' + sourceAttr + ' data-address="' + _esc(p.address || '') + '">' +
-      '<div class="loom-card loom-card-' + kind + '">' +
-        cfgTop +
-        '<div class="loom-row">' +
-          '<div class="loom-ports loom-ports-in">' + ports(p.inputs, 'in') + '</div>' +
-          '<div class="loom-body">' +
-            '<div class="loom-body-head"><span class="loom-name">' + _esc(p.name) + '</span>' + _regUseBadge(p) + '</div>' +
-            '<code class="loom-addr">' + _esc(p.address || kind) + '</code>' +
-            (desc ? '<p class="loom-desc">' + _esc(desc) + '</p>' : '') +
+    var bodyHead =
+      '<div class="loom-body-head"><span class="loom-name">' + _esc(p.name) + '</span>' + _regUseBadge(p) + '</div>' +
+      '<code class="loom-addr">' + _esc(p.address || kind) + '</code>' +
+      (desc ? '<p class="loom-desc">' + _esc(desc) + '</p>' : '');
+
+    if (!runnable) {
+      // Non-runnable kinds (emitter/visualization/analysis/type/report_card):
+      // static loom card — config keys as pills, static ports both sides.
+      var cfgKeys = (p.config_schema && typeof p.config_schema === 'object') ? Object.keys(p.config_schema) : [];
+      var cfgTop = cfgKeys.length
+        ? '<div class="loom-config"><span class="loom-config-label">config</span>' +
+          cfgKeys.slice(0, 14).map(function (k) { return '<code>' + _esc(k) + '</code>'; }).join('') +
+          (cfgKeys.length > 14 ? ' <span class="muted">+' + (cfgKeys.length - 14) + '</span>' : '') + '</div>'
+        : '';
+      return '<div class="registry-entry registry-entry-full' + selClsFull + '"' + sourceAttr + addrAttr + '>' +
+        '<div class="loom-card loom-card-' + kind + '">' + cfgTop +
+          '<div class="loom-row">' +
+            '<div class="loom-ports loom-ports-in">' + ports(p.inputs, 'in') + '</div>' +
+            '<div class="loom-body">' + bodyHead + '</div>' +
+            '<div class="loom-ports loom-ports-out">' + ports(p.outputs, 'out') + '</div>' +
           '</div>' +
-          '<div class="loom-ports loom-ports-out">' + ports(p.outputs, 'out') + '</div>' +
         '</div>' +
-        runPanel +
+      '</div>';
+    }
+
+    // Runnable (process/step): the config bar IS the editable config, the left
+    // ports ARE the editable inputs, and Run lives in the body. Fields load
+    // lazily (resolved defaults) when the card scrolls into view.
+    var timestep = (kind === 'process')
+      ? '<label class="loom-run-field loom-run-interval-field">Timestep <input type="number" step="any" class="loom-run-interval" value="1"></label>'
+      : '';
+    // Vertical stack: description/info on top, then config, then input ports,
+    // then run controls, then outputs (ports + collapsible run JSON) at the
+    // bottom. Fields load lazily (resolved defaults) when the card is visible.
+    return '<div class="registry-entry registry-entry-full loom-runnable' + selClsFull + '"' + sourceAttr + addrAttr + '>' +
+      '<div class="loom-card loom-card-stack loom-card-' + kind + '">' +
+        '<div class="loom-info">' + bodyHead + '</div>' +
+        '<div class="loom-sec"><div class="loom-sec-label">config</div>' +
+          '<div class="loom-cfg-inline" data-role="cfg"><span class="muted loom-load-hint">resolving defaults…</span></div>' +
+        '</div>' +
+        '<div class="loom-sec"><div class="loom-sec-label">input ports</div>' +
+          '<div class="loom-inputs-edit loom-inputs-stack" data-role="inputs"><span class="muted loom-load-hint">…</span></div>' +
+        '</div>' +
+        '<div class="loom-run-actions">' + timestep +
+          '<button class="action-btn" onclick="_runRegistryProcess(this)">▶ Run</button>' +
+          '<button class="btn-mini" onclick="_resetRunPanel(this)" title="Reset to resolved defaults">↺ Reset</button>' +
+        '</div>' +
+        '<div class="loom-sec loom-sec-out"><div class="loom-sec-label">outputs</div>' +
+          '<div class="loom-out-ports">' + ports(p.outputs, 'out') + '</div>' +
+          '<div class="loom-run-output"></div>' +
+        '</div>' +
       '</div>' +
     '</div>';
   }
 
-  // Lazy-load the run panel on first open: fetch RESOLVED defaults (core.fill,
-  // not null placeholders) and render an editable form.
-  function _loadRunPanel(details) {
-    if (!details || !details.open || details._loaded) return;
-    details._loaded = true;
-    var address = details.getAttribute('data-address');
-    var kind = details.getAttribute('data-kind');
-    var body = details.querySelector('.loom-run-body');
-    if (!body) return;
-    body.innerHTML = '<p class="muted" style="font-size:0.83em;padding:10px 18px">Resolving defaults…</p>';
+  // Populate a runnable Full card's editable config (top) + input fields (left)
+  // from resolved defaults. Shared by lazy-load and Reset.
+  function _fillFullFields(card, config, inputs, inSchema) {
+    var cfgBox = card.querySelector('[data-role="cfg"]');
+    var inBox = card.querySelector('[data-role="inputs"]');
+    if (cfgBox) {
+      var ck = Object.keys(config || {});
+      cfgBox.innerHTML = ck.length
+        ? ck.map(function (k) { return _runField(k, config[k]); }).join('')
+        : '<span class="muted" style="font-size:0.82em">no config parameters</span>';
+    }
+    if (inBox) {
+      var ik = Object.keys(inputs || {});
+      inBox.innerHTML = ik.length
+        ? ik.map(function (k) { return _runInputField(k, inputs[k], (inSchema || {})[k]); }).join('')
+        : '<div class="loom-port loom-port-empty muted">(no input ports)</div>';
+      card.querySelectorAll('textarea.loom-in-field').forEach(_autoGrow);
+    }
+  }
+
+  // The registry entry for an address (config_schema/inputs live here — the
+  // authoritative contract, independent of whether the class can be
+  // instantiated with an empty config).
+  function _registryEntryByAddress(address) {
+    var m = window._registryByKind || {};
+    var kinds = Object.keys(m);
+    for (var i = 0; i < kinds.length; i++) {
+      var arr = m[kinds[i]] || [];
+      for (var j = 0; j < arr.length; j++) {
+        if (arr[j] && arr[j].address === address) return arr[j];
+      }
+    }
+    return null;
+  }
+
+  // A sensible editable default for a port/config type schema (used when the
+  // instantiation-based template can't resolve a value).
+  function _defaultForSchema(s) {
+    if (s && typeof s === 'object' && !Array.isArray(s) && ('_default' in s)) return s._default;
+    var t = String(_regTypeLabel(s) || '').toLowerCase();
+    if (/(^|\b)(map|tree|dict|node|inplace)/.test(t)) return {};
+    if (/(^|\b)(list|array|tuple|set)/.test(t)) return [];
+    if (t.indexOf('int') >= 0 || t.indexOf('float') >= 0 || t.indexOf('number') >= 0) return 0;
+    if (t.indexOf('bool') >= 0) return false;
+    if (t.indexOf('string') >= 0) return '';
+    return null;
+  }
+
+  // Field set = the STATIC schema's keys (the real contract), each valued from
+  // the template when it resolved one, else a type-based default.
+  function _mergeSchemaDefaults(schema, template) {
+    schema = schema || {}; template = template || {};
+    var keys = Object.keys(schema);
+    if (!keys.length) keys = Object.keys(template);
+    var out = {};
+    keys.forEach(function (k) {
+      out[k] = (k in template) ? template[k] : _defaultForSchema(schema[k]);
+    });
+    return out;
+  }
+
+  // Populate a runnable Full card's config + input fields. The field SET comes
+  // from the entry's static config_schema/inputs (always present); the template
+  // (core.fill via instantiation) only refines default VALUES — heavy Steps
+  // like Metabolism can't be instantiated with an empty config, so the template
+  // returns empty and we must not blank the contract.
+  function _loadFullRunFields(card) {
+    if (!card || card._loaded) return;
+    card._loaded = true;
+    var address = card.getAttribute('data-address');
+    var entry = _registryEntryByAddress(address) || {};
+    var cfgSchema = (entry.config_schema && typeof entry.config_schema === 'object') ? entry.config_schema : {};
+    var inSchemaStatic = (entry.inputs && typeof entry.inputs === 'object') ? entry.inputs : {};
     var url = (window.DataSource && window.DataSource.apiUrl ? window.DataSource.apiUrl('/api/registry/process-template') : '/api/registry/process-template') +
       '?address=' + encodeURIComponent(address);
+    var apply = function (tCfg, tIn, tInSchema) {
+      var config = _mergeSchemaDefaults(cfgSchema, tCfg);
+      var inputs = _mergeSchemaDefaults(inSchemaStatic, tIn);
+      var inputsSchema = (tInSchema && Object.keys(tInSchema).length) ? tInSchema : inSchemaStatic;
+      card._defaults = { config: config, inputs: inputs, inputsSchema: inputsSchema };
+      _fillFullFields(card, config, inputs, inputsSchema);
+    };
     fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (j) {
-        var config = (j && j.ok && j.config && typeof j.config === 'object') ? j.config : {};
-        var inputs = (j && j.ok && j.inputs && typeof j.inputs === 'object') ? j.inputs : {};
-        var inSchema = (j && j.inputs_schema && typeof j.inputs_schema === 'object') ? j.inputs_schema : {};
-        details._defaults = { config: config, inputs: inputs, inputsSchema: inSchema };
-        body.innerHTML = _renderRunForm(kind, config, inputs, inSchema);
-        _autoGrowRunFields(details);
+        apply(
+          (j && j.ok && j.config && typeof j.config === 'object') ? j.config : {},
+          (j && j.ok && j.inputs && typeof j.inputs === 'object') ? j.inputs : {},
+          (j && j.inputs_schema && typeof j.inputs_schema === 'object') ? j.inputs_schema : {}
+        );
       })
-      .catch(function () { body.innerHTML = _renderRunForm(kind, {}, {}, {}); });
+      .catch(function () { apply({}, {}, {}); });
   }
-  window._loadRunPanel = _loadRunPanel;
+
+  // Load resolved defaults for runnable Full cards as they scroll into view, so
+  // the Full zoom doesn't fire N template fetches for every process at once.
+  function _observeRunnableCards(root) {
+    var cards = (root || document).querySelectorAll('.loom-runnable');
+    if (!cards.length) return;
+    if (!('IntersectionObserver' in window)) { cards.forEach(_loadFullRunFields); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { _loadFullRunFields(e.target); io.unobserve(e.target); } });
+    }, { rootMargin: '250px' });
+    cards.forEach(function (c) { io.observe(c); });
+  }
 
   // One typed config field, chosen from the resolved default's JS type.
   function _runField(key, value) {
@@ -2212,24 +2479,23 @@
   }
 
   function _resetRunPanel(btn) {
-    var details = btn.closest('.loom-run');
-    if (!details) return;
-    var d = details._defaults || { config: {}, inputs: {}, inputsSchema: {} };
-    var body = details.querySelector('.loom-run-body');
-    if (body) { body.innerHTML = _renderRunForm(details.getAttribute('data-kind'), d.config, d.inputs, d.inputsSchema); _autoGrowRunFields(details); }
+    var card = btn.closest('.registry-entry-full');
+    if (!card) return;
+    var d = card._defaults || { config: {}, inputs: {}, inputsSchema: {} };
+    _fillFullFields(card, d.config, d.inputs, d.inputsSchema);
+    var out = card.querySelector('.loom-run-output'); if (out) out.innerHTML = '';
   }
   window._resetRunPanel = _resetRunPanel;
 
-  // Collect the panel's config (per-field) + inputs (JSON), run, show outputs.
+  // Collect the Full card's config (per-field) + inputs (JSON), run, show outputs.
   function _runRegistryProcess(btn) {
-    var form = btn.closest('.loom-run-form');
-    var details = btn.closest('.loom-run');
-    if (!form || !details) return;
-    var out = form.querySelector('.loom-run-output');
-    var address = details.getAttribute('data-address');
+    var card = btn.closest('.registry-entry-full');
+    if (!card) return;
+    var out = card.querySelector('.loom-run-output');
+    var address = card.getAttribute('data-address');
 
     var config = {}, bad = null;
-    form.querySelectorAll('.loom-cfg-field').forEach(function (el) {
+    card.querySelectorAll('.loom-cfg-field').forEach(function (el) {
       if (bad) return;
       var key = el.getAttribute('data-key'), vt = el.getAttribute('data-vtype'), v;
       if (vt === 'boolean') v = el.checked;
@@ -2243,7 +2509,7 @@
     if (bad) { out.innerHTML = '<div class="loom-run-err">' + _esc(bad) + '</div>'; return; }
 
     var inputs = {};
-    form.querySelectorAll('.loom-in-field').forEach(function (el) {
+    card.querySelectorAll('.loom-in-field').forEach(function (el) {
       if (bad) return;
       var key = el.getAttribute('data-key'), vt = el.getAttribute('data-vtype'), v;
       if (vt === 'boolean') v = el.checked;
@@ -2256,7 +2522,7 @@
     });
     if (bad) { out.innerHTML = '<div class="loom-run-err">' + _esc(bad) + '</div>'; return; }
 
-    var ivEl = form.querySelector('.loom-run-interval');
+    var ivEl = card.querySelector('.loom-run-interval');
     var interval = ivEl ? parseFloat(ivEl.value) : undefined;
     var orig = btn.textContent;
     btn.disabled = true; btn.textContent = 'Running…';
@@ -2269,9 +2535,10 @@
       .then(function (j) {
         btn.disabled = false; btn.textContent = orig;
         if (j && j.ok) {
-          out.innerHTML = '<div class="loom-run-ok">✓ ran — outputs:' +
+          out.innerHTML = '<div class="loom-run-ok">✓ ran — outputs' +
             '<button class="btn-mini loom-copy-btn" onclick="_copyRunOutput(this)" title="Copy outputs JSON">⧉ Copy</button></div>' +
-            '<pre class="json-tree loom-run-pre">' + _esc(JSON.stringify(j.outputs, null, 2)) + '</pre>';
+            _jsonViewer(j.outputs) +
+            '<pre class="loom-run-raw" hidden>' + _esc(JSON.stringify(j.outputs, null, 2)) + '</pre>';
         } else {
           var stage = (j && j.stage) ? '[' + j.stage + '] ' : '';
           out.innerHTML = '<div class="loom-run-err">✗ ' + _esc(stage) + _esc((j && j.error) || 'run failed') + '</div>' +
@@ -2286,9 +2553,41 @@
   window._runRegistryProcess = _runRegistryProcess;
 
   // Copy the run output's JSON to the clipboard.
+  // Collapsible JSON viewer — objects/arrays are <details> nodes (top two
+  // levels open); scalars are typed leaves. Big/nested run outputs stay
+  // navigable instead of a wall of pretty-printed text.
+  function _jsonNode(key, val, depth) {
+    var keyHtml = (key !== null) ? '<span class="jt-key">' + _esc(key) + '</span><span class="jt-colon">:</span> ' : '';
+    if (val === null) return '<div class="jt-row">' + keyHtml + '<span class="jt-null">null</span></div>';
+    if (Array.isArray(val)) {
+      if (!val.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">[ ]</span></div>';
+      var ob = depth < 2 ? ' open' : '';
+      var ab = val.map(function (v, i) { return _jsonNode(String(i), v, depth + 1); }).join('');
+      return '<details class="jt-branch"' + ob + '><summary>' + keyHtml +
+        '<span class="jt-punct">[</span><span class="jt-count">' + val.length + '</span><span class="jt-punct">]</span></summary>' +
+        '<div class="jt-children">' + ab + '</div></details>';
+    }
+    if (typeof val === 'object') {
+      var keys = Object.keys(val);
+      if (!keys.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">{ }</span></div>';
+      var oo = depth < 2 ? ' open' : '';
+      var ob2 = keys.map(function (k) { return _jsonNode(k, val[k], depth + 1); }).join('');
+      return '<details class="jt-branch"' + oo + '><summary>' + keyHtml +
+        '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + '</span><span class="jt-punct">}</span></summary>' +
+        '<div class="jt-children">' + ob2 + '</div></details>';
+    }
+    var t = typeof val;
+    var cls = t === 'number' ? 'jt-num' : (t === 'boolean' ? 'jt-bool' : 'jt-str');
+    var disp = t === 'string' ? '"' + _esc(val) + '"' : _esc(String(val));
+    return '<div class="jt-row">' + keyHtml + '<span class="' + cls + '">' + disp + '</span></div>';
+  }
+  function _jsonViewer(value) {
+    return '<div class="json-viewer">' + _jsonNode(null, value, 0) + '</div>';
+  }
+
   function _copyRunOutput(btn) {
     var out = btn.closest('.loom-run-output');
-    var pre = out ? out.querySelector('.loom-run-pre') : null;
+    var pre = out ? out.querySelector('.loom-run-raw') : null;
     if (!pre) return;
     var text = pre.textContent || '';
     var done = function () { var o = btn.textContent; btn.textContent = '✓ Copied'; setTimeout(function () { btn.textContent = o; }, 1200); };
@@ -2314,6 +2613,11 @@
       else if (sortKey === 'module') { av = mod(a).toLowerCase(); bv = mod(b).toLowerCase(); }
       else if (sortKey === 'in') { av = _nPorts(a.inputs); bv = _nPorts(b.inputs); }
       else if (sortKey === 'out') { av = _nPorts(a.outputs); bv = _nPorts(b.outputs); }
+      else if (sortKey === 'studies') { av = (a.study_participation || {}).studies || 0; bv = (b.study_participation || {}).studies || 0; }
+      else if (sortKey === 'success') {
+        av = (a.study_participation || {}).success_pct; av = (av == null ? -1 : av);
+        bv = (b.study_participation || {}).success_pct; bv = (bv == null ? -1 : bv);
+      }
       else if (sortKey === 'source') { av = a.source || ''; bv = b.source || ''; }
       else { av = a.use_count || 0; bv = b.use_count || 0; }
       var c = av < bv ? -1 : (av > bv ? 1 : (a.name || '').localeCompare(b.name || ''));
@@ -2333,6 +2637,8 @@
         '<td class="reg-td-name"><strong>' + _esc(p.name) + '</strong> <code>' + _esc(p.address || '') + '</code></td>' +
         '<td>' + _esc(mod(p)) + '</td>' +
         '<td class="num">' + (p.use_count || 0) + '</td>' +
+        '<td class="num">' + ((p.study_participation || {}).studies || 0) + '</td>' +
+        '<td class="num">' + _successCell(p.study_participation) + '</td>' +
         '<td class="num">' + _nPorts(p.inputs) + '</td>' +
         '<td class="num">' + _nPorts(p.outputs) + '</td>' +
         '<td class="reg-td-src">' + _esc(p.source || '') + '</td>' +
@@ -2340,8 +2646,19 @@
     }).join('');
     el.innerHTML = '<div class="registry-table-wrap"><table class="registry-table"><thead><tr>' +
       th('name', 'Name') + th('module', 'Module') + th('use', 'Uses', 'num') +
+      th('studies', 'Studies', 'num') + th('success', 'Success', 'num') +
       th('in', 'In', 'num') + th('out', 'Out', 'num') + th('source', 'Source') +
       '</tr></thead><tbody>' + body + '</tbody></table></div>';
+  }
+
+  // Percent-success cell/chip from a study_participation stat (pass/total of
+  // report-card outcomes across participating studies). '—' when none ran.
+  function _successCell(sp) {
+    if (!sp || sp.success_pct == null || !sp.total) return '<span class="muted">—</span>';
+    var pct = sp.success_pct;
+    var cls = pct >= 80 ? 'reg-succ-hi' : (pct >= 50 ? 'reg-succ-mid' : 'reg-succ-lo');
+    return '<span class="reg-succ ' + cls + '" title="' + sp.pass + ' / ' + sp.total +
+      ' report-card outcomes passed across participating studies">' + pct + '%</span>';
   }
   function _setRegistryTableSort(key) {
     if (window._registryTableSort === key) {
@@ -2475,6 +2792,12 @@
     }
 
     el.innerHTML = html;
+    // Full zoom only: lazily resolve+inject each runnable card's config/inputs.
+    if (zoom === 'full') _observeRunnableCards(el);
+    // Sync the column control (visible only in Cards zoom); apply the
+    // multi-column layout when in Cards.
+    _syncColsControls();
+    if (zoom === 'grid') el.querySelectorAll('.reg-cards-grid').forEach(function (c) { _applyCardCols(c, 'registry'); });
   }
 
   // Render Analysis classes (v2ecoli ANALYSIS_REGISTRY entries) in the Registry
@@ -2738,6 +3061,10 @@
   window._composites = [];
   window._compositesFilter = { search: '', tags: new Set() };
   window._compositesView = 'grid';
+  window._compositesZoom = (function () {
+    var z; try { z = localStorage.getItem('viv.compositesZoom'); } catch (e) { z = null; }
+    return (z === 'table' || z === 'cards' || z === 'loom') ? z : 'cards';
+  })();
   // Default sort: workspace-local composites first, then alphabetical.
   // Surfaces the composites the current investigation actually needs
   // ahead of the full list of every installed pbg-* package's composites
@@ -2788,6 +3115,41 @@
     _renderComposites();
   }
   window._setCompositesSort = _setCompositesSort;
+
+  // ---- Composite pinning (localStorage, keyed by composite id) -------------
+  // Pinned composites float to the top of the list, above the sort order. The
+  // pin control is hover-revealed on each card (mirrors the studies-rail pins).
+  function _loadPinnedComposites() {
+    try {
+      var raw = window.localStorage.getItem('viv.pinnedComposites');
+      window._pinnedComposites = raw ? JSON.parse(raw) : [];
+    } catch (e) { window._pinnedComposites = []; }
+    if (!Array.isArray(window._pinnedComposites)) window._pinnedComposites = [];
+    return window._pinnedComposites;
+  }
+  function _isCompositePinned(id) {
+    if (!window._pinnedComposites) _loadPinnedComposites();
+    return window._pinnedComposites.indexOf(id) !== -1;
+  }
+  function _toggleCompositePin(id) {
+    if (!window._pinnedComposites) _loadPinnedComposites();
+    var i = window._pinnedComposites.indexOf(id);
+    if (i === -1) window._pinnedComposites.push(id);
+    else window._pinnedComposites.splice(i, 1);
+    try { window.localStorage.setItem('viv.pinnedComposites', JSON.stringify(window._pinnedComposites)); } catch (e) { /* private mode */ }
+    _renderComposites();
+  }
+  window._toggleCompositePin = _toggleCompositePin;
+  // Hover-revealed pin toggle for a composite card / row. stopPropagation so it
+  // never triggers the card's double-click-to-zoom.
+  function _compositePinBtn(c) {
+    var pinned = _isCompositePinned(c.id);
+    return '<button class="ccard-pin' + (pinned ? ' pinned' : '') + '"' +
+      ' onclick="event.stopPropagation(); _toggleCompositePin(\'' + _esc(c.id) + '\')"' +
+      ' title="' + (pinned ? 'Unpin' : 'Pin to top') + '"' +
+      ' aria-label="' + (pinned ? 'Unpin composite' : 'Pin composite to top') + '">📌</button>';
+  }
+  window._compositePinBtn = _compositePinBtn;
 
   function _renderComposites() {
     var container = document.getElementById('composite-cards');
@@ -2847,6 +3209,14 @@
         return (a.name || '').localeCompare(b.name || '');
       });
     }
+    // Pinned composites float to the top, preserving the sort order within the
+    // pinned and unpinned groups.
+    _loadPinnedComposites();
+    if (window._pinnedComposites.length) {
+      var _pins = [], _rest = [];
+      sorted.forEach(function (c) { (_isCompositePinned(c.id) ? _pins : _rest).push(c); });
+      sorted = _pins.concat(_rest);
+    }
     composites = sorted;
 
     if (!composites.length) {
@@ -2854,6 +3224,14 @@
       container.className = '';
       return;
     }
+
+    // Semantic zoom: Table (dense sortable) → Cards (full-row) → Loom (bigraph
+    // embedded on demand per card). The old grid/list toggle is subsumed.
+    var _czoom = window._compositesZoom || 'cards';
+    document.querySelectorAll('#composite-toolbar .reg-zoom-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-czoom') === _czoom);
+    });
+    if (_czoom === 'table') { _renderCompositesTable(container, composites); return; }
 
     function _moduleLine(c) {
       var mod = c.module || '';
@@ -2898,20 +3276,18 @@
         }).join('');
         var divider = _maybeDivider(prevC, c);
         prevC = c;
-        var exploreBtn = (_isSnapshot && !c.has_wiring) || c.read_only
-          ? ''
-          : '<button class="action-btn" onclick="_openCompositeExplorer(\'' + _esc(c.id) + '\')">Explore</button>';
+        var exploreBtn = _compositeCardActions(c, 'action-btn', 'action-btn');
         return divider + '<div class="composite-list-row' + (c.read_only ? ' federated-readonly' : '') + '">' +
           '<span class="name">' + _esc(c.name) + ' ' + _wsTag(c) + _originBadge(c.origin_repo) + '</span>' +
           '<span class="desc">' + tagPills + ' ' + _esc(c.description || '(no description)') +
             _moduleLine(c) +
           '</span>' +
-          '<span>' + exploreBtn + '</span>' +
+          '<span>' + _compositePinBtn(c) + exploreBtn + '</span>' +
           '</div>';
       });
       container.innerHTML = rows.join('');
     } else {
-      container.className = 'ccard-grid';
+      container.className = 'ccard-rows' + (_czoom === 'loom' ? ' ccard-loom' : '');
       var prevG = null;
       var cards = composites.map(function(c) {
         var kind = c.kind || 'spec';
@@ -3000,28 +3376,318 @@
         }
         var divider = _maybeDivider(prevG, c);
         prevG = c;
-        var exploreBtn = (_isSnapshot && !c.has_wiring) || c.read_only
-          ? ''
-          : '<button class="ccard-explore" onclick="_openCompositeExplorer(\'' + _esc(c.id) + '\')">Explore &rarr;</button>';
-        return divider + '<div class="ccard' + (c.workspace_local ? ' ccard-ws-card' : '') + (c.read_only ? ' federated-readonly' : '') + '">' +
-          '<div class="ccard-top">' +
-            '<span class="ccard-name" title="' + _esc(c.name) + '">' + _esc(c.name) + '</span>' +
-            '<span class="ccard-badges">' + kindPill + srcBadge + _originBadge(c.origin_repo) + '</span>' +
+        var exploreBtn = _compositeCardActions(c, 'ccard-view', 'ccard-explore');
+        var _csel = (window._compositesSelected && window._compositesSelected === c.id) ? ' reg-selected' : '';
+        // Compact full-row card: identity | description | stats | actions across
+        // the bar; config/structure/tags collapse into a details strip below.
+        return divider + '<div class="ccard ccard-compact' + _csel + (c.workspace_local ? ' ccard-ws-card' : '') + (c.read_only ? ' federated-readonly' : '') + '"' +
+            ' data-id="' + _esc(c.id) + '" ondblclick="_compositeCardDblClick(\'' + _esc(c.id) + '\')" title="Double-click to zoom in on this composite">' +
+          '<div class="ccc-grid">' +
+            '<div class="ccc-identity">' +
+              '<div class="ccc-name-row"><span class="ccc-name" title="' + _esc(c.name) + '">' + _esc(c.name) + '</span> ' + kindPill + srcBadge + _originBadge(c.origin_repo) + '</div>' +
+              '<code class="ccc-addr" title="' + _esc(c.id) + '">' + _esc(c.id) + '</code>' +
+            '</div>' +
+            '<div class="ccc-desc" title="' + _esc(c.description || '') + '">' + _esc(c.description || 'No description') + '</div>' +
+            '<div class="ccc-stats">' + metaRow + trackRow + '</div>' +
+            '<div class="ccc-actions">' + _compositePinBtn(c) + exploreBtn + '</div>' +
           '</div>' +
-          '<div class="ccard-id mono" title="' + _esc(c.id) + '">' + _esc(c.id) + '</div>' +
-          '<p class="ccard-desc" title="' + _esc(c.description || '') + '">' + _esc(c.description || 'No description') + '</p>' +
-          metaRow +
-          trackRow +
-          paramPreview +
-          structRow +
-          tagRow +
-          '<div class="ccard-foot">' + exploreBtn + '</div>' +
+          // Config-parameters / structure preview strips removed as low-signal;
+          // tags (if any) still show. Config lives in the loom's Config sidebar.
+          (tagRow ? '<div class="ccc-details-row">' + tagRow + '</div>' : '') +
+          (_czoom === 'loom' ? _compositeLoomEmbed(c) : '') +
         '</div>';
       });
       container.innerHTML = cards.join('');
+      // Cards zoom (not loom): multi-column grid + column control.
+      _syncColsControls();
+      if (_czoom === 'cards') _applyCardCols(container, 'composites');
+      else { container.classList.remove('cards-grid-cols'); container.style.gridTemplateColumns = ''; }
     }
   }
   window._renderComposites = _renderComposites;
+
+  function _setCompositeZoom(z) {
+    window._compositesZoom = z;
+    try { localStorage.setItem('viv.compositesZoom', z); } catch (e) { /* private mode */ }
+    document.querySelectorAll('#composite-toolbar .reg-zoom-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-czoom') === z);
+    });
+    _renderComposites();
+    _updateColsSlotVisibility();   // slider only in Cards zoom (table/loom hidden)
+  }
+  window._setCompositeZoom = _setCompositeZoom;
+
+  // Double-click a composite → zoom in one level (table → cards → loom), focused.
+  function _zoomInComposite(id) {
+    var order = ['table', 'cards', 'loom'];
+    var i = order.indexOf(window._compositesZoom || 'cards');
+    window._compositesSelected = id;
+    _setCompositeZoom(order[Math.min(order.length - 1, i + 1)]);
+    setTimeout(function () {
+      var sel = document.querySelector('#composite-cards [data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+      if (sel) { sel.classList.add('reg-selected'); try { sel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* ignore */ } }
+    }, 60);
+  }
+  window._zoomInComposite = _zoomInComposite;
+
+  // Loom (Full) zoom: an on-demand embed of the composite's bigraph. Resolving a
+  // composite can be ParCa-heavy, so it only loads when the card is expanded —
+  // read-only, via the loom's static stateUrl pointed at live composite-resolve.
+  function _compositeLoomEmbed(c) {
+    if (c.read_only && !c.has_wiring) return '';
+    // On a live dashboard the inline loom loads read-only (lightweight); a bar
+    // lets the reader flip it to live mode (editable config + Run) in place, the
+    // same as popping out. Not offered in a published snapshot (no run backend).
+    var liveBar = (document.body.classList.contains('snapshot') || c.read_only) ? '' :
+      '<div class="ccard-loom-bar">' +
+        '<span class="ccard-loom-mode">Read-only preview</span>' +
+        '<button class="ccard-loom-live-btn" onclick="_enableInlineLoomRun(this)"' +
+          ' title="Reload this loom live so you can edit config and Run it here, as in the pop-out view">' +
+          '&#9654; Enable running</button>' +
+      '</div>';
+    return '<details class="ccard-loom-embed" data-id="' + _esc(c.id) + '" ontoggle="_openCompositeLoomInline(this)">' +
+      '<summary>Open loom</summary>' +
+      liveBar +
+      '<div class="ccard-loom-frame"><p class="muted" style="padding:10px;font-size:0.85em">Expand to resolve &amp; render the bigraph…</p></div>' +
+    '</details>';
+  }
+  window._compositeLoomEmbed = _compositeLoomEmbed;
+
+  // Flip an inline loom embed from read-only preview to LIVE mode (editable
+  // config + Run), reloading the iframe at the same URL the pop-out uses
+  // (?id=<ref>, no ?static=1). Works whether or not the loom has loaded yet.
+  function _enableInlineLoomRun(btn) {
+    var det = btn && btn.closest('.ccard-loom-embed');
+    if (!det) return;
+    det._loomLive = true;
+    var id = det.getAttribute('data-id');
+    var apiUrl = (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
+    var liveUrl = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id);
+    var iframe = det.querySelector('.ccard-loom-iframe');
+    if (iframe) iframe.src = liveUrl;         // already open → swap in place
+    else { det._loomLoaded = false; _openCompositeLoomInline(det); }  // not open yet → load live
+    var bar = det.querySelector('.ccard-loom-bar');
+    if (bar) bar.innerHTML = '<span class="ccard-loom-mode live">&#9679; Live — running enabled</span>';
+  }
+  window._enableInlineLoomRun = _enableInlineLoomRun;
+
+  // "View" — open the composite's loom inline at max detail. From a lower zoom
+  // (table/cards) this jumps to the loom (max semantic) zoom AND opens this
+  // composite's embed; at loom zoom it toggles the embed. Replaces the old
+  // "Explore →" hop to the standalone explorer page (now redundant).
+  function _viewCompositeLoom(id) {
+    var esc = (window.CSS && CSS.escape) ? CSS.escape(id) : id;
+    var find = function () { return document.querySelector('.ccard-loom-embed[data-id="' + esc + '"]'); };
+    var z = window._compositesZoom || 'cards';
+    if (z !== 'loom') {
+      // Jump to max semantic zoom, focus this composite, then open its loom.
+      window._compositesSelected = id;
+      _setCompositeZoom('loom');
+      setTimeout(function () {
+        var det = find();
+        if (det) {
+          if (!det.open) det.open = true;   // fires ontoggle → lazy-load
+          try { det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
+        }
+      }, 80);
+      return;
+    }
+    var det = find();
+    if (!det) return;
+    det.open = !det.open;                   // toggle at loom zoom
+    if (det.open) { try { det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ } }
+  }
+  window._viewCompositeLoom = _viewCompositeLoom;
+
+  // The static composite-state URL the loom fetches. In a PUBLISHED snapshot the
+  // live /api/composite-resolve endpoint doesn't exist — the pre-resolved state
+  // is a static file at /api/composite-state/<id>.json — so point there; in live
+  // mode use the resolve endpoint. (Without this, "View" 404'd in the snapshot.)
+  function _compositeStateUrl(id) {
+    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
+      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
+    return document.body.classList.contains('snapshot')
+      ? apiUrl('/api/composite-state/' + encodeURIComponent(id) + '.json')
+      : apiUrl('/api/composite-resolve?id=' + encodeURIComponent(id));
+  }
+
+  // "Pop out" — open this composite's loom in a separate window directly (live,
+  // full config + run), bypassing the standalone explorer page. In a published
+  // snapshot there's no live API, so open the static (?static=1&stateUrl=) URL.
+  function _popoutCompositeLoom(id) {
+    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
+      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
+    var url;
+    if (document.body.classList.contains('snapshot')) {
+      url = apiUrl('/bigraph-loom/index.html') + '?static=1&stateUrl=' + encodeURIComponent(_compositeStateUrl(id));
+    } else {
+      url = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id);
+    }
+    var w = window.open(url, '_blank',
+      'width=1280,height=860,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes');
+    if (!w) alert('Popup blocked. Allow popups from this site to pop out the composite.');
+  }
+  window._popoutCompositeLoom = _popoutCompositeLoom;
+
+  // Card actions: View (inline loom) + Pop out (separate window). Shared by the
+  // table rows and the cards/loom zoom. Empty when the composite has no viewable
+  // wiring in this context (snapshot without pre-built wiring, or a read-only
+  // federated composite without wiring).
+  function _compositeCardActions(c, viewClass, popClass) {
+    if ((document.body.classList.contains('snapshot') && !c.has_wiring)) return '';
+    if (c.read_only && !c.has_wiring) return '';
+    var id = _esc(c.id);
+    return '<button class="' + viewClass + '" onclick="_viewCompositeLoom(\'' + id + '\')"' +
+        ' title="Open the loom inline at full detail">View</button>' +
+      '<button class="' + popClass + '" onclick="_popoutCompositeLoom(\'' + id + '\')"' +
+        ' title="Open the loom in a separate window">Pop out &#8599;</button>';
+  }
+  window._compositeCardActions = _compositeCardActions;
+
+  // Double-click a composite card: at the full (loom) semantic zoom there's no
+  // deeper level to zoom into, so open the loom inline instead — a quiet
+  // shortcut for the top-right "View" button. Lower zooms keep zooming in.
+  function _compositeCardDblClick(id) {
+    if ((window._compositesZoom || 'cards') === 'loom') _viewCompositeLoom(id);
+    else _zoomInComposite(id);
+  }
+  window._compositeCardDblClick = _compositeCardDblClick;
+
+  function _openCompositeLoomInline(det) {
+    if (!det || !det.open || det._loomLoaded) return;
+    det._loomLoaded = true;
+    var id = det.getAttribute('data-id');
+    var host = det.querySelector('.ccard-loom-frame');
+    if (!host) return;
+    host.innerHTML = '<p class="muted" style="padding:10px;font-size:0.85em">Resolving composite (this can take a moment)…</p>';
+    var apiUrl = (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
+    // Live mode (user hit "Enable running") loads the same URL as the pop-out
+    // (?id=<ref>) so config is editable and Run works; otherwise a read-only
+    // static render pointed at live composite-resolve.
+    var loomUrl = det._loomLive
+      ? apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id)
+      : apiUrl('/bigraph-loom/index.html') + '?static=1&stateUrl=' +
+          encodeURIComponent(_compositeStateUrl(id));
+    var f = document.createElement('iframe');
+    f.className = 'ccard-loom-iframe';
+    f.setAttribute('title', 'Loom — ' + id);
+    f.src = loomUrl;
+    host.innerHTML = '';
+    // Restore a previously dragged height (shared across all loom embeds).
+    var savedH = 0;
+    try { savedH = parseInt(localStorage.getItem('viv.loomFrameH') || '', 10) || 0; } catch (e) { /* private mode */ }
+    if (savedH) host.style.height = Math.max(220, Math.min(Math.round(window.innerHeight * 0.92), savedH)) + 'px';
+    host.appendChild(f);
+    _wireLoomResize(host, f);
+  }
+  window._openCompositeLoomInline = _openCompositeLoomInline;
+
+  // Drag-to-resize the embedded loom panel. A full-width grip below the iframe
+  // grows/shrinks the frame; the card grows with it. Height persists across
+  // embeds via localStorage. Pointer events are disabled on the iframe mid-drag
+  // so the gesture keeps tracking when the cursor moves over the loom.
+  function _wireLoomResize(frame, iframe) {
+    var grip = document.createElement('div');
+    grip.className = 'ccard-loom-resize';
+    grip.title = 'Drag to resize';
+    frame.appendChild(grip);
+    var startY = 0, startH = 0;
+    function pointY(e) { return e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY; }
+    function onMove(e) {
+      var maxH = Math.round(window.innerHeight * 0.92);
+      var h = Math.max(220, Math.min(maxH, startH + (pointY(e) - startY)));
+      frame.style.height = h + 'px';
+      if (e.cancelable) e.preventDefault();
+      try { localStorage.setItem('viv.loomFrameH', String(Math.round(h))); } catch (err) { /* private mode */ }
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+      if (iframe) iframe.style.pointerEvents = '';
+      frame.classList.remove('is-resizing');
+    }
+    function onDown(e) {
+      startY = pointY(e);
+      startH = frame.getBoundingClientRect().height;
+      if (iframe) iframe.style.pointerEvents = 'none';
+      frame.classList.add('is-resizing');
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onUp);
+      if (e.cancelable) e.preventDefault();
+    }
+    grip.addEventListener('mousedown', onDown);
+    grip.addEventListener('touchstart', onDown, { passive: false });
+  }
+  window._wireLoomResize = _wireLoomResize;
+
+  // Composites Table view — sortable (Name / Module / Kind / Params / Steps / Used).
+  function _renderCompositesTable(container, composites) {
+    var sk = window._compositesTableSort || 'workspace';
+    var sd = window._compositesTableDir || (sk === 'workspace' ? 'asc' : 'asc');
+    var mod = function (c) { return (c.module || '').split('.')[0]; };
+    var used = function (c) { return (c.studies && c.studies.studies) ? c.studies.studies : 0; };
+    var nparam = function (c) { return Object.keys(c.parameters || {}).length; };
+    var rows = composites.slice().sort(function (a, b) {
+      var av, bv;
+      // Default view: this-workspace composites on top, then most-used in this
+      // workspace, then alphabetical. Returns directly (direction-agnostic).
+      if (sk === 'workspace') {
+        var aw = a.workspace_local ? 0 : 1, bw = b.workspace_local ? 0 : 1;
+        if (aw !== bw) return aw - bw;
+        var au = used(a), bu = used(b);
+        if (au !== bu) return bu - au;
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (sk === 'module') { av = mod(a).toLowerCase(); bv = mod(b).toLowerCase(); }
+      else if (sk === 'kind') { av = (a.kind || ''); bv = (b.kind || ''); }
+      else if (sk === 'params') { av = nparam(a); bv = nparam(b); }
+      else if (sk === 'steps') { av = a.default_n_steps || 0; bv = b.default_n_steps || 0; }
+      else if (sk === 'used') { av = used(a); bv = used(b); }
+      else { av = (a.name || '').toLowerCase(); bv = (b.name || '').toLowerCase(); }
+      var c = av < bv ? -1 : (av > bv ? 1 : (a.name || '').localeCompare(b.name || ''));
+      return sd === 'desc' ? -c : c;
+    });
+    // Pinned composites float to the top of the table too, above the column sort.
+    _loadPinnedComposites();
+    if (window._pinnedComposites.length) {
+      var _tp = [], _tr = [];
+      rows.forEach(function (c) { (_isCompositePinned(c.id) ? _tp : _tr).push(c); });
+      rows = _tp.concat(_tr);
+    }
+    function th(key, label, cls) {
+      var on = sk === key;
+      return '<th class="reg-th' + (cls ? ' ' + cls : '') + (on ? ' active' : '') +
+        '" onclick="_setCompositesTableSort(\'' + key + '\')">' + label + (on ? (sd === 'desc' ? ' ▾' : ' ▴') : '') + '</th>';
+    }
+    var body = rows.map(function (c) {
+      return '<tr class="reg-tr" data-id="' + _esc(c.id || '') + '" ondblclick="_compositeCardDblClick(\'' + _esc(c.id || '') + '\')" title="Double-click to zoom in">' +
+        '<td class="reg-td-pin">' + _compositePinBtn(c) + '</td>' +
+        '<td class="reg-td-name"><strong>' + _esc(c.name) + '</strong> <code>' + _esc(c.id || '') + '</code></td>' +
+        '<td>' + _esc(mod(c)) + '</td>' +
+        '<td>' + _esc(c.kind || 'spec') + '</td>' +
+        '<td class="num">' + nparam(c) + '</td>' +
+        '<td class="num">' + (c.default_n_steps || '') + '</td>' +
+        '<td class="num">' + used(c) + '</td>' +
+        '<td class="reg-td-src">' + (c.workspace_local ? 'workspace' : _esc(mod(c))) + '</td>' +
+      '</tr>';
+    }).join('');
+    container.className = '';
+    container.innerHTML = '<div class="registry-table-wrap"><table class="registry-table"><thead><tr>' +
+      '<th class="reg-th reg-th-pin" title="Pin to top"></th>' +
+      th('name', 'Name') + th('module', 'Module') + th('kind', 'Kind') + th('params', 'Params', 'num') +
+      th('steps', 'Steps', 'num') + th('used', 'Used', 'num') + th('workspace', 'Source') +
+      '</tr></thead><tbody>' + body + '</tbody></table></div>';
+  }
+  function _setCompositesTableSort(key) {
+    if (window._compositesTableSort === key) window._compositesTableDir = (window._compositesTableDir === 'desc') ? 'asc' : 'desc';
+    else { window._compositesTableSort = key; window._compositesTableDir = (key === 'name' || key === 'module' || key === 'kind') ? 'asc' : 'desc'; }
+    _renderComposites();
+  }
+  window._setCompositesTableSort = _setCompositesTableSort;
 
   // Lazily fetch a composite's process/store counts when its "structure"
   // <details> is first opened (building a composite can be ParCa-heavy, so this
@@ -3069,6 +3735,9 @@
         window._compositesById = {};
         composites.forEach(function(c) { window._compositesById[c.id] = c; });
         if (countBadge) countBadge.textContent = '(' + composites.length + ')';
+        // Count lives in the search placeholder now (the heading was removed).
+        var _cSearch = document.getElementById('composite-search');
+        if (_cSearch) _cSearch.placeholder = 'Filter ' + composites.length + ' composites…';
         if (!composites.length) {
           container.innerHTML =
             '<p class="empty-state">No composite specs found yet. Add a <code>*.composite.yaml</code> file under ' +
@@ -3209,6 +3878,35 @@
     _renderCatalog();
   }
   window._setCatalogView = _setCatalogView;
+
+  // Modules has TWO zoom levels: Table (dense sortable) → Cards (multi-column
+  // grid). Persists; double-click a module zooms in one level. A stored 'full'
+  // (the removed high-detail level) resolves to Cards.
+  window._catalogZoom = (function () {
+    var z; try { z = localStorage.getItem('viv.catalogZoom'); } catch (e) { z = null; }
+    return (z === 'table' || z === 'cards') ? z : 'cards';
+  })();
+  function _setCatalogZoom(z) {
+    window._catalogZoom = z;
+    try { localStorage.setItem('viv.catalogZoom', z); } catch (e) { /* private mode */ }
+    document.querySelectorAll('#catalog-toolbar .reg-zoom-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mzoom') === z);
+    });
+    _renderCatalog();
+    _updateColsSlotVisibility();   // slider only in Cards zoom (table hidden)
+  }
+  window._setCatalogZoom = _setCatalogZoom;
+  function _zoomInModule(name) {
+    var order = ['table', 'cards'];
+    var i = order.indexOf(window._catalogZoom || 'cards');
+    window._catalogSelected = name;
+    _setCatalogZoom(order[Math.min(order.length - 1, i + 1)]);
+    setTimeout(function () {
+      var sel = document.querySelector('#catalog-modules-grid [data-mid="' + (window.CSS && CSS.escape ? CSS.escape(name) : name) + '"]');
+      if (sel) { sel.classList.add('reg-selected'); try { sel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* ignore */ } }
+    }, 60);
+  }
+  window._zoomInModule = _zoomInModule;
 
   // -------------------------------------------------------------------------
   // Shared module-card rendering (Modules tab + Marketplace tab)
@@ -3367,45 +4065,111 @@
       return;
     }
 
-    if (view === 'list') {
-      grid.className = 'module-list';
-      var prevL = null;
-      var rows = modules.map(function(m) {
-        var divider = _moduleSectionDivider(prevL, m);
-        prevL = m;
-        return divider + '<div class="module-list-row' + (m.kind === 'workspace' ? ' module-row-workspace' : '') + '">' +
-          '<span class="name">' + _esc(m.display_name || m.name) + '</span>' +
-          '<span class="desc"> ' + _esc(m.description || '') + _moduleStatsRow(m) + _moduleInstalledMeta(m) + '</span>' +
-          '<span>' + _moduleActionFor(m, marketplace) + '</span>' +
-          '</div>';
-      });
-      grid.innerHTML = rows.join('');
-    } else {
-      grid.className = 'module-grid';
-      var prevG = null;
-      var cards = modules.map(function(m) {
-        var divider = _moduleSectionDivider(prevG, m);
-        prevG = m;
-        // Installed-via-imports modules carry their GitHub URL in `source`, not
-        // `homepage`; fall back to a URL-shaped source for the header link.
-        var _hp = m.homepage || (/^https?:\/\//.test(m.source || '') ? m.source : '');
-        var homepage = _hp
-          ? '<a href="' + _esc(_hp) + '" target="_blank" class="module-link">GitHub &#8599;</a>'
-          : '';
-        var workspaceCls = (m.kind === 'workspace') ? ' module-card-workspace'
-                          : (m.installed ? ' module-card-installed' : '');
-        return divider + '<div class="module-card' + workspaceCls + '">' +
-          '<div class="module-card-header"><strong>' + _esc(m.display_name || m.name) + '</strong> ' + homepage + '</div>' +
-          '<p class="module-desc">' + _esc(m.description) + '</p>' +
-          '<div class="module-tags"></div>' +
-          _moduleStatsRow(m) +
-          _moduleInstalledMeta(m) +
-          '<div class="module-action">' + _moduleActionFor(m, marketplace) + '</div>' +
-          '</div>';
-      });
-      grid.innerHTML = cards.join('');
-    }
+    // Semantic zoom: Table (dense sortable) → Cards (full-row) → Full (high
+    // detail). Keep the workspace→installed→available section dividers.
+    var zoom = window._catalogZoom || 'cards';
+    document.querySelectorAll('#catalog-toolbar .reg-zoom-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-mzoom') === zoom);
+    });
+    if (zoom === 'table') { _renderModulesTable(grid, modules, marketplace); return; }
+    grid.className = 'mrows' + (zoom === 'full' ? ' mrows-full' : '');
+    var prevG = null;
+    var cards = modules.map(function (m) {
+      var divider = _moduleSectionDivider(prevG, m);
+      prevG = m;
+      return divider + _moduleFullRowCard(m, marketplace, zoom);
+    });
+    grid.innerHTML = cards.join('');
+    // Cards zoom: multi-column grid + column control (Full stays single-column).
+    _syncColsControls();
+    if (zoom === 'cards') _applyCardCols(grid, 'modules');
+    else { grid.classList.remove('cards-grid-cols'); grid.style.gridTemplateColumns = ''; }
   }
+
+  // Full-row module card — identity | description | stats | install-action, with
+  // source/ref/path detail shown at the Full zoom. Double-click zooms in.
+  function _moduleFullRowCard(m, marketplace, zoom) {
+    var name = _esc(m.display_name || m.name);
+    var _hp = m.homepage || (/^https?:\/\//.test(m.source || '') ? m.source : '');
+    var homepage = _hp ? ' <a href="' + _esc(_hp) + '" target="_blank" class="module-link">GitHub &#8599;</a>' : '';
+    var wsCls = (m.kind === 'workspace') ? ' module-card-workspace' : (m.installed ? ' module-card-installed' : '');
+    var sel = (window._catalogSelected && window._catalogSelected === m.name) ? ' reg-selected' : '';
+    var meta = _moduleInstalledMeta(m);
+    return '<div class="module-card mrow' + sel + wsCls + '" data-mid="' + _esc(m.name) + '"' +
+        ' ondblclick="_zoomInModule(\'' + _esc(m.name) + '\')" title="Double-click to zoom in on this module">' +
+      '<div class="mrow-grid">' +
+        '<div class="mrow-identity"><div class="mrow-name"><strong class="mrow-name-text" title="' + _esc(m.display_name || m.name) + '">' + name + '</strong>' + homepage + '</div></div>' +
+        '<div class="mrow-desc">' + _esc(m.description || '') + '</div>' +
+        '<div class="mrow-stats">' + _moduleStatsRow(m) + '</div>' +
+        '<div class="mrow-action">' + _moduleActionFor(m, marketplace) + '</div>' +
+      '</div>' +
+      (zoom === 'full' && meta ? '<div class="mrow-meta">' + meta + '</div>' : '') +
+    '</div>';
+  }
+
+  // Modules Table — installed-here and marketplace grouped into separate
+  // sections; sortable (Name / Source / Composites / Repos / Studies / Used);
+  // GitHub link on the name; Install/Uninstall in a single Action column.
+  function _renderModulesTable(grid, modules, marketplace) {
+    var sk = window._catalogTableSort || 'used';
+    var sd = window._catalogTableDir || ((sk === 'name' || sk === 'source') ? 'asc' : 'desc');
+    var pkg = function (m) { return (m.package || m.name || '').split('.')[0].replace(/_/g, '-'); };
+    function cmp(a, b) {
+      var av, bv;
+      if (sk === 'source') { av = pkg(a).toLowerCase(); bv = pkg(b).toLowerCase(); }
+      else if (sk === 'composites') { av = a.n_composites || 0; bv = b.n_composites || 0; }
+      else if (sk === 'repos') { av = a.n_repos || 0; bv = b.n_repos || 0; }
+      else if (sk === 'studies') { av = a.n_studies || 0; bv = b.n_studies || 0; }
+      else if (sk === 'used') { av = a.n_used || 0; bv = b.n_used || 0; }
+      else { av = (a.display_name || a.name || '').toLowerCase(); bv = (b.display_name || b.name || '').toLowerCase(); }
+      var c = av < bv ? -1 : (av > bv ? 1 : (a.display_name || a.name || '').localeCompare(b.display_name || b.name || ''));
+      return sd === 'desc' ? -c : c;
+    }
+    var isInstalled = function (m) { return m.kind === 'workspace' || m.installed; };
+    var installed = modules.filter(isInstalled).sort(cmp);
+    var available = modules.filter(function (m) { return !isInstalled(m); }).sort(cmp);
+    function gh(m) {
+      var hp = m.homepage || (/^https?:\/\//.test(m.source || '') ? m.source : '');
+      return hp ? ' <a href="' + _esc(hp) + '" target="_blank" class="module-link" onclick="event.stopPropagation()">GitHub &#8599;</a>' : '';
+    }
+    function th(key, label, cls) {
+      var on = sk === key;
+      return '<th class="reg-th' + (cls ? ' ' + cls : '') + (on ? ' active' : '') +
+        '" onclick="_setCatalogTableSort(\'' + key + '\')">' + label + (on ? (sd === 'desc' ? ' ▾' : ' ▴') : '') + '</th>';
+    }
+    function row(m) {
+      return '<tr class="reg-tr" data-mid="' + _esc(m.name) + '" ondblclick="_zoomInModule(\'' + _esc(m.name) + '\')" title="Double-click to zoom in">' +
+        '<td class="reg-td-name"><strong>' + _esc(m.display_name || m.name) + '</strong>' + gh(m) + '</td>' +
+        '<td>' + _esc(m.kind === 'workspace' ? 'workspace' : pkg(m)) + '</td>' +
+        '<td class="num">' + (m.n_composites || 0) + '</td>' +
+        '<td class="num" title="Repos in the federated ecosystem that import this module">' + (m.n_repos || 0) + '</td>' +
+        '<td class="num">' + (m.n_studies || 0) + '</td>' +
+        '<td class="num">' + (m.n_used || 0) + '</td>' +
+        '<td class="reg-td-action">' + _moduleActionFor(m, marketplace) + '</td>' +
+      '</tr>';
+    }
+    var NCOLS = 7;
+    function section(label, list) {
+      if (!list.length) return '';
+      return '<tr class="module-table-section"><td colspan="' + NCOLS + '"><span>' + label +
+        ' <span class="muted">(' + list.length + ')</span></span></td></tr>' + list.map(row).join('');
+    }
+    grid.className = '';
+    grid.innerHTML = '<div class="registry-table-wrap"><table class="registry-table modules-table"><thead><tr>' +
+      th('name', 'Name') + th('source', 'Source') + th('composites', 'Composites', 'num') +
+      th('repos', 'Repos', 'num') + th('studies', 'Studies', 'num') + th('used', 'Used', 'num') +
+      '<th class="reg-th">Action</th>' +
+      '</tr></thead><tbody>' +
+      section('Installed in this workspace', installed) +
+      section('Available in marketplace', available) +
+      '</tbody></table></div>';
+  }
+  function _setCatalogTableSort(key) {
+    if (window._catalogTableSort === key) window._catalogTableDir = (window._catalogTableDir === 'desc') ? 'asc' : 'desc';
+    else { window._catalogTableSort = key; window._catalogTableDir = (key === 'name' || key === 'source') ? 'asc' : 'desc'; }
+    _renderCatalog();
+  }
+  window._setCatalogTableSort = _setCatalogTableSort;
 
   function _renderCatalog() {
     var grid = document.getElementById('catalog-modules-grid');
@@ -3549,6 +4313,7 @@
         else alert(msg);
         // Refresh catalog (which now also refreshes the Installed list via _renderInstalledModules)
         if (typeof _loadCatalog === 'function') _loadCatalog();
+        if (typeof _loadMarket === 'function') _loadMarket(true);
         if (typeof _loadRegistry === 'function') _loadRegistry(true);
       })
       .catch(function(err) {
@@ -3645,6 +4410,923 @@
       });
   }
   window._loadCatalog = _loadCatalog;
+
+  // ── Market: faceted browser over the ecosystem's artifacts ────────────────
+  // Search processes, composites, studies and investigations from the
+  // workspace + every installed module (which span the public repos), with
+  // three zoom levels (List → Cards → Detail) surfacing how much each is used
+  // and what for. Uninstalled repos' individual artifacts are out of scope
+  // (only counts are available without an ecosystem index).
+  window._marketItems = null;
+  window._marketFacet = 'repo';   // land on the Repositories overview
+  window._marketZoom = 'cards';
+  // The Registry defaults to THIS repository's own artifacts ('workspace',
+  // shown as "Repository"); 'external' ("Other repos") is opt-in. The legacy
+  // 'all' scope was retired, so only the two valid values are honored from
+  // storage (anything else — incl. a stored 'all' — falls back to the default).
+  window._marketOrigin = 'all';   // All | workspace | imported | available
+  try { var _mz = localStorage.getItem('viv.market-zoom'); if (_mz) window._marketZoom = _mz; } catch (e) {}
+  try { var _mo = localStorage.getItem('viv.market-origin'); if (['all', 'workspace', 'imported', 'available'].indexOf(_mo) !== -1) window._marketOrigin = _mo; } catch (e) {}
+
+  var _MARKET_TYPES = [
+    { key: 'process',       label: 'Processes & Steps', ico: '⚙' },
+    { key: 'composite',     label: 'Composites',     ico: '▩' },
+    { key: 'study',         label: 'Studies',        ico: '▤' },
+    { key: 'investigation', label: 'Investigations', ico: '❖' }
+  ];
+  function _marketIco(t) {
+    for (var i = 0; i < _MARKET_TYPES.length; i++) if (_MARKET_TYPES[i].key === t) return _MARKET_TYPES[i].ico;
+    return '•';
+  }
+  // Three-way provenance category, uniform across facets: an artifact is
+  // "workspace" (the workspace's own package), "imported" (an installed
+  // dependency repo), or "available" (an ecosystem repo not installed here).
+  var _MARKET_CAT_ORDER = { workspace: 0, imported: 1, available: 2 };
+  function _marketCatOf(it) {
+    return it.category || (it.origin === 'workspace' ? 'workspace' : 'imported');
+  }
+  function _marketCatChip(it) {
+    var c = _marketCatOf(it);
+    return '<span class="market-cat market-cat-' + c + '" title="' + c + '">' + c + '</span>';
+  }
+  // 'viva_munk.processes.x.Y' / 'pbg_copasi.composites' → display repo 'viva-munk'
+  function _marketRepoOf(s) {
+    if (!s) return '';
+    return String(s).split('.')[0].replace(/_/g, '-');
+  }
+
+  // Load incrementally: the composites/studies/investigations endpoints answer
+  // in 1-4s, but the build_core() registry (processes) can take ~45s cold, so
+  // each source renders as it arrives instead of blocking on the slowest.
+  function _loadMarket(force) {
+    // Load once: re-navigations just re-render the cache; install/uninstall
+    // pass force=true. A guard stops redundant concurrent loads (which reset the
+    // accumulator mid-flight and made the first paint flaky).
+    if (!force && window._marketItems && window._marketItems.length) { _renderMarket(); return; }
+    if (window._marketLoading) return;
+    window._marketLoading = true;
+    var host = document.getElementById('market-results');
+    if (host) host.innerHTML = '<p class="empty-state">Loading&hellip;</p>';
+    window._marketByType = { composite: [], study: [], investigation: [], process: [] };
+    window._marketItems = [];
+    var rebuild = function () {
+      var t = window._marketByType;
+      window._marketItems = [].concat(t.process, t.composite, t.study, t.investigation);
+      _renderMarket();
+    };
+    // Route through DataSource so the SNAPSHOT (read-only) bundle reads the
+    // static api/*.json files (with the bundle's base path) instead of hitting
+    // live /api/* endpoints that don't exist offline — that mismatch left the
+    // published Registry stuck on "Loading…". Each call degrades to null on
+    // error so one missing payload can't blank the whole page. Live mode is
+    // unchanged: the same endpoints, just via the shared loader.
+    var DS = window.DataSource;
+    var J = function (which) {
+      try {
+        if (DS) {
+          if (which === 'isets')   return DS.loadIsetList().catch(function () { return null; });
+          if (which === 'studies') return DS.loadInvestigationsFlat().catch(function () { return null; });
+          if (which === 'comps')   return DS.loadComposites().catch(function () { return null; });
+          if (which === 'reg')     return DS.loadRegistry().catch(function () { return null; });
+          if (which === 'catalog') return DS.loadCatalog().catch(function () { return null; });
+        }
+      } catch (e) { /* fall through to raw fetch */ }
+      // The marketplace payload (full ecosystem incl. available-to-install) has
+      // no DataSource loader; resolve it snapshot-aware here (static .json in a
+      // published bundle, live endpoint otherwise).
+      if (which === 'marketplace' || which === 'ecoindex') {
+        var snap = DS && DS.config && DS.config().mode === 'snapshot';
+        var leaf = which === 'ecoindex' ? 'ecosystem-index' : 'marketplace';
+        var mu = snap ? (DS.basePath() + '/api/' + leaf + '.json')
+                      : ((DS && DS.apiUrl) ? DS.apiUrl('/api/' + leaf) : '/api/' + leaf);
+        return fetch(mu).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+      }
+      var path = { isets: '/api/investigation-summaries', studies: '/api/investigations',
+                   comps: '/api/composites', reg: '/api/registry', catalog: '/api/catalog' }[which] || which;
+      var u = (DS && DS.apiUrl) ? DS.apiUrl(path) : path;
+      return fetch(u).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+    };
+
+    // Provenance is per REPO: an artifact is "workspace" only if it belongs to
+    // the workspace's OWN package; everything else (imported dependency repos
+    // like viva-munk / pbg-*) is "external" so it surfaces under "Other repos".
+    var wsNorm = _marketRepoNorm(window._workspaceName || '');
+    var wsLabel = window._workspaceName || 'workspace';
+    // Three-way provenance. Local artifacts (from the installed registry) are
+    // "workspace" (the workspace's own package) or "imported" (an installed
+    // dependency repo); "available" is added later from the ecosystem index for
+    // repos NOT installed here.
+    var _categoryOf = function (repo, workspaceLocal) {
+      if (workspaceLocal || (_marketRepoNorm(repo) === wsNorm && wsNorm)) return 'workspace';
+      return 'imported';
+    };
+    var _originOf = function (repo, workspaceLocal) {
+      return _categoryOf(repo, workspaceLocal) === 'workspace' ? 'workspace' : 'external';
+    };
+
+    // The single-worker server hangs on CONCURRENT env_worker-backed requests
+    // (composites + registry), so fetch strictly SEQUENTIALLY — light/file
+    // endpoints first for a fast first paint, the heavy build_core() registry
+    // (~45s cold) last. Each step renders as it lands.
+    J('isets').then(function (isets) {
+      window._marketByType.investigation = ((isets || {}).investigations || []).map(function (iv) {
+        var repo = iv.origin_repo ? _marketRepoOf(iv.origin_repo) : wsLabel;
+        return { type: 'investigation', name: iv.name, title: iv.title || iv.name,
+          repo: repo, origin: iv.origin_repo ? 'external' : 'workspace',
+          category: _categoryOf(repo, !iv.origin_repo),
+          desc: iv.description || '', status: iv.effective_status || iv.status || '',
+          question: iv.question || '', hypothesis: iv.hypothesis || '',
+          studies: iv.studies || [], nStudies: iv.n_studies || (iv.studies || []).length || 0 };
+      });
+      rebuild();
+      return J('studies');
+    }).then(function (studies) {
+      window._marketByType.study = ((studies || {}).investigations || []).map(function (s) {
+        var repo = s.origin_repo ? _marketRepoOf(s.origin_repo) : wsLabel;
+        return { type: 'study', name: s.name, title: s.title || s.name, repo: repo,
+          origin: s.origin_repo ? 'external' : 'workspace',
+          category: _categoryOf(repo, !s.origin_repo), desc: s.description || '',
+          status: s.effective_status || s.status || '', composite: s.composite || '',
+          question: s.question || s.objective || '', invs: s.investigations || [],
+          nBeh: s.n_behaviors || 0, nRuns: s.n_runs || 0, nSims: s.n_simulations || 0, use: s.n_runs || 0 };
+      });
+      rebuild();
+      return J('comps');
+    }).then(function (comps) {
+      var carr = Array.isArray(comps) ? comps : (comps && comps.composites) || [];
+      window._marketByType.composite = carr.map(function (c) {
+        var wl = c.workspace_local || c.source === 'workspace';
+        var repo = wl ? wsLabel : _marketRepoOf(c.origin_repo || c.module);
+        var params = c.parameters;
+        var nParams = Array.isArray(params) ? params.length : (params ? Object.keys(params).length : 0);
+        return { type: 'composite', name: c.name, repo: repo,
+          origin: _originOf(repo, wl), category: _categoryOf(repo, wl),
+          desc: c.description || '', requires: ((c.requires || {}).processes) || [],
+          affectedStudies: (c.studies && c.studies.studies) || 0,
+          nParams: nParams, nSteps: c.default_n_steps || 0, use: 0 };
+      });
+      rebuild();
+      return J('reg');
+    }).then(function (reg) {
+      var wpkgs = (reg && reg.workspace_pkgs) || [];
+      window._marketByType.process = ((reg || {}).processes || []).filter(function (p) {
+        return p.kind === 'process' || p.kind === 'step';   // emitters live on the Modules page
+      }).map(function (p) {
+        var wl = p.source === 'in_workspace';
+        var repo = wl ? wsLabel : _marketRepoOf(p.address || p.source);
+        return { type: 'process', kind: p.kind || 'process', name: p.name, repo: repo,
+          origin: _originOf(repo, wl), category: _categoryOf(repo, wl),
+          desc: p.description || '', address: p.address || '',
+          usage: { comp: p.composite_uses || 0, study: p.study_uses || 0, total: p.use_count || 0 },
+          use: p.use_count || 0,
+          ports: { in: (p.inputs || []).length, out: (p.outputs || []).length,
+                   config: Object.keys(p.config_schema || {}).length } };
+      });
+      rebuild();
+      // The Repositories facet browses the whole ecosystem, so also pull the
+      // module catalog — the authoritative repo list (real GitHub URLs,
+      // descriptions, install status) including repos with no loaded artifacts.
+      return J('catalog');
+    }).then(function (cat) {
+      window._marketCatalog = (cat && cat.modules) || (Array.isArray(cat) ? cat : []);
+      _renderMarket();
+      // Upgrade to the FULL ecosystem ledger (installed + available-to-install).
+      // Heavier (federation scan live), so it lands after the fast installed-only
+      // catalog; on success it supersedes it and the repo list re-renders with
+      // the "Available" repos + Install actions.
+      return J('marketplace');
+    }).then(function (mkt) {
+      var mods = (mkt && mkt.modules) || (Array.isArray(mkt) ? mkt : []);
+      if (mods.length) { window._marketCatalog = mods; if (window._marketFacet === 'repo') _renderMarket(); }
+      // Finally, fold in the viva-marketplace ecosystem index so artifacts from
+      // OTHER repos (incl. ones not installed here) show in every facet.
+      return J('ecoindex');
+    }).then(function (eco) {
+      _mergeEcosystemIndex(eco);
+      _renderMarket();
+      window._marketLoading = false;
+    }).catch(function () { window._marketLoading = false; });
+  }
+  window._loadMarket = _loadMarket;
+
+  // Fold the viva-marketplace ecosystem index (per-repo artifact lists) into the
+  // facet buckets — but ONLY for repos NOT installed here. Installed repos (the
+  // workspace itself + imported deps) are already loaded from the local registry,
+  // so re-adding them from the index would duplicate them (and put the
+  // workspace's own studies/investigations under "Available"). Added items are
+  // category "available": browse now, install the repo to use.
+  function _mergeEcosystemIndex(eco) {
+    var repos = (eco && eco.repos) || [];
+    if (!repos.length) return;
+    var wsN = _marketRepoNorm(window._workspaceName || '');
+    var installed = {};
+    (window._marketCatalog || []).forEach(function (m) {
+      if (m && m.installed !== false) installed[_marketRepoNorm(m.name || m.package)] = true;
+    });
+    var seen = {};
+    var TYPES = ['process', 'composite', 'study', 'investigation'];
+    TYPES.forEach(function (t) {
+      (window._marketByType[t] || []).forEach(function (it) {
+        seen[t + '|' + _marketRepoNorm(it.repo) + '|' + it.name] = true;
+      });
+    });
+    var add = { process: [], composite: [], study: [], investigation: [] };
+    repos.forEach(function (r) {
+      var repo = _marketRepoNorm(r.repo || r.name);
+      if (!repo || repo === wsN || installed[repo]) return;   // only uninstalled repos
+      var push = function (arr, type, kind) {
+        (arr || []).forEach(function (a) {
+          var nm = a && a.name; if (!nm) return;
+          var key = type + '|' + repo + '|' + nm;
+          if (seen[key]) return; seen[key] = true;
+          var it = { type: type, name: nm, repo: repo, origin: 'external',
+            category: 'available', desc: (a.description || ''),
+            available: true, ecosystem: true, use: 0 };
+          if (type === 'process') {
+            it.kind = kind; it.address = '';
+            it.usage = { comp: 0, study: 0, total: 0 };
+            it.ports = { in: 0, out: 0, config: 0 };
+          } else if (type === 'composite') {
+            it.requires = []; it.nParams = 0; it.nSteps = 0;
+          } else if (type === 'study') {
+            it.status = ''; it.composite = ''; it.nBeh = 0; it.nRuns = 0; it.nSims = 0;
+          } else if (type === 'investigation') {
+            it.title = a.title || nm; it.status = ''; it.nStudies = 0;
+          }
+          add[type].push(it);
+        });
+      };
+      push(r.processes, 'process', 'process');
+      push(r.steps, 'process', 'step');
+      push(r.composites, 'composite');
+      push(r.studies, 'study');
+      push(r.investigations, 'investigation');
+    });
+    TYPES.forEach(function (t) {
+      if (add[t].length) window._marketByType[t] = (window._marketByType[t] || []).concat(add[t]);
+    });
+    // Rebuild the flat list from the (now-augmented) per-type buckets.
+    var t = window._marketByType;
+    window._marketItems = [].concat(t.process, t.composite, t.study, t.investigation);
+  }
+
+  function _setMarketFacet(f) {
+    window._marketFacet = f || 'all';
+    document.querySelectorAll('.market-facet').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.facet === window._marketFacet);
+    });
+    _renderMarket();
+  }
+  window._setMarketFacet = _setMarketFacet;
+
+  function _setMarketZoom(z) {
+    window._marketZoom = z || 'cards';
+    try { localStorage.setItem('viv.market-zoom', window._marketZoom); } catch (e) {}
+    document.querySelectorAll('[data-mkzoom]').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.mkzoom === window._marketZoom);
+    });
+    _renderMarket();
+  }
+  window._setMarketZoom = _setMarketZoom;
+
+  function _setMarketOrigin(o) {
+    window._marketOrigin = o || 'all';
+    try { localStorage.setItem('viv.market-origin', window._marketOrigin); } catch (e) {}
+    document.querySelectorAll('.market-origin-chip').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.origin === window._marketOrigin);
+    });
+    _renderMarket();
+  }
+  window._setMarketOrigin = _setMarketOrigin;
+
+  // Open an artifact where it lives: navigate to the owning page and filter to it.
+  function _marketOpen(type, name) {
+    if (type === 'investigation') {
+      _switchPage('investigations');
+      if (typeof _showInvestigationWorkspace === 'function') _showInvestigationWorkspace(name);
+      return;
+    }
+    if (type === 'study') {
+      _switchPage('studies');
+      var si = document.getElementById('investigations-search');
+      if (si) { si.value = name; si.dispatchEvent(new Event('input', { bubbles: true })); }
+      return;
+    }
+    if (type === 'composite') {
+      _switchPage('simulation-setup');
+      var ci = document.getElementById('composite-search');
+      if (ci) { ci.value = name; ci.dispatchEvent(new Event('input', { bubbles: true })); }
+      return;
+    }
+    if (type === 'process') {
+      _switchPage('modules');
+      var ri = document.getElementById('registry-search');
+      if (ri) { ri.value = name; if (typeof _filterRegistry === 'function') _filterRegistry(name); }
+      return;
+    }
+  }
+  window._marketOpen = _marketOpen;
+
+  // Usage summary — how much an artifact is used ("used for" surfaced in detail).
+  function _marketUsage(it) {
+    var p = [];
+    if (it.type === 'process') {
+      if (it.usage.comp) p.push(it.usage.comp + ' composite' + (it.usage.comp > 1 ? 's' : ''));
+      if (it.usage.study) p.push(it.usage.study + ' stud' + (it.usage.study > 1 ? 'ies' : 'y'));
+      return p.length ? 'used by ' + p.join(' · ') : 'unused';
+    }
+    if (it.type === 'composite') {
+      if (it.requires.length) p.push('needs ' + it.requires.length + ' process' + (it.requires.length > 1 ? 'es' : ''));
+      if (it.nSteps) p.push(it.nSteps + ' steps');
+      if (it.nParams) p.push(it.nParams + ' param' + (it.nParams > 1 ? 's' : ''));
+      return p.join(' · ');
+    }
+    if (it.type === 'study') {
+      if (it.status) p.push(it.status);
+      if (it.nBeh) p.push(it.nBeh + ' behavior' + (it.nBeh > 1 ? 's' : ''));
+      if (it.nRuns) p.push(it.nRuns + ' run' + (it.nRuns > 1 ? 's' : ''));
+      return p.join(' · ');
+    }
+    if (it.type === 'investigation') {
+      if (it.status) p.push(it.status);
+      if (it.nStudies) p.push(it.nStudies + ' stud' + (it.nStudies > 1 ? 'ies' : 'y'));
+      return p.join(' · ');
+    }
+    return '';
+  }
+
+  function _marketHead(it) {
+    return '<span class="market-type-ico" title="' + (it.kind || it.type) + '">' + _marketIco(it.type) + '</span>'
+      + '<span class="market-name">' + _esc(it.title || it.name) + '</span>'
+      + (it.kind === 'step' ? '<span class="market-repo" title="Step">step</span>' : '')
+      + _marketCatChip(it)
+      + (it.repo ? '<span class="market-repo">' + _esc(it.repo) + '</span>' : '');
+  }
+  function _marketOpenBtn(it) {
+    return '<button class="btn-mini market-open" data-open-type="' + it.type +
+      '" data-open-name="' + _esc(it.name) + '">Open ↗</button>';
+  }
+
+  // List (dense): one row per artifact.
+  function _marketRow(it) {
+    var u = _marketUsage(it);
+    return '<div class="market-row market-type-' + it.type + '">'
+      + '<div class="market-row-main">' + _marketHead(it)
+      +   (it.desc ? '<span class="market-row-desc">' + _esc(it.desc) + '</span>' : '') + '</div>'
+      + '<span class="market-usage">' + _esc(u) + '</span>'
+      + _marketOpenBtn(it) + '</div>';
+  }
+
+  // Per-render registry so a card can be expanded in place: each card gets a
+  // small id that maps back to its item (reset every _renderMarket).
+  function _mkRegister(it) {
+    if (!window._mkCardReg) window._mkCardReg = {};
+    var id = 'mk' + (window._mkSeq = (window._mkSeq || 0) + 1);
+    window._mkCardReg[id] = it;
+    return id;
+  }
+
+  // Stable identity for an item across zoom re-renders (type · repo · name).
+  function _mkKey(it) { return it.type + '|' + (it.repo || '') + '|' + it.name; }
+
+  // Expand (or force-open) a card's in-place detail region.
+  function _mkToggleCard(card, forceOpen) {
+    if (!card) return;
+    var it = (window._mkCardReg || {})[card.getAttribute('data-mk-id')];
+    var det = card.querySelector('.market-card-detail');
+    if (!it || !det) return;
+    var open = forceOpen ? true : card.classList.toggle('mk-expanded');
+    if (forceOpen) card.classList.add('mk-expanded');
+    if (open && det.getAttribute('data-filled') !== '1') {
+      det.innerHTML = _marketDetailBody(it); det.setAttribute('data-filled', '1');
+    }
+    det.hidden = !open;
+  }
+
+  // Double-click an item → advance one semantic-zoom level (list → cards →
+  // detail), then center + highlight that same item. This stays WITHIN the
+  // registry — it never navigates to another tab (an available/external item
+  // has no row in the Processes tab, so opening it there just 404s the search).
+  // Use the explicit "Open ↗" button to jump to where an installed item lives.
+  function _marketZoomTo(key) {
+    var order = ['list', 'cards', 'detail'];
+    var i = order.indexOf(window._marketZoom || 'cards');
+    if (i < 0) i = 1;
+    var next = order[Math.min(order.length - 1, i + 1)];   // clamp at detail
+    if (next !== window._marketZoom) _setMarketZoom(next);   // re-renders the facet
+    setTimeout(function () {
+      var host = document.getElementById('market-results'); if (!host) return;
+      var els = host.querySelectorAll('[data-mk-key]');
+      for (var k = 0; k < els.length; k++) {
+        if (els[k].getAttribute('data-mk-key') === key) {
+          els[k].classList.add('mk-focused');
+          try { els[k].scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* ignore */ }
+          if (els[k].classList.contains('market-card-x')) _mkToggleCard(els[k], true);
+          break;
+        }
+      }
+    }, 90);
+  }
+
+  // A status → color for the little study dots in an investigation's detail.
+  function _mkStatusColor(st) {
+    st = String(st || '').toLowerCase();
+    if (/complete|ran|pass|done/.test(st)) return '#22c55e';
+    if (/run|progress/.test(st)) return '#3b82f6';
+    if (/fail|error/.test(st)) return '#ef4444';
+    if (/inconclusive|partial/.test(st)) return '#f59e0b';
+    return '#cbd5e1';   // planned / unknown
+  }
+
+  // An investigation's member studies, joined against the loaded study bucket so
+  // each row shows the study's real title + status, with a completion summary.
+  function _marketInvStudies(it) {
+    var slugs = it.studies || [];
+    if (!slugs.length) {
+      return it.nStudies
+        ? '<div class="market-dl"><div class="market-dl-k">Studies</div><div class="market-dl-v">' + it.nStudies + '</div></div>'
+        : '';
+    }
+    var byName = {};
+    ((window._marketByType && window._marketByType.study) || []).forEach(function (s) { byName[s.name] = s; });
+    var done = 0, counted = 0;
+    var rowsHtml = slugs.map(function (slug) {
+      var s = byName[slug];
+      var st = s ? (s.status || 'planned') : '';   // '' → status not loaded yet (honest)
+      if (s) { counted++; if (/complete|ran|pass|done|evaluated/i.test(st)) done++; }
+      return '<div class="mk-study-row" data-open-type="study" data-open-name="' + _esc(slug) + '">' +
+        '<span class="mk-study-dot" style="background:' + _mkStatusColor(st) + '"></span>' +
+        '<span class="mk-study-name">' + _esc((s && (s.title || s.name)) || slug) + '</span>' +
+        '<span class="mk-study-status">' + _esc(st || '—') + '</span></div>';
+    }).join('');
+    var pct = counted ? Math.round(100 * done / counted) : 0;
+    var summary = counted
+      ? '<div class="mk-study-summary"><span class="mk-study-bar"><span style="width:' + pct + '%"></span></span>' +
+        '<span class="mk-study-summary-txt">' + done + ' / ' + counted + ' complete · ' + pct + '%</span></div>'
+      : '';
+    return '<div class="mk-studies"><div class="mk-studies-head">Member studies ' +
+      '<span class="market-count">' + slugs.length + '</span></div>' + summary + rowsHtml + '</div>';
+  }
+
+  // Shared detail body (description + attribute rows + type-specific extras).
+  // Used both by the Detail zoom and by a Card's click-to-expand region.
+  function _marketDetailBody(it) {
+    var rows = [];
+    var R = function (k, v) { if (v) rows.push('<div class="market-dl-k">' + k + '</div><div class="market-dl-v">' + v + '</div>'); };
+    var extra = '';
+    if (it.type === 'process') {
+      R('Address', '<code>' + _esc(it.address || it.name) + '</code>');
+      R('Used by', it.usage.total
+        ? _esc((it.usage.comp || 0) + ' composite' + (it.usage.comp === 1 ? '' : 's') + ' · ' + (it.usage.study || 0) + ' stud' + (it.usage.study === 1 ? 'y' : 'ies'))
+        : 'not yet used');
+      R('Ports', _esc(it.ports.in + ' in · ' + it.ports.out + ' out · ' + it.ports.config + ' config'));
+    } else if (it.type === 'composite') {
+      if (it.requires.length) R('Requires', it.requires.slice(0, 12).map(function (p) { return '<code>' + _esc(p) + '</code>'; }).join(' '));
+      R('Structure', _esc(it.nSteps + ' steps · ' + it.nParams + ' parameters'));
+      if (it.affectedStudies) R('Affected studies', '<span title="studies in your investigations that use this composite">' + it.affectedStudies + '</span>');
+    } else if (it.type === 'study') {
+      R('Status', _esc(it.status || '—'));
+      if (it.composite) R('Composite', '<code>' + _esc(it.composite) + '</code>');
+      if (it.question) R('Question', _esc(String(it.question).split('\n')[0].slice(0, 220)));
+      if (it.invs && it.invs.length) R('Part of', it.invs.map(function (n) { return _esc(n); }).join(', '));
+      R('Activity', _esc((it.nBeh || 0) + ' behavior' + (it.nBeh === 1 ? '' : 's') + ' · ' + (it.nRuns || 0) + ' run' + (it.nRuns === 1 ? '' : 's') + ' · ' + (it.nSims || 0) + ' sim' + (it.nSims === 1 ? '' : 's')));
+    } else if (it.type === 'investigation') {
+      R('Status', _esc(it.status || '—'));
+      if (it.question) R('Question', _esc(String(it.question).split('\n')[0].slice(0, 220)));
+      if (it.hypothesis) R('Hypothesis', _esc(String(it.hypothesis).split('\n')[0].slice(0, 220)));
+      extra = _marketInvStudies(it);
+    }
+    // Attributes + the type-specific extra (e.g. an investigation's member
+    // studies with success) lead; the long-form description follows.
+    return (rows.length ? '<div class="market-dl">' + rows.join('') + '</div>' : '')
+      + extra
+      + (it.desc ? '<div class="market-desc market-desc-full mk-detail-desc">' + _esc(it.desc) + '</div>' : '');
+  }
+
+  // Cards (middle zoom): a legible full name on its own line, provenance chips
+  // below, a clamped description, and a foot with usage + Open. Single-click the
+  // card body to expand the detail (description + attributes) in place.
+  function _marketCard(it) {
+    var u = _marketUsage(it);
+    var id = _mkRegister(it);
+    var tags = _marketCatChip(it)
+      + (it.kind === 'step' ? '<span class="market-repo" title="Step">step</span>' : '')
+      + (it.repo ? '<span class="market-repo">' + _esc(it.repo) + '</span>' : '');
+    return '<div class="market-card market-card-x market-type-' + it.type + '" data-mk-id="' + id + '"'
+      + ' data-mk-key="' + _esc(_mkKey(it)) + '"'
+      + ' role="button" tabindex="0" title="Click for details · double-click to zoom in">'
+      + '<div class="market-card-title">'
+      +   '<span class="market-type-ico" title="' + _esc(it.kind || it.type) + '">' + _marketIco(it.type) + '</span>'
+      +   '<span class="market-name-full">' + _esc(it.title || it.name) + '</span>'
+      +   '<span class="market-card-caret" aria-hidden="true">▸</span>'
+      + '</div>'
+      + '<div class="market-card-tags">' + tags + '</div>'
+      + (it.desc ? '<div class="market-desc">' + _esc(it.desc) + '</div>' : '')
+      + '<div class="market-card-foot">'
+      +   '<span class="market-usage">' + _esc(u) + '</span>' + _marketOpenBtn(it) + '</div>'
+      + '<div class="market-card-detail" hidden></div>'
+      + '</div>';
+  }
+
+  // Detail (max zoom): a full-row card with the full body always expanded.
+  function _marketDetail(it) {
+    return '<div class="market-card market-detail market-type-' + it.type + '"'
+      + ' data-mk-key="' + _esc(_mkKey(it)) + '" title="Double-click to open">'
+      + '<div class="market-card-head">' + _marketHead(it) + _marketOpenBtn(it) + '</div>'
+      + _marketDetailBody(it)
+      + '</div>';
+  }
+
+  // List (minimized) zoom = a sortable table: info rolls up into columns
+  // instead of overflowing to the right. Sort by name, repo, location, or use.
+  window._marketSort = { key: 'name', dir: 1 };
+  function _marketUseNum(it) {
+    if (it.type === 'process') return (it.usage || {}).total || 0;
+    if (it.type === 'study') return it.nRuns || 0;
+    if (it.type === 'investigation') return it.nStudies || 0;
+    return 0;   // composites carry no usage count
+  }
+  var _MARKET_COLS = [
+    { key: 'type',   label: 'Type',     get: function (it) { return it.type; }, w: '92px' },
+    { key: 'name',   label: 'Name',     get: function (it) { return it.title || it.name; } },
+    { key: 'repo',   label: 'Repo',     get: function (it) { return it.repo || ''; }, w: '150px' },
+    { key: 'origin', label: 'Location', get: function (it) { return it.origin === 'workspace' ? 'Repository' : 'External'; }, w: '110px' },
+    { key: 'use',    label: 'Use',      get: _marketUseNum, num: true, w: '70px' }
+  ];
+  function _setMarketSort(key) {
+    var s = window._marketSort;
+    if (s.key === key) s.dir = -s.dir; else { s.key = key; s.dir = 1; }
+    _renderMarket();
+  }
+  window._setMarketSort = _setMarketSort;
+  function _marketTable(items, showType) {
+    var s = window._marketSort;
+    var cols = _MARKET_COLS.filter(function (c) { return c.key !== 'type' || showType; });
+    var col = null; _MARKET_COLS.forEach(function (c) { if (c.key === s.key) col = c; });
+    if (!col) col = _MARKET_COLS[1];
+    var sorted = items.slice().sort(function (a, b) {
+      var av = col.get(a), bv = col.get(b);
+      if (col.num) return ((+av || 0) - (+bv || 0)) * s.dir;
+      return String(av).toLowerCase().localeCompare(String(bv).toLowerCase()) * s.dir;
+    });
+    var head = cols.map(function (c) {
+      var arrow = s.key === c.key ? (s.dir > 0 ? ' ▲' : ' ▼') : '';
+      return '<th class="market-th' + (s.key === c.key ? ' sorted' : '') + '" data-sort="' + c.key + '"'
+        + (c.w ? ' style="width:' + c.w + '"' : '') + '>' + c.label + arrow + '</th>';
+    }).join('');
+    var body = sorted.map(function (it) {
+      var tds = cols.map(function (c) {
+        if (c.key === 'type') return '<td class="market-td-type"><span class="market-type-ico" title="' + it.type + '">' + _marketIco(it.type) + '</span></td>';
+        if (c.key === 'name') return '<td class="market-td-name">' + _esc(it.title || it.name)
+          + (it.desc ? '<span class="market-td-desc">' + _esc(it.desc) + '</span>' : '') + '</td>';
+        if (c.key === 'origin') return '<td><span class="market-origin market-origin-' + it.origin + '">'
+          + (it.origin === 'workspace' ? 'Repository' : 'External') + '</span></td>';
+        if (c.key === 'use') { var u = _marketUseNum(it); return '<td class="market-td-use">' + (u || '—') + '</td>'; }
+        return '<td>' + _esc(String(c.get(it))) + '</td>';
+      }).join('');
+      return '<tr class="market-tr" data-open-type="' + it.type + '" data-open-name="' + _esc(it.name) + '"'
+        + ' data-mk-key="' + _esc(_mkKey(it)) + '" title="Double-click to zoom in">' + tds + '</tr>';
+    }).join('');
+    return '<table class="market-table"><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody></table>';
+  }
+
+  // ── Repositories facet ────────────────────────────────────────────────────
+  // A whole-ecosystem view: one entry per repo the workspace imports (from the
+  // module catalog — authoritative list, real GitHub URLs, descriptions, install
+  // status) MERGED with per-type counts from the loaded artifacts. Honors the
+  // three semantic-zoom levels (List / Cards / Detail) like every other facet.
+  function _marketRepoNorm(name) {
+    return String(name || '').toLowerCase().replace(/\.git$/, '').replace(/_/g, '-').trim();
+  }
+  function _marketRepoCanon(r) {
+    var ws = window._workspaceName || '';
+    if (!r || r === 'workspace') return _marketRepoNorm(ws || 'workspace');
+    return _marketRepoNorm(r);
+  }
+  function _marketRepoUrl(repo) {
+    if (window._workspaceName && repo === _marketRepoNorm(window._workspaceName) && window._workspaceRepoUrl) {
+      return window._workspaceRepoUrl;
+    }
+    return 'https://github.com/vivarium-collective/' + repo;
+  }
+  // Merge the catalog (repo universe) with loaded artifacts (fine per-type counts).
+  function _marketRepoList() {
+    var wsName = _marketRepoNorm(window._workspaceName || '');
+    var byRepo = {};
+    var get = function (raw) {
+      var r = _marketRepoNorm(raw);
+      if (!r) return null;
+      return byRepo[r] || (byRepo[r] = {
+        repo: r, isWorkspace: (r === wsName), installed: true, url: '', desc: '',
+        installName: '', process: 0, composite: 0, study: 0, investigation: 0, total: 0, use: 0,
+        composites: [], _fromArtifacts: false, _cat: null
+      });
+    };
+    // 1) Every ecosystem repo from the catalog/marketplace ledger (incl. repos
+    // with no artifacts AND available-to-install repos not present locally).
+    (window._marketCatalog || []).forEach(function (m) {
+      var b = get(m.name || m.package); if (!b) return;
+      if (m.source && !b.url) b.url = String(m.source).replace(/\.git$/, '');
+      if (m.description && !b.desc) b.desc = m.description;
+      if (m.installed === false) b.installed = false;
+      if (!b.installName) b.installName = m.name || m.package || '';
+      b._cat = m;
+    });
+    // 2) Per-type counts from the loaded registry/composites/studies/investigations.
+    (window._marketItems || []).forEach(function (it) {
+      var b = get(it.repo); if (!b) return;
+      b._fromArtifacts = true;
+      if (typeof b[it.type] === 'number') b[it.type]++;
+      b.total++; b.use += _marketUseNum(it);
+      if (it.type === 'composite' && b.composites.length < 6) b.composites.push(it.title || it.name);
+    });
+    // 3) Backfill counts from the catalog for repos with no loaded artifacts.
+    Object.keys(byRepo).forEach(function (k) {
+      var b = byRepo[k], c = b._cat;
+      if (!b._fromArtifacts && c) {
+        b.composite = c.n_composites || 0;
+        b.study = c.n_studies || 0;
+        b.investigation = c.n_investigations || 0;
+        b.total = b.process + b.composite + b.study + b.investigation;
+        b.use = c.n_used || 0;
+      }
+      // Affected studies = this workspace's OWN studies that depend on the repo
+      // (module_stats.n_used — deep, via composite→process usage). The real
+      // "what breaks if I uninstall" signal, distinct from total artifact uses.
+      b.affected = (c && typeof c.n_used === 'number') ? c.n_used : 0;
+      if (!b.url) b.url = _marketRepoUrl(b.repo);
+    });
+    return Object.keys(byRepo).map(function (k) { return byRepo[k]; }).sort(function (a, b) {
+      if (a.isWorkspace !== b.isWorkspace) return a.isWorkspace ? -1 : 1;   // workspace first
+      if ((a.installed === false) !== (b.installed === false)) return a.installed === false ? 1 : -1;
+      if (b.total !== a.total) return b.total - a.total;
+      return a.repo.localeCompare(b.repo);
+    });
+  }
+  function _repoBadge(b) {
+    if (b.isWorkspace) return '<span class="repo-badge repo-badge-ws">This workspace</span>';
+    if (b.installed === false) return '<span class="repo-badge repo-badge-avail">Available</span>';
+    return '<span class="repo-badge repo-badge-imported">Imported</span>';
+  }
+  var _REPO_STATS = [
+    ['composite', 'composite', 'composites'],
+    ['process', 'process', 'processes'],
+    ['study', 'study', 'studies'],
+    ['investigation', 'investigation', 'investigations']
+  ];
+  function _repoStatLine(b, showZero) {
+    var parts = _REPO_STATS.map(function (s) {
+      var n = b[s[0]] || 0;
+      if (!n && !showZero) return null;
+      return '<span class="repo-stat' + (n ? '' : ' zero') + '"><b>' + n + '</b> ' + (n === 1 ? s[1] : s[2]) + '</span>';
+    }).filter(Boolean);
+    return parts.length ? parts.join('') : '<span class="repo-stat zero">no artifacts yet</span>';
+  }
+  // Install action for an available (not-installed) repo. Class js-authoring so
+  // the read-only snapshot auto-suppresses it (browse-only there); live workbench
+  // shows it and _installFromMarketplace runs the submodule + pip install flow.
+  function _repoInstallBtn(b) {
+    if (b.installed !== false || b.isWorkspace) return '';   // only not-installed repos
+    var target = b.installName || b.repo;
+    return '<button class="btn-mini js-authoring repo-install" '
+      + 'onclick="event.preventDefault();event.stopPropagation();_installFromMarketplace(\'' + _esc(target) + '\');return false;">'
+      + '+ Install</button>';
+  }
+  // Uninstall an imported (installed, non-workspace) repo — routes through the
+  // existing impact-confirmation modal (composites/studies lost + workspace
+  // studies that would be left with a dangling reference).
+  function _repoUninstallBtn(b) {
+    if (b.installed === false || b.isWorkspace) return '';
+    var target = b.installName || b.repo;
+    return '<button class="btn-mini js-authoring repo-uninstall" title="Uninstall — shows what it affects first" '
+      + 'onclick="event.preventDefault();event.stopPropagation();_uninstallFromCatalog(\'' + _esc(target) + '\');return false;">'
+      + 'Uninstall</button>';
+  }
+  // GitHub link + Install/Uninstall, shared by card + detail.
+  function _repoActions(b) {
+    return '<span class="repo-actions">'
+      + '<a class="btn-mini repo-gh" href="' + _esc(b.url) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">GitHub ↗</a>'
+      + _repoInstallBtn(b) + _repoUninstallBtn(b) + '</span>';
+  }
+  function _repoFoot(b) {
+    var meta = [];
+    if (b.total) meta.push(b.total + ' artifact' + (b.total === 1 ? '' : 's'));
+    if (b.affected) meta.push('<span title="studies in your investigations that depend on this repo"><b>' + b.affected + '</b> affected stud' + (b.affected === 1 ? 'y' : 'ies') + '</span>');
+    return '<div class="repo-card-foot"><span class="repo-meta">' + (meta.join(' · ') || '&nbsp;') + '</span>'
+      + _repoActions(b) + '</div>';
+  }
+  function _marketRepoCard(b) {
+    return '<div class="market-card repo-card' + (b.isWorkspace ? ' repo-card-ws' : '') + '">'
+      + '<div class="repo-card-head">'
+      +   '<span class="repo-ico">📦</span>'
+      +   '<a class="repo-name" href="' + _esc(b.url) + '" target="_blank" rel="noopener">' + _esc(b.repo) + '</a>'
+      +   _repoBadge(b)
+      + '</div>'
+      + (b.desc ? '<div class="repo-desc">' + _esc(b.desc) + '</div>' : '')
+      + '<div class="repo-stats">' + _repoStatLine(b, false) + '</div>'
+      + _repoFoot(b)
+      + '</div>';
+  }
+  function _marketRepoDetail(b) {
+    return '<div class="market-card repo-card repo-card-detail' + (b.isWorkspace ? ' repo-card-ws' : '') + '">'
+      + '<div class="repo-card-head">'
+      +   '<span class="repo-ico">📦</span>'
+      +   '<a class="repo-name" href="' + _esc(b.url) + '" target="_blank" rel="noopener">' + _esc(b.repo) + '</a>'
+      +   _repoBadge(b)
+      + '</div>'
+      + (b.desc ? '<div class="repo-desc repo-desc-full">' + _esc(b.desc) + '</div>' : '')
+      + '<div class="repo-stats repo-stats-detail">' + _repoStatLine(b, true) + '</div>'
+      + (b.composites.length ? '<div class="repo-sample"><span class="repo-sample-lbl">Composites:</span> '
+          + b.composites.slice(0, 5).map(function (c) { return '<code>' + _esc(c) + '</code>'; }).join(' ')
+          + (b.composite > 5 ? ' <span class="repo-stat zero">+' + (b.composite - 5) + ' more</span>' : '') + '</div>' : '')
+      + _repoFoot(b)
+      + '</div>';
+  }
+  function _marketRepoTable(repos) {
+    var head = '<tr>'
+      + '<th class="repo-th">Repository</th>'
+      + '<th class="repo-th" style="width:120px">Status</th>'
+      + '<th class="repo-th" style="width:100px">Processes</th>'
+      + '<th class="repo-th" style="width:100px">Composites</th>'
+      + '<th class="repo-th" style="width:90px">Studies</th>'
+      + '<th class="repo-th" style="width:130px" title="Studies in your investigations that depend on this repo">Affected studies</th>'
+      + '<th class="repo-th" style="width:190px"></th></tr>';
+    var body = repos.map(function (b) {
+      var aff = b.affected
+        ? '<span class="repo-affected" title="studies in your investigations that depend on this repo">' + b.affected + '</span>'
+        : '<span class="repo-td-zero">—</span>';
+      return '<tr class="repo-tr">'
+        + '<td class="market-td-name">📦 ' + _esc(b.repo)
+        +   (b.desc ? '<span class="market-td-desc">' + _esc(b.desc) + '</span>' : '') + '</td>'
+        + '<td>' + _repoBadge(b) + '</td>'
+        + '<td class="repo-td-num">' + (b.process || '—') + '</td>'
+        + '<td class="repo-td-num">' + (b.composite || '—') + '</td>'
+        + '<td class="repo-td-num">' + (b.study || '—') + '</td>'
+        + '<td class="repo-td-num">' + aff + '</td>'
+        + '<td class="repo-td-actions">' + _repoActions(b) + '</td>'
+        + '</tr>';
+    }).join('');
+    return '<table class="market-table repo-table"><thead>' + head + '</thead><tbody>' + body + '</tbody></table>';
+  }
+  function _repoCategory(b) {
+    if (b.isWorkspace) return 'workspace';
+    if (b.installed === false) return 'available';
+    return 'imported';
+  }
+  function _renderMarketRepos(zoom, q, cat) {
+    var repos = _marketRepoList();
+    // Same category toggle as the artifact facets: Workspace / Imported /
+    // Available (All = everything, ordered by category).
+    if (cat && cat !== 'all') repos = repos.filter(function (b) { return _repoCategory(b) === cat; });
+    else repos.sort(function (a, b) { return _MARKET_CAT_ORDER[_repoCategory(a)] - _MARKET_CAT_ORDER[_repoCategory(b)] || 0; });
+    if (q) repos = repos.filter(function (b) {
+      return (b.repo + ' ' + b.desc + ' ' + b.composites.join(' ')).toLowerCase().indexOf(q) !== -1;
+    });
+    if (!repos.length) {
+      var loaded = (window._marketItems && window._marketItems.length) || (window._marketCatalog && window._marketCatalog.length);
+      return loaded ? '<p class="empty-state">No repositories match.</p>' : '<p class="empty-state">Loading&hellip;</p>';
+    }
+    if (zoom === 'list') return _marketRepoTable(repos);
+    var render = zoom === 'detail' ? _marketRepoDetail : _marketRepoCard;
+    return '<div class="market-grid market-grid-' + (zoom === 'detail' ? 'detail' : 'cards') + '">'
+      + repos.map(render).join('') + '</div>';
+  }
+
+  // Draggable column widths for the registry tables (Repositories list + the
+  // artifact list). A thin grip on each header's right edge resizes that column;
+  // widths persist per (facet · column) in localStorage.
+  function _enableColResize(root) {
+    (root || document).querySelectorAll('table.market-table').forEach(function (tbl) {
+      var facet = window._marketFacet || 'all';
+      var ths = tbl.querySelectorAll('thead th');
+      ths.forEach(function (th, i) {
+        if (i === ths.length - 1) return;   // last column absorbs the slack
+        // Restore a saved width.
+        try {
+          var saved = localStorage.getItem('viv.colw.' + facet + '.' + i);
+          if (saved) th.style.width = saved + 'px';
+        } catch (e) { /* private mode */ }
+        var grip = document.createElement('span');
+        grip.className = 'col-resizer';
+        th.style.position = 'relative';
+        th.appendChild(grip);
+        grip.addEventListener('click', function (e) { e.stopPropagation(); });   // don't sort
+        grip.addEventListener('mousedown', function (e) {
+          e.preventDefault(); e.stopPropagation();
+          var startX = e.pageX, startW = th.offsetWidth;
+          document.body.classList.add('col-resizing');
+          function mv(ev) { th.style.width = Math.max(48, startW + (ev.pageX - startX)) + 'px'; }
+          function up() {
+            document.removeEventListener('mousemove', mv);
+            document.removeEventListener('mouseup', up);
+            document.body.classList.remove('col-resizing');
+            try { localStorage.setItem('viv.colw.' + facet + '.' + i, String(parseInt(th.style.width, 10) || th.offsetWidth)); } catch (e) { /* ignore */ }
+          }
+          document.addEventListener('mousemove', mv);
+          document.addEventListener('mouseup', up);
+        });
+      });
+    });
+  }
+
+  function _renderMarket() {
+    var host = document.getElementById('market-results');
+    if (!host) return;
+    if (!host._marketWired) {   // delegate clicks once (survives re-renders)
+      host._marketWired = true;
+      var _clearTimer = function () { if (host._mkTimer) { clearTimeout(host._mkTimer); host._mkTimer = null; } };
+      host.addEventListener('click', function (e) {
+        var th = e.target.closest('.market-th'); if (th) { _setMarketSort(th.dataset.sort); return; }
+        var b = e.target.closest('.market-open'); if (b) { _clearTimer(); _marketOpen(b.dataset.openType, b.dataset.openName); return; }
+        // A member-study row inside an investigation's detail → open that study.
+        var sr = e.target.closest('.mk-study-row'); if (sr && sr.dataset.openName) { _clearTimer(); _marketOpen('study', sr.dataset.openName); return; }
+        // Single-click, DEBOUNCED so a double-click can preempt it and zoom
+        // instead: a card expands its detail in place; a table row opens.
+        var card = e.target.closest('.market-card-x');
+        var tr = e.target.closest('.market-tr');
+        if (card) { _clearTimer(); host._mkTimer = setTimeout(function () { host._mkTimer = null; _mkToggleCard(card); }, 220); return; }
+        // A list row drills into Cards (centered) — it stays in the registry
+        // rather than navigating to the owning tab (which 404s for external items).
+        if (tr && tr.getAttribute('data-mk-key')) { _clearTimer(); var k = tr.getAttribute('data-mk-key'); host._mkTimer = setTimeout(function () { host._mkTimer = null; _marketZoomTo(k); }, 220); return; }
+      });
+      // Double-click an item → advance one zoom level, centered on it.
+      host.addEventListener('dblclick', function (e) {
+        var el = e.target.closest('[data-mk-key]');
+        if (el) { _clearTimer(); _marketZoomTo(el.getAttribute('data-mk-key')); }
+      });
+      host.addEventListener('keydown', function (e) {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.market-card-x')) {
+          e.preventDefault(); _mkToggleCard(e.target.closest('.market-card-x'));
+        }
+      });
+    }
+    window._mkCardReg = {}; window._mkSeq = 0;   // reset the per-render card registry
+    var items = window._marketItems || [];
+    var q = ((document.getElementById('market-search') || {}).value || '').trim().toLowerCase();
+    var facet = window._marketFacet || 'all';
+    var zoom = window._marketZoom || 'cards';
+    var cat = window._marketOrigin || 'all';   // All | workspace | imported | available
+    var pageMarket = document.getElementById('page-market');
+    if (pageMarket) pageMarket.classList.toggle('market-facet-repo', facet === 'repo');
+    document.querySelectorAll('[data-mkzoom]').forEach(function (b) { b.classList.toggle('active', b.dataset.mkzoom === zoom); });
+    document.querySelectorAll('.market-origin-chip').forEach(function (b) { b.classList.toggle('active', b.dataset.origin === cat); });
+    // Repositories facet: whole-ecosystem repo browse with its own List/Cards/
+    // Detail zoom, filtered by the same category toggle. Rendered before the
+    // per-artifact filtering below.
+    if (facet === 'repo') {
+      host.innerHTML = _renderMarketRepos(zoom, q, cat);
+      if (zoom === 'cards') {
+        _syncColsControls();
+        _cardContainersFor('market').forEach(function (c) { _applyCardCols(c, 'market'); });
+      } else { _updateColsSlotVisibility(); }
+      if (zoom === 'list') _enableColResize(host);
+      return;
+    }
+    var match = function (it) {
+      if (facet !== 'all' && it.type !== facet) return false;
+      if (cat !== 'all' && _marketCatOf(it) !== cat) return false;
+      if (!q) return true;
+      return (it.name + ' ' + (it.title || '') + ' ' + it.desc + ' ' + it.repo).toLowerCase().indexOf(q) !== -1;
+    };
+    var filtered = items.filter(match);
+    // Order by category (workspace → imported → available); stable sort keeps the
+    // within-category order (e.g. processes by use). So "All" reads as grouped.
+    filtered.sort(function (a, b) { return _MARKET_CAT_ORDER[_marketCatOf(a)] - _MARKET_CAT_ORDER[_marketCatOf(b)]; });
+    if (!filtered.length) {
+      host.innerHTML = items.length ? '<p class="empty-state">No matches.</p>' : '<p class="empty-state">Loading&hellip;</p>';
+      return;
+    }
+    var html = '';
+    if (zoom === 'list') {
+      // One sortable table; a Type column appears only in the All facet.
+      html = _marketTable(filtered, facet === 'all');
+    } else {
+      var render = zoom === 'detail' ? _marketDetail : _marketCard;
+      var wrap = function (arr) { return '<div class="market-grid market-grid-' + zoom + '">' + arr.map(render).join('') + '</div>'; };
+      if (facet === 'all') {
+        _MARKET_TYPES.forEach(function (t) {
+          var group = filtered.filter(function (it) { return it.type === t.key; });
+          if (!group.length) return;
+          html += '<div class="market-group"><div class="market-group-head">' + t.label
+            + ' <span class="market-count">' + group.length + '</span></div>' + wrap(group) + '</div>';
+        });
+      } else {
+        html = wrap(filtered);
+      }
+    }
+    host.innerHTML = html;
+    // Cards zoom: honor the column dial (shared with composites/processes).
+    if (facet !== 'repo') {
+      if (zoom === 'cards') {
+        _syncColsControls();
+        _cardContainersFor('market').forEach(function (c) { _applyCardCols(c, 'market'); });
+      } else {
+        _updateColsSlotVisibility();
+      }
+      if (zoom === 'list') _enableColResize(host);
+    }
+  }
+  window._renderMarket = _renderMarket;
 
   // -------------------------------------------------------------------------
   // Install error rendering (v0.4.5)
@@ -3998,6 +5680,7 @@
         if (p.json.branch) msg += '\n\nBranch: ' + p.json.branch + (p.json.commit ? ' (' + p.json.commit + ')' : '');
         alert(msg);
         if (typeof _loadCatalog === 'function') _loadCatalog();
+        if (typeof _loadMarket === 'function') _loadMarket(true);
         if (typeof _loadRegistry === 'function') _loadRegistry(true);
       })
       .catch(function(e) {
@@ -4082,7 +5765,7 @@
         // Drop registry cache, switch to Registry tab so user sees the change.
         window._registryLoaded = false;
         fetch('/api/render', {method: 'POST'}).finally(function() {
-          location.hash = '#registry';
+          location.hash = '#modules';
           location.reload();
         });
       })
@@ -4520,9 +6203,9 @@
   // ---- Rail resize (drag the right edge to widen; snap to normal; drag
   //      narrower to snap into the collapsed bar) ----------------------------
   var _RAIL_NORMAL = 240;      // the "normal" snap width (matches CSS default)
-  var _RAIL_MIN = 240;         // expanded floor — narrower than this collapses
+  var _RAIL_MIN = 160;         // expanded floor (~2/3 of normal) — narrower than this collapses
   var _RAIL_MAX = 560;         // don't let the rail eat the whole viewport
-  var _RAIL_COLLAPSE_AT = 180; // drag below this (px from left edge) → collapse
+  var _RAIL_COLLAPSE_AT = 140; // drag below this (px from left edge) → collapse
   var _RAIL_SNAP = 28;         // within this of normal → snap to exactly normal
 
   function _vivRailSavedWidth() {
@@ -4741,7 +6424,44 @@
   // page. Activates the Investigations page directly rather than via
   // _switchPage('investigations') — that path calls _loadInvestigationSets(),
   // which async-re-renders the LIST over the detail we just opened.
+  // ── Investigations rail: most-recently-opened ordering + pinning ──────────
+  // Per-user convenience kept in localStorage (no workspace write). MRU keeps the
+  // rail reliable — the investigation you just opened floats to the top; pins
+  // override MRU and sit above everything.
+  function _loadInvMru() {
+    if (!window._invMru || typeof window._invMru !== 'object') {
+      try { window._invMru = JSON.parse(window.localStorage.getItem('viv.invMru') || '{}') || {}; }
+      catch (e) { window._invMru = {}; }
+      if (!window._invMru || typeof window._invMru !== 'object') window._invMru = {};
+    }
+    return window._invMru;
+  }
+  function _recordInvOpen(name) {
+    if (!name) return;
+    var mru = _loadInvMru();
+    mru[name] = new Date().getTime();
+    try { window.localStorage.setItem('viv.invMru', JSON.stringify(mru)); } catch (e) { /* private mode */ }
+  }
+  function _loadPinnedInvestigations() {
+    if (!Array.isArray(window._pinnedInvestigations)) {
+      try { window._pinnedInvestigations = JSON.parse(window.localStorage.getItem('viv.pinnedInvestigations') || '[]'); }
+      catch (e) { window._pinnedInvestigations = []; }
+      if (!Array.isArray(window._pinnedInvestigations)) window._pinnedInvestigations = [];
+    }
+    return window._pinnedInvestigations;
+  }
+  function _isInvestigationPinned(name) { return _loadPinnedInvestigations().indexOf(name) !== -1; }
+  function _toggleInvestigationPin(name) {
+    var pins = _loadPinnedInvestigations();
+    var i = pins.indexOf(name);
+    if (i === -1) pins.push(name); else pins.splice(i, 1);
+    try { window.localStorage.setItem('viv.pinnedInvestigations', JSON.stringify(pins)); } catch (e) { /* private mode */ }
+    if (typeof _renderRailInvestigationGroups === 'function') _renderRailInvestigationGroups();
+  }
+  window._toggleInvestigationPin = _toggleInvestigationPin;
+
   window._railOpenInvestigationDetail = function (name) {
+    _recordInvOpen(name);
     document.querySelectorAll('.page').forEach(function (s) { s.classList.remove('active'); });
     document.querySelectorAll('.menu-link').forEach(function (a) { a.classList.remove('active'); });
     var page = document.getElementById('page-investigations');
@@ -6404,7 +8124,7 @@
         'title="Download a self-contained Jupyter notebook">Notebook 📓</button>' +
       (isSnapshot ? '' :
       ' <button class="btn-mini" onclick="_rerunInvestigation()" ' +
-        'title="Re-run every study\'s baseline">Rerun investigation</button>');
+        'title="Re-run every member study\'s CURRENT baseline spec (re-derives from each study\'s study.yaml)">▶ Run current spec</button>');
   }
   window._wsSetInvestigationActions = _wsSetInvestigationActions;
 
@@ -6429,8 +8149,17 @@
 
   // Prompt-first create: a free-text description scaffolds a real investigation /
   // study seeded with that as the question, name auto-derived (editable).
-  function _openBrowseCreate() {
-    var isStudy = window._isetBrowseTab === 'studies';
+  // Open the reproducibility audit report (latest cached; the page itself has a
+  // "Re-run audit" link → ?rerun=1). New tab so it doesn't disturb the SPA.
+  function _openAuditReport() {
+    window.open('/api/audit-report', '_blank', 'noopener');
+  }
+  window._openAuditReport = _openAuditReport;
+
+  // mode: 'investigation' | 'study' (explicit from the header cluster); falls
+  // back to the active browse tab when omitted.
+  function _openBrowseCreate(mode) {
+    var isStudy = mode ? (mode === 'study') : (window._isetBrowseTab === 'studies');
     window._browseCreateMode = isStudy ? 'study' : 'investigation';
     document.getElementById('browse-create-title').textContent = isStudy ? 'New study' : 'New investigation';
     document.getElementById('browse-create-submit').textContent = isStudy ? 'Create study' : 'Create investigation';
@@ -7056,6 +8785,10 @@
   // report's "Executive summary": both read the SAME canonical investigation.yaml
   // fields (executive.{what_is_this,verdict,verdict_status} + question + hypothesis).
   // The free-form `lead` ("replaces prior work…") is demoted to a Background fold.
+  // Inquiry brief: an investigation IS a question, so lead with it as the
+  // headline; the verdict answers it as a colored status line (not a box); depth
+  // (how-to-read / biology / background / glossary) lives in one flat tab strip.
+  // Reads the SAME canonical fields as the downloaded report's executive summary.
   function _renderInvOpening(d) {
     d = d || {};
     var ex = d.executive || {};
@@ -7066,35 +8799,100 @@
     var q   = oneline(d.question);
     var hyp = oneline(d.hypothesis);
     var leadProse = (d.lead || d.description || '').trim();
+    var bio       = (d.biological_story || '').trim();
+    var glossary  = Array.isArray(d.glossary) ? d.glossary : [];
+    var howto     = d.how_to_read;  // string (prose) or array (tips) — both render.
+    var hasHowto  = Array.isArray(howto) ? howto.length : String(howto || '').trim().length;
 
-    // Legacy investigations with no executive content fall back to the lead.
+    // Legacy investigations with no structured content fall back to the lead.
     if (!whatIs && !verdict && !q && !hyp) {
-      return leadProse ? _renderInvLeadMarkdown(leadProse) : '';
+      return leadProse
+        ? '<div class="inv-brief"><div class="inv-brief-prose">' + _renderInvLeadMarkdown(leadProse) + '</div></div>'
+        : '';
     }
 
     var key = String(vs).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    var vColor = ({ 'passed':'#166534','complete':'#166534','in-progress':'#854d0e',
-                    'blocked':'#991b1b','failed':'#991b1b','planning':'#1e40af' })[key] || '#475569';
-    var vBg = ({ 'passed':'#dcfce7','complete':'#dcfce7','in-progress':'#fef9c3',
-                 'blocked':'#fee2e2','failed':'#fee2e2','planning':'#dbeafe' })[key] || '#e2e8f0';
+    var vsClass = ({ 'passed':'passed','complete':'passed','in-progress':'progress',
+                     'blocked':'blocked','failed':'blocked','planning':'planning' })[key] || 'default';
 
-    var out = '';
-    if (whatIs)
-      out += '<div style="margin:2px 0 10px;color:#334155;line-height:1.5">' + _renderInvLeadMarkdown(whatIs) + '</div>';
-    if (verdict)
-      out += '<div style="background:#f8fafc;border-left:5px solid ' + vColor + ';border-radius:8px;padding:10px 14px;margin:10px 0">' +
-        '<span style="display:inline-block;font-size:0.7em;font-weight:700;letter-spacing:0.03em;background:' + vBg +
-          ';color:' + vColor + ';padding:2px 9px;border-radius:9999px;margin-right:8px">' + _esc(vs.toUpperCase()) + '</span>' +
-        '<strong style="color:#1e293b">Current verdict.</strong> <span style="color:#334155">' + _esc(verdict) + '</span></div>';
-    if (q)
-      out += '<p style="margin:8px 0;color:#334155;line-height:1.5"><strong style="color:#1e293b">Question.</strong> ' + _esc(q) + '</p>';
-    if (hyp)
-      out += '<p style="margin:8px 0;color:#475569;line-height:1.5"><strong style="color:#1e293b">Hypothesis.</strong> ' + _esc(hyp) + '</p>';
+    // The question/framing fields run long — keep the headline to the opening
+    // sentence (through the first "?" for questions, else the first period) and
+    // demote the remainder to a muted framing line.
+    var headlineOf = function(t) {
+      t = oneline(t);
+      var qi = t.indexOf('?');
+      if (qi !== -1) return t.slice(0, qi + 1);
+      var m = t.match(/^.*?[.!](?=\s)/);
+      return m ? m[0] : t;
+    };
+    var primary  = whatIs || q;
+    var headline = primary ? headlineOf(primary) : (d.title || d.name || '');
+    var framing  = primary ? oneline(primary).slice(headlineOf(primary).length).trim() : '';
+
+    var H = [];
+    H.push('<div class="inv-brief inv-vs-' + vsClass + '">');
+
+    // Headline — the driving question, kept to one line.
+    if (headline) H.push('<h2 class="inv-brief-q">' + _esc(headline) + '</h2>');
+
+    // Verdict — answers the question, as a colored status line.
+    if (verdict) {
+      H.push('<div class="inv-brief-verdict">' +
+        '<span class="inv-vs-pill">' + _esc(vs.toUpperCase()) + '</span>' +
+        '<span class="inv-brief-verdict-label">Current verdict</span> ' +
+        '<span class="inv-brief-verdict-text">' + _esc(verdict) + '</span></div>');
+    }
+
+    // Framing — the rest of the opening sentence(s), muted.
+    if (framing) H.push('<p class="inv-brief-framing">' + _esc(framing) + '</p>');
+
+    // Meta — hypothesis.
+    if (hyp) H.push('<div class="inv-brief-meta"><span class="inv-brief-meta-item"><em>Hypothesis</em> ' + _esc(hyp) + '</span></div>');
+
+    // Depth — one flat tab strip; only tabs with content are shown.
+    var tabs = [];
+    if (hasHowto)
+      tabs.push({ id:'howto', label:'How to read', html: Array.isArray(howto)
+        ? '<ol class="inv-brief-howto">' + howto.map(function(x) {
+            return '<li>' + _renderInvLeadMarkdown(String(typeof x === 'string' ? x : (x.text || x.tip || ''))).replace(/^<p>|<\/p>$/g, '') + '</li>';
+          }).join('') + '</ol>'
+        : '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(String(howto)) + '</div>' });
+    if (bio)
+      tabs.push({ id:'biology', label:'Biology', html:
+        '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(bio) + '</div>' });
     if (leadProse)
-      out += '<details style="margin-top:10px"><summary style="cursor:pointer;font-size:0.88em;color:#64748b">Background &amp; context</summary>' +
-        '<div style="margin-top:6px;color:#475569;line-height:1.5">' + _renderInvLeadMarkdown(leadProse) + '</div></details>';
-    return out;
+      tabs.push({ id:'background', label:'Background', html:
+        '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(leadProse) + '</div>' });
+    if (glossary.length)
+      tabs.push({ id:'glossary', label:'Glossary', html:
+        '<dl class="inv-brief-glossary">' + glossary.map(function(g) {
+          return '<dt>' + _escInv(g.term || g.name || '') + '</dt><dd>' + _escInv(g.definition || g.def || '') + '</dd>';
+        }).join('') + '</dl>' });
+
+    if (tabs.length) {
+      H.push('<div class="inv-brief-tabs" role="tablist">' + tabs.map(function(t, i) {
+        return '<button type="button" class="inv-brief-tab' + (i === 0 ? ' active' : '') +
+          '" onclick="_invBriefTab(this,\'' + t.id + '\')">' + _esc(t.label) + '</button>';
+      }).join('') + '</div>');
+      H.push('<div class="inv-brief-panels">' + tabs.map(function(t, i) {
+        return '<div class="inv-brief-panel" data-panel="' + t.id + '"' + (i === 0 ? '' : ' style="display:none"') + '>' + t.html + '</div>';
+      }).join('') + '</div>');
+    }
+
+    H.push('</div>');
+    return H.join('');
   }
+
+  // Flat tab switcher for the inquiry brief (scoped to the clicked brief).
+  function _invBriefTab(btn, id) {
+    var brief = btn.closest('.inv-brief');
+    if (!brief) return;
+    brief.querySelectorAll('.inv-brief-tab').forEach(function(b) { b.classList.toggle('active', b === btn); });
+    brief.querySelectorAll('.inv-brief-panel').forEach(function(p) {
+      p.style.display = (p.getAttribute('data-panel') === id) ? '' : 'none';
+    });
+  }
+  window._invBriefTab = _invBriefTab;
 
   function _openInvestigationDetail(name) {
     window._currentIset = name;
@@ -7146,33 +8944,10 @@
         // Lead paragraph: render lead (preferred) or fall back to description.
         // Light markdown: paragraph splits, * bullets, `code`, **bold**.
         var leadEl = document.getElementById('investigation-detail-description');
+        // The inquiry brief renders the full opening — headline, verdict, meta,
+        // and the how-to-read / biology / background / glossary tabs — from `d`.
         leadEl.innerHTML = _renderInvOpening(d);
 
-        // How to read: yaml-driven list of evaluator tips. Hidden if absent.
-        _renderInvHowToRead(d.how_to_read);
-
-        // Glossary: yaml-driven list of {term, definition}. Hidden if absent.
-        _renderInvGlossary(d.glossary);
-
-        // Biology-story banner: populated only when investigation.yaml
-        // declares `biological_story:`. Hidden otherwise.
-        var storyBox = document.getElementById('investigation-biology-story');
-        var storyText = document.getElementById('investigation-biology-story-text');
-        if (storyBox && storyText) {
-          var story = (d.biological_story || '').trim();
-          if (story) {
-            // Render as reflowing paragraphs (split on blank lines, collapse
-            // intra-paragraph hard newlines to spaces) so the text uses the full
-            // width instead of breaking at the YAML's source newlines.
-            storyText.innerHTML = story.split(/\n\s*\n/).map(function(para) {
-              return '<p>' + _esc(para.replace(/\s*\n\s*/g, ' ').trim()) + '</p>';
-            }).join('');
-            storyBox.style.display = '';
-          } else {
-            storyText.textContent = '';
-            storyBox.style.display = 'none';
-          }
-        }
         // Phase B4: render today's study graph (unchanged), then layer each
         // study's typed evidence chain into its card. Falls back to the plain
         // study graph on any fetch failure (graceful — identical to before).
@@ -7188,7 +8963,7 @@
                 .then(function (r) { if (!r.ok) throw new Error('graph ' + r.status); return r.json(); })
           )
             .then(function (graph) {
-              _renderInvestigationDag(d.studies || [], (graph && graph.chains) || {});
+              _renderInvestigationDag(d.studies || [], (graph && graph.chains) || {}, (graph && graph.study_edges) || []);
             })
             .catch(function () { _renderInvestigationDag(d.studies || []); });
         })();
@@ -7357,8 +9132,13 @@
   }
   window._runUnblockedSimulations = _runUnblockedSimulations;
 
-  // "Rerun investigation" — force-relaunch every member study's baseline
-  // (ignores the unblocked-gate; explicit user action). POSTs to
+  // "Run current spec" (investigation-level) — force-relaunch every member
+  // study's CURRENT baseline spec, RE-DERIVING each from its own study.yaml
+  // (ignores the unblocked-gate; explicit user action). This is the
+  // investigation-level counterpart to the study header's "Run current
+  // spec" button (reproducible-rerun-spine Task 4 / G2) — an investigation-
+  // level "Reproduce" (DAG-ordered manifest replay across member studies) is
+  // explicitly OUT of scope here; that's Task 7. POSTs to
   // /api/investigation-rerun, toasts the launched count, then re-renders the
   // run-progress panel with per-study results and refreshes the detail view
   // so new runs show up in charts/Simulations.
@@ -7377,7 +9157,7 @@
     }).then(function(r) {
       return r.json().then(function(j) { return { ok: r.ok, body: j, status: r.status }; });
     }).then(function(res) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Rerun investigation'; }
+      if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
       if (!res.ok) {
         var errMsg = 'Rerun failed: ' + ((res.body && res.body.error) || res.status);
         if (typeof _showToast === 'function') _showToast(errMsg); else alert(errMsg);
@@ -7407,7 +9187,7 @@
         setTimeout(function() { _openInvestigationDetail(name); }, 500);
       }
     }).catch(function(err) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Rerun investigation'; }
+      if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
       var netMsg = 'Network error: ' + err;
       if (typeof _showToast === 'function') _showToast(netMsg); else alert(netMsg);
       if (panel) panel.innerHTML = '<div class="inv-run-progress-banner inv-run-error">' + _h(netMsg) + '</div>';
@@ -7544,8 +9324,30 @@
   //   LR (left->right): depth -> x (columns), within-depth index -> y (rows).
   //   TB (top->bottom):  depth -> y (rows),    within-depth index -> x (columns).
   // Cards as absolute-positioned <div>s; edges as SVG cubic-Bezier paths.
-  function _renderInvestigationDag(studies, chainsBySlug) {
-    _lastDagArgs = [studies, chainsBySlug];
+  function _renderInvestigationDag(studies, chainsBySlug, studyEdges) {
+    _lastDagArgs = [studies, chainsBySlug, studyEdges];
+    // Prefer the server's computed study_edges for dependency layout: in the
+    // member-interface model the per-study `parent_studies` / `pipeline_gate`
+    // (what _dagEdges reads) is empty because prerequisites are declared as
+    // interface `inputs` (from:<study>), which the server resolves into
+    // study_edges. Without this the graph collapses to a flat, depth-0 row.
+    var _edgesByChild = {};
+    (studyEdges || []).forEach(function (e) {
+      var src = String(e.source || '').replace(/^study\//, '');
+      var tgt = String(e.target || '').replace(/^study\//, '');
+      if (!src || !tgt) return;
+      (_edgesByChild[tgt] = _edgesByChild[tgt] || []).push({
+        study: src,
+        condition: e.condition || 'tests-passed',
+        relation: e.artifact ? 'model-input' : 'leads-to',
+        artifact: e.artifact,
+      });
+    });
+    function dagEdgesFor(s) {
+      var fromServer = s && _edgesByChild[s.name];
+      if (fromServer && fromServer.length) return fromServer;
+      return _dagEdges(s);
+    }
     var _opts = window._layoutOptsForBand(aigBand);
     var shellEl = document.getElementById('investigation-dag-shell');
     if (shellEl) { shellEl.classList.remove('aig-zoom-far','aig-zoom-mid','aig-zoom-near'); shellEl.classList.add(_opts.cls); }
@@ -7565,7 +9367,7 @@
     var children = {};
     studies.forEach(function(s) { byName[s.name] = s; children[s.name] = []; });
     studies.forEach(function(s) {
-      _dagEdges(s).forEach(function(p) {
+      dagEdgesFor(s).forEach(function(p) {
         var pn = p.study;
         if (children[pn]) children[pn].push(s.name);
       });
@@ -7580,7 +9382,7 @@
     var depth = {};
     var queue = [];
     studies.forEach(function(s) {
-      var inParents = _dagEdges(s).filter(function(p) { return byName[p.study]; });
+      var inParents = dagEdgesFor(s).filter(function(p) { return byName[p.study]; });
       if (!inParents.length) { depth[s.name] = 0; queue.push(s.name); }
     });
     var guard = studies.length * 4;
@@ -7859,7 +9661,7 @@
       'markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
       '<path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker></defs>';
     studies.forEach(function(s) {
-      _dagEdges(s).forEach(function(p) {
+      dagEdgesFor(s).forEach(function(p) {
         var pn = p.study;
         if (!pos[pn] || !pos[s.name]) return;
         // Endpoints follow the flow direction: LR connects parent's right edge
@@ -7972,7 +9774,7 @@
     // No band change → keep the slider synced (above) but skip the re-render.
     if (nb === aigBand) return;
     aigBand = nb;
-    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1]);
+    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
   }
   window._setAigBand = _setAigBand;
 
@@ -14115,10 +15917,18 @@
     var currentSlug = window._currentIsetSlug || '';
     var railDepthMap = window._investigationsDepth || {};
 
-    // Active investigation first; the rest by topological depth then title.
+    // Order: pinned first (in pin order), then most-recently-opened, then the
+    // never-opened rest by topological depth then title. The active
+    // investigation was just opened so MRU floats it to the top of the unpinned.
+    var _mru = _loadInvMru();
+    var _pins = _loadPinnedInvestigations();
     var ordered = groups.slice().sort(function(a, b) {
-      if (a.name === currentSlug) return -1;
-      if (b.name === currentSlug) return 1;
+      var ap = _pins.indexOf(a.name), bp = _pins.indexOf(b.name);
+      var aP = ap !== -1, bP = bp !== -1;
+      if (aP !== bP) return aP ? -1 : 1;
+      if (aP && bP) return ap - bp;
+      var am = _mru[a.name] || 0, bm = _mru[b.name] || 0;
+      if (am !== bm) return bm - am;   // most-recently-opened first
       var da = railDepthMap[a.name] || 0, db = railDepthMap[b.name] || 0;
       return da - db || String(a.title || a.name).localeCompare(String(b.title || b.name));
     });
@@ -14148,6 +15958,11 @@
         + '<span class="viv-rail-investigations-group-arrow viv-arrow">▾</span>'
         + '<span class="viv-rail-investigations-group-name" style="' + nameStyle + '"' + clickName + '>'
         + _esc(g.title || g.name) + '</span>'
+        + (g._ungrouped ? '' :
+            '<span class="viv-rail-pin viv-rail-inv-pin' + (_isInvestigationPinned(g.name) ? ' pinned' : '') + '"'
+            + ' role="button" tabindex="0"'
+            + ' title="' + (_isInvestigationPinned(g.name) ? 'Unpin investigation' : 'Pin investigation to top') + '"'
+            + ' onclick="event.preventDefault();event.stopPropagation();_toggleInvestigationPin(\'' + _esc(g.name) + '\');return false;">📌</span>')
         + '<span class="viv-rail-investigations-group-count">' + g.studies.length + '</span>'
         + '</div>'
         + '<div class="viv-rail-investigations-group-items">'
