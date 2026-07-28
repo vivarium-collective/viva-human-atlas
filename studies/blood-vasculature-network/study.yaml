@@ -1,0 +1,129 @@
+schema_version: 4
+name: blood-vasculature-network
+title: "Blood Vasculature Network — VCCF transport graph to couple organ models"
+created: '2026-07-28'
+status: running
+design_status: complete
+implementation_status: partial
+simulation_status: ran
+phase: Design
+
+question: |
+  Can the HRA/VCCF vasculature data define a whole-body blood-transport
+  network — a directed heart -> organ -> heart circuit through named vessels —
+  that we can use to COUPLE independent organ simulations by advecting shared
+  blood-borne solutes (glucose, O2, insulin, ...) between them? And what does a
+  v1 blood-circulation simulation over that network look like?
+
+study_card:
+  goal: "Pull the VCCF vasculature data, build + validate a directed whole-body blood-transport graph, and design the blood-circulation simulation that will run organ models as nodes on it."
+  mechanism: "VasculatureNetworkStep.update -> vascular_network_summary(): load the 28 FTU heart->FTU->heart paths (FTU_Table_S1) + VCCF vessel classes (hra-vccf Vessel.csv), build a directed vessel graph (nodes=vessels/chambers/FTUs, edges=consecutive path steps), and check every FTU closes a circuit through a heart chamber -> RAMEmitter."
+  expected_result: "A connected directed graph: 28 FTU circuits, ~191 vessels, ~444 flow edges, split into artery/capillary/vein/chamber classes, with every FTU route starting AND ending at a heart chamber (a closed circuit)."
+  main_expert_question: "Is the FTU-path topology (28 curated heart->FTU->heart routes) the right substrate to couple organ models, or do we need the finer VCCF Vessel.csv `BranchesFrom` tree (1082 vessels) to capture shared trunks / branch-point mixing where flows merge?"
+
+biological_summary: |
+  Organ models in this atlas (glucose regulation across liver/pancreas/muscle,
+  the FTU digital objects, the biomodel corpus) are currently islands — each
+  simulates one tissue with no physical connection to the others. In the body
+  they are coupled by BLOOD: the heart drives a closed circuit that carries
+  metabolites and signals from organ to organ, so a change in hepatic glucose
+  output reaches the pancreatic beta-cell through the vasculature, with a
+  transport delay set by the path length and flow rate.
+
+  This study establishes the missing connective substrate. The HRA/VCCF
+  vasculature data gives, for each of 28 functional tissue units, an ordered
+  vessel path from a heart chamber out to the FTU's exchange capillary and back
+  (arterial steps toward the FTU, venous steps returning) — e.g. the alveolus
+  runs right ventricle -> pulmonary trunk -> ... -> alveolar capillary -> ... ->
+  left atrium. Taking the union over all 28 FTUs yields a directed whole-body
+  transport graph. On top of it, a blood-circulation simulation advects a shared
+  plasma solute vector along the edges (a flow/resistance model sets the rates),
+  and each organ node is an existing organ Process that exchanges solutes with
+  the blood it is perfused by — turning a set of isolated organ models into one
+  coupled, circulating whole.
+
+readouts:
+  - "vascular_network_summary.n_ftus / n_vessels / n_edges"
+  - "vascular_network_summary.vessel_classes (artery / capillary / vein / chamber counts)"
+  - "vascular_network_summary.n_closed_circuits vs n_open_routes (topology validation)"
+  - "ftu_routes[FTU] — the ordered heart -> FTU -> heart vessel path a solute travels"
+
+report:
+  title: "Blood Vasculature Network — 28 closed FTU circuits, 191 vessels, 444 flow edges (v1 topology)"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Turn the HRA/VCCF vasculature data into a validated directed blood-transport
+    graph, and design the circulation simulation that will couple organ models
+    as nodes on it.
+  conclusion: |
+    The data-pull runs and validates. From FTU_Table_S1 (28 FTUs) plus the VCCF
+    vessel classes, VasculatureNetworkStep builds a directed graph of 191
+    vessels and 444 flow edges — 94 arteries, 73 veins, 20 exchange capillaries,
+    4 heart chambers — and every one of the 28 FTU routes is a CLOSED circuit:
+    it starts at a heart chamber and returns to one (n_closed_circuits = 28,
+    n_open_routes = 0). So the vasculature data is sufficient to define a
+    coherent whole-body transport topology to hang organ models on. The
+    blood-circulation simulation itself is designed in
+    docs/blood-circulation-simulation-plan.md and is NOT yet implemented.
+  caveat: |
+    This study delivers the TOPOLOGY and the plan only — no flow dynamics or
+    solute transport are simulated yet (simulation_status "ran" refers to the
+    data-pull/graph composite, not a circulation run). The graph is built from
+    the 28 curated FTU paths; it does not yet model branch-point mixing where
+    flows merge (that needs the finer VCCF Vessel.csv `BranchesFrom` tree), nor
+    per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network
+    params:
+      include_routes: true
+
+runs:
+  - name: baseline
+    status: completed
+
+pipeline_gate:
+  gate_evaluator:
+    result: passed
+
+findings:
+  - id: F-01
+    tier: measurement
+    mechanism_origin: engineered
+    claim_scope: mechanism
+    statement: |
+      The VCCF data yields a fully closed whole-body transport graph: all 28
+      FTU routes start and end at a heart chamber (28 closed circuits, 0 open),
+      spanning 191 vessels and 444 directed flow edges (94 artery / 20
+      capillary / 73 vein / 4 chamber). The topology substrate for coupling
+      organ models is therefore complete and validated.
+    evidence: "VasculatureNetworkStep.update -> vascular_network_summary() over datasets/vasculature/ (FTU_Table_S1 + vccf/Vessel.csv)."
+  - id: F-02
+    tier: interpretation
+    mechanism_origin: design
+    claim_scope: roadmap
+    statement: |
+      A blood-circulation simulation is designed on this graph (see
+      docs/blood-circulation-simulation-plan.md): a BloodTransportProcess
+      advects a shared plasma solute vector along the edges at flow rates Q set
+      by a hemodynamic model (resistance network or the Font-Clos 2020
+      cardiac-output partition), and each organ node is an existing organ
+      Process exchanging solutes with the blood perfusing it. Glucose
+      regulation (liver <-> pancreas <-> muscle) is the proposed first coupling.
+    evidence: "Design doc + the Font-Clos et al. 2020 whole-body organ-flow-network precedent (references/papers.bib)."
+
+limitations:
+  - "Topology only — no flow rates or solute transport simulated yet."
+  - "Uses the 28 curated FTU paths; branch-point mixing (shared trunks) needs the VCCF Vessel.csv BranchesFrom tree."
+  - "Vessel geometry (radii/lengths in vccf/Geometry.csv) not yet used to parameterize resistances."
+
+discovery_implications: |
+  Establishes the blood-transport network as the connective substrate that lets
+  this atlas's organ models stop being islands: with per-edge flow and a shared
+  plasma compartment, a change in one organ's solute exchange propagates to the
+  others with a physiologically-ordered transport delay. Next: implement the
+  BloodTransportProcess and couple the glucose-regulation organ models as the
+  first circulating multi-organ composite.
