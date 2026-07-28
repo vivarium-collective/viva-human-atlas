@@ -15,5 +15,43 @@ PYTHONPATH="$WS_ROOT${PYTHONPATH:+:$PYTHONPATH}" \
     --base-path "$BASE_PATH" \
     --interactive-url "$INTERACTIVE_URL"
 find "$OUT" -name '*.map' -delete
+
+# Guard: refuse to ship a broken registry. viva_human_atlas.core.build_core()
+# imports pbg_biomodels (a sibling ../pbg-* path dep) plus its copasi/tellurium
+# backends; if THIS env lacks them, the publisher bakes an `error` + empty
+# registry into the bundle, i.e. a "None registered" snapshot with no
+# processes/composites. Publishing that would clobber a good publish — so fail
+# loudly instead. Build from an env where `from viva_human_atlas.core import
+# build_core` works (the sibling ../pbg-* repos installed).
+python - "$OUT" <<'PY'
+import sys, json, pathlib
+reg = pathlib.Path(sys.argv[1]) / "api" / "registry.json"
+try:
+    d = json.loads(reg.read_text())
+except Exception as e:
+    sys.exit(f"REFUSING TO PUBLISH: cannot read {reg}: {e}")
+err, nproc = d.get("error"), len(d.get("processes") or [])
+if err or nproc == 0:
+    sys.exit(
+        f"REFUSING TO PUBLISH: registry did not build (error={err!r}, "
+        f"processes={nproc}). Install the sibling pbg-* deps so "
+        f"`from viva_human_atlas.core import build_core` works."
+    )
+print(f"registry guard OK: {nproc} processes")
+PY
+
+# Copy the self-contained HRA viewer packs (studies/*/viz/hra) into the bundle.
+# They are generated locally (scripts/build_hra_viewer_pack.py) and gitignored,
+# and the static publisher doesn't copy arbitrary viz/ trees — so a README link
+# like .../studies/model-coverage-3d/viz/hra/index.html 404s without this. A
+# no-op when no packs are present (they're only built locally).
+for pack in "$WS_ROOT"/studies/*/viz/hra; do
+  [ -d "$pack" ] || continue
+  slug=$(basename "$(dirname "$(dirname "$pack")")")
+  dest="$OUT/studies/$slug/viz/hra"
+  mkdir -p "$dest"; cp -R "$pack"/. "$dest/"
+  echo "copied viewer pack: studies/$slug/viz/hra"
+done
+
 touch "$OUT/.nojekyll"
 echo "built read-only dashboard bundle at $OUT ($(du -sh "$OUT" | cut -f1))"

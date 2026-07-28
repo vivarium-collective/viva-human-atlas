@@ -57,6 +57,20 @@ jobs:
           uv pip install "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
           uv pip install -e . --no-deps || echo "workspace has no installable build; composites render from spec only"
 
+      - name: Install the workspace's process-packages (for a REAL registry)
+        # viva_human_atlas.core.build_core() imports pbg_biomodels (+ its
+        # copasi/tellurium simulator backends) — the registry is EMPTY without
+        # them. They're relative-path deps locally, so install them from git on
+        # the runner. Best-effort: if this fails, the publish step's registry
+        # guard fails the job loudly rather than shipping/clobbering with an
+        # empty "None registered" snapshot.
+        run: |
+          uv pip install \
+            "pbg-biomodels @ git+https://github.com/vivarium-collective/pbg-biomodels.git@main" \
+            "pbg-copasi @ git+https://github.com/vivarium-collective/pbg-copasi.git@main" \
+            "pbg-tellurium @ git+https://github.com/vivarium-collective/pbg-tellurium.git@main" \
+            || echo "sibling process-package install failed — the registry guard will catch an empty build"
+
       - name: Build dashboard snapshot
         run: |
           source .venv/bin/activate
@@ -80,6 +94,20 @@ jobs:
             git checkout --orphan gh-pages
             git rm -rf . >/dev/null 2>&1 || true
             touch .nojekyll
+          fi
+          # Preserve locally-generated HRA viewer packs (studies/*/viz/hra):
+          # they are gitignored + built by scripts/build_hra_viewer_pack.py, so
+          # a CI build can't regenerate them. Carry any already on gh-pages over
+          # into the fresh bundle so a CI republish never drops the viewer links.
+          if [ -d dashboard/studies ]; then
+            find dashboard/studies -maxdepth 3 -type d -name hra -path '*/viz/hra' | while read -r pack; do
+              rel="${pack#dashboard/}"
+              dest="$GITHUB_WORKSPACE/reports/published/dashboard/$rel"
+              if [ ! -e "$dest" ]; then
+                mkdir -p "$(dirname "$dest")"; cp -R "$pack" "$dest"
+                echo "preserved viewer pack from gh-pages: $rel"
+              fi
+            done
           fi
           rm -rf dashboard && mkdir -p dashboard
           cp -R "$GITHUB_WORKSPACE/reports/published/dashboard/." dashboard/
