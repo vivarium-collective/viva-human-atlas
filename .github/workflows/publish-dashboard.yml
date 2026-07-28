@@ -5,20 +5,25 @@ name: Publish read-only dashboard
 # https://vivarium-collective.github.io/viva-human-atlas/dashboard/). A read-only mirror of every
 # investigation + study on main, browsable with no server.
 #
-# Scaffolded by `vivarium-workbench add-dashboard`. DEPLOY job (post-merge), not
-# a PR gate; it only ever writes dashboard/ on gh-pages.
+# Scaffolded by `vivarium-workbench add-dashboard`. DEPLOY job; it only ever
+# writes dashboard/ on gh-pages.
+#
+# MANUAL-ONLY (workflow_dispatch), NOT auto-on-push. Unlike a pure-spec
+# workspace, viva-human-atlas cannot be built on a clean CI runner:
+#   * its registry needs the sibling ../pbg-biomodels (+ copasi/tellurium)
+#     process-packages — path deps that don't install cleanly on a runner, so
+#     build_core() fails and the registry guard (correctly) refuses to publish;
+#   * its HRA viewer packs (studies/*/viz/hra) are generated locally and
+#     gitignored, so CI can't reproduce them.
+# So an auto-on-push CI publish would only ever fail the guard (red) or ship an
+# incomplete bundle. Publish LOCALLY instead — from a venv with the sibling
+# ../pbg-* repos + freshly built viewer packs:
+#     bash scripts/publish_dashboard.sh reports/published/dashboard   # build+guard
+#     # then push dashboard/ to gh-pages (see the script header / repo README)
+# This dispatch entry is kept only for the rare case the runner CAN satisfy the
+# deps; the guard still backstops it.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'workspace/**'
-      - 'investigations/**'
-      - 'studies/**'
-      - 'workspace.yaml'
-      - 'reports/figures/**'
-      - 'scripts/publish_dashboard.sh'
-      - '.github/workflows/publish-dashboard.yml'
   workflow_dispatch:
 
 concurrency:
