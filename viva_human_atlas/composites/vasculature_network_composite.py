@@ -9,7 +9,7 @@ models) are designed in ``docs/blood-circulation-simulation-plan.md``.
 """
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict  # noqa: F401
 
 try:
     from viva_superpowers.composite_generator import composite_generator
@@ -62,5 +62,5 @@ def build_vasculature_network_document(include_routes: bool = True) -> Dict[str,
     },
     default_n_steps=1,
 )
-def build_vasculature_network(include_routes: bool = True) -> Dict[str, Any]:
+def build_vasculature_network(core: Any = None, *, include_routes: bool = True) -> Dict[str, Any]:
     return build_vasculature_network_document(include_routes=include_routes)
