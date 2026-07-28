@@ -7,3 +7,4 @@ from viva_human_atlas.composites import corpus_coverage_composite  # noqa: F401
 from viva_human_atlas.composites import spatial_link_composite  # noqa: F401
 from viva_human_atlas.composites import ftu_coverage_composite  # noqa: F401
 from viva_human_atlas.composites import ctpop_islet_composite  # noqa: F401
+from viva_human_atlas.composites import vasculature_network_composite  # noqa: F401

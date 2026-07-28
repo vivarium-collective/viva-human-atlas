@@ -98,6 +98,7 @@ studies:
   - corpus-coverage
   - ftu-model-coverage
   - ctpop-islet-parameterization
+  - blood-vasculature-network
 
 inputs:
   references:
