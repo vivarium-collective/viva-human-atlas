@@ -315,9 +315,7 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
-(via transparent synonym matching) and inverted into an organ-&gt;models index?
-</div>
+           data-placeholder="+ Add the research question this study asks">Can glucose-regulation BioModels be annotated with HRA Uberon organ terms (via transparent synonym matching) and inverted into an organ-&gt;models index?</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -330,15 +328,7 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Glucose homeostasis is a liver-pancreas circuit: pancreatic beta cells
-sense blood glucose and secrete insulin/glucagon, which the liver reads to
-switch between glycogen synthesis and glycogenolysis/gluconeogenesis.
-A &#34;biomodel DO&#34; (digital object) makes that anatomical grounding explicit
-by tagging each BioModels SBML entry with the HRA reference organ(s) its
-name/synonyms implicate, so a downstream multiscale composite can ask
-&#34;which glucose models actually touch the pancreas vs the liver&#34; instead
-of treating the whole search-result set as anatomically undifferentiated.
-</textarea>
+                placeholder="Plain-English mechanism narrative.">Glucose homeostasis is a liver-pancreas circuit: pancreatic beta cells sense blood glucose and secrete insulin/glucagon, which the liver reads to switch between glycogen synthesis and glycogenolysis/gluconeogenesis. A &#34;biomodel DO&#34; (digital object) makes that anatomical grounding explicit by tagging each BioModels SBML entry with the HRA reference organ(s) its name/synonyms implicate, so a downstream multiscale composite can ask &#34;which glucose models actually touch the pancreas vs the liver&#34; instead of treating the whole search-result set as anatomically undifferentiated.</textarea>
       
     </div>
 
@@ -356,15 +346,7 @@ of treating the whole search-result set as anatomically undifferentiated.
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
-BioModels to an HRA organ, correctly concentrating on pancreas (4
-models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
-insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
-glucose metabolism) -- exactly the two organs glucose-homeostasis
-biology predicts (insulin/glucagon secretion + hepatic glucose
-buffering), confirming the synonym-match mechanism assigns organs
-correctly when it fires.
-</div>
+        <div class="finding-statement">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation BioModels to an HRA organ, correctly concentrating on pancreas (4 models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic glucose metabolism) -- exactly the two organs glucose-homeostasis biology predicts (insulin/glucagon secretion + hepatic glucose buffering), confirming the synonym-match mechanism assigns organs correctly when it fires.</div>
         
         
         
@@ -467,15 +449,7 @@ correctly when it fires.
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
-BioModels to an HRA organ, correctly concentrating on pancreas (4
-models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
-insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
-glucose metabolism) -- exactly the two organs glucose-homeostasis
-biology predicts (insulin/glucagon secretion + hepatic glucose
-buffering), confirming the synonym-match mechanism assigns organs
-correctly when it fires.
-<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation BioModels to an HRA organ, correctly concentrating on pancreas (4 models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic glucose metabolism) -- exactly the two organs glucose-homeostasis biology predicts (insulin/glucagon secretion + hepatic glucose buffering), confirming the synonym-match mechanism assigns organs correctly when it fires.<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -483,18 +457,7 @@ correctly when it fires.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run of `build_biomodel_do_catalog(&#34;glucose regulation&#34;, 25)`
-built 25 biomodel DOs (one per search hit) against the live 81-organ
-HRA reference-organ set; 5/25 (20%) matched &gt;=1 organ synonym in the
-model name. The organ-&gt;models index has 2 organs: pancreas
-(UBERON:0001264, 4 models — MODEL2001080002 Topp beta-cell-mass,
-MODEL1112110004 Silber intravenous-glucose, BIOMD0000000382 Sturis
-ultradian-oscillation, BIOMD0000000372 Tolic insulin-glucose-feedback)
-and liver (UBERON:0002107, 1 model — BIOMD0000000633 Bulik2016 hepatic
-glucose metabolism), confirming pancreas dominates as expected
-(insulin/glucagon/beta-cell synonyms) while liver also surfaces via the
-&#34;hepatic&#34; synonym.
-</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run of `build_biomodel_do_catalog(&#34;glucose regulation&#34;, 25)` built 25 biomodel DOs (one per search hit) against the live 81-organ HRA reference-organ set; 5/25 (20%) matched &gt;=1 organ synonym in the model name. The organ-&gt;models index has 2 organs: pancreas (UBERON:0001264, 4 models — MODEL2001080002 Topp beta-cell-mass, MODEL1112110004 Silber intravenous-glucose, BIOMD0000000382 Sturis ultradian-oscillation, BIOMD0000000372 Tolic insulin-glucose-feedback) and liver (UBERON:0002107, 1 model — BIOMD0000000633 Bulik2016 hepatic glucose metabolism), confirming pancreas dominates as expected (insulin/glucagon/beta-cell synonyms) while liver also surfaces via the &#34;hepatic&#34; synonym.</textarea>
       </label>
     </div>
     
@@ -504,16 +467,7 @@ glucose metabolism), confirming pancreas dominates as expected
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Synonym matching only scans the model *name*, not its full
-description/annotations, so the 80% unmatched rate (20/25) likely
-undercounts real anatomical relevance — many unmatched titles (e.g.
-generic &#34;glucose-insulin model&#34; variants) plausibly implicate
-pancreas/liver too but don&#39;t say so in the name string. This is exactly
-the study&#39;s main expert question: precision here trades off against
-recall, and downstream multiscale coupling should treat
-`organ_to_models` as a high-precision/low-recall starting index, not a
-complete one.
-</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Synonym matching only scans the model *name*, not its full description/annotations, so the 80% unmatched rate (20/25) likely undercounts real anatomical relevance — many unmatched titles (e.g. generic &#34;glucose-insulin model&#34; variants) plausibly implicate pancreas/liver too but don&#39;t say so in the name string. This is exactly the study&#39;s main expert question: precision here trades off against recall, and downstream multiscale coupling should treat `organ_to_models` as a high-precision/low-recall starting index, not a complete one.</textarea>
       </label>
     </div>
     
@@ -1015,7 +969,7 @@ complete one.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "bc1529f383ffe081d9b96377b6829296a47afcf2", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/bc1529f383ffe081d9b96377b6829296a47afcf2", "branch": "main", "generated_at": "2026-07-28 07:17 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "glucose-biomodel-do";

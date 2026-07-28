@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Study: ftu-model-coverage</title>
+<title>Study: blood-vasculature-network</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
 <!-- Inherit the workbench light/dark theme (this page loads in an iframe;
@@ -14,9 +14,9 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="ftu-model-coverage" title="ftu-model-coverage">FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units?</span>
+    <span class="study-name" id="study-name" data-slug="blood-vasculature-network" title="blood-vasculature-network">Blood Vasculature Network — VCCF transport graph to couple organ models</span>
     
-    <span class="phase-pill phase-evaluate" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Evaluate</span>
+    <span class="phase-pill phase-design" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Design</span>
     
     
     
@@ -37,7 +37,7 @@
 
 
 
-<div id="readiness-panel" data-slug="ftu-model-coverage"></div>
+<div id="readiness-panel" data-slug="blood-vasculature-network"></div>
 
 
 
@@ -84,7 +84,7 @@
       </span>
       
       <span class="status-step axis-implementation_status set">
-        <span class="dot"></span>Implementation<span class="step-val">complete</span>
+        <span class="dot"></span>Implementation<span class="step-val">partial</span>
       </span>
       
       <span class="status-step axis-simulation_status set">
@@ -118,7 +118,7 @@
     
     <div class="status-detail-row">
       <span class="status-detail-axis">Implementation</span>
-      <span class="status-chip ">complete</span>
+      <span class="status-chip ">partial</span>
     </div>
     
     
@@ -157,7 +157,7 @@
 .spine-chip-warn{display:inline-block;font-size:0.82em;font-weight:600;padding:1px 8px;border-radius:9999px;background:#fffbeb;border:1px solid #f59e0b;color:#92400e;margin-left:6px}
 .spine-div{font-weight:600;color:#92400e}
 </style>
-<div id="spine-summary" class="spine-summary" data-slug="ftu-model-coverage"></div>
+<div id="spine-summary" class="spine-summary" data-slug="blood-vasculature-network"></div>
 
 <nav class="study-tabs" aria-label="Study sections">
   <div class="study-pillars">
@@ -315,7 +315,7 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Do existing BioModels model HRA functional tissue units (FTUs) -- Katy Boerner&#39;s question -- and, for the FTUs that already have models, can HRA CTpop (Cell Type Populations) cell-type counts parameterize them, per the RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?</div>
+           data-placeholder="+ Add the research question this study asks">Can the HRA/VCCF vasculature data define a whole-body blood-transport network — a directed heart -&gt; organ -&gt; heart circuit through named vessels — that we can use to COUPLE independent organ simulations by advecting shared blood-borne solutes (glucose, O2, insulin, ...) between them? And what does a v1 blood-circulation simulation over that network look like?</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +328,9 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Katy Boerner&#39;s question for the HRA-3D track was whether the mechanistic- modeling literature (as indexed by BioModels) already tries to model functional tissue units -- the sub-organ, cell-population-scale structures (e.g. a single pancreatic islet, a single nephron) that sit between whole- organ models and single-cell models, and that Peter Hunter/SPARC&#39;s RUI -&gt; CTpop -&gt; model vision targets for parameterization. Crossing the full 1,096-model curated corpus against a curated 11-FTU list finds real hits: the pancreatic islet (3 models -- Jiang2007&#39;s GSIS beta-cell system, Bertram2007&#39;s islet-cell oscillations, Wierschem2004&#39;s islet electrical bursting), the colon crypt (4 models -- Smallbone2013&#39;s Colon Crypt cycle, versions 0-3), the cardiac muscle/myocardium unit (3 models -- Cooling2007&#39;s cardiac-myocyte IP3 transients, McDougal2017&#39;s ischemic-cardiomyocyte metabolism, Zhou2024&#39;s post-infarction myocyte electromechanics -- directly relevant to the SPARC-heart use case), the liver lobule (2 models -- both hepatocyte-scale), and the skin epidermis unit (1 model, Cursons2015&#39;s epidermal ERK-MAPK regulation). Six of the 11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match no model in the current corpus at this name-matching granularity. For the covered FTUs, this study also stubs the CTpop parameterization seam: HRA CTpop (Bueckle 2026) gives per-anatomical-structure cell-type counts/proportions for a RUI-registered tissue block, which would set an FTU model&#39;s cell-population parameters -- e.g. an islet&#39;s measured beta/alpha/delta-cell counts binding the Jiang2007/Bertram2007 islet models&#39; beta-cell-mass parameters. ` ctpop_parameter_stub` identifies which cell types are the candidate parameterization targets; it does not yet bind a real CTpop count.</textarea>
+                placeholder="Plain-English mechanism narrative.">Organ models in this atlas (glucose regulation across liver/pancreas/muscle, the FTU digital objects, the biomodel corpus) are currently islands — each simulates one tissue with no physical connection to the others. In the body they are coupled by BLOOD: the heart drives a closed circuit that carries metabolites and signals from organ to organ, so a change in hepatic glucose output reaches the pancreatic beta-cell through the vasculature, with a transport delay set by the path length and flow rate.
+
+This study establishes the missing connective substrate. The HRA/VCCF vasculature data gives, for each of 28 functional tissue units, an ordered vessel path from a heart chamber out to the FTU&#39;s exchange capillary and back (arterial steps toward the FTU, venous steps returning) — e.g. the alveolus runs right ventricle -&gt; pulmonary trunk -&gt; ... -&gt; alveolar capillary -&gt; ... -&gt; left atrium. Taking the union over all 28 FTUs yields a directed whole-body transport graph. On top of it, a blood-circulation simulation advects a shared plasma solute vector along the edges (a flow/resistance model sets the rates), and each organ node is an existing organ Process that exchanges solutes with the blood it is perfused by — turning a set of isolated organ models into one coupled, circulating whole.</textarea>
       
     </div>
 
@@ -346,7 +348,39 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">Crossing the full 1,096-model curated BioModels corpus against a curated 11-FTU list by name/synonym substring match covers 5/11 FTUs (45.5%), matching 13 distinct models: pancreatic islet of Langerhans (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013 Colon Crypt cycle versions), cardiac muscle/myocardium unit (3 models, SPARC-heart-relevant), liver lobule (2 models), and skin epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero models -- existing BioModels do already model several HRA FTUs, but real modeling white-space remains for the rest.</div>
+        <div class="finding-statement">The VCCF data yields a fully closed whole-body transport graph: all 28 FTU routes start and end at a heart chamber (28 closed circuits, 0 open), spanning 191 vessels and 444 directed flow edges (94 artery / 20 capillary / 73 vein / 4 chamber). The topology substrate for coupling organ models is therefore complete and validated.</div>
+        
+        
+        
+        
+        <div class="finding-evidence">
+          
+          
+          
+          
+          
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+      </div>
+      
+      
+      
+      <div class="finding-card finding-kind-other finding-status-novel">
+        <div class="finding-header">
+          <span class="finding-status-glyph">◆</span>
+          <span class="finding-id">F-02</span>
+          <span class="finding-kind">other</span>
+          <span class="finding-status-text">novel literature</span>
+        </div>
+        <div class="finding-statement">A blood-circulation simulation is designed on this graph (see docs/blood-circulation-simulation-plan.md): a BloodTransportProcess advects a shared plasma solute vector along the edges at flow rates Q set by a hemodynamic model (resistance network or the Font-Clos 2020 cardiac-output partition), and each organ node is an existing organ Process exchanging solutes with the blood perfusing it. Glucose regulation (liver &lt;-&gt; pancreas &lt;-&gt; muscle) is the proposed first coupling.</div>
         
         
         
@@ -428,30 +462,6 @@
           </div>
         </div>
         
-        
-        
-        
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
-          <div>
-            <strong style="color:#1e293b">region-unexplored</strong>
-            <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) have zero matching models at this granularity -- is that a real modeling gap, or a name-matching recall failure?</div>
-          </div>
-        </div>
-        
-        
-        
-        
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
-          <div>
-            <strong style="color:#1e293b">region-unexplored</strong>
-            <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Does binding a REAL HRA CTpop cell-type count (not just identifying candidate cell types) to the Topp2000/Jiang2007/Bertram2007 islet models&#39; beta-cell-mass parameters materially change their calibration?</div>
-          </div>
-        </div>
-        
       </div>
     </div>
     
@@ -461,7 +471,7 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Crossing the full 1,096-model curated BioModels corpus against a curated 11-FTU list by name/synonym substring match covers 5/11 FTUs (45.5%), matching 13 distinct models: pancreatic islet of Langerhans (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013 Colon Crypt cycle versions), cardiac muscle/myocardium unit (3 models, SPARC-heart-relevant), liver lobule (2 models), and skin epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero models -- existing BioModels do already model several HRA FTUs, but real modeling white-space remains for the rest.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The VCCF data yields a fully closed whole-body transport graph: all 28 FTU routes start and end at a heart chamber (28 closed circuits, 0 open), spanning 191 vessels and 444 directed flow edges (94 artery / 20 capillary / 73 vein / 4 chamber). The topology substrate for coupling organ models is therefore complete and validated.<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -469,7 +479,7 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">Crossing the full 1,096-model committed corpus catalog (`datasets/biomodel_corpus_catalog.json`) against a curated 11-FTU list by name/synonym substring match, 5/11 FTUs (45.5%) are covered by at least one model, matching 13 distinct models total (`n_models_matched`): pancreatic islet of Langerhans (3 models -- Jiang2007 GSIS, Bertram2007 islet-cell oscillations, Wierschem2004 islet electrical bursting), colon crypt of Lieberkuhn (4 models -- Smallbone2013 Colon Crypt cycle versions 0-3), cardiac muscle/ myocardium unit (3 models -- Cooling2007, McDougal2017, Zhou2024, directly SPARC-heart-relevant), liver lobule (2 models), and skin epidermis unit (1 model, Cursons2015). Six FTUs -- kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle -- match zero models in the current corpus at this granularity. So: yes, existing BioModels do model several HRA FTUs already, answering Katy Boerner&#39;s question in the affirmative for at least these five, while confirming real gaps elsewhere. `ctpop_parameter_stub(&#34;pancreatic islet of Langerhans&#34;)` confirms the islet&#39;s beta/alpha/delta cell types (CL:0000169/0171/0173) as the candidate CTpop-parameterizable inputs for the islet models above, stubbing (not yet implementing) the RUI -&gt; CTpop -&gt; model parameterization seam.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The data-pull runs and validates. From FTU_Table_S1 (28 FTUs) plus the VCCF vessel classes, VasculatureNetworkStep builds a directed graph of 191 vessels and 444 flow edges — 94 arteries, 73 veins, 20 exchange capillaries, 4 heart chambers — and every one of the 28 FTU routes is a CLOSED circuit: it starts at a heart chamber and returns to one (n_closed_circuits = 28, n_open_routes = 0). So the vasculature data is sufficient to define a coherent whole-body transport topology to hang organ models on. The blood-circulation simulation itself is designed in docs/blood-circulation-simulation-plan.md and is NOT yet implemented.</textarea>
       </label>
     </div>
     
@@ -479,7 +489,7 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage is name/synonym substring matching against the biomodel-DO catalog&#39;s `name` field only, not curated per-model FTU annotation or model-content inspection -- a model whose title omits the FTU synonym but whose equations genuinely operate at FTU scale would be a false negative (undercounting), and a model whose title happens to contain a synonym for an unrelated reason would be a false positive (overcounting); neither is checked against actual model structure here. The CTpop parameterization seam is a v1 stub: it identifies candidate cell-type parameters, it does not bind any real CTpop cell-type count to a specific model parameter, so `pipeline_gate.gate_evaluator.result` is `needs_calibration`.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">This study delivers the TOPOLOGY and the plan only — no flow dynamics or solute transport are simulated yet (simulation_status &#34;ran&#34; refers to the data-pull/graph composite, not a circulation run). The graph is built from the 28 curated FTU paths; it does not yet model branch-point mixing where flows merge (that needs the finer VCCF Vessel.csv `BranchesFrom` tree), nor per-edge flow rates (Q), which the plan assigns from a hemodynamic model.</textarea>
       </label>
     </div>
     
@@ -487,8 +497,8 @@
         <label class="tag-control"><span class="tag-k">confidence</span>
           <select class="narrative-input tag-select" data-narrative-path="report.confidence">
             <option value="">—</option>
-            <option value="high" >high</option>
-            <option value="medium" selected>medium</option>
+            <option value="high" selected>high</option>
+            <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select></label>
         <label class="tag-control"><span class="tag-k">evidence</span>
@@ -526,7 +536,7 @@
         <h2 class="overview-label">Limitations</h2>
         <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
         <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-          <li style="margin:2px 0">Coverage is name/synonym substring matching against the catalog&#39;s `name` field only -- no per-model FTU annotation or model-equation inspection, so both false negatives (FTU-scale models whose title omits the synonym) and false positives (incidental name matches) are possible and unchecked.</li><li style="margin:2px 0">The CTpop parameterization seam (`ctpop_parameter_stub`) is a v1 stub: it identifies which of an FTU&#39;s cell types are candidate CTpop-parameterizable inputs, it does not bind any real per-structure CTpop cell-type count to a specific model parameter.</li><li style="margin:2px 0">The curated 11-FTU list (`HRA_FTUS`) is hand-curated, not pulled live from an HRA FTU digital-object registry -- it may omit FTUs the HRA itself catalogs.</li>
+          <li style="margin:2px 0">Topology only — no flow rates or solute transport simulated yet.</li><li style="margin:2px 0">Uses the 28 curated FTU paths; branch-point mixing (shared trunks) needs the VCCF Vessel.csv BranchesFrom tree.</li><li style="margin:2px 0">Vessel geometry (radii/lengths in vccf/Geometry.csv) not yet used to parameterize resistances.</li>
         </ul>
       </div>
       
@@ -543,7 +553,7 @@
         
 
         
-        <p class="muted" style="margin:6px 0 0 0;font-size:0.85em">Lifecycle phase: <strong>Evaluate</strong> (Design → Build → Simulate → Evaluate → Decide).</p>
+        <p class="muted" style="margin:6px 0 0 0;font-size:0.85em">Lifecycle phase: <strong>Design</strong> (Design → Build → Simulate → Evaluate → Decide).</p>
         
       </div>
 
@@ -588,13 +598,13 @@
     <h3>Model <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     <p class="muted" style="font-size:0.88em">Each row runs one composite. Below it: the composite address (open it in the bigraph-loom explorer), the resolved configuration that actually executes, and the run settings.</p>
     
-    <div class="cond-block" data-model-composite="viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage" data-model-overrides='{"catalog_path": "datasets/biomodel_corpus_catalog.json"}'>
+    <div class="cond-block" data-model-composite="viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network" data-model-overrides='{"include_routes": true}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network')">🧬 explore &amp; run ↗</button>
         
       </div>
       
@@ -677,7 +687,7 @@
     
     <div id="readouts-download" style="margin:0 0 16px 0"></div>
 
-    <div id="readouts-table" data-study="ftu-model-coverage">
+    <div id="readouts-table" data-study="blood-vasculature-network">
       <p class="empty-message">Loading readouts from the composite emit plan…</p>
     </div>
 
@@ -697,26 +707,6 @@
     </div>
 
     
-    
-    <div class="embed-viz-section" style="margin-bottom:22px">
-      <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Embedded visualizations <span style="font-weight:normal">— self-contained HTML</span></h4>
-      
-      <div class="embed-viz-card" style="border:1px solid #e2e8f0;border-radius:6px;margin-bottom:14px;background:#fff">
-        <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">
-          <strong style="flex:1">Models per FTU</strong>
-          <a href="/viva-human-atlas/dashboard/reports/figures/ftu-model-coverage/models-per-ftu.html" target="_blank" class="btn-mini">Open in new tab ↗</a>
-        </div>
-        
-        <p class="muted" style="margin:6px 12px;font-size:0.88em">Bar chart of curated-corpus models matched per HRA functional tissue unit: 5/11 FTUs covered (13 distinct models) -- islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 6 FTUs uncovered.</p>
-        
-        <iframe src="/viva-human-atlas/dashboard/reports/figures/ftu-model-coverage/models-per-ftu.html"
-                style="width:100%;min-height:200px;border:0;display:block"
-                loading="lazy" title="Models per FTU"
-                onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
-                ></iframe>
-      </div>
-      
-    </div>
     
 
     <h4 class="muted" style="margin:0 0 6px;font-size:0.9em;font-weight:600">Latest-run charts <span style="font-weight:normal">— re-rendered from <code>runs.db</code></span></h4>
@@ -742,14 +732,14 @@
     <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
       <h3 class="section-title" style="margin-right:auto">Analysis result files</h3>
       <a id="data-download-all" class="btn-mini" style="display:none"
-         href="/api/study-analysis-zip?study=ftu-model-coverage">Download all (.zip)</a>
+         href="/api/study-analysis-zip?study=blood-vasculature-network">Download all (.zip)</a>
     </div>
     <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">
       Tabular outputs (<code>.csv</code> / <code>.tsv</code>) written by this study's
       Analysis steps — e.g. per-run analysis tables and exports. Click a file to
       download it.
     </p>
-    <div id="data-files" data-study="ftu-model-coverage">
+    <div id="data-files" data-study="blood-vasculature-network">
       <p class="empty-message">Loading result files…</p>
     </div>
 
@@ -839,7 +829,7 @@
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline ftu-model-coverage composite (committed catalog x curated HRA_FTUS list) completed without error, emitting a non-empty ftu_coverage list and summary.</textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Biological validation</span>
@@ -852,7 +842,7 @@
           <span class="narrative-label">Biological basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">Coverage is name/synonym substring matching (not curated per-model FTU annotation or model-content inspection) and the CTpop parameterization seam is a v1 stub with no real cell-type count bound to any model parameter yet, so gated needs_calibration rather than passed -- but the underlying model hits (islet, colon crypt, cardiac muscle, liver lobule, skin epidermis) are real, named, resolvable BioModels IDs.</textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -865,7 +855,7 @@
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 directly answers Katy Boerner&#39;s question -- yes, existing BioModels do model several HRA FTUs already (5/11, 13 models) -- while also enumerating the six FTUs with zero current coverage, the study&#39;s central interpretive claim.</textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
         </label>
       </div>
     </div>
@@ -915,21 +905,6 @@
       <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">Where this study's results leave the mechanism model — and what to investigate next.</p>
 
       
-      <div class="di-uncertainties">
-        
-        <div class="di-unc di-unc-resolved">
-          <h4>✓ Resolved uncertainties</h4>
-          <ul><li>Existing BioModels do already model several HRA FTUs at real, named-model granularity -- pancreatic islet (3), colon crypt (4), cardiac muscle/myocardium (3), liver lobule (2), skin epidermis (1) -- directly answering Katy Boerner&#39;s question in the affirmative for these five.</li><li>The islet&#39;s characteristic cell types (beta/alpha/delta, CL:0000169/0171/0173) are identifiable as candidate CTpop-parameterizable inputs for the covered islet models, confirming the RUI -&gt; CTpop -&gt; model parameterization seam is at least well-defined for a covered FTU.</li></ul>
-        </div>
-        
-        
-        <div class="di-unc di-unc-remaining">
-          <h4>● Remaining uncertainties</h4>
-          <ul><li>Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) have zero matching models at this granularity -- is that a real modeling gap, or a name-matching recall failure?</li><li>Does binding a REAL HRA CTpop cell-type count (not just identifying candidate cell types) to the Topp2000/Jiang2007/Bertram2007 islet models&#39; beta-cell-mass parameters materially change their calibration?</li></ul>
-        </div>
-        
-      </div>
-      
 
       
 
@@ -937,33 +912,6 @@
 
       
       
-      
-      <div class="di-group">
-        <h3>Follow-up study proposals
-          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
-          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
-        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
-        <div class="followup-list">
-          
-          
-          <div class="di-card di-fup-card">
-            <div class="followup-header">
-              <strong class="followup-title">Bind HRA CTpop islet cell counts to the islet-model parameters</strong>
-              <span class="di-chip">mechanistic</span>
-              <span class="di-chip">ftu-model-coverage</span>
-              <span class="di-chip di-gain-high">gain: high</span>
-              
-            </div>
-            <div class="di-card-why">Fetch a real HRA CTpop result for a RUI-registered pancreatic-islet tissue block (per-anatomical-structure beta/alpha/delta-cell counts/proportions), map those counts onto the Topp2000/Jiang2007/Bertram2007 islet models&#39; beta-cell-mass (or equivalent cell-population) parameters, and compare simulated output against the models&#39; literature-default parameterization.</div>
-            
-            <div class="followup-actions" style="margin-top:8px">
-              <button class="btn-seed-followup"
-                      onclick="_seedFollowupProposal('ftu-model-coverage', "fp-ctpop-parameterize-islet")">➕ Add to investigation</button>
-            </div>
-          </div>
-          
-        </div>
-      </div>
       
     </div>
     
@@ -984,7 +932,7 @@
 <script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
-window._studyName = "ftu-model-coverage";
+window._studyName = "blood-vasculature-network";
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
@@ -1113,9 +1061,9 @@ window._seedFollowupProposal = _seedFollowupProposal;
   var el = document.getElementById("study-configure-run");
   if (!el || !window.ConfigureRun) return;
   
-  var compositeRef = "viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage";
+  var compositeRef = "viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network";
   
-  var slug = window._studyName || "ftu-model-coverage";
+  var slug = window._studyName || "blood-vasculature-network";
   ConfigureRun.mount(el, { composite: compositeRef, target: "study", study: slug });
   // Read-only bundle: there's no live backend to run on — hide the remote-run
   // launcher (the Configure & Run widget already renders a disabled preview).

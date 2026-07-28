@@ -2,6 +2,6 @@
   "mode": "snapshot",
   "smsApiBase": "",
   "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
-  "commit": "bc1529f383ffe081d9b96377b6829296a47afcf2",
-  "generated_from_ref": "main"
+  "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e",
+  "generated_from_ref": "study/vasculature-blood-circulation"
 }

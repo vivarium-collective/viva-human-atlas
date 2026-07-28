@@ -315,11 +315,7 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Does the HRA CDN&#39;s ASCT+B-3D models crosswalk load into a Step-driven
-composite, giving the full 1,400+ anatomical-structure (AS) tree — not
-just the ~81 per-organ reference-organ GLBs — with resolvable Uberon CURIEs
-and source-organ GLB names?
-</div>
+           data-placeholder="+ Add the research question this study asks">Does the HRA CDN&#39;s ASCT+B-3D models crosswalk load into a Step-driven composite, giving the full 1,400+ anatomical-structure (AS) tree — not just the ~81 per-organ reference-organ GLBs — with resolvable Uberon CURIEs and source-organ GLB names?</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -332,19 +328,7 @@ and source-organ GLB names?
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">The Human Reference Atlas (HRA) publishes ~81 whole-organ 3D reference
-models (per-sex GLB scenes), but a mechanistic model rarely maps cleanly
-onto a whole organ — it targets a lobe, duct, nephron segment, or other
-sub-organ anatomical structure (AS). The ASCT+B-3D models crosswalk is the
-HRA&#39;s digital object that cuts each reference-organ GLB into its
-constituent AS scene nodes and keys each to a Uberon CURIE where the node
-is directly ontology-representable (`mesh` node type), leaving purely
-structural grouping nodes (`organizational`) unkeyed. This is the
-substrate every downstream HRA-3D coverage/linkage step (Tasks B and C)
-crosses against the BioModels-derived organ annotations, so its size,
-Uberon-density, and organ span set the ceiling on how fine-grained model
-coverage can ever be reported.
-</textarea>
+                placeholder="Plain-English mechanism narrative.">The Human Reference Atlas (HRA) publishes ~81 whole-organ 3D reference models (per-sex GLB scenes), but a mechanistic model rarely maps cleanly onto a whole organ — it targets a lobe, duct, nephron segment, or other sub-organ anatomical structure (AS). The ASCT+B-3D models crosswalk is the HRA&#39;s digital object that cuts each reference-organ GLB into its constituent AS scene nodes and keys each to a Uberon CURIE where the node is directly ontology-representable (`mesh` node type), leaving purely structural grouping nodes (`organizational`) unkeyed. This is the substrate every downstream HRA-3D coverage/linkage step (Tasks B and C) crosses against the BioModels-derived organ annotations, so its size, Uberon-density, and organ span set the ceiling on how fine-grained model coverage can ever be reported.</textarea>
       
     </div>
 
@@ -362,13 +346,7 @@ coverage can ever be reported.
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure
-rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%)
-carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node
-original estimate and comfortably clearing the ~81-reference-organ
-floor -- confirming the crosswalk gives materially finer anatomical
-granularity than the whole-organ GLBs alone.
-</div>
+        <div class="finding-statement">The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%) carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node original estimate and comfortably clearing the ~81-reference-organ floor -- confirming the crosswalk gives materially finer anatomical granularity than the whole-organ GLBs alone.</div>
         
         
         
@@ -471,13 +449,7 @@ granularity than the whole-organ GLBs alone.
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure
-rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%)
-carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node
-original estimate and comfortably clearing the ~81-reference-organ
-floor -- confirming the crosswalk gives materially finer anatomical
-granularity than the whole-organ GLBs alone.
-<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%) carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node original estimate and comfortably clearing the ~81-reference-organ floor -- confirming the crosswalk gives materially finer anatomical granularity than the whole-organ GLBs alone.<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -485,17 +457,7 @@ granularity than the whole-organ GLBs alone.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live composite loads 2,295 anatomical-structure rows spanning 116
-distinct source-organ GLBs (both sexes). 1,730/2,295 rows (75.4%) carry
-a resolvable UBERON: CURIE (`node_type=mesh`, 1,410 rows) or
-`surface` (464 rows); the remaining 419 `organizational` rows (18.3%,
-plus 2 blank) are pure grouping nodes with no Uberon and are correctly
-excluded from coverage computation (`coverage.build_coverage` skips
-rows with an empty `uberon`). This exceeds the ~1,400+ AS nodes
-originally estimated and comfortably clears the ~81-reference-organ
-floor, confirming the crosswalk gives materially finer anatomical
-granularity than the whole-organ GLBs alone.
-</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live composite loads 2,295 anatomical-structure rows spanning 116 distinct source-organ GLBs (both sexes). 1,730/2,295 rows (75.4%) carry a resolvable UBERON: CURIE (`node_type=mesh`, 1,410 rows) or `surface` (464 rows); the remaining 419 `organizational` rows (18.3%, plus 2 blank) are pure grouping nodes with no Uberon and are correctly excluded from coverage computation (`coverage.build_coverage` skips rows with an empty `uberon`). This exceeds the ~1,400+ AS nodes originally estimated and comfortably clears the ~81-reference-organ floor, confirming the crosswalk gives materially finer anatomical granularity than the whole-organ GLBs alone.</textarea>
       </label>
     </div>
     
@@ -505,13 +467,7 @@ granularity than the whole-organ GLBs alone.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Uberon coverage is real but partial (75.4%, not 100%) — the
-`organizational` fraction (18.3%) is structurally un-keyable (they are
-grouping nodes, not anatomy), so organ-granularity coverage
-(`model-coverage-3d`/`corpus-coverage`) can never reach 100% of raw
-crosswalk rows even with a complete model corpus; this is a data-model
-ceiling, not a bug.
-</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Uberon coverage is real but partial (75.4%, not 100%) — the `organizational` fraction (18.3%) is structurally un-keyable (they are grouping nodes, not anatomy), so organ-granularity coverage (`model-coverage-3d`/`corpus-coverage`) can never reach 100% of raw crosswalk rows even with a complete model corpus; this is a data-model ceiling, not a bug.</textarea>
       </label>
     </div>
     
@@ -1013,7 +969,7 @@ ceiling, not a bug.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "bc1529f383ffe081d9b96377b6829296a47afcf2", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/bc1529f383ffe081d9b96377b6829296a47afcf2", "branch": "main", "generated_at": "2026-07-28 07:17 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-3d-crosswalk";

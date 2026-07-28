@@ -315,9 +315,7 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Does the HRA CCF API&#39;s cell-type-term-occurences endpoint load into a
-Step-driven composite, giving a Cell Ontology (CL) term occurrence list?
-</div>
+           data-placeholder="+ Add the research question this study asks">Does the HRA CCF API&#39;s cell-type-term-occurences endpoint load into a Step-driven composite, giving a Cell Ontology (CL) term occurrence list?</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -330,15 +328,7 @@ Step-driven composite, giving a Cell Ontology (CL) term occurrence list?
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">The HRA&#39;s cell-type-term-occurrence histogram counts, across every HRA
-dataset (tissue block, single-cell, spatial), how often each Cell
-Ontology (CL) term is annotated on a cell population. A term&#39;s occurrence
-count is a proxy for how broadly that cell type has been profiled across
-organs/datasets, not for its abundance in the body — a near-universal
-term (e.g. an ontology root) will out-rank a rare-but-important cell type
-like a pancreatic beta cell simply because it is annotated on almost
-every dataset.
-</textarea>
+                placeholder="Plain-English mechanism narrative.">The HRA&#39;s cell-type-term-occurrence histogram counts, across every HRA dataset (tissue block, single-cell, spatial), how often each Cell Ontology (CL) term is annotated on a cell population. A term&#39;s occurrence count is a proxy for how broadly that cell type has been profiled across organs/datasets, not for its abundance in the body — a near-universal term (e.g. an ontology root) will out-rank a rare-but-important cell type like a pancreatic beta cell simply because it is annotated on almost every dataset.</textarea>
       
     </div>
 
@@ -356,13 +346,7 @@ every dataset.
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">The HRA cell-type-term-occurences endpoint returns 149 distinct Cell
-Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs
-2,762 times, an order of magnitude above an 8-term tier that clusters
-at exactly 266 occurrences each -- consistent with those terms
-co-occurring as a fixed per-record annotation bundle in whatever HRA
-datasets contribute them.
-</div>
+        <div class="finding-statement">The HRA cell-type-term-occurences endpoint returns 149 distinct Cell Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs 2,762 times, an order of magnitude above an 8-term tier that clusters at exactly 266 occurrences each -- consistent with those terms co-occurring as a fixed per-record annotation bundle in whatever HRA datasets contribute them.</div>
         
         
         
@@ -465,13 +449,7 @@ datasets contribute them.
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The HRA cell-type-term-occurences endpoint returns 149 distinct Cell
-Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs
-2,762 times, an order of magnitude above an 8-term tier that clusters
-at exactly 266 occurrences each -- consistent with those terms
-co-occurring as a fixed per-record annotation bundle in whatever HRA
-datasets contribute them.
-<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The HRA cell-type-term-occurences endpoint returns 149 distinct Cell Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs 2,762 times, an order of magnitude above an 8-term tier that clusters at exactly 266 occurrences each -- consistent with those terms co-occurring as a fixed per-record annotation bundle in whatever HRA datasets contribute them.<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -479,15 +457,7 @@ datasets contribute them.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run against
-`https://apps.humanatlas.io/api/v1/cell-type-term-occurences` returned
-149 distinct CL terms, sorted by occurrence count descending. The top
-term (CL:0000000) occurs 2,762 times — an order of magnitude above the
-#2-#9 tier, which cluster at exactly 266 occurrences each (CL:0010008,
-CL:0000084, CL:0000236, CL:0000576, CL:0000623, CL:0011005, CL:4023011,
-CL:4023016), suggesting those co-occur as a fixed per-record annotation
-bundle in whatever HRA datasets contribute them.
-</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run against `https://apps.humanatlas.io/api/v1/cell-type-term-occurences` returned 149 distinct CL terms, sorted by occurrence count descending. The top term (CL:0000000) occurs 2,762 times — an order of magnitude above the #2-#9 tier, which cluster at exactly 266 occurrences each (CL:0010008, CL:0000084, CL:0000236, CL:0000576, CL:0000623, CL:0011005, CL:4023011, CL:4023016), suggesting those co-occur as a fixed per-record annotation bundle in whatever HRA datasets contribute them.</textarea>
       </label>
     </div>
     
@@ -497,13 +467,7 @@ bundle in whatever HRA datasets contribute them.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">The dominant top term (2,762 occurrences, ~4x the next tier) reads as a
-broad/root-level CL annotation rather than a specific, glucose-relevant
-cell type — this endpoint answers &#34;which CL terms are most annotated
-across HRA datasets&#34;, not &#34;which cell types matter most for glucose
-regulation&#34; (pancreatic beta cells, hepatocytes, adipocytes do not
-appear in the top 10 by this measure).
-</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">The dominant top term (2,762 occurrences, ~4x the next tier) reads as a broad/root-level CL annotation rather than a specific, glucose-relevant cell type — this endpoint answers &#34;which CL terms are most annotated across HRA datasets&#34;, not &#34;which cell types matter most for glucose regulation&#34; (pancreatic beta cells, hepatocytes, adipocytes do not appear in the top 10 by this measure).</textarea>
       </label>
     </div>
     
@@ -1005,7 +969,7 @@ appear in the top 10 by this measure).
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "bc1529f383ffe081d9b96377b6829296a47afcf2", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/bc1529f383ffe081d9b96377b6829296a47afcf2", "branch": "main", "generated_at": "2026-07-28 07:17 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-cell-types";

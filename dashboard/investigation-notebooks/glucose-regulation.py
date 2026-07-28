@@ -63,8 +63,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--vasculature').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--vasculature')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
