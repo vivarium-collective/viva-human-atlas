@@ -1,15 +1,15 @@
 """Robust reader for the committed viva-biomodels corpus time-course
-dataset (viva-biomodels Task Z0, `pbg_biomodels.corpus_results`).
+dataset (viva-biomodels Task Z0, `viva_biomodels.corpus_results`).
 
 viva-human-atlas depends on `pbg-biomodels` (editable install), but that
 checkout can be stale or held by a concurrent worktree/session mid-flight,
-so `import pbg_biomodels.corpus_results` may not resolve to a checkout that
+so `import viva_biomodels.corpus_results` may not resolve to a checkout that
 actually has the dataset committed yet. This module never raises on that:
 every loader falls back to `None`/`{}` when the dataset can't be found.
 
 Resolution order for the dataset file (`_dataset_path`):
   (a) env `VIVA_BIOMODELS_DATASET`, if set and it exists;
-  (b) `import pbg_biomodels.corpus_results` and use its default dataset
+  (b) `import viva_biomodels.corpus_results` and use its default dataset
       path, if that file exists;
   (c) glob `~/code/pbg-biomodels*/datasets/corpus_comparison/corpus_timecourse.parquet`
       (covers sibling checkouts/worktrees), first hit that exists;
@@ -49,7 +49,7 @@ def _dataset_path() -> Optional[Path]:
             return candidate
 
     try:
-        import pbg_biomodels.corpus_results as _corpus_results  # type: ignore
+        import viva_biomodels.corpus_results as _corpus_results  # type: ignore
 
         candidate = Path(_corpus_results.DEFAULT_TIMECOURSE_PATH)
         if candidate.exists():

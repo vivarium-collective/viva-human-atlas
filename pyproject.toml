@@ -9,7 +9,7 @@ dependencies = [
     "requests>=2.31",
     "pyyaml>=6.0",
     # Reused comparison machinery + transitively copasi/tellurium/simbio/biomodels/superpowers/workbench:
-    "pbg-biomodels",
+    "viva-biomodels",
     # Direct engine deps (also pulled by pbg-biomodels, listed for clarity):
     "pbg-copasi",
     "pbg-tellurium",
@@ -19,7 +19,7 @@ dependencies = [
 dev = ["pytest>=7.4"]
 
 [tool.uv.sources]
-pbg-biomodels = { path = "../pbg-biomodels", editable = true }
+viva-biomodels = { path = "../pbg-biomodels", editable = true }   # dir unchanged
 pbg-copasi = { path = "../pbg-copasi", editable = true }
 pbg-tellurium = { path = "../pbg-tellurium", editable = true }
 

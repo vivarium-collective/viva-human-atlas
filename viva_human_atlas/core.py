@@ -42,8 +42,8 @@ def _iter_workspace_edges(package) -> Iterable[tuple[type, str]]:
 def build_core():
     core = allocate_core()
     # Register pbg-biomodels' simulator backends + types (reused by our composites).
-    from pbg_biomodels.simulators import register_simulator_backends
-    from pbg_biomodels import register_types as register_biomodels_types
+    from viva_biomodels.simulators import register_simulator_backends
+    from viva_biomodels import register_types as register_biomodels_types
     from viva_human_atlas.types import register_workspace_types
     register_simulator_backends(core)
     register_biomodels_types(core)

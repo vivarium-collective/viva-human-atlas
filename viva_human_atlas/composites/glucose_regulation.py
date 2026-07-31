@@ -12,7 +12,7 @@ try:
 except ModuleNotFoundError:
     from pbg_superpowers.composite_generator import composite_generator
 
-from pbg_biomodels.composites.compare_simulators import (
+from viva_biomodels.composites.compare_simulators import (
     build_compare_document,
     run_comparison,
 )
