@@ -4,7 +4,7 @@ Each generator wires one HRA Step's output into a single store plus a
 RAMEmitter, so a study's baseline run demonstrates that the dataset actually
 loads (offline against a mocked `fetch_*`, or live against the real HRA API).
 Follows the state/emitter shape used by
-`pbg_biomodels.composites.compare_simulators` (`_type: step`, `address`,
+`viva_biomodels.composites.compare_simulators` (`_type: step`, `address`,
 one-segment `inputs`/`outputs` stores, an `emitter` step with an `emit`
 schema, `run_steps_on_init: True`).
 """
@@ -22,7 +22,7 @@ from viva_human_atlas.hra_api import CROSSWALK_URL, HRA_API
 # Fully-dotted (not bare-registry-name) addresses: this is what lets
 # vivarium-workbench's process_docs.py resolve each Step's `description`/
 # `describe()`/`contract` for the Composite Explorer without needing a
-# live-built core (see `pbg_biomodels.composites.compare_simulators`, which
+# live-built core (see `viva_biomodels.composites.compare_simulators`, which
 # uses the same `local:<module>.<Class>` convention).
 REFERENCE_ORGANS_STEP_ADDRESS = "local:viva_human_atlas.hra_api.HRAReferenceOrgansStep"
 CELL_TYPES_STEP_ADDRESS = "local:viva_human_atlas.hra_api.HRACellTypesStep"

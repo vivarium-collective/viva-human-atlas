@@ -11,7 +11,7 @@ def register_types(core):
     plus viva-human-atlas's own workspace types (reference_organ,
     cell_type_term, anatomical_term, matched_organ, biomodel_do,
     organ_to_models — see `types.py`)."""
-    from pbg_biomodels import register_types as _reg
+    from viva_biomodels import register_types as _reg
     _reg(core)
     from viva_human_atlas.types import register_workspace_types
     return register_workspace_types(core)

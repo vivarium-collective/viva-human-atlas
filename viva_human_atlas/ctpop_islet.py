@@ -106,7 +106,7 @@ def _fetch_topp_sbml(model_id: str = DEFAULT_MODEL_ID) -> Optional[str]:
     """Fetch the Topp2000 SBML from BioModels, returning a local file path
     (or None on any failure).
 
-    Reuses the `biomodels` package `pbg_biomodels.run_biomodels.load_biomodel`
+    Reuses the `biomodels` package `viva_biomodels.run_biomodels.load_biomodel`
     already wraps for this workspace's other composites, but sidesteps its
     SED-ML requirement -- `load_biomodel` raises if no `.sedml` file is
     present in the BioModels entry, which this binding doesn't need (only the

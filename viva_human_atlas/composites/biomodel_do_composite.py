@@ -3,7 +3,7 @@
 Builds the glucose-regulation biomodel-DO catalog (BioModels hits annotated
 with HRA Uberon organ terms) and its inverse organ->models index, emitting
 both via a RAMEmitter. Same state/emitter shape as `hra_steps.py` /
-`pbg_biomodels.composites.compare_simulators`.
+`viva_biomodels.composites.compare_simulators`.
 """
 from __future__ import annotations
 
