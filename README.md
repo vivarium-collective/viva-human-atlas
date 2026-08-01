@@ -16,6 +16,12 @@ https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/model-c
 (Also registered as an "HRA Organ Viewer" analysis tool — launchable from the
 Analyses tab in a live `vivarium-workbench serve`.)
 
+🧭 **HRA Atlas Browser (organ selector, model-count gradient, BioModels links):**
+`studies/hra-atlas-browser/viz/atlas/index.html` — pick any of the 50
+GLB-backed HRA organs, see its regions colored by associated model count,
+and click through to BioModels. Built by `scripts/build_atlas_pack.py`;
+launchable from the Analyses tab as "HRA Atlas Browser".
+
 ## Investigations
 
 - **`glucose-regulation`** — query BioModels for "glucose regulation", run each
