@@ -82,12 +82,18 @@ def _atlas_targets(ws_root) -> list:
 
 
 def _atlas_launch(ws_root, study=None, run=None, ctx=None) -> dict:
-    """Live-path launcher callback: resolve `study` straight to its
-    materialized `viz/atlas/index.html` href (`run`/`ctx` accepted for
-    contract compatibility but unused — this viewer needs no server-side
-    rendering)."""
+    """Live-path launcher callback → the materialized `viz/atlas/index.html`.
+
+    The Atlas Browser is a single global page (all organs in one manifest), so
+    it opens the same place regardless of `study`/`run`. When launched from a
+    per-run chip (Runs DB tab) no `study` is passed, so default to the
+    workspace's atlas study rather than erroring; `run`/`ctx` are accepted for
+    contract compatibility but unused (no server-side rendering)."""
     if not study:
-        return {"error": "no study selected", "status": 400}
+        atlas_studies = _studies_with_atlas(ws_root)
+        if not atlas_studies:
+            return {"error": "no atlas pack found", "status": 404}
+        study = atlas_studies[0]
     return {"url": f"studies/{study}/viz/atlas/index.html"}
 
 
