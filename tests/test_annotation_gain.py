@@ -1,6 +1,3 @@
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from viva_human_atlas.annotation_gain import compare_catalogs
 
 OI = {"pancreas": {"uberon": "UBERON:0001264"}, "liver": {"uberon": "UBERON:0002107"},
