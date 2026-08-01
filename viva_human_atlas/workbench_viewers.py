@@ -109,6 +109,7 @@ def get_viewers(ws_root) -> list:
             "title": "HRA Atlas Browser",
             "description": "3D HRA organ browser: pick an organ, see regions colored by model count, click through to BioModels.",
             "kind": "launcher",
+            "requires": ["observables"],
             "applies": lambda ws: bool(_studies_with_atlas(ws)),
             "targets": _atlas_targets,
             "launch": _atlas_launch,
