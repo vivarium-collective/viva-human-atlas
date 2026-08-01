@@ -3,6 +3,9 @@ corpus catalog: one entry per GLB-backed HRA organ, its model count, and the
 BioModels list, for the organ-selector + model-count-gradient viewer."""
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 BIOMODELS_BASE = "https://www.ebi.ac.uk/biomodels/"
 
 
@@ -62,3 +65,17 @@ def build_atlas_manifest(catalog: dict) -> dict:
             "n_models_total": sum(o["n_models"] for o in organs),
         },
     }
+
+
+def write_atlas_pack(out_dir, *, manifest: dict, coverage: dict, overview_glb_url=None):
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "atlas.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (out / "coverage.json").write_text(json.dumps(coverage, indent=2), encoding="utf-8")
+    (out / "config.json").write_text(json.dumps({
+        "atlas": "atlas.json",
+        "coverage": "coverage.json",
+        "overview_glb": overview_glb_url,
+        "node_field": "node_name",
+    }, indent=2), encoding="utf-8")
+    return out
