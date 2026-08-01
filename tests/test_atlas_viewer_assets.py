@@ -28,6 +28,7 @@ def test_viewer_has_multiselect_menu():
     js = (VIZ / "viewer.js").read_text(encoding="utf-8")
     html = (VIZ / "index.html").read_text(encoding="utf-8")
     assert "btn-all-modeled" in html and "btn-all" in html and "btn-none" in html
+    assert "btn-center" in html                        # recenter-view control
     assert "organ-search" in html                     # filter box
     assert "selectOnly" in js                          # isolate one organ
     assert "selectMany" in js and "modeledKeys" in js  # show all modeled together

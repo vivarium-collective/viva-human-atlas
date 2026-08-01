@@ -27,6 +27,7 @@ const els = {
   btnAllModeled: document.getElementById("btn-all-modeled"),
   btnAll: document.getElementById("btn-all"),
   btnNone: document.getElementById("btn-none"),
+  btnCenter: document.getElementById("btn-center"),
   selCount: document.getElementById("sel-count"),
   legendMax: document.getElementById("legend-max"),
   bpTitle: document.getElementById("bp-title"),
@@ -398,6 +399,11 @@ async function main() {
   els.btnAllModeled.addEventListener("click", () => selectMany(modeledKeys, "all modeled organs"));
   els.btnAll.addEventListener("click", () => selectMany(allKeys, "all 50 organs"));
   els.btnNone.addEventListener("click", clearAll);
+  // Recenter the camera on whatever is currently visible.
+  els.btnCenter.addEventListener("click", frameSelection);
+  addEventListener("keydown", (e) => {
+    if (e.key === "f" && !/input|textarea/i.test(e.target.tagName)) frameSelection();
+  });
 
   // ---- hover + click in the 3D scene ----
   const ray = new THREE.Raycaster();
