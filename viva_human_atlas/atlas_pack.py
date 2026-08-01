@@ -97,20 +97,44 @@ def _glb_by_sex(asset_urls: list[str]) -> dict:
     return out
 
 
-def build_atlas_manifest(catalog: dict) -> dict:
+def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None) -> dict:
+    """Build the atlas manifest from a catalog `{biomodel_dos, organ_index,
+    organ_to_models}`.
+
+    If `provenance` is given as `{"name": {uberon: iterable[id]},
+    "annotation": {uberon: iterable[id]}}`, each model row gets a `matched_by`
+    list (subset of `["name", "annotation"]`) recording which matcher(s) linked
+    that model to that organ — so the viewer can show where a link came from.
+    """
     organ_index = catalog["organ_index"]
     organ_to_models = catalog["organ_to_models"]
     id_to_name = {d["biomodel_id"]: d.get("name") or d["biomodel_id"]
                   for d in catalog["biomodel_dos"]}
+    prov = provenance or {}
+    name_sets = {u: set(ids) for u, ids in (prov.get("name") or {}).items()}
+    anno_sets = {u: set(ids) for u, ids in (prov.get("annotation") or {}).items()}
+
+    def _matched_by(uberon, mid):
+        tags = []
+        if mid in name_sets.get(uberon, ()):
+            tags.append("name")
+        if mid in anno_sets.get(uberon, ()):
+            tags.append("annotation")
+        return tags
 
     organs = []
+    all_model_ids = set()
     for key, entry in organ_index.items():
         uberon = entry.get("uberon")
         model_ids = sorted(organ_to_models.get(uberon, [])) if uberon else []
-        models = [{"biomodel_id": mid,
-                   "name": id_to_name.get(mid, mid),
+        all_model_ids.update(model_ids)
+        models = []
+        for mid in model_ids:
+            row = {"biomodel_id": mid, "name": id_to_name.get(mid, mid),
                    "url": biomodels_url(mid)}
-                  for mid in model_ids]
+            if provenance is not None:
+                row["matched_by"] = _matched_by(uberon, mid)
+            models.append(row)
         organs.append({
             "key": key,
             "label": _label(key),
@@ -133,9 +157,36 @@ def build_atlas_manifest(catalog: dict) -> dict:
             "n_organs": len(organs),
             "n_modeled": sum(1 for o in organs if o["n_models"] > 0),
             "n_models_total": sum(o["n_models"] for o in organs),
+            "n_models_distinct": len(all_model_ids),
             "n_systems": len(systems),
         },
     }
+
+
+def merge_catalogs(name_catalog: dict, annotation_catalog: dict) -> tuple[dict, dict]:
+    """Union two organ catalogs (name-synonym + annotation) into one catalog
+    of the same shape, plus a `provenance` dict for `build_atlas_manifest`.
+
+    organ_to_models is unioned per organ (deduped, sorted); biomodel_dos merges
+    id->name from both. Returns `(merged_catalog, provenance)`.
+    """
+    organ_index = name_catalog["organ_index"]
+    n_o2m = name_catalog["organ_to_models"]
+    a_o2m = annotation_catalog["organ_to_models"]
+    merged = {}
+    for uberon in set(n_o2m) | set(a_o2m):
+        merged[uberon] = sorted(set(n_o2m.get(uberon, [])) | set(a_o2m.get(uberon, [])))
+    id_to_name = {}
+    for cat in (annotation_catalog, name_catalog):  # name wins on label conflicts
+        for d in cat["biomodel_dos"]:
+            id_to_name.setdefault(d["biomodel_id"], d.get("name") or d["biomodel_id"])
+    id_to_name.update({d["biomodel_id"]: d.get("name") or d["biomodel_id"]
+                       for d in name_catalog["biomodel_dos"] if d.get("name")})
+    biomodel_dos = [{"biomodel_id": mid, "name": nm} for mid, nm in sorted(id_to_name.items())]
+    merged_catalog = {"biomodel_dos": biomodel_dos, "organ_index": organ_index,
+                      "organ_to_models": merged}
+    provenance = {"name": n_o2m, "annotation": a_o2m}
+    return merged_catalog, provenance
 
 
 def write_atlas_pack(out_dir, *, manifest: dict, coverage: dict, overview_glb_url=None):

@@ -82,7 +82,13 @@ function renderBioModels(organ) {
     a.href = m.url;
     a.target = "_blank";
     a.rel = "noopener";
-    a.innerHTML = `<div>${m.name}</div><div class="mid">${m.biomodel_id}</div>`;
+    const by = m.matched_by || [];
+    // provenance badge: how this model was linked to the organ
+    const badge = by.length
+      ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
+          by.length === 2 ? "name+annotation" : by[0]}</span>`
+      : "";
+    a.innerHTML = `<div>${m.name} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
     els.bpList.appendChild(a);
   }
 }
@@ -92,8 +98,33 @@ async function main() {
   const cfg = await fetch("config.json").then((r) => r.json());
   const atlas = await fetch(cfg.atlas).then((r) => r.json());
   const organsByKey = new Map(atlas.organs.map((o) => [o.key, o]));
-  const allKeys = atlas.organs.map((o) => o.key);
+  // Composed views must not overlay both sexes of the same structure (that
+  // renders "double legs" — male knee bones poking through the female skin).
+  // Collapse -female-/-male- variants (keeping left/right) to ONE sex,
+  // preferring female (matches the default female GLBs), for multi-organ sets.
+  function singleSex(keys) {
+    const seen = new Set(), out = [];
+    for (const k of keys) {
+      const base = k.replace(/-(female|male)/, "");   // keep left/right
+      const isMale = /-male/.test(k);
+      if (isMale && keys.some((o) => o !== k && o.replace(/-(female|male)/, "") === base && /-female/.test(o))) {
+        continue;   // a female twin exists -> skip the male duplicate
+      }
+      if (!seen.has(base)) { seen.add(base); out.push(k); }
+    }
+    return out;
+  }
+  const allKeys = singleSex(atlas.organs.map((o) => o.key));
   const modeledKeys = atlas.organs.filter((o) => o.n_models > 0).map((o) => o.key);
+  // distinct BioModels represented by a set of organ keys (union of ids)
+  function distinctModels(keys) {
+    const ids = new Set();
+    for (const k of keys) {
+      const o = organsByKey.get(k);
+      if (o) for (const m of o.models) ids.add(m.biomodel_id);
+    }
+    return ids.size;
+  }
   // system -> organs (in the atlas' n_models-desc order), following the
   // manifest's `systems` display order.
   const systemsList = atlas.systems || [...new Set(atlas.organs.map((o) => o.system))];
@@ -103,8 +134,9 @@ async function main() {
     organsBySystem.get(o.system).push(o);
   }
   els.legendMax.textContent = String(atlas.max_models);
+  const distinctTotal = atlas.summary.n_models_distinct ?? atlas.summary.n_models_total;
   els.summary.textContent =
-    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${atlas.summary.n_models_total} model links`;
+    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct BioModels`;
 
   // ---- scene ----
   const app = document.getElementById("app");
@@ -207,7 +239,8 @@ async function main() {
       chk.textContent = on === keys.length ? "✓" : on > 0 ? "–" : "";
     }
     els.selCount.textContent = selected.size
-      ? `${selected.size} shown` : "none shown";
+      ? `${selected.size} organs · ${distinctModels([...selected])} models`
+      : "none shown";
     if (doFrame) frameSelection();
   }
 
@@ -316,9 +349,8 @@ async function main() {
   }
 
   function selectionStatus() {
-    let models = 0;
-    for (const k of selected) models += organsByKey.get(k).n_models;
-    return `${selected.size} organ${selected.size === 1 ? "" : "s"} shown · ${models} model links`;
+    const distinct = distinctModels([...selected]);
+    return `${selected.size} organ${selected.size === 1 ? "" : "s"} shown · ${distinct} distinct BioModel${distinct === 1 ? "" : "s"} represented`;
   }
 
   function resetPanel() {
