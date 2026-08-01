@@ -17,6 +17,12 @@ def test_atlas_study_exists_and_is_registered():
     assert "hra-atlas-browser" in inv["studies"]
 
 
+def test_annotation_studies_registered_under_hra_integration():
+    inv = _load(ROOT / "investigations" / "hra-integration" / "investigation.yaml")
+    assert "annotation-organ-matching" in inv["studies"]
+    assert "annotation-recall-gain" in inv["studies"]
+
+
 def test_every_study_has_investigation_backref():
     inv_lists = {}  # study slug -> set of investigations that list it
     for inv_yaml in (ROOT / "investigations").glob("*/investigation.yaml"):

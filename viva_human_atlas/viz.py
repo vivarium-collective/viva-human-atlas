@@ -144,6 +144,35 @@ def bar_html(x, y, *, title: str = "", xaxis_title: str = "", yaxis_title: str =
     return fig.to_html(include_plotlyjs="cdn", full_html=True)
 
 
+def grouped_bar_html(categories, series, *, title: str = "", yaxis_title: str = "") -> str:
+    """Self-contained Plotly HTML: a grouped (multi-series) bar chart, for
+    figures comparing several counts per category side-by-side (e.g.
+    name-match vs annotation-match vs union model counts per organ).
+
+    `categories` are the x-axis labels; `series` is a list of
+    `{"name": str, "y": list[number]}` dicts, one per bar group, plotted
+    against the shared `categories`. Same tall/readable layout treatment as
+    `bar_html` (explicit height, generous margins for rotated tick labels,
+    readable font)."""
+    categories = list(categories)
+    fig = go.Figure(
+        [go.Bar(name=s["name"], x=categories, y=list(s["y"])) for s in series]
+    )
+    fig.update_layout(
+        title=title,
+        yaxis_title=yaxis_title,
+        barmode="group",
+        height=470,
+        margin=dict(l=80, r=30, t=70, b=170),
+        font=dict(size=13),
+        title_font_size=15,
+        xaxis_tickangle=-45,
+        bargap=0.25,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+    )
+    return fig.to_html(include_plotlyjs="cdn", full_html=True)
+
+
 def table_html(headers, rows, *, title: str = "") -> str:
     """Self-contained Plotly HTML: a left-aligned info table (e.g. a single
     digital object's field/value pairs). `rows` is a list of tuples/lists,
