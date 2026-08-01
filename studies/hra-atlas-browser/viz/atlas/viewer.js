@@ -29,6 +29,10 @@ function countColor(n, max) {
 
 function populateSelect(organs) {
   els.select.innerHTML = "";
+  const ov = document.createElement("option");
+  ov.value = "__overview__";
+  ov.textContent = "Overview (whole body)";
+  els.select.appendChild(ov);
   for (const o of organs) {
     const opt = document.createElement("option");
     opt.value = o.key;
@@ -60,6 +64,18 @@ function renderBioModels(organ) {
     a.innerHTML = `<div>${m.name}</div><div class="mid">${m.biomodel_id}</div>`;
     els.bpList.appendChild(a);
   }
+}
+
+const normKey = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+function organForNode(nodeName, organs) {
+  const nn = normKey(nodeName);
+  // longest organ key that appears in the node name wins (avoids "eye" vs "eyelid")
+  let best = null;
+  for (const o of organs) {
+    if (nn.includes(normKey(o.key)) && (!best || o.key.length > best.key.length)) best = o;
+  }
+  return best;
 }
 
 async function main() {
@@ -135,9 +151,56 @@ async function main() {
     }, undefined, (err) => setStatus(`failed to load ${organ.label}: ${err?.message || err}`));
   }
 
-  els.select.addEventListener("change", (e) => loadOrgan(e.target.value));
+  // Load the united whole-body GLB and tint each mesh by its mapped organ's
+  // model count (organForNode/normKey do the mesh->organ match). Falls back
+  // to the top organ if there's no overview GLB configured or it fails to load.
+  function loadOverview(cfg, atlas) {
+    if (!cfg.overview_glb) {
+      els.select.value = atlas.organs[0].key;
+      loadOrgan(atlas.organs[0].key);
+      return;
+    }
+    els.bpTitle.textContent = "Whole body";
+    els.bpSub.textContent = `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled`;
+    els.bpList.innerHTML = "";
+    setStatus("loading whole-body overview…");
+    loader.load(cfg.overview_glb, (gltf) => {
+      if (currentRoot) scene.remove(currentRoot);
+      meshes.length = 0;
+      currentRoot = gltf.scene;
+      currentRoot.traverse((node) => {
+        if (!node.isMesh) return;
+        const organ = organForNode(node.name, atlas.organs);
+        const n = organ ? organ.n_models : 0;
+        node.material = new THREE.MeshStandardMaterial({ color: countColor(n, atlas.max_models) });
+        node.userData.regionName = node.name;
+        node.userData.overviewOrgan = organ || null;
+        meshes.push(node);
+      });
+      scene.add(currentRoot);
+      frameObject(currentRoot);
+      setStatus(`overview: ${meshes.length} nodes`);
+    }, undefined, () => {
+      setStatus("overview GLB failed — showing top organ");
+      els.select.value = atlas.organs[0].key;
+      loadOrgan(atlas.organs[0].key);
+    });
+  }
+
+  els.select.addEventListener("change", (e) => {
+    if (e.target.value === "__overview__") loadOverview(cfg, atlas);
+    else loadOrgan(e.target.value);
+  });
+  // clicking an organ in the overview drills into it
+  renderer.domElement.addEventListener("click", () => {
+    if (els.select.value !== "__overview__" || !hovered) return;
+    const organ = hovered.userData.overviewOrgan;
+    if (organ) { els.select.value = organ.key; loadOrgan(organ.key); }
+  });
 
   // Hover: brighten the hovered region and show its name in the status line.
+  // In overview mode, hovering a mapped organ also previews its BioModels
+  // list in the side panel (before the click that drills into it).
   const ray = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
   let hovered = null;
@@ -151,8 +214,18 @@ async function main() {
     if (hit) {
       hovered = hit.object;
       hovered.material.emissive = new THREE.Color(0x2b3a44);
-      const organ = organsByKey.get(els.select.value);
-      setStatus(`${hovered.userData.regionName} · ${organ.label} (${organ.n_models} models)`);
+      if (els.select.value === "__overview__") {
+        const organ = hovered.userData.overviewOrgan;
+        if (organ) {
+          setStatus(`${organ.label} (${organ.n_models} model${organ.n_models === 1 ? "" : "s"})`);
+          renderBioModels(organ);
+        } else {
+          setStatus(`${hovered.userData.regionName} · unmapped`);
+        }
+      } else {
+        const organ = organsByKey.get(els.select.value);
+        setStatus(`${hovered.userData.regionName} · ${organ.label} (${organ.n_models} models)`);
+      }
     }
   });
 
@@ -167,9 +240,11 @@ async function main() {
     renderer.render(scene, camera);
   })();
 
-  // Landing: load the most-modeled organ (first in the sorted list).
-  els.select.value = atlas.organs[0].key;
-  loadOrgan(atlas.organs[0].key);
+  // Landing: default to the whole-body overview; loadOverview falls back to
+  // the top organ (first in the sorted list) if there's no overview GLB or
+  // it fails to load.
+  els.select.value = "__overview__";
+  loadOverview(cfg, atlas);
 }
 
 main().catch((err) => { console.error(err); setStatus(`error: ${err?.message || err}`); });

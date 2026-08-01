@@ -17,3 +17,11 @@ def test_viewer_assets_exist_and_are_wired():
     assert "organ-select" in html          # the selector element
     assert "biomodels-panel" in html       # the model list panel
     assert "three@0.160.0" in html         # pinned importmap
+
+
+def test_viewer_has_overview_mode():
+    js = (VIZ / "viewer.js").read_text(encoding="utf-8")
+    html = (VIZ / "index.html").read_text(encoding="utf-8")
+    assert "overview_glb" in js or "cfg.overview_glb" in js
+    assert "loadOverview" in js
+    assert "__overview__" in html or "__overview__" in js  # the overview select value
