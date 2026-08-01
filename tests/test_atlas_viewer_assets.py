@@ -16,17 +16,23 @@ def test_viewer_assets_exist_and_are_wired():
     js = (VIZ / "viewer.js").read_text(encoding="utf-8")
     assert 'src="./viewer.js"' in html
     assert ("config.json" in js and "atlas.json" in js.lower()) or "cfg.atlas" in js
-    assert "organ-select" in html          # the selector element
+    assert "organ-list" in html            # the left organ menu
     assert "biomodels-panel" in html       # the model list panel
     assert "three@0.160.0" in html         # pinned importmap
 
 
-def test_viewer_has_overview_mode():
+def test_viewer_has_multiselect_menu():
+    # The viewer offers a left menu of all organs with parsimony-style
+    # selection: click a row to add/remove, "only" to isolate, "All modeled"
+    # to compose every modeled organ together, "None" to clear.
     js = (VIZ / "viewer.js").read_text(encoding="utf-8")
     html = (VIZ / "index.html").read_text(encoding="utf-8")
-    assert "overview_glb" in js or "cfg.overview_glb" in js
-    assert "loadOverview" in js
-    assert "__overview__" in html or "__overview__" in js  # the overview select value
+    assert "btn-all" in html and "btn-none" in html   # All / None controls
+    assert "organ-search" in html                     # filter box
+    assert "selectOnly" in js                          # isolate one organ
+    assert "selectMany" in js and "modeledKeys" in js  # show all modeled together
+    assert "function toggle" in js                     # click-through add/remove
+    assert "buildMenu" in js                           # renders the organ list
 
 
 def test_write_atlas_pack_only_writes_json(tmp_path):
