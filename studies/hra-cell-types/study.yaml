@@ -1,5 +1,6 @@
 schema_version: 4
 name: hra-cell-types
+investigation: hra-integration
 title: "HRA Cell-Type Term Occurrences"
 created: '2026-07-26'
 status: running

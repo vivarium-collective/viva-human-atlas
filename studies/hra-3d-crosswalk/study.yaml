@@ -1,5 +1,6 @@
 schema_version: 4
 name: hra-3d-crosswalk
+investigation: hra-3d
 title: "HRA 3D Crosswalk — Full ASCT+B-3D Anatomical-Structure Tree"
 created: '2026-07-26'
 status: running

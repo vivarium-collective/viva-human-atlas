@@ -1,5 +1,6 @@
 schema_version: 4
 name: ftu-model-coverage
+investigation: hra-3d
 title: "FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units?"
 created: '2026-07-26'
 status: running

@@ -1,5 +1,6 @@
 schema_version: 4
 name: ftu-glomerulus
+investigation: hra-3d
 title: "FTU Glomerulus — 3D Functional-Tissue-Unit Digital Object"
 created: '2026-07-26'
 status: running

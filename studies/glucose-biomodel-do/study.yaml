@@ -1,5 +1,6 @@
 schema_version: 4
 name: glucose-biomodel-do
+investigation: hra-integration
 title: "Glucose BioModel Digital Objects — Uberon Organ Annotation"
 created: '2026-07-26'
 status: running

@@ -1,0 +1,91 @@
+schema_version: 4
+name: hra-atlas-browser
+investigation: hra-3d
+title: "HRA Atlas Browser — organ selector + model-count gradient + BioModels links"
+created: '2026-08-01'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  Can we present the full HRA-3D model-coverage picture as an interactive
+  atlas: pick any of the 50 GLB-backed HRA organs, see its regions
+  demarcated and colored by how many mechanistic models are associated with
+  it, and browse straight to those BioModels?
+
+study_card:
+  goal: "Cross the corpus catalog's organ_index (50 GLB organs) with organ_to_models into an atlas manifest, and render it as a self-contained three.js organ browser with a model-count color gradient and clickable BioModels."
+  mechanism: "build_atlas_manifest(load_corpus_catalog()) -> atlas.json (per-organ n_models + BioModels links) + build_corpus_coverage -> coverage.json -> viz/atlas/ three.js viewer (organ <select>, per-mesh EdgesGeometry outlines, log-scaled count color, BioModels side panel)."
+  expected_result: "All 50 organs selectable; 10 modeled organs colored by count (pancreas 36 brightest), 40 greyed; each organ's BioModels list links to ebi.ac.uk/biomodels."
+  main_expert_question: "Is an organ-granularity model-count gradient a useful whole-atlas overview of where mechanistic modeling exists, given it cannot yet distinguish sub-regions within one organ?"
+
+biological_summary: |
+  Mechanistic models cluster on a handful of organs (pancreas, blood, liver,
+  lung, brain, heart) and leave most of the body's 3D anatomy unmodeled. The
+  Atlas Browser makes that distribution legible: the color gradient shows
+  where modeling effort has concentrated, and the greyed organs make the
+  modeling white-space visible at a glance.
+
+readouts:
+  - "atlas manifest: n_organs (50), n_modeled (10), n_models_total, max_models (36)"
+  - "per-organ n_models + BioModels id/name/url list"
+
+report:
+  title: "HRA Atlas Browser — 10/50 organs modeled, pancreas dominant"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Present HRA-3D model coverage as an interactive organ browser with a
+    model-count gradient and BioModels links.
+  conclusion: |
+    The atlas manifest covers all 50 GLB-backed HRA organs; 10 carry ≥1
+    model (pancreas 36, blood 19, liver 9, lung 6, brain 5, heart 4,
+    adipose 2, intestine 2, skin 1, kidney 1), 40 are greyed. Each modeled
+    organ links to its BioModels entries. The gradient is organ-granularity:
+    it shows where modeling exists across the body but does not yet
+    distinguish sub-regions within an organ.
+  caveat: |
+    Coverage is organ-granularity — every sub-region of a modeled organ
+    inherits the organ's count, so the within-organ gradient is uniform.
+    True per-anatomical-structure counts are the fp-as-level-coverage
+    follow-up.
+
+embed_visualizations: []
+
+runs:
+  - name: baseline
+    status: completed
+
+findings:
+  - id: F-01
+    tier: interpretation
+    mechanism_origin: engineered
+    claim_scope: mechanism
+    statement: |
+      The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
+      the 10 modeled ones by model count (pancreas 36 max), linking each to
+      its BioModels entries — a whole-atlas overview of where mechanistic
+      modeling exists.
+    evidence:
+      summary: "50 organs, 10 modeled (n_models_total from organ_to_models), max_models=36 (pancreas); 40 organs greyed (no models)."
+
+limitations:
+  - "Organ-granularity gradient: sub-regions within an organ share the organ's count (no per-AS-node resolution yet)."
+  - "Organ tagging is name-synonym-based (see hra-integration); untagged models may hide real organ relevance."
+
+discovery_implications:
+  resolved_uncertainties:
+    - "The full 50-organ GLB set is enumerable and renderable with a per-organ model-count gradient and BioModels links."
+  remaining_uncertainties:
+    - "Can sub-region (AS-level) counts replace organ-granularity coloring? See fp-as-level-coverage."
+  followup_study_proposals:
+    - id: fp-as-level-coverage
+      title: "AS-level (sub-organ) model coverage in the Atlas Browser"
+      motivation: "Color sub-regions within an organ by their own model count instead of inheriting the organ's count."
+      study_type: method-upgrade
+      proposed_experiment: "Parse SBML MIRIAM/Uberon annotations at anatomical-structure granularity, join to crosswalk AS nodes, and drive per-mesh color from per-node counts."
+      expected_information_gain: high
+      source_trigger: hra-atlas-browser
