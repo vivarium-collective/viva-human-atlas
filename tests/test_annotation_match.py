@@ -53,3 +53,40 @@ def test_build_annotation_catalog_shape_and_index():
     assert set(cat) == {"biomodel_dos", "organ_index", "organ_to_models"}
     assert cat["organ_to_models"]["UBERON:0001264"] == ["BIOMD0000000137"]
     assert len(cat["biomodel_dos"]) == 2
+
+
+def test_map_curie_fma_normalized():
+    # real organ_index entries store bare FMA ids like "fma24978" (no colon,
+    # lowercase) rather than "FMA:24978" -- map_curie_to_organ must normalize
+    # both sides so an SBML-extracted "FMA:24978" CURIE still matches.
+    organ_index = {"knee": {"uberon": "fma24978", "sexes": ["Female"], "asset_urls": ["x"]}}
+    assert map_curie_to_organ("FMA:24978", organ_index) == "knee"
+
+
+PURL_UBERON = """<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level3/version1/core" level="3" version="1">
+  <model id="m1" metaid="m1">
+    <listOfCompartments>
+      <compartment id="c" metaid="c" constant="true">
+        <annotation>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                   xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#c">
+              <bqbiol:isPartOf>
+                <rdf:Bag>
+                  <rdf:li rdf:resource="http://purl.obolibrary.org/obo/UBERON_0001264"/>
+                </rdf:Bag>
+              </bqbiol:isPartOf>
+            </rdf:Description>
+          </rdf:RDF>
+        </annotation>
+      </compartment>
+    </listOfCompartments>
+  </model>
+</sbml>
+"""
+
+
+def test_extract_handles_obo_purl():
+    curies = extract_anatomy_curies(PURL_UBERON)
+    assert any(c["curie"] == "UBERON:0001264" for c in curies)

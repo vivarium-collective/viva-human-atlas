@@ -4,11 +4,10 @@ the recall-oriented complement to biomodel_do.py's name-synonym matcher.
 Same catalog shape, so it drops into the coverage/atlas pipeline."""
 from __future__ import annotations
 
+import re
 from typing import Callable, Optional
 
 import libsbml
-
-from viva_human_atlas.atlas_pack import biomodels_url  # noqa: F401 — declared dependency (Interfaces: Consumes)
 
 ANATOMY_PREFIXES = ("uberon", "fma", "bto")
 # biological qualifiers we treat as an anatomical assertion about the model part
@@ -22,16 +21,20 @@ _QUALIFIERS = {
 
 
 def _curie_from_uri(uri: str) -> Optional[str]:
-    # e.g. http://identifiers.org/uberon/UBERON:0001264  or urn:miriam:uberon:UBERON%3A0001264
+    # e.g. http://identifiers.org/uberon/UBERON:0001264
+    #      urn:miriam:uberon:UBERON%3A0001264
+    #      http://purl.obolibrary.org/obo/UBERON_0001264  (OBO PURL, underscore form)
     u = uri.replace("%3A", ":").replace("%3a", ":")
     low = u.lower()
+    token = u.rsplit("/", 1)[-1]
     for pref in ANATOMY_PREFIXES:
         if f"/{pref}/" in low or f":{pref}:" in low:
-            tail = u.rsplit("/", 1)[-1].rsplit(":", 1)[-1]
-            token = u.rsplit("/", 1)[-1]
+            tail = token.rsplit(":", 1)[-1]
             if ":" in token and token.upper().startswith(pref.upper() + ":"):
                 return token.upper()
             return f"{pref.upper()}:{tail}"
+        if token.upper().startswith(pref.upper() + "_"):
+            return f"{pref.upper()}:{token.upper().split('_', 1)[1]}"
     return None
 
 
@@ -74,12 +77,22 @@ def extract_anatomy_curies(sbml_text: str) -> list[dict]:
     return out
 
 
+def _normalize_curie(value: str) -> str:
+    # Uppercase and strip separators so differing CURIE formats compare equal:
+    # "FMA:24978" (SBML-extracted) vs. "fma24978" (bare, no colon, as stored by
+    # several organ_index entries) both normalize to "FMA24978".
+    return re.sub(r"[^A-Za-z0-9]", "", value).upper()
+
+
 def map_curie_to_organ(curie: str, organ_index: dict, bto_crosswalk: Optional[dict] = None) -> Optional[str]:
     cu = curie.upper()
-    # UBERON/FMA match organ_index keys directly (they carry UBERON+FMA ids)
+    norm = _normalize_curie(curie)
+    # organ_index[*]["uberon"] holds either a full UBERON CURIE ("UBERON:0001264")
+    # or, for ~11 entries, a bare FMA id ("fma15046", lowercase, no colon).
+    # Normalize both sides so either format matches regardless of separators/case.
     for key, entry in organ_index.items():
-        ub = (entry.get("uberon") or "").upper()
-        if ub and ub == cu:
+        ub = entry.get("uberon") or ""
+        if ub and _normalize_curie(ub) == norm:
             return key
     if cu.startswith("BTO:") and bto_crosswalk:
         uber = bto_crosswalk.get(curie) or bto_crosswalk.get(cu)
