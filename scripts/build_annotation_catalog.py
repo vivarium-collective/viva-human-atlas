@@ -46,7 +46,8 @@ def main() -> None:
             return s
         except Exception as e:  # noqa: BLE001
             done["err"] += 1
-            raise
+            # skip: build_annotation_catalog treats None as sbml-unavailable and continues
+            return None
 
     catalog = build_annotation_catalog(model_dos, organ_index, fetch=fetch, bto_crosswalk=bto)
     env = write_catalog_envelope(OUT, catalog)
