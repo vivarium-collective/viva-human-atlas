@@ -1,4 +1,3 @@
-from pathlib import Path
 from viva_human_atlas.workbench_viewers import get_viewers, _studies_with_atlas
 
 

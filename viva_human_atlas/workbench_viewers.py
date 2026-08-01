@@ -82,6 +82,10 @@ def _atlas_targets(ws_root) -> list:
 
 
 def _atlas_launch(ws_root, study=None, run=None, ctx=None) -> dict:
+    """Live-path launcher callback: resolve `study` straight to its
+    materialized `viz/atlas/index.html` href (`run`/`ctx` accepted for
+    contract compatibility but unused — this viewer needs no server-side
+    rendering)."""
     if not study:
         return {"error": "no study selected", "status": 400}
     return {"url": f"studies/{study}/viz/atlas/index.html"}
