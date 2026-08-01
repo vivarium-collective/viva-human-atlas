@@ -17,13 +17,14 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-const NOMODEL = 0x6b7480;
+const NOMODEL = 0x5a616b;
 
 const els = {
   status: document.getElementById("status"),
   summary: document.getElementById("summary-line"),
   list: document.getElementById("organ-list"),
   search: document.getElementById("organ-search"),
+  btnAllModeled: document.getElementById("btn-all-modeled"),
   btnAll: document.getElementById("btn-all"),
   btnNone: document.getElementById("btn-none"),
   selCount: document.getElementById("sel-count"),
@@ -34,12 +35,31 @@ const els = {
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
-// Sequential model-count color: grey at 0, dark->bright green up to max.
+// Viridis colormap (perceptually-uniform, high chroma variation) so distinct
+// model counts read as distinct colors — dark purple (few) -> teal -> green ->
+// yellow (many) — far more separable than a single-hue green ramp. n==0 (no
+// model) is a neutral grey, off the ramp entirely.
+const VIRIDIS = [
+  [68, 1, 84], [71, 44, 122], [59, 81, 139], [44, 113, 142], [33, 144, 141],
+  [39, 173, 129], [92, 200, 99], [170, 220, 50], [253, 231, 37],
+];
+function viridis(t) {
+  t = Math.max(0, Math.min(1, t));
+  const x = t * (VIRIDIS.length - 1);
+  const i = Math.floor(x), f = x - i;
+  const a = VIRIDIS[i], b = VIRIDIS[Math.min(i + 1, VIRIDIS.length - 1)];
+  return new THREE.Color(
+    (a[0] + (b[0] - a[0]) * f) / 255,
+    (a[1] + (b[1] - a[1]) * f) / 255,
+    (a[2] + (b[2] - a[2]) * f) / 255,
+  );
+}
+// Log scale so the low-count majority (1..9) still spreads across the ramp
+// instead of bunching at one end while pancreas (36) dominates.
 function countColor(n, max) {
   if (!n) return new THREE.Color(NOMODEL);
-  const t = max > 1 ? Math.log1p(n) / Math.log1p(max) : 1; // log scale (pancreas dominates)
-  const lo = new THREE.Color(0x22303a), hi = new THREE.Color(0x8fe6b0);
-  return lo.clone().lerp(hi, 0.15 + 0.85 * t);
+  const t = max > 1 ? Math.log1p(n) / Math.log1p(max) : 1;
+  return viridis(t);
 }
 const cssColor = (n, max) => "#" + countColor(n, max).getHexString();
 
@@ -71,7 +91,16 @@ async function main() {
   const cfg = await fetch("config.json").then((r) => r.json());
   const atlas = await fetch(cfg.atlas).then((r) => r.json());
   const organsByKey = new Map(atlas.organs.map((o) => [o.key, o]));
+  const allKeys = atlas.organs.map((o) => o.key);
   const modeledKeys = atlas.organs.filter((o) => o.n_models > 0).map((o) => o.key);
+  // system -> organs (in the atlas' n_models-desc order), following the
+  // manifest's `systems` display order.
+  const systemsList = atlas.systems || [...new Set(atlas.organs.map((o) => o.system))];
+  const organsBySystem = new Map(systemsList.map((s) => [s, []]));
+  for (const o of atlas.organs) {
+    if (!organsBySystem.has(o.system)) organsBySystem.set(o.system, []);
+    organsBySystem.get(o.system).push(o);
+  }
   els.legendMax.textContent = String(atlas.max_models);
   els.summary.textContent =
     `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${atlas.summary.n_models_total} model links`;
@@ -99,6 +128,7 @@ async function main() {
   const loading = new Map();           // organ key -> in-flight Promise<Group>
   let focused = null;                  // organ key shown in the BioModels panel
   const rows = new Map();              // organ key -> menu row element
+  const groupChecks = new Map();       // system -> header checkbox element
   const raycastMeshes = [];            // meshes across all *shown* organs
   let hovered = null;
 
@@ -167,6 +197,14 @@ async function main() {
       g.traverse((n) => { if (n.isMesh) raycastMeshes.push(n); });
     }
     for (const [key, row] of rows) row.classList.toggle("selected", selected.has(key));
+    // System header checkbox: none / partial / all of its organs selected.
+    for (const [system, chk] of groupChecks) {
+      const keys = organsBySystem.get(system).map((o) => o.key);
+      const on = keys.filter((k) => selected.has(k)).length;
+      chk.classList.toggle("on", on === keys.length);
+      chk.classList.toggle("partial", on > 0 && on < keys.length);
+      chk.textContent = on === keys.length ? "✓" : on > 0 ? "–" : "";
+    }
     els.selCount.textContent = selected.size
       ? `${selected.size} shown` : "none shown";
     if (doFrame) frameSelection();
@@ -210,6 +248,45 @@ async function main() {
       .catch((e) => setStatus(`failed: ${e.message || e}`));
   }
 
+  // Add or remove every organ in a system, based on whether they're all
+  // already selected (toggle). Loads any missing GLBs.
+  function toggleSystem(system) {
+    const keys = organsBySystem.get(system).map((o) => o.key);
+    const allOn = keys.every((k) => selected.has(k));
+    if (allOn) {
+      for (const k of keys) selected.delete(k);
+      applySelection(false);
+      if (!selected.has(focused)) {
+        const next = selected.values().next().value;
+        if (next) focus(next); else resetPanel();
+      }
+      setStatus(selectionStatus());
+      return;
+    }
+    for (const k of keys) selected.add(k);
+    focus(keys[0]);
+    addMany(keys, system);
+  }
+
+  function onlySystem(system) {
+    selectMany(organsBySystem.get(system).map((o) => o.key), system);
+  }
+
+  // Load a set of keys already added to `selected`, framing when the batch is in.
+  function addMany(keys, label) {
+    applySelection(false);
+    let done = 0;
+    const total = keys.length;
+    setStatus(`loading ${label}… 0/${total}`);
+    for (const k of keys) {
+      ensureLoaded(k).then(() => {
+        done++;
+        applySelection(done === total);
+        setStatus(done === total ? selectionStatus() : `loading ${label}… ${done}/${total}`);
+      }).catch(() => { done++; });
+    }
+  }
+
   function selectMany(keys, label) {
     selected.clear();
     for (const k of keys) selected.add(k);
@@ -249,26 +326,58 @@ async function main() {
     els.bpList.innerHTML = "";
   }
 
-  // ---- left menu ----
+  // ---- left menu: organs grouped by anatomical system, collapsible ----
+  const groupBodies = new Map();       // system -> the row-container element
   function buildMenu() {
     els.list.innerHTML = "";
-    for (const o of atlas.organs) {
-      const row = document.createElement("div");
-      row.className = "organ-row" + (o.n_models ? "" : " zero");
-      row.dataset.key = o.key;
-      row.dataset.label = o.label.toLowerCase();
-      row.innerHTML =
-        `<span class="chk">✓</span>` +
-        `<span class="sw" style="background:${cssColor(o.n_models, atlas.max_models)}"></span>` +
-        `<span class="nm" title="${o.label}">${o.label}</span>` +
-        `<span class="ct">${o.n_models || ""}</span>` +
-        `<span class="only" role="button">only</span>`;
-      row.addEventListener("click", (e) => {
-        if (e.target.classList.contains("only")) { selectOnly(o.key); return; }
-        toggle(o.key);
+    for (const system of systemsList) {
+      const organs = organsBySystem.get(system) || [];
+      const modeled = organs.filter((o) => o.n_models > 0).length;
+
+      const group = document.createElement("div");
+      group.className = "organ-group";
+
+      const header = document.createElement("div");
+      header.className = "group-head";
+      header.innerHTML =
+        `<span class="caret">▾</span>` +
+        `<span class="gchk" role="button" title="Toggle whole system"></span>` +
+        `<span class="gname">${system}</span>` +
+        `<span class="gcount">${modeled ? modeled + "/" : ""}${organs.length}</span>` +
+        `<span class="gonly" role="button" title="Show only this system">only</span>`;
+      const body = document.createElement("div");
+      body.className = "group-body";
+
+      header.addEventListener("click", (e) => {
+        if (e.target.classList.contains("gchk")) { toggleSystem(system); return; }
+        if (e.target.classList.contains("gonly")) { onlySystem(system); return; }
+        group.classList.toggle("collapsed");   // caret / name toggles collapse
       });
-      els.list.appendChild(row);
-      rows.set(o.key, row);
+
+      for (const o of organs) {
+        const row = document.createElement("div");
+        row.className = "organ-row" + (o.n_models ? "" : " zero");
+        row.dataset.key = o.key;
+        row.dataset.label = o.label.toLowerCase();
+        row.innerHTML =
+          `<span class="chk">✓</span>` +
+          `<span class="sw" style="background:${cssColor(o.n_models, atlas.max_models)}"></span>` +
+          `<span class="nm" title="${o.label}">${o.label}</span>` +
+          `<span class="ct">${o.n_models || ""}</span>` +
+          `<span class="only" role="button">only</span>`;
+        row.addEventListener("click", (e) => {
+          if (e.target.classList.contains("only")) { selectOnly(o.key); return; }
+          toggle(o.key);
+        });
+        body.appendChild(row);
+        rows.set(o.key, row);
+      }
+
+      group.appendChild(header);
+      group.appendChild(body);
+      els.list.appendChild(group);
+      groupChecks.set(system, header.querySelector(".gchk"));
+      groupBodies.set(system, { group, body });
     }
   }
 
@@ -278,8 +387,16 @@ async function main() {
     for (const [, row] of rows) {
       row.style.display = !q || row.dataset.label.includes(q) ? "" : "none";
     }
+    // Hide a whole group when the filter leaves it with no visible organs;
+    // force-expand matching groups so hits are visible.
+    for (const [system, { group, body }] of groupBodies) {
+      const anyVisible = [...body.children].some((r) => r.style.display !== "none");
+      group.style.display = anyVisible ? "" : "none";
+      if (q && anyVisible) group.classList.remove("collapsed");
+    }
   });
-  els.btnAll.addEventListener("click", () => selectMany(modeledKeys, "all modeled organs"));
+  els.btnAllModeled.addEventListener("click", () => selectMany(modeledKeys, "all modeled organs"));
+  els.btnAll.addEventListener("click", () => selectMany(allKeys, "all 50 organs"));
   els.btnNone.addEventListener("click", clearAll);
 
   // ---- hover + click in the 3D scene ----

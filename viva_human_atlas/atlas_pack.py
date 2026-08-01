@@ -8,9 +8,75 @@ from pathlib import Path
 
 BIOMODELS_BASE = "https://www.ebi.ac.uk/biomodels/"
 
+# Anatomical-system grouping for the atlas browser's collapsible menu. Curated
+# organ-key -> system map over the 50 GLB-backed HRA reference organs (kept
+# transparent/inspectable rather than derived from a live ontology query).
+# `SYSTEM_ORDER` fixes the display order; anything unmapped falls to "Other".
+SYSTEM_ORDER = [
+    "Digestive",
+    "Cardiovascular",
+    "Respiratory",
+    "Nervous",
+    "Urinary",
+    "Reproductive",
+    "Musculoskeletal",
+    "Lymphatic / immune",
+    "Integumentary",
+    "Connective",
+    "Other",
+]
+ORGAN_SYSTEMS = {
+    # Digestive
+    "pancreas": "Digestive", "liver": "Digestive", "intestine": "Digestive",
+    "mouth": "Digestive", "omentum": "Digestive",
+    "epiploic-appendage-of-transverse-colon": "Digestive",
+    # Cardiovascular
+    "heart": "Cardiovascular", "blood": "Cardiovascular",
+    # Respiratory
+    "lung": "Respiratory", "trachea": "Respiratory", "larynx": "Respiratory",
+    "main-bronchus": "Respiratory",
+    # Nervous
+    "brain": "Nervous", "spinal-cord": "Nervous",
+    "eye-female-left": "Nervous", "eye-female-right": "Nervous",
+    "eye-male-left": "Nervous", "eye-male-right": "Nervous",
+    # Urinary
+    "kidney": "Urinary", "urinary-bladder": "Urinary",
+    "ureter-female-left": "Urinary", "ureter-female-right": "Urinary",
+    "ureter-male-left": "Urinary", "ureter-male-right": "Urinary",
+    # Reproductive
+    "uterus": "Reproductive", "prostate": "Reproductive",
+    "placenta-full-term": "Reproductive",
+    "fallopian-tube-female-left": "Reproductive",
+    "fallopian-tube-female-right": "Reproductive",
+    "ovary-female-left": "Reproductive", "ovary-female-right": "Reproductive",
+    "mammary-gland-female-left": "Reproductive",
+    "mammary-gland-female-right": "Reproductive",
+    # Musculoskeletal
+    "intervertebral-disk": "Musculoskeletal", "manubrium": "Musculoskeletal",
+    "sternum": "Musculoskeletal", "pelvis": "Musculoskeletal",
+    "knee-female-left": "Musculoskeletal", "knee-female-right": "Musculoskeletal",
+    "knee-male-left": "Musculoskeletal", "knee-male-right": "Musculoskeletal",
+    # Lymphatic / immune
+    "lymph-node": "Lymphatic / immune", "spleen": "Lymphatic / immune",
+    "thymus": "Lymphatic / immune",
+    "palatine-tonsil-female-left": "Lymphatic / immune",
+    "palatine-tonsil-female-right": "Lymphatic / immune",
+    "palatine-tonsil-male-left": "Lymphatic / immune",
+    "palatine-tonsil-male-right": "Lymphatic / immune",
+    # Integumentary
+    "skin": "Integumentary",
+    # Connective
+    "adipose": "Connective",
+}
+
 
 def biomodels_url(biomodel_id: str) -> str:
     return f"{BIOMODELS_BASE}{biomodel_id}"
+
+
+def organ_system(key: str) -> str:
+    """The anatomical system an organ key belongs to (``"Other"`` if unmapped)."""
+    return ORGAN_SYSTEMS.get(key, "Other")
 
 
 def _label(key: str) -> str:
@@ -49,6 +115,7 @@ def build_atlas_manifest(catalog: dict) -> dict:
             "key": key,
             "label": _label(key),
             "uberon": uberon,
+            "system": organ_system(key),
             "glb": _glb_by_sex(entry.get("asset_urls") or []),
             "n_models": len(models),
             "models": models,
@@ -56,13 +123,17 @@ def build_atlas_manifest(catalog: dict) -> dict:
 
     organs.sort(key=lambda o: (-o["n_models"], o["key"]))
     max_models = max((o["n_models"] for o in organs), default=0)
+    present = {o["system"] for o in organs}
+    systems = [s for s in SYSTEM_ORDER if s in present]
     return {
         "organs": organs,
+        "systems": systems,
         "max_models": max_models,
         "summary": {
             "n_organs": len(organs),
             "n_modeled": sum(1 for o in organs if o["n_models"] > 0),
             "n_models_total": sum(o["n_models"] for o in organs),
+            "n_systems": len(systems),
         },
     }
 

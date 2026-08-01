@@ -4,6 +4,7 @@
       "key": "pancreas",
       "label": "Pancreas",
       "uberon": "UBERON:0001264",
+      "system": "Digestive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-female/v1.3/assets/3d-vh-f-pancreas.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-male/v1.3/assets/3d-vh-m-pancreas.glb"
@@ -196,6 +197,7 @@
       "key": "blood",
       "label": "Blood",
       "uberon": "UBERON:0004537",
+      "system": "Cardiovascular",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
@@ -303,6 +305,7 @@
       "key": "liver",
       "label": "Liver",
       "uberon": "UBERON:0002107",
+      "system": "Digestive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-female/v1.2/assets/3d-vh-f-liver.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-male/v1.2/assets/3d-vh-m-liver.glb"
@@ -360,6 +363,7 @@
       "key": "lung",
       "label": "Lung",
       "uberon": "UBERON:0001004",
+      "system": "Respiratory",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
@@ -402,6 +406,7 @@
       "key": "brain",
       "label": "Brain",
       "uberon": "UBERON:0000955",
+      "system": "Nervous",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-female/v1.4/assets/3d-allen-f-brain.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb"
@@ -439,6 +444,7 @@
       "key": "heart",
       "label": "Heart",
       "uberon": "UBERON:0000948",
+      "system": "Cardiovascular",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-female/v1.3/assets/3d-vh-f-heart.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-male/v1.3/assets/3d-vh-m-heart.glb"
@@ -471,6 +477,7 @@
       "key": "adipose",
       "label": "Adipose",
       "uberon": "UBERON:0014455",
+      "system": "Connective",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-female/v1.0/assets/3d-vh-f-adipose.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-male/v1.0/assets/3d-vh-m-adipose.glb"
@@ -493,6 +500,7 @@
       "key": "intestine",
       "label": "Intestine",
       "uberon": "UBERON:0000059",
+      "system": "Digestive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/large-intestine-female/v1.3/assets/3d-sbu-f-large-intestine.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/large-intestine-male/v1.3/assets/3d-sbu-m-large-intestine.glb"
@@ -515,6 +523,7 @@
       "key": "kidney",
       "label": "Kidney",
       "uberon": "UBERON:0004538",
+      "system": "Urinary",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-female-left/v1.3/assets/3d-vh-f-kidney-l.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-male-left/v1.3/assets/3d-vh-m-kidney-l.glb"
@@ -532,6 +541,7 @@
       "key": "skin",
       "label": "Skin",
       "uberon": "UBERON:0002097",
+      "system": "Integumentary",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
@@ -549,6 +559,7 @@
       "key": "epiploic-appendage-of-transverse-colon",
       "label": "Epiploic Appendage Of Transverse Colon",
       "uberon": "fma15046",
+      "system": "Digestive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-female/v1.0/assets/3d-vh-f-epiploic-appendage-of-transverse-colon.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-male/v1.0/assets/3d-vh-m-epiploic-appendage-of-transverse-colon.glb"
@@ -560,6 +571,7 @@
       "key": "eye-female-left",
       "label": "Eye Female Left",
       "uberon": "UBERON:0004548",
+      "system": "Nervous",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb",
         "male": null
@@ -571,6 +583,7 @@
       "key": "eye-female-right",
       "label": "Eye Female Right",
       "uberon": "UBERON:0004549",
+      "system": "Nervous",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb",
         "male": null
@@ -582,6 +595,7 @@
       "key": "eye-male-left",
       "label": "Eye Male Left",
       "uberon": "UBERON:0004548",
+      "system": "Nervous",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
@@ -593,6 +607,7 @@
       "key": "eye-male-right",
       "label": "Eye Male Right",
       "uberon": "UBERON:0004549",
+      "system": "Nervous",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
@@ -604,6 +619,7 @@
       "key": "fallopian-tube-female-left",
       "label": "Fallopian Tube Female Left",
       "uberon": "UBERON:0001303",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/fallopian-tube-female-left/v1.2/assets/3d-vh-f-fallopian-tube-l.glb",
         "male": null
@@ -615,6 +631,7 @@
       "key": "fallopian-tube-female-right",
       "label": "Fallopian Tube Female Right",
       "uberon": "UBERON:0001302",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/fallopian-tube-female-right/v1.2/assets/3d-vh-f-fallopian-tube-r.glb",
         "male": null
@@ -626,6 +643,7 @@
       "key": "intervertebral-disk",
       "label": "Intervertebral Disk",
       "uberon": "UBERON:0001066",
+      "system": "Musculoskeletal",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-female/v1.0/assets/3d-vh-f-intervertebral-disk.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-male/v1.0/assets/3d-vh-m-intervertebral-disk.glb"
@@ -637,6 +655,7 @@
       "key": "knee-female-left",
       "label": "Knee Female Left",
       "uberon": "fma24978",
+      "system": "Musculoskeletal",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-left/v1.3/assets/3d-vh-f-knee-l.glb",
         "male": null
@@ -648,6 +667,7 @@
       "key": "knee-female-right",
       "label": "Knee Female Right",
       "uberon": "fma24977",
+      "system": "Musculoskeletal",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-right/v1.3/assets/3d-vh-f-knee-r.glb",
         "male": null
@@ -659,6 +679,7 @@
       "key": "knee-male-left",
       "label": "Knee Male Left",
       "uberon": "fma24978",
+      "system": "Musculoskeletal",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-left/v1.2/assets/3d-vh-m-knee-l.glb"
@@ -670,6 +691,7 @@
       "key": "knee-male-right",
       "label": "Knee Male Right",
       "uberon": "fma24977",
+      "system": "Musculoskeletal",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-right/v1.2/assets/3d-vh-m-knee-r.glb"
@@ -681,6 +703,7 @@
       "key": "larynx",
       "label": "Larynx",
       "uberon": "UBERON:0001737",
+      "system": "Respiratory",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-female/v1.1/assets/3d-vh-f-larynx.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-male/v1.1/assets/3d-vh-m-larynx.glb"
@@ -692,6 +715,7 @@
       "key": "lymph-node",
       "label": "Lymph Node",
       "uberon": "UBERON:0002509",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-female/v1.4/assets/3d-nih-f-lymph-node.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-male/v1.4/assets/3d-nih-m-lymph-node.glb"
@@ -703,6 +727,7 @@
       "key": "main-bronchus",
       "label": "Main Bronchus",
       "uberon": "UBERON:0002182",
+      "system": "Respiratory",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-female/v1.1/assets/3d-vh-f-main-bronchus.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
@@ -714,6 +739,7 @@
       "key": "mammary-gland-female-left",
       "label": "Mammary Gland Female Left",
       "uberon": "fma57991",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mammary-gland-female-left/v1.1/assets/3d-vh-f-mammary-gland-l.glb",
         "male": null
@@ -725,6 +751,7 @@
       "key": "mammary-gland-female-right",
       "label": "Mammary Gland Female Right",
       "uberon": "fma57987",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mammary-gland-female-right/v1.1/assets/3d-vh-f-mammary-gland-r.glb",
         "male": null
@@ -736,6 +763,7 @@
       "key": "manubrium",
       "label": "Manubrium",
       "uberon": "UBERON:2001553",
+      "system": "Musculoskeletal",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/manubrium-female/v1.0/assets/3d-vh-f-manubrium.glb",
         "male": null
@@ -747,6 +775,7 @@
       "key": "mouth",
       "label": "Mouth",
       "uberon": "UBERON:0000165",
+      "system": "Digestive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-female/v1.0/assets/3d-vh-f-mouth.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-male/v1.0/assets/3d-vh-m-mouth.glb"
@@ -758,6 +787,7 @@
       "key": "omentum",
       "label": "Omentum",
       "uberon": "UBERON:0003688",
+      "system": "Digestive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-female/v1.0/assets/3d-vh-f-omentum.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-male/v1.0/assets/3d-vh-m-omentum.glb"
@@ -769,6 +799,7 @@
       "key": "ovary-female-left",
       "label": "Ovary Female Left",
       "uberon": "UBERON:0002119",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-left/v1.3/assets/3d-vh-f-ovary-l.glb",
         "male": null
@@ -780,6 +811,7 @@
       "key": "ovary-female-right",
       "label": "Ovary Female Right",
       "uberon": "UBERON:0002118",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb",
         "male": null
@@ -791,6 +823,7 @@
       "key": "palatine-tonsil-female-left",
       "label": "Palatine Tonsil Female Left",
       "uberon": "fma54974",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-female-left/v1.2/assets/3d-vh-f-palatine-tonsil-l.glb",
         "male": null
@@ -802,6 +835,7 @@
       "key": "palatine-tonsil-female-right",
       "label": "Palatine Tonsil Female Right",
       "uberon": "fma54973",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-female-right/v1.2/assets/3d-vh-f-palatine-tonsil-r.glb",
         "male": null
@@ -813,6 +847,7 @@
       "key": "palatine-tonsil-male-left",
       "label": "Palatine Tonsil Male Left",
       "uberon": "fma54974",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-left/v1.2/assets/3d-vh-m-palatine-tonsil-l.glb"
@@ -824,6 +859,7 @@
       "key": "palatine-tonsil-male-right",
       "label": "Palatine Tonsil Male Right",
       "uberon": "fma54973",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-right/v1.2/assets/3d-vh-m-palatine-tonsil-r.glb"
@@ -835,6 +871,7 @@
       "key": "pelvis",
       "label": "Pelvis",
       "uberon": "UBERON:0001270",
+      "system": "Musculoskeletal",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-female/v1.3/assets/3d-vh-f-pelvis.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-male/v1.3/assets/3d-vh-m-pelvis.glb"
@@ -846,6 +883,7 @@
       "key": "placenta-full-term",
       "label": "Placenta Full Term",
       "uberon": "UBERON:0001987",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/placenta-full-term-female/v1.1/assets/3d-vh-f-placenta-full-term.glb",
         "male": null
@@ -857,6 +895,7 @@
       "key": "prostate",
       "label": "Prostate",
       "uberon": "UBERON:0000079",
+      "system": "Reproductive",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/prostate-male/v1.2/assets/3d-vh-m-prostate.glb"
@@ -868,6 +907,7 @@
       "key": "spinal-cord",
       "label": "Spinal Cord",
       "uberon": "UBERON:0002240",
+      "system": "Nervous",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-female/v1.1/assets/3d-vh-f-spinal-cord.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
@@ -879,6 +919,7 @@
       "key": "spleen",
       "label": "Spleen",
       "uberon": "UBERON:0002106",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-female/v1.3/assets/3d-vh-f-spleen.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
@@ -890,6 +931,7 @@
       "key": "sternum",
       "label": "Sternum",
       "uberon": "UBERON:0000975",
+      "system": "Musculoskeletal",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/sternum-female/v1.0/assets/3d-vh-f-sternum.glb",
         "male": null
@@ -901,6 +943,7 @@
       "key": "thymus",
       "label": "Thymus",
       "uberon": "UBERON:0002370",
+      "system": "Lymphatic / immune",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-female/v1.3/assets/3d-vh-f-thymus.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
@@ -912,6 +955,7 @@
       "key": "trachea",
       "label": "Trachea",
       "uberon": "UBERON:0003126",
+      "system": "Respiratory",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-female/v1.1/assets/3d-vh-f-trachea.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
@@ -923,6 +967,7 @@
       "key": "ureter-female-left",
       "label": "Ureter Female Left",
       "uberon": "UBERON:0001223",
+      "system": "Urinary",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-female-left/v1.2/assets/3d-vh-f-ureter-l.glb",
         "male": null
@@ -934,6 +979,7 @@
       "key": "ureter-female-right",
       "label": "Ureter Female Right",
       "uberon": "UBERON:0001222",
+      "system": "Urinary",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-female-right/v1.2/assets/3d-vh-f-ureter-r.glb",
         "male": null
@@ -945,6 +991,7 @@
       "key": "ureter-male-left",
       "label": "Ureter Male Left",
       "uberon": "UBERON:0001223",
+      "system": "Urinary",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-left/v1.2/assets/3d-vh-m-ureter-l.glb"
@@ -956,6 +1003,7 @@
       "key": "ureter-male-right",
       "label": "Ureter Male Right",
       "uberon": "UBERON:0001222",
+      "system": "Urinary",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-right/v1.2/assets/3d-vh-m-ureter-r.glb"
@@ -967,6 +1015,7 @@
       "key": "urinary-bladder",
       "label": "Urinary Bladder",
       "uberon": "UBERON:0001255",
+      "system": "Urinary",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-female/v1.2/assets/3d-vh-f-urinary-bladder.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-male/v1.2/assets/3d-vh-m-urinary-bladder.glb"
@@ -978,6 +1027,7 @@
       "key": "uterus",
       "label": "Uterus",
       "uberon": "UBERON:0000995",
+      "system": "Reproductive",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/uterus-female/v1.2/assets/3d-vh-f-uterus.glb",
         "male": null
@@ -986,10 +1036,23 @@
       "models": []
     }
   ],
+  "systems": [
+    "Digestive",
+    "Cardiovascular",
+    "Respiratory",
+    "Nervous",
+    "Urinary",
+    "Reproductive",
+    "Musculoskeletal",
+    "Lymphatic / immune",
+    "Integumentary",
+    "Connective"
+  ],
   "max_models": 36,
   "summary": {
     "n_organs": 50,
     "n_modeled": 10,
-    "n_models_total": 85
+    "n_models_total": 85,
+    "n_systems": 10
   }
 }

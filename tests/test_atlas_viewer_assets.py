@@ -27,12 +27,23 @@ def test_viewer_has_multiselect_menu():
     # to compose every modeled organ together, "None" to clear.
     js = (VIZ / "viewer.js").read_text(encoding="utf-8")
     html = (VIZ / "index.html").read_text(encoding="utf-8")
-    assert "btn-all" in html and "btn-none" in html   # All / None controls
+    assert "btn-all-modeled" in html and "btn-all" in html and "btn-none" in html
     assert "organ-search" in html                     # filter box
     assert "selectOnly" in js                          # isolate one organ
     assert "selectMany" in js and "modeledKeys" in js  # show all modeled together
+    assert "allKeys" in js                             # "All" = all 50 organs
     assert "function toggle" in js                     # click-through add/remove
     assert "buildMenu" in js                           # renders the organ list
+
+
+def test_viewer_groups_by_organ_system():
+    # The menu groups organs into collapsible anatomical systems with
+    # per-system toggle ("gchk") and "only" (onlySystem) controls.
+    js = (VIZ / "viewer.js").read_text(encoding="utf-8")
+    assert "organsBySystem" in js
+    assert "toggleSystem" in js and "onlySystem" in js
+    assert "group-head" in js and "collapsed" in js    # collapsible headers
+    assert "viridis" in js.lower()                     # high-contrast colormap
 
 
 def test_write_atlas_pack_only_writes_json(tmp_path):
