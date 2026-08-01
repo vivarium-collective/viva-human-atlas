@@ -56,14 +56,12 @@ report:
     the name matcher missed entirely, and 4 whole organs the name matcher
     never reaches at all: lymph-node, ovary, spleen, urinary-bladder --
     organs whose names essentially never appear in a BioModels title but
-    whose SBML annotations directly name them. Every organ the name matcher
-    does reach also gains models under annotation matching (e.g. brain:
-    5 -> 26 models, intestine: 2 -> 17, liver: 9 -> 26), so the gain is not
-    limited to the 4 newly-reached organs -- annotation matching is a
-    strict recall improvement across the board except pancreas, where name
-    matching's 36 models exceed annotation's 24 (the union is still larger
-    at 47, so annotation still adds new pancreas-tagged models, but not a
-    superset of the name matcher's hits).
+    whose SBML annotations directly name them. Annotation adds models
+    name-matching misses for nearly every organ (union 167 vs 82; e.g.
+    brain: 5 -> 26 models, intestine: 2 -> 17, liver: 9 -> 26), with
+    pancreas the one organ where name-matching alone tags more (36 vs 24;
+    the union is still larger at 47, so annotation still adds new
+    pancreas-tagged models, but not a superset of the name matcher's hits).
   caveat: |
     Annotation matching depends entirely on a model actually carrying a
     resolvable MIRIAM CVTerm (Uberon/FMA direct, or BTO through the
@@ -115,7 +113,7 @@ conclusion_verdicts:
   regression_compatibility:
     basis: "The baseline recall-gain composite (compare_catalogs over both committed catalogs) completed without error."
   biological_validation:
-    basis: "The 4 newly-reached organs (lymph-node, ovary, spleen, urinary-bladder) are biologically plausible SBML-annotation-only gains -- organs rarely named in a model title but directly encoded in curated MIRIAM/BTO metadata -- and every name-matched organ except pancreas also gains models under annotation matching, consistent with annotation matching reading richer per-model metadata than a title string."
+    basis: "The 4 newly-reached organs (lymph-node, ovary, spleen, urinary-bladder) are biologically plausible SBML-annotation-only gains -- organs rarely named in a model title but directly encoded in curated MIRIAM/BTO metadata -- and annotation matching adds models name-matching misses for nearly every name-matched organ, with pancreas the one organ where name-matching alone tags more, consistent with annotation matching reading richer per-model metadata than a title string."
   explanatory_gain:
     basis: "F-01 quantifies, for the first time, exactly how much of the name-only matcher's recall ceiling (glucose-biomodel-do's central open question) SBML-annotation-based matching closes: +85 models, +4 organs, union coverage of 167/1,096 (15.2%) vs either matcher alone."
 

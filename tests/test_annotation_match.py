@@ -90,3 +90,35 @@ PURL_UBERON = """<?xml version="1.0" encoding="UTF-8"?>
 def test_extract_handles_obo_purl():
     curies = extract_anatomy_curies(PURL_UBERON)
     assert any(c["curie"] == "UBERON:0001264" for c in curies)
+
+
+IDENTIFIERS_UNDERSCORE_UBERON = """<?xml version="1.0" encoding="UTF-8"?>
+<sbml xmlns="http://www.sbml.org/sbml/level3/version1/core" level="3" version="1">
+  <model id="m1" metaid="m1">
+    <listOfCompartments>
+      <compartment id="c" metaid="c" constant="true">
+        <annotation>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                   xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+            <rdf:Description rdf:about="#c">
+              <bqbiol:isPartOf>
+                <rdf:Bag>
+                  <rdf:li rdf:resource="http://identifiers.org/uberon/UBERON_0001264"/>
+                </rdf:Bag>
+              </bqbiol:isPartOf>
+            </rdf:Description>
+          </rdf:RDF>
+        </annotation>
+      </compartment>
+    </listOfCompartments>
+  </model>
+</sbml>
+"""
+
+
+def test_extract_handles_identifiers_underscore():
+    # identifiers.org path form with an underscore before the id (rather than
+    # the colon form) must still yield a well-formed CURIE, not
+    # "UBERON:UBERON_0001264".
+    curies = extract_anatomy_curies(IDENTIFIERS_UNDERSCORE_UBERON)
+    assert any(c["curie"] == "UBERON:0001264" for c in curies)

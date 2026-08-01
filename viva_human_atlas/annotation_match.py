@@ -31,9 +31,12 @@ def _curie_from_uri(uri: str) -> Optional[str]:
     token = u.rsplit("/", 1)[-1]
     for pref in ANATOMY_PREFIXES:
         if f"/{pref}/" in low or f":{pref}:" in low:
-            tail = token.rsplit(":", 1)[-1]
             if ":" in token and token.upper().startswith(pref.upper() + ":"):
                 return token.upper()
+            if token.upper().startswith(pref.upper() + "_"):
+                # e.g. http://identifiers.org/uberon/UBERON_0001264
+                return f"{pref.upper()}:{token.upper().split('_', 1)[1]}"
+            tail = token.rsplit(":", 1)[-1]
             return f"{pref.upper()}:{tail}"
         if token.upper().startswith(pref.upper() + "_"):
             return f"{pref.upper()}:{token.upper().split('_', 1)[1]}"
