@@ -4,7 +4,9 @@ the recall-oriented complement to biomodel_do.py's name-synonym matcher.
 Same catalog shape, so it drops into the coverage/atlas pipeline."""
 from __future__ import annotations
 
+import json
 import re
+from pathlib import Path
 from typing import Callable, Optional
 
 import libsbml
@@ -135,3 +137,20 @@ def build_annotation_catalog(model_dos: list[dict], organ_index: dict, *,
             organ_to_models.setdefault(o["uberon"], []).append(bid)
     return {"biomodel_dos": biomodel_dos, "organ_index": organ_index,
             "organ_to_models": organ_to_models}
+
+
+def fetch_sbml(biomodel_id: str) -> str:
+    import biomodels
+    from viva_biomodels.run_biomodels import load_biomodel
+    meta = biomodels.get_metadata(biomodel_id)
+    result = load_biomodel(biomodel_id, meta)
+    return Path(result.sbml_path).read_text(encoding="utf-8")
+
+
+def write_catalog_envelope(path, catalog: dict) -> dict:
+    dos = catalog["biomodel_dos"]
+    env = {"n_ids": len(dos), "n_named": len(dos),
+           "n_tagged": sum(1 for d in dos if d.get("organs")),
+           "catalog": catalog}
+    Path(path).write_text(json.dumps(env, indent=2), encoding="utf-8")
+    return env
