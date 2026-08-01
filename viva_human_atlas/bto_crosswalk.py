@@ -27,7 +27,7 @@ LABEL2ORGAN = {
     "pancreatic acinar cell": "pancreas", "pancreatic cancer cell": "pancreas",
     "islet of langerhans": "pancreas",
     "brain": "brain", "neuron": "brain", "astrocyte": "brain", "cerebral cortex": "brain",
-    "hippocampus": "brain", "neuroblastoma cell": "brain",
+    "hippocampus": "brain",
     "heart": "heart", "cardiac muscle": "heart", "cardiomyocyte": "heart",
     "cardiac myocyte": "heart", "myocardium": "heart",
     "kidney": "kidney", "nephron": "kidney", "renal tubule": "kidney",

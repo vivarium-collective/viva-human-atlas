@@ -13,6 +13,7 @@ BTO_TERMS = {
     "BTO:0000759": {"label": "liver", "count": 16},
     "BTO:0004383": {"label": "follicular fluid", "count": 66},
     "BTO:0000152": {"label": "infected cell", "count": 31},
+    "BTO:0000931": {"label": "neuroblastoma cell", "count": 5},
 }
 
 
@@ -42,3 +43,10 @@ def test_build_crosswalk_values_are_valid_uberon_curies_in_organ_index():
     for curie, uberon in crosswalk.items():
         assert uberon.startswith("UBERON:") or uberon.startswith("FMA:") or uberon.startswith("fma")
         assert uberon in valid_uberons
+
+
+def test_neuroblastoma_cell_not_in_crosswalk():
+    """Neuroblastoma is extracranial (adrenal medulla/sympathetic ganglia),
+    not brain tissue. It should not be mapped to any organ."""
+    crosswalk = build_bto_uberon_crosswalk(BTO_TERMS, ORGAN_INDEX)
+    assert "BTO:0000931" not in crosswalk
