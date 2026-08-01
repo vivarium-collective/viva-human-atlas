@@ -34,6 +34,15 @@ launchable from the Analyses tab as "HRA Atlas Browser".
   each glucose model annotated with an HRA Uberon organ term, plus the inverse
   **organ → models** index. This is the ontology bridge toward the 3D spatial
   model.
+  - **Annotation-based organ matching:** Extract SBML **MIRIAM annotations**
+    from BioModels and cross-reference anatomy via a **BTO → Uberon organ
+    crosswalk**. Two studies compare annotation-based vs. name-synonym matching:
+    annotation matching tags 114 models across 14 organs; name-synonym tags 82
+    across 10 organs. Combined, they cover 167 models, adding 85 models and 4
+    organs (lymph node, ovary, spleen, urinary bladder). Name-synonym still wins
+    some organs (e.g., pancreas). Most BioModels annotate anatomy via BTO terms
+    rather than direct Uberon links. (See `studies/annotation-organ-matching`
+    and `studies/annotation-recall-gain`.)
 
 ## Layout
 
