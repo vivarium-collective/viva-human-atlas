@@ -3,7 +3,10 @@
 Importing the package fires the @composite_generator decorators in composites/
 so discover_generators() finds them.
 """
-from viva_human_atlas import composites  # noqa: F401
+try:
+    from viva_human_atlas import composites  # noqa: F401
+except ImportError:
+    pass  # composites require viva_biomodels which may not be installed
 
 
 def register_types(core):
