@@ -21,7 +21,7 @@ def test_get_viewers_reports_hra_glb_viewer_shape(tmp_path):
     ws_root = _make_ws_with_hra_study(tmp_path)
     viewers = get_viewers(ws_root)
 
-    assert len(viewers) == 1
+    assert len(viewers) == 2
     viewer = viewers[0]
     assert viewer["id"] == "hra-glb-viewer"
     assert viewer["kind"] == "launcher"

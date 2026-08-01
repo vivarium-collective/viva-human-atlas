@@ -64,6 +64,29 @@ def _launch(ws_root, study=None, run=None, ctx=None) -> dict:
     return {"url": f"studies/{study}/viz/hra/index.html"}
 
 
+def _studies_with_atlas(ws_root) -> list:
+    root = Path(ws_root) / "studies"
+    return (
+        sorted(p.parent.parent.parent.name for p in root.glob("*/viz/atlas/atlas.json"))
+        if root.exists() else []
+    )
+
+
+def _atlas_targets(ws_root) -> list:
+    return [
+        {"study": s, "label": f"HRA Atlas Browser — {s}",
+         "detail": "3D organ browser colored by model count",
+         "href": f"studies/{s}/viz/atlas/index.html"}
+        for s in _studies_with_atlas(ws_root)
+    ]
+
+
+def _atlas_launch(ws_root, study=None, run=None, ctx=None) -> dict:
+    if not study:
+        return {"error": "no study selected", "status": 400}
+    return {"url": f"studies/{study}/viz/atlas/index.html"}
+
+
 def get_viewers(ws_root) -> list:
     """Contribute the HRA Organ Viewer launcher (one target per study with a
     materialized `viz/hra/` pack)."""
@@ -76,5 +99,14 @@ def get_viewers(ws_root) -> list:
             "applies": lambda ws: bool(_studies_with_hra(ws)),
             "targets": _targets,
             "launch": _launch,
-        }
+        },
+        {
+            "id": "hra-atlas-browser",
+            "title": "HRA Atlas Browser",
+            "description": "3D HRA organ browser: pick an organ, see regions colored by model count, click through to BioModels.",
+            "kind": "launcher",
+            "applies": lambda ws: bool(_studies_with_atlas(ws)),
+            "targets": _atlas_targets,
+            "launch": _atlas_launch,
+        },
     ]
