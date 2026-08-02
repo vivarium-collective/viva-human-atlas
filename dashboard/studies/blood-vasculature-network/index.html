@@ -5,9 +5,6 @@
 <title>Study: blood-vasculature-network</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
-<!-- Inherit the workbench light/dark theme (this page loads in an iframe;
-     same-origin, so it shares the parent's localStorage 'viv.theme'). -->
-<script>(function(){try{var t=localStorage.getItem('viv.theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 <body>
 <main class="study-page">
@@ -27,8 +24,7 @@
     
   </h1>
   <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
-    <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
-    <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
+    <button type="button" id="study-rerun" class="btn-mini" title="Re-run this study's baseline (POST /api/study-run-baseline) as a brand-new run">↻ Rerun study</button>
   </span>
   </div>
 </header>
@@ -45,7 +41,8 @@
 
 
 <style>
-.status-detail-panel{margin:8px 0 12px 0;padding:6px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:0.88em}
+.status-detail-panel{margin:8px 0 14px 0;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:0.88em}
+.status-detail-panel h2{margin:0 0 6px 0;font-size:0.82em;text-transform:uppercase;letter-spacing:0.05em;color:#475569;font-weight:600}
 .status-detail-row{display:flex;align-items:center;gap:8px;padding:3px 0}
 .status-detail-axis{min-width:140px;color:#475569;font-size:0.9em}
 .status-chip{display:inline-block;font-size:0.78em;padding:2px 10px;border-radius:9999px;background:#e2e8f0;color:#334155;font-family:ui-monospace,monospace}
@@ -56,86 +53,37 @@
 .gate-status-failed           { background:#fee2e2; color:#991b1b }
 .gate-status-stale            { background:#ede9fe; color:#5b21b6 }
 .status-pill.gate-status{font-weight:500}
-/* Redesign: compact one-line lifecycle stepper; full per-axis rows behind the expander. */
-.status-detail-panel > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.status-detail-panel > summary::-webkit-details-marker{display:none}
-.status-stepper{display:flex;gap:13px;flex-wrap:wrap;align-items:center;flex:1}
-.status-step{display:inline-flex;align-items:center;gap:5px;font-size:0.82em;color:#94a3b8;white-space:nowrap}
-.status-step .dot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;box-shadow:inset 0 0 0 1px #b6c2cf}
-.status-step.set{color:#334155}
-.status-step.set .dot{background:#10b981;box-shadow:none}
-.status-step .step-val{font-family:ui-monospace,monospace;font-size:0.92em;color:#64748b}
-.status-step.gate-status-blocked .dot{background:#9ca3af;box-shadow:none}
-.status-step.gate-status-needs_calibration .dot{background:#f59e0b;box-shadow:none}
-.status-step.gate-status-passed .dot{background:#10b981;box-shadow:none}
-.status-step.gate-status-failed .dot{background:#ef4444;box-shadow:none}
-.status-step.gate-status-stale .dot{background:#8b5cf6;box-shadow:none}
-.status-stepper-more{font-size:0.76em;color:#64748b;white-space:nowrap}
-.status-detail-panel[open] .status-stepper-more::after{content:" \25be"}
-.status-detail-panel:not([open]) .status-stepper-more::after{content:" \25b8"}
-.status-stepper-body{margin-top:6px;padding-top:6px;border-top:1px solid #eef2f6}
 </style>
-<details class="status-detail-panel" aria-label="Multi-axis lifecycle status">
-  <summary>
-    <span class="status-stepper">
-      
-      <span class="status-step axis-design_status set">
-        <span class="dot"></span>Design<span class="step-val">complete</span>
-      </span>
-      
-      <span class="status-step axis-implementation_status set">
-        <span class="dot"></span>Implementation<span class="step-val">partial</span>
-      </span>
-      
-      <span class="status-step axis-simulation_status set">
-        <span class="dot"></span>Simulation<span class="step-val">ran</span>
-      </span>
-      
-      <span class="status-step axis-evaluation_status">
-        <span class="dot"></span>Evaluation
-      </span>
-      
-      <span class="status-step axis-gate_status">
-        <span class="dot"></span>Gate
-      </span>
-      
-      <span class="status-step axis-expert_review_status">
-        <span class="dot"></span>Expert review
-      </span>
-      
-    </span>
-    <span class="status-stepper-more">details</span>
-  </summary>
-  <div class="status-stepper-body">
-    
-    
-    <div class="status-detail-row">
-      <span class="status-detail-axis">Design</span>
-      <span class="status-chip ">complete</span>
-    </div>
-    
-    
-    
-    <div class="status-detail-row">
-      <span class="status-detail-axis">Implementation</span>
-      <span class="status-chip ">partial</span>
-    </div>
-    
-    
-    
-    <div class="status-detail-row">
-      <span class="status-detail-axis">Simulation</span>
-      <span class="status-chip ">ran</span>
-    </div>
-    
-    
-    
-    
-    
-    
-    
-    
+<details class="status-detail-panel" aria-label="Multi-axis status detail" open>
+  <summary class="study-fold-summary">Status detail (Pass A multi-axis)</summary>
+  
+  
+  <div class="status-detail-row">
+    <span class="status-detail-axis">Design</span>
+    <span class="status-chip ">complete</span>
   </div>
+  
+  
+  
+  <div class="status-detail-row">
+    <span class="status-detail-axis">Implementation</span>
+    <span class="status-chip ">partial</span>
+  </div>
+  
+  
+  
+  <div class="status-detail-row">
+    <span class="status-detail-axis">Simulation</span>
+    <span class="status-chip ">ran</span>
+  </div>
+  
+  
+  
+  
+  
+  
+  
+  
 </details>
 
 
@@ -280,60 +228,84 @@
 .di-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}
 </style>
 
-<style>
-/* ── Study Overview redesign: narrative order + progressive disclosure ── */
-.is-hidden{display:none !important}
-.narrative-field{margin:6px 0}
-.add-field-btn{background:none;border:1px dashed #cbd5e1;color:#64748b;font-size:0.82em;
-  padding:4px 12px;border-radius:6px;cursor:pointer;transition:border-color .12s,color .12s,background .12s}
-.add-field-btn:hover{border-color:#3b82f6;color:#3b82f6;background:#eff6ff}
-.conclusion-block{border-top:2px solid #e2e8f0;padding-top:14px;margin-top:22px}
-.conclusion-insight{font-size:1.02em;line-height:1.55;color:#1e293b;margin:2px 0 12px;font-weight:500}
-.computed-tag{display:inline-block;font-size:0.68em;font-weight:600;text-transform:uppercase;
-  letter-spacing:0.04em;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;
-  padding:1px 7px;border-radius:9999px;margin-left:8px;vertical-align:middle}
-.conclusion-tags{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;align-items:center}
-.tag-control{display:inline-flex;align-items:center;gap:6px}
-.tag-k{font-size:0.72em;text-transform:uppercase;letter-spacing:0.05em;color:#94a3b8;font-weight:600}
-.tag-select,.tag-input{font-size:0.85em;padding:3px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#fff}
-.tag-input{min-width:220px}
-</style>
 <section class="study-tab-panel active" data-kind="overview" id="panel-overview">
   <div class="study-overview">
 
     
     
     
+    <div class="overview-section narrative-card" data-narrative-card="report">
+      <h2 class="overview-label">📋 Summary</h2>
+      <div class="narrative-grid">
+        
+        <label class="narrative-row">
+          <span class="narrative-label">Verdict</span>
+          <span class="narrative-input verdict-badge-computed"
+                title="Computed from the gate evaluator (read-only)"
+                style="display:inline-block;padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em;background:#f1f5f9;color:#475569">passed</span>
+          <span class="muted small" style="margin-left:6px">computed from gate evaluator</span>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Confidence</span>
+          <select class="narrative-input" data-narrative-path="report.confidence">
+            <option value="">(unset)</option>
+            <option value="high" selected>high</option>
+            <option value="medium" >medium</option>
+            <option value="low" >low</option>
+          </select>
+        </label>
+        <label class="narrative-row">
+          <span class="narrative-label">Evidence quality</span>
+          <input type="text" class="narrative-input" data-narrative-path="report.evidence_quality"
+                 value="measured"
+                 placeholder="e.g. calibrated | literature-matched | aspirational | regression-only">
+        </label>
+        <div class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Main insight</span>
+          <span class="narrative-input" style="background:transparent;border:0;color:#334155">The VCCF data yields a fully closed whole-body transport graph: all 28
+FTU routes start and end at a heart chamber (28 closed circuits, 0 open),
+spanning 191 vessels and 444 directed flow edges (94 artery / 20
+capillary / 73 vein / 4 chamber). The topology substrate for coupling
+organ models is therefore complete and validated.
 
-    
-    
-
-    
-    
-    <h2 class="overview-label">Question &amp; approach</h2>
-    
-    
-    <div class="overview-section">
-      <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Can the HRA/VCCF vasculature data define a whole-body blood-transport
-network — a directed heart -&gt; organ -&gt; heart circuit through named vessels —
-that we can use to COUPLE independent organ simulations by advecting shared
-blood-borne solutes (glucose, O2, insulin, ...) between them? And what does a
-v1 blood-circulation simulation over that network look like?
-</div>
-      <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
-           data-placeholder="(predicted outcome)"></div>
-      <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
+            <span class="muted small">— computed from findings</span></span>
+        </div>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Caveat</span>
+          <textarea class="narrative-input narrative-textarea" rows="2"
+                    data-narrative-path="report.caveat"
+                    placeholder="One sentence: the headline limitation a reviewer needs to know.">This study delivers the TOPOLOGY and the plan only — no flow dynamics or
+solute transport are simulated yet (simulation_status &#34;ran&#34; refers to the
+data-pull/graph composite, not a circulation run). The graph is built from
+the 28 curated FTU paths; it does not yet model branch-point mixing where
+flows merge (that needs the finer VCCF Vessel.csv `BranchesFrom` tree), nor
+per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
+</textarea>
+        </label>
+        <label class="narrative-row narrative-row-wide">
+          <span class="narrative-label">Conclusion</span>
+          <textarea class="narrative-input narrative-textarea" rows="3"
+                    data-narrative-path="report.conclusion"
+                    placeholder="Multi-sentence: what the runs + tests demonstrated.">The data-pull runs and validates. From FTU_Table_S1 (28 FTUs) plus the VCCF
+vessel classes, VasculatureNetworkStep builds a directed graph of 191
+vessels and 444 flow edges — 94 arteries, 73 veins, 20 exchange capillaries,
+4 heart chambers — and every one of the 28 FTU routes is a CLOSED circuit:
+it starts at a heart chamber and returns to one (n_closed_circuits = 28,
+n_open_routes = 0). So the vasculature data is sufficient to define a
+coherent whole-body transport topology to hang organ models on. The
+blood-circulation simulation itself is designed in
+docs/blood-circulation-simulation-plan.md and is NOT yet implemented.
+</textarea>
+        </label>
+      </div>
     </div>
-    
 
     
     <div class="overview-section biology-summary-callout">
       <h2 class="biology-glance-label">Biology — what this study is about</h2>
-      
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Organ models in this atlas (glucose regulation across liver/pancreas/muscle,
+                placeholder="Multi-paragraph plain-English mechanism narrative — the 'textbook write-up' a non-modeler would read.">Organ models in this atlas (glucose regulation across liver/pancreas/muscle,
 the FTU digital objects, the biomodel corpus) are currently islands — each
 simulates one tissue with no physical connection to the others. In the body
 they are coupled by BLOOD: the heart drives a closed circuit that carries
@@ -355,6 +327,31 @@ coupled, circulating whole.
 </textarea>
       
     </div>
+
+    
+    <h2 class="overview-label">Question &amp; approach</h2>
+
+    
+    
+    <div class="overview-section">
+      <div id="question-text" class="overview-prose" data-editable="true"
+           data-field="question"
+           data-placeholder="(what research question is this study asking?)">Can the HRA/VCCF vasculature data define a whole-body blood-transport
+network — a directed heart -&gt; organ -&gt; heart circuit through named vessels —
+that we can use to COUPLE independent organ simulations by advecting shared
+blood-borne solutes (glucose, O2, insulin, ...) between them? And what does a
+v1 blood-circulation simulation over that network look like?
+</div>
+    </div>
+    <div class="overview-section">
+      <div id="hypothesis-text" class="overview-prose" data-editable="true"
+           data-field="hypothesis"
+           data-placeholder="(predicted outcome)"></div>
+    </div>
+    <div class="overview-section">
+      <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
+    </div>
+    
 
     
     
@@ -501,67 +498,6 @@ regulation (liver &lt;-&gt; pancreas &lt;-&gt; muscle) is the proposed first cou
     
 
     
-    
-    <div class="overview-section conclusion-block">
-      <h2 class="overview-label">Conclusion</h2>
-      
-      <p class="conclusion-insight">The VCCF data yields a fully closed whole-body transport graph: all 28
-FTU routes start and end at a heart chamber (28 closed circuits, 0 open),
-spanning 191 vessels and 444 directed flow edges (94 artery / 20
-capillary / 73 vein / 4 chamber). The topology substrate for coupling
-organ models is therefore complete and validated.
-<span class="computed-tag">computed from findings</span></p>
-      
-      
-    <div class="narrative-field">
-      <button type="button" class="add-field-btn is-hidden" data-reveal-field="report.conclusion">+ Add conclusion</button>
-      <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
-        <span class="narrative-label">Conclusion</span>
-        <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The data-pull runs and validates. From FTU_Table_S1 (28 FTUs) plus the VCCF
-vessel classes, VasculatureNetworkStep builds a directed graph of 191
-vessels and 444 flow edges — 94 arteries, 73 veins, 20 exchange capillaries,
-4 heart chambers — and every one of the 28 FTU routes is a CLOSED circuit:
-it starts at a heart chamber and returns to one (n_closed_circuits = 28,
-n_open_routes = 0). So the vasculature data is sufficient to define a
-coherent whole-body transport topology to hang organ models on. The
-blood-circulation simulation itself is designed in
-docs/blood-circulation-simulation-plan.md and is NOT yet implemented.
-</textarea>
-      </label>
-    </div>
-    
-      
-    <div class="narrative-field">
-      <button type="button" class="add-field-btn is-hidden" data-reveal-field="report.caveat">+ Add caveat</button>
-      <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
-        <span class="narrative-label">Caveat</span>
-        <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">This study delivers the TOPOLOGY and the plan only — no flow dynamics or
-solute transport are simulated yet (simulation_status &#34;ran&#34; refers to the
-data-pull/graph composite, not a circulation run). The graph is built from
-the 28 curated FTU paths; it does not yet model branch-point mixing where
-flows merge (that needs the finer VCCF Vessel.csv `BranchesFrom` tree), nor
-per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
-</textarea>
-      </label>
-    </div>
-    
-      <div class="conclusion-tags">
-        <label class="tag-control"><span class="tag-k">confidence</span>
-          <select class="narrative-input tag-select" data-narrative-path="report.confidence">
-            <option value="">—</option>
-            <option value="high" selected>high</option>
-            <option value="medium" >medium</option>
-            <option value="low" >low</option>
-          </select></label>
-        <label class="tag-control"><span class="tag-k">evidence</span>
-          <input type="text" class="narrative-input tag-input" data-narrative-path="report.evidence_quality"
-                 value="measured" placeholder="calibrated | literature-matched | …"></label>
-      </div>
-    </div>
-
-    
     <details class="overview-section">
       <summary class="overview-label">Plan &amp; provenance</summary>
 
@@ -662,15 +598,6 @@ per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
         
       </div>
       
-      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
-        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
-               value="viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network" placeholder="pkg.composites.name"
-               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
-        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
-                data-baseline-name="baseline">Set composite</button>
-      </div>
-      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
-      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -697,15 +624,6 @@ per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
   
   
   
-
-  
-  <div class="overview-section" id="analyses-section">
-    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
-    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
-    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
-    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
-    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
-  </div>
 </section>
 
 
@@ -1001,7 +919,7 @@ per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/atlas-model-search" };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "blood-vasculature-network";
@@ -1146,14 +1064,10 @@ window._seedFollowupProposal = _seedFollowupProposal;
   if (window.__DASH_CONFIG__ && window.__DASH_CONFIG__.mode === "snapshot") {
     var rp = document.getElementById("remote-run-panel");
     if (rp) rp.style.display = "none";
-    // "Reproduce" / "Run current spec" both POST to live-only endpoints —
-    // hide them alongside the remote-run launcher in a published read-only
-    // snapshot (reproducible-rerun-spine Task 4 / G2: two distinct buttons,
-    // both equally inert with no live backend to launch against).
-    var reproduceBtn = document.getElementById("study-reproduce");
-    if (reproduceBtn) reproduceBtn.style.display = "none";
-    var runCurrentBtn = document.getElementById("study-run-current-spec");
-    if (runCurrentBtn) runCurrentBtn.style.display = "none";
+    // "Rerun study" POSTs to a live-only endpoint — hide it alongside the
+    // remote-run launcher in a published read-only snapshot.
+    var rerunBtn = document.getElementById("study-rerun");
+    if (rerunBtn) rerunBtn.style.display = "none";
   } else if (window._initRemoteRunPinned) {
     // Live backend: relabel the remote-run card if pinned mode is enabled.
     window._initRemoteRunPinned();

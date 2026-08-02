@@ -140,7 +140,7 @@
           return;
         }
         var links = withData.map(function (s) {
-          var url = (window.__BASE_PATH__ || "") + '/api/simulation-run-download?run_id=' + encodeURIComponent(s.run_id);
+          var url = '/api/simulation-run-download?run_id=' + encodeURIComponent(s.run_id);
           return '<li style="margin:2px 0"><a class="action-btn" download href="' + url + '">⬇ '
             + e(s.sim_name || s.label || s.run_id) + '</a></li>';
         }).join('');
@@ -347,7 +347,7 @@
           var label = row.sim_name || row.label || runId;
           var loc = window.SimTable ? window.SimTable.location(row) : esc(row.store_path || row.db_path || '');
           var dl = hasData
-            ? '<a class="action-btn" download href="' + (window.__BASE_PATH__ || "") + '/api/simulation-run-download?run_id=' + encodeURIComponent(runId) + '">⬇ Data</a>'
+            ? '<a class="action-btn" download href="/api/simulation-run-download?run_id=' + encodeURIComponent(runId) + '">⬇ Data</a>'
             : '<span class="muted" style="font-size:0.82em">no store</span>';
           return '<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:5px 8px"><code style="font-size:0.85em">' + esc(label) + '</code></td>' +
             '<td style="padding:5px 8px">' + loc + '</td>' +
@@ -452,12 +452,11 @@
     var runId = row.run_id || '';
     var hasData = !!(row.store_path || row.db_path);
     var slug = studyName();
-    var BP = window.__BASE_PATH__ || "";
     var dl = hasData
-      ? '<a class="action-btn" download href="' + BP + '/api/simulation-run-download?run_id=' + encodeURIComponent(runId) + '">⬇ Data (raw emitter)</a>'
+      ? '<a class="action-btn" download href="/api/simulation-run-download?run_id=' + encodeURIComponent(runId) + '">⬇ Data (raw emitter)</a>'
       : '<span class="muted" style="font-size:0.85em">no persisted store</span>';
     var an = slug
-      ? '<a class="action-btn" download href="' + BP + '/api/study-analysis-zip?study=' + encodeURIComponent(slug) + '">⬇ Analysis (figures / cards)</a>'
+      ? '<a class="action-btn" download href="/api/study-analysis-zip?study=' + encodeURIComponent(slug) + '">⬇ Analysis (figures / cards)</a>'
       : '';
     // Enforcement: the run opens in the Composite Explorer only when its
     // composite is a registered composite; otherwise we surface the gap.
@@ -752,26 +751,6 @@
     document.querySelectorAll('.narrative-textarea').forEach(_autoGrow);
   });
 
-  // Progressive disclosure: an empty optional narrative field renders a quiet
-  // "+ Add …" button plus its editor pre-hidden (and already save-bound via the
-  // [data-narrative-path] pass above). Clicking the button reveals the editor,
-  // focuses it, and hides itself. No re-binding needed — the editor was always
-  // in the DOM.
-  document.querySelectorAll('.add-field-btn[data-reveal-field]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var path = btn.dataset.revealField;
-      var ed = document.querySelector('[data-field-editor="' + path + '"]');
-      if (!ed) return;
-      ed.classList.remove('is-hidden');
-      btn.classList.add('is-hidden');
-      var field = ed.matches('textarea,input,select') ? ed : ed.querySelector('textarea,input,select');
-      if (field) {
-        field.focus();
-        if ((field.tagName || '').toLowerCase() === 'textarea') _autoGrow(field);
-      }
-    });
-  });
-
   var statusSel = document.getElementById('status-select');
   if (statusSel) {
     statusSel.addEventListener('change', function() {
@@ -788,29 +767,6 @@
   }
 
   function studyName() { return window._studyName; }
-
-  // --- Analyses (Model tab) ---
-  // Reuses /api/study-set-analyses (lib.metadata_mutations.set_investigation_analyses,
-  // which despite its name resolves any study by name via study_dir() — flat
-  // studies/<name>/ preferred over legacy investigations/<name>/, so this works
-  // for an ungrouped study exactly like a grouped one).
-  function _saveStudyAnalyses() {
-    var el = document.getElementById('study-analyses-list');
-    var status = document.getElementById('study-analyses-status');
-    if (!el) return;
-    var names = el.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
-    var analyses = names.map(function (n) { return {name: n, params: {}}; });
-    if (status) status.textContent = 'Saving…';
-    api('POST', '/api/study-set-analyses', {investigation: studyName(), analyses: analyses})
-      .then(function (r) {
-        if (status) {
-          status.textContent = (r.status === 200)
-            ? 'Saved.'
-            : 'Error: ' + (r.body && r.body.error || r.status);
-        }
-      });
-  }
-  window._saveStudyAnalyses = _saveStudyAnalyses;
 
   // Fetch the param schema for a composite and render an input form.
   // currentOverrides: {} or existing overrides (for edit flow).
@@ -903,80 +859,35 @@
   });
 
   bindAll('.btn-export', function() {
-    // A location assignment bypasses the fetch/XHR/EventSource base-path shim.
-    window.location = (window.__BASE_PATH__ || "") + '/api/study-export?study=' + encodeURIComponent(studyName());
+    window.location = '/api/study-export?study=' + encodeURIComponent(studyName());
   });
 
-  // "Run current spec" — force-relaunch this study's baseline as a brand-new
-  // run, RE-DERIVING spec_id/params/n_steps/emitter/etc. from the study's
-  // CURRENT study.yaml (POST /api/study-run-baseline, same endpoint the
-  // Baseline tab's Run button uses). This is one of TWO deliberately distinct
-  // header actions (reproducible-rerun-spine Task 4 / G2) — the other,
-  // "Reproduce" (below), replays a run's RECORDED manifest verbatim instead;
-  // never conflate the two under one ambiguous "Rerun" button. Live-only: a
-  // published read-only snapshot has no backend to launch against, so both
-  // buttons are hidden there (see the snapshot-mode block near the end of
-  // this file, mirroring the remote-run-panel hide).
-  bindAll('#study-run-current-spec', function(btn) {
-    if (!confirm("Run this study's CURRENT baseline spec as a new run?")) return;
+  // "Rerun study" — force-relaunch this study's baseline as a brand-new run
+  // (POST /api/study-run-baseline, same endpoint the Baseline tab's Run button
+  // uses). Live-only: a published read-only snapshot has no backend to launch
+  // against, so the button is hidden there (see the snapshot-mode block near
+  // the end of this file, mirroring the remote-run-panel hide).
+  bindAll('#study-rerun', function(btn) {
+    if (!confirm("Re-run this study's baseline?")) return;
     var orig = btn.textContent;
     btn.disabled = true;
-    btn.textContent = '… running';
+    btn.textContent = '… rerunning';
     api('POST', '/api/study-run-baseline', { study: studyName() })
       .then(function(res) {
         btn.disabled = false;
         btn.textContent = orig;
         if (res.status === 200) {
-          var msg = 'Run launched' + (res.body && res.body.run_id ? ' — new run ' + res.body.run_id : '');
+          var msg = 'Rerun launched' + (res.body && res.body.run_id ? ' — new run ' + res.body.run_id : '');
           if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
           if (typeof _loadStudySims === 'function') _loadStudySims(true);
         } else {
-          alert('Run failed: ' + (res.body && res.body.error || res.status));
+          alert('Rerun failed: ' + (res.body && res.body.error || res.status));
         }
       })
       .catch(function(err) {
         btn.disabled = false;
         btn.textContent = orig;
-        alert('Run failed: network error — ' + err);
-      });
-  });
-
-  // "Reproduce" — replay this study's MOST RECENT run's recorded manifest
-  // verbatim (POST /api/study-reproduce) rather than re-deriving from the
-  // current study.yaml: a spec edit made after that run never changes what
-  // this launches (reproducible-rerun-spine Task 4 / G2). Resolves the
-  // latest run_id from /api/simulations?study=<slug> (already the source the
-  // Simulations tab's table reads, newest-first) rather than requiring the
-  // user to pick one — the per-row ↻ Rerun button (Simulations tab) already
-  // covers reproducing an ARBITRARY older run.
-  bindAll('#study-reproduce', function(btn) {
-    var slug = studyName();
-    var orig = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = '… reproducing';
-    fetch('/api/simulations?study=' + encodeURIComponent(slug))
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        var sims = (d && d.simulations) || [];
-        var latest = sims.length ? (sims[0].run_id || '') : '';
-        if (!latest) throw new Error('no runs recorded yet for this study');
-        return api('POST', '/api/study-reproduce', { study: slug, run_id: latest });
-      })
-      .then(function(res) {
-        btn.disabled = false;
-        btn.textContent = orig;
-        if (res.status === 200) {
-          var msg = 'Reproduce launched' + (res.body && res.body.run_id ? ' — new run ' + res.body.run_id : '');
-          if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
-          if (typeof _loadStudySims === 'function') _loadStudySims(true);
-        } else {
-          alert('Reproduce failed: ' + (res.body && res.body.error || res.status));
-        }
-      })
-      .catch(function(err) {
-        btn.disabled = false;
-        btn.textContent = orig;
-        alert('Reproduce failed: ' + (err && err.message ? err.message : err));
+        alert('Rerun failed: network error — ' + err);
       });
   });
 
@@ -1000,39 +911,6 @@
       if (r.status === 200) location.reload();
       else alert('Run failed: ' + (r.body && r.body.error || r.status));
     });
-  });
-
-  // Replace a baseline entry's composite ref: add-then-remove against the
-  // existing (previously orphaned) endpoints, since there's no single
-  // "replace" route. Order matters — study_baseline_remove refuses to leave
-  // baseline[] empty (400), which a single-entry study (e.g. a fresh "+
-  // Study" blank scaffold) always is; adding the replacement under a new
-  // name FIRST means baseline[] never goes empty, then the old entry is
-  // removed. The replacement keeps the original name only when it wasn't
-  // already used (i.e. removal isn't blocked); otherwise it's suffixed to
-  // avoid the add's own "already exists" 409. Params are dropped on
-  // replace — a fresh composite ref starts from its own defaults, matching
-  // what "+ Study" itself does.
-  bindAll('.baseline-composite-set', function(btn) {
-    var name = btn.dataset.baselineName;
-    var input = document.querySelector('.baseline-composite-input[data-baseline-name="' + name + '"]');
-    var status = document.querySelector('.baseline-composite-status[data-baseline-name="' + name + '"]');
-    var composite = input ? input.value.trim() : '';
-    if (!composite) { if (status) status.textContent = 'Enter a composite ref first.'; return; }
-    if (status) status.textContent = 'Setting…';
-    var newName = name + '-' + Date.now().toString(36);
-    api('POST', '/api/study-baseline-add', {study: studyName(), name: newName, composite: composite, params: {}})
-      .then(function (addResult) {
-        if (addResult.status !== 200) throw addResult;
-        return api('POST', '/api/study-baseline-remove', {study: studyName(), name: name});
-      })
-      .then(function (r) {
-        if (r.status === 200) location.reload();
-        else if (status) status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
-      })
-      .catch(function (addResult) {
-        if (status) status.textContent = 'Error: ' + (addResult.body && addResult.body.error || addResult.status);
-      });
   });
 
   bindAll('.btn-baseline-remove', function(btn) {
