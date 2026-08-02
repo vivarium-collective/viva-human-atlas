@@ -3,6 +3,12 @@
 # .github/workflows/publish-dashboard.yml). Scaffolded by
 # `vivarium-workbench add-dashboard`; run it locally to preview the bundle.
 set -euo pipefail
+# Force UTF-8 I/O. Importing viva_human_atlas (via pbg_simbio/viva_superpowers)
+# can flip the process's ambient locale encoding to ASCII; the publisher's
+# investigation-notebook export then dies on non-ASCII bytes (em-dash 0xe2) and
+# SILENTLY drops every notebook from the bundle. PYTHONUTF8=1 makes the export
+# deterministic regardless of the caller's locale.
+export PYTHONUTF8=1
 WS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="${1:-$WS_ROOT/reports/published/dashboard}"
 BASE_PATH="/viva-human-atlas/dashboard"

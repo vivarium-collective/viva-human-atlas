@@ -60,16 +60,11 @@ jobs:
         run: |
           uv venv
           # vivarium-workbench@main (0.3.29) requires process-bigraph>=1.7.0,
-          # which is unreleased (newest published is 1.5.0) — so @main is
-          # currently uninstallable. Pin to the newest main commit that installs
-          # with process-bigraph 1.5.x (a1d7aa8c, v0.3.28, unconstrained pin),
-          # and install process-bigraph from git@main in the SAME resolve so its
-          # `artifacts` module (which 0.3.28's code imports at runtime) is present
-          # even though the released 1.5.0 wheel lacks it. Revert to @main once
-          # process-bigraph 1.7.0 ships.
+          # which is now released on PyPI (1.7.1), so @main installs cleanly and
+          # uv resolves its deps (process-bigraph, viva-marketplace, …) itself.
+          # No more version pin or git@main process-bigraph workaround needed.
           uv pip install \
-            "process-bigraph @ git+https://github.com/vivarium-collective/process-bigraph.git@main" \
-            "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@a1d7aa8c"
+            "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
           uv pip install -e . --no-deps || echo "workspace has no installable build; composites render from spec only"
 
       - name: Install the workspace's process-packages (for a REAL registry)
@@ -81,7 +76,6 @@ jobs:
         # empty "None registered" snapshot.
         run: |
           uv pip install \
-            "process-bigraph @ git+https://github.com/vivarium-collective/process-bigraph.git@main" \
             "viva-biomodels @ git+https://github.com/vivarium-collective/pbg-biomodels.git@main" \
             "pbg-copasi @ git+https://github.com/vivarium-collective/pbg-copasi.git@main" \
             "pbg-tellurium @ git+https://github.com/vivarium-collective/pbg-tellurium.git@main" \
