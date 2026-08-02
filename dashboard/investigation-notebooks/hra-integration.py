@@ -22,15 +22,22 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # _Investigation `hra-integration` — coder reproduction notebook._
 #
 # **Question.** Can we pull HRA datasets/knowledge via the live CCF API (reference organs,
-# cell-type terms, anatomical-structure terms) and link glucose-regulation
-# BioModels to HRA anatomy (Uberon organs) via a transparent biomodel
-# Digital Object + organ->models index?
+# cell-type terms, anatomical-structure terms) and link BioModels to HRA
+# anatomy (Uberon organs) via a transparent biomodel Digital Object +
+# organ->models index — and, having built that index, actually get the
+# resulting models onto the HRA atlas as something a user can see?
 #
 # Builds the HRA (Human Reference Atlas) side of the fetch-and-compare
-# spine: a thin CCF-API client (reference organs, cell-type terms,
-# anatomical-structure terms) plus a biomodel Digital Object annotation
-# layer that tags glucose-regulation BioModels with an HRA organ via
-# transparent name-synonym matching.
+# spine, then closes the loop into the Atlas Browser: a thin CCF-API
+# client (reference organs, cell-type terms, anatomical-structure terms);
+# a biomodel Digital Object annotation layer with two complementary organ
+# matchers — name-synonym matching over BioModels titles, and
+# annotation-based matching over each model's own SBML MIRIAM/BTO
+# metadata; a measured comparison of how much recall the annotation
+# matcher adds over name-only matching; and the HRA Atlas Browser
+# (`studies/hra-atlas-browser/viz/atlas/`) that renders the resulting
+# organ->models index as an interactive 3D atlas a user can actually see
+# biomodels attached to.
 #
 # ---
 #
@@ -66,8 +73,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--vasculature').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--vasculature')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--atlas-browser').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--atlas-browser')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -205,6 +212,48 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
+# ## Study: `annotation-organ-matching`
+#
+# **Question.** How does a BioModels entry get tagged with an HRA Uberon organ when the
+# match comes from its embedded SBML MIRIAM annotations rather than its
+# name — and which biological CVTerm qualifiers / ontologies actually carry
+# that organ signal?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: annotation-organ-matching ===
+STUDY = 'annotation-organ-matching'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Study: `annotation-recall-gain`
+#
+# **Question.** How much organ/model coverage does annotation-based organ matching (SBML
+# MIRIAM + BTO crosswalk) add over the existing name-synonym matcher
+# (`glucose-biomodel-do`/`corpus-coverage`), across the full 1,096-model
+# curated BioModels corpus?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: annotation-recall-gain ===
+STUDY = 'annotation-recall-gain'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
 # ## Open decisions
-# - What is the organ-tag recall ceiling with names alone (currently ~20% on this query, 7.5% at full-corpus scale)? Move to SBML MIRIAM annotations?
-# - Which organs are systematically under-tagged?
+# - Resolved: SBML MIRIAM/BTO annotation matching (annotation-organ-matching, annotation-recall-gain) raised full-corpus recall from 82/1,096 (7.5%) to a 167/1,096 (15.2%) union across 14 organs. Should the union (not name-only) become the default organ->models index the Atlas Browser and downstream coverage studies key off?
+# - How much more organ coverage would extending the 32-entry BTO->organ crosswalk unlock?

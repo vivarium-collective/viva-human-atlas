@@ -315,7 +315,12 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Can the HRA/VCCF vasculature data define a whole-body blood-transport network — a directed heart -&gt; organ -&gt; heart circuit through named vessels — that we can use to COUPLE independent organ simulations by advecting shared blood-borne solutes (glucose, O2, insulin, ...) between them? And what does a v1 blood-circulation simulation over that network look like?</div>
+           data-placeholder="+ Add the research question this study asks">Can the HRA/VCCF vasculature data define a whole-body blood-transport
+network — a directed heart -&gt; organ -&gt; heart circuit through named vessels —
+that we can use to COUPLE independent organ simulations by advecting shared
+blood-borne solutes (glucose, O2, insulin, ...) between them? And what does a
+v1 blood-circulation simulation over that network look like?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,9 +333,26 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Organ models in this atlas (glucose regulation across liver/pancreas/muscle, the FTU digital objects, the biomodel corpus) are currently islands — each simulates one tissue with no physical connection to the others. In the body they are coupled by BLOOD: the heart drives a closed circuit that carries metabolites and signals from organ to organ, so a change in hepatic glucose output reaches the pancreatic beta-cell through the vasculature, with a transport delay set by the path length and flow rate.
+                placeholder="Plain-English mechanism narrative.">Organ models in this atlas (glucose regulation across liver/pancreas/muscle,
+the FTU digital objects, the biomodel corpus) are currently islands — each
+simulates one tissue with no physical connection to the others. In the body
+they are coupled by BLOOD: the heart drives a closed circuit that carries
+metabolites and signals from organ to organ, so a change in hepatic glucose
+output reaches the pancreatic beta-cell through the vasculature, with a
+transport delay set by the path length and flow rate.
 
-This study establishes the missing connective substrate. The HRA/VCCF vasculature data gives, for each of 28 functional tissue units, an ordered vessel path from a heart chamber out to the FTU&#39;s exchange capillary and back (arterial steps toward the FTU, venous steps returning) — e.g. the alveolus runs right ventricle -&gt; pulmonary trunk -&gt; ... -&gt; alveolar capillary -&gt; ... -&gt; left atrium. Taking the union over all 28 FTUs yields a directed whole-body transport graph. On top of it, a blood-circulation simulation advects a shared plasma solute vector along the edges (a flow/resistance model sets the rates), and each organ node is an existing organ Process that exchanges solutes with the blood it is perfused by — turning a set of isolated organ models into one coupled, circulating whole.</textarea>
+This study establishes the missing connective substrate. The HRA/VCCF
+vasculature data gives, for each of 28 functional tissue units, an ordered
+vessel path from a heart chamber out to the FTU&#39;s exchange capillary and back
+(arterial steps toward the FTU, venous steps returning) — e.g. the alveolus
+runs right ventricle -&gt; pulmonary trunk -&gt; ... -&gt; alveolar capillary -&gt; ... -&gt;
+left atrium. Taking the union over all 28 FTUs yields a directed whole-body
+transport graph. On top of it, a blood-circulation simulation advects a shared
+plasma solute vector along the edges (a flow/resistance model sets the rates),
+and each organ node is an existing organ Process that exchanges solutes with
+the blood it is perfused by — turning a set of isolated organ models into one
+coupled, circulating whole.
+</textarea>
       
     </div>
 
@@ -348,7 +370,12 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">The VCCF data yields a fully closed whole-body transport graph: all 28 FTU routes start and end at a heart chamber (28 closed circuits, 0 open), spanning 191 vessels and 444 directed flow edges (94 artery / 20 capillary / 73 vein / 4 chamber). The topology substrate for coupling organ models is therefore complete and validated.</div>
+        <div class="finding-statement">The VCCF data yields a fully closed whole-body transport graph: all 28
+FTU routes start and end at a heart chamber (28 closed circuits, 0 open),
+spanning 191 vessels and 444 directed flow edges (94 artery / 20
+capillary / 73 vein / 4 chamber). The topology substrate for coupling
+organ models is therefore complete and validated.
+</div>
         
         
         
@@ -380,7 +407,14 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">A blood-circulation simulation is designed on this graph (see docs/blood-circulation-simulation-plan.md): a BloodTransportProcess advects a shared plasma solute vector along the edges at flow rates Q set by a hemodynamic model (resistance network or the Font-Clos 2020 cardiac-output partition), and each organ node is an existing organ Process exchanging solutes with the blood perfusing it. Glucose regulation (liver &lt;-&gt; pancreas &lt;-&gt; muscle) is the proposed first coupling.</div>
+        <div class="finding-statement">A blood-circulation simulation is designed on this graph (see
+docs/blood-circulation-simulation-plan.md): a BloodTransportProcess
+advects a shared plasma solute vector along the edges at flow rates Q set
+by a hemodynamic model (resistance network or the Font-Clos 2020
+cardiac-output partition), and each organ node is an existing organ
+Process exchanging solutes with the blood perfusing it. Glucose
+regulation (liver &lt;-&gt; pancreas &lt;-&gt; muscle) is the proposed first coupling.
+</div>
         
         
         
@@ -471,7 +505,12 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The VCCF data yields a fully closed whole-body transport graph: all 28 FTU routes start and end at a heart chamber (28 closed circuits, 0 open), spanning 191 vessels and 444 directed flow edges (94 artery / 20 capillary / 73 vein / 4 chamber). The topology substrate for coupling organ models is therefore complete and validated.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The VCCF data yields a fully closed whole-body transport graph: all 28
+FTU routes start and end at a heart chamber (28 closed circuits, 0 open),
+spanning 191 vessels and 444 directed flow edges (94 artery / 20
+capillary / 73 vein / 4 chamber). The topology substrate for coupling
+organ models is therefore complete and validated.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -479,7 +518,16 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The data-pull runs and validates. From FTU_Table_S1 (28 FTUs) plus the VCCF vessel classes, VasculatureNetworkStep builds a directed graph of 191 vessels and 444 flow edges — 94 arteries, 73 veins, 20 exchange capillaries, 4 heart chambers — and every one of the 28 FTU routes is a CLOSED circuit: it starts at a heart chamber and returns to one (n_closed_circuits = 28, n_open_routes = 0). So the vasculature data is sufficient to define a coherent whole-body transport topology to hang organ models on. The blood-circulation simulation itself is designed in docs/blood-circulation-simulation-plan.md and is NOT yet implemented.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The data-pull runs and validates. From FTU_Table_S1 (28 FTUs) plus the VCCF
+vessel classes, VasculatureNetworkStep builds a directed graph of 191
+vessels and 444 flow edges — 94 arteries, 73 veins, 20 exchange capillaries,
+4 heart chambers — and every one of the 28 FTU routes is a CLOSED circuit:
+it starts at a heart chamber and returns to one (n_closed_circuits = 28,
+n_open_routes = 0). So the vasculature data is sufficient to define a
+coherent whole-body transport topology to hang organ models on. The
+blood-circulation simulation itself is designed in
+docs/blood-circulation-simulation-plan.md and is NOT yet implemented.
+</textarea>
       </label>
     </div>
     
@@ -489,7 +537,13 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">This study delivers the TOPOLOGY and the plan only — no flow dynamics or solute transport are simulated yet (simulation_status &#34;ran&#34; refers to the data-pull/graph composite, not a circulation run). The graph is built from the 28 curated FTU paths; it does not yet model branch-point mixing where flows merge (that needs the finer VCCF Vessel.csv `BranchesFrom` tree), nor per-edge flow rates (Q), which the plan assigns from a hemodynamic model.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">This study delivers the TOPOLOGY and the plan only — no flow dynamics or
+solute transport are simulated yet (simulation_status &#34;ran&#34; refers to the
+data-pull/graph composite, not a circulation run). The graph is built from
+the 28 curated FTU paths; it does not yet model branch-point mixing where
+flows merge (that needs the finer VCCF Vessel.csv `BranchesFrom` tree), nor
+per-edge flow rates (Q), which the plan assigns from a hemodynamic model.
+</textarea>
       </label>
     </div>
     
@@ -608,6 +662,15 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -634,6 +697,15 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -929,7 +1001,7 @@ This study establishes the missing connective substrate. The HRA/VCCF vasculatur
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "blood-vasculature-network";

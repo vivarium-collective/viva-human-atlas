@@ -315,7 +315,11 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Do existing BioModels model HRA functional tissue units (FTUs) -- Katy Boerner&#39;s question -- and, for the FTUs that already have models, can HRA CTpop (Cell Type Populations) cell-type counts parameterize them, per the RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?</div>
+           data-placeholder="+ Add the research question this study asks">Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
+Boerner&#39;s question -- and, for the FTUs that already have models, can HRA
+CTpop (Cell Type Populations) cell-type counts parameterize them, per the
+RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +332,33 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Katy Boerner&#39;s question for the HRA-3D track was whether the mechanistic- modeling literature (as indexed by BioModels) already tries to model functional tissue units -- the sub-organ, cell-population-scale structures (e.g. a single pancreatic islet, a single nephron) that sit between whole- organ models and single-cell models, and that Peter Hunter/SPARC&#39;s RUI -&gt; CTpop -&gt; model vision targets for parameterization. Crossing the full 1,096-model curated corpus against a curated 11-FTU list finds real hits: the pancreatic islet (3 models -- Jiang2007&#39;s GSIS beta-cell system, Bertram2007&#39;s islet-cell oscillations, Wierschem2004&#39;s islet electrical bursting), the colon crypt (4 models -- Smallbone2013&#39;s Colon Crypt cycle, versions 0-3), the cardiac muscle/myocardium unit (3 models -- Cooling2007&#39;s cardiac-myocyte IP3 transients, McDougal2017&#39;s ischemic-cardiomyocyte metabolism, Zhou2024&#39;s post-infarction myocyte electromechanics -- directly relevant to the SPARC-heart use case), the liver lobule (2 models -- both hepatocyte-scale), and the skin epidermis unit (1 model, Cursons2015&#39;s epidermal ERK-MAPK regulation). Six of the 11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match no model in the current corpus at this name-matching granularity. For the covered FTUs, this study also stubs the CTpop parameterization seam: HRA CTpop (Bueckle 2026) gives per-anatomical-structure cell-type counts/proportions for a RUI-registered tissue block, which would set an FTU model&#39;s cell-population parameters -- e.g. an islet&#39;s measured beta/alpha/delta-cell counts binding the Jiang2007/Bertram2007 islet models&#39; beta-cell-mass parameters. ` ctpop_parameter_stub` identifies which cell types are the candidate parameterization targets; it does not yet bind a real CTpop count.</textarea>
+                placeholder="Plain-English mechanism narrative.">Katy Boerner&#39;s question for the HRA-3D track was whether the mechanistic-
+modeling literature (as indexed by BioModels) already tries to model
+functional tissue units -- the sub-organ, cell-population-scale structures
+(e.g. a single pancreatic islet, a single nephron) that sit between whole-
+organ models and single-cell models, and that Peter Hunter/SPARC&#39;s
+RUI -&gt; CTpop -&gt; model vision targets for parameterization. Crossing the
+full 1,096-model curated corpus against a curated 11-FTU list finds real
+hits: the pancreatic islet (3 models -- Jiang2007&#39;s GSIS beta-cell system,
+Bertram2007&#39;s islet-cell oscillations, Wierschem2004&#39;s islet electrical
+bursting), the colon crypt (4 models -- Smallbone2013&#39;s Colon Crypt cycle,
+versions 0-3), the cardiac muscle/myocardium unit (3 models -- Cooling2007&#39;s
+cardiac-myocyte IP3 transients, McDougal2017&#39;s ischemic-cardiomyocyte
+metabolism, Zhou2024&#39;s post-infarction myocyte electromechanics -- directly
+relevant to the SPARC-heart use case), the liver lobule (2 models -- both
+hepatocyte-scale), and the skin epidermis unit (1 model, Cursons2015&#39;s
+epidermal ERK-MAPK regulation). Six of the 11 curated FTUs (kidney
+glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus
+axis, ovarian follicle, lymph node follicle) match no model in the current
+corpus at this name-matching granularity. For the covered FTUs, this study
+also stubs the CTpop parameterization seam: HRA CTpop (Bueckle 2026) gives
+per-anatomical-structure cell-type counts/proportions for a RUI-registered
+tissue block, which would set an FTU model&#39;s cell-population parameters --
+e.g. an islet&#39;s measured beta/alpha/delta-cell counts binding the
+Jiang2007/Bertram2007 islet models&#39; beta-cell-mass parameters. `
+ctpop_parameter_stub` identifies which cell types are the candidate
+parameterization targets; it does not yet bind a real CTpop count.
+</textarea>
       
     </div>
 
@@ -346,7 +376,18 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">Crossing the full 1,096-model curated BioModels corpus against a curated 11-FTU list by name/synonym substring match covers 5/11 FTUs (45.5%), matching 13 distinct models: pancreatic islet of Langerhans (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013 Colon Crypt cycle versions), cardiac muscle/myocardium unit (3 models, SPARC-heart-relevant), liver lobule (2 models), and skin epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero models -- existing BioModels do already model several HRA FTUs, but real modeling white-space remains for the rest.</div>
+        <div class="finding-statement">Crossing the full 1,096-model curated BioModels corpus against a
+curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
+(45.5%), matching 13 distinct models: pancreatic islet of Langerhans
+(3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
+Colon Crypt cycle versions), cardiac muscle/myocardium unit (3
+models, SPARC-heart-relevant), liver lobule (2 models), and skin
+epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney
+nephron, lung alveolus, small-intestine crypt-villus axis, ovarian
+follicle, lymph node follicle) match zero models -- existing
+BioModels do already model several HRA FTUs, but real modeling
+white-space remains for the rest.
+</div>
         
         
         
@@ -461,7 +502,18 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Crossing the full 1,096-model curated BioModels corpus against a curated 11-FTU list by name/synonym substring match covers 5/11 FTUs (45.5%), matching 13 distinct models: pancreatic islet of Langerhans (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013 Colon Crypt cycle versions), cardiac muscle/myocardium unit (3 models, SPARC-heart-relevant), liver lobule (2 models), and skin epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero models -- existing BioModels do already model several HRA FTUs, but real modeling white-space remains for the rest.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">Crossing the full 1,096-model curated BioModels corpus against a
+curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
+(45.5%), matching 13 distinct models: pancreatic islet of Langerhans
+(3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
+Colon Crypt cycle versions), cardiac muscle/myocardium unit (3
+models, SPARC-heart-relevant), liver lobule (2 models), and skin
+epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney
+nephron, lung alveolus, small-intestine crypt-villus axis, ovarian
+follicle, lymph node follicle) match zero models -- existing
+BioModels do already model several HRA FTUs, but real modeling
+white-space remains for the rest.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -469,7 +521,28 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">Crossing the full 1,096-model committed corpus catalog (`datasets/biomodel_corpus_catalog.json`) against a curated 11-FTU list by name/synonym substring match, 5/11 FTUs (45.5%) are covered by at least one model, matching 13 distinct models total (`n_models_matched`): pancreatic islet of Langerhans (3 models -- Jiang2007 GSIS, Bertram2007 islet-cell oscillations, Wierschem2004 islet electrical bursting), colon crypt of Lieberkuhn (4 models -- Smallbone2013 Colon Crypt cycle versions 0-3), cardiac muscle/ myocardium unit (3 models -- Cooling2007, McDougal2017, Zhou2024, directly SPARC-heart-relevant), liver lobule (2 models), and skin epidermis unit (1 model, Cursons2015). Six FTUs -- kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle -- match zero models in the current corpus at this granularity. So: yes, existing BioModels do model several HRA FTUs already, answering Katy Boerner&#39;s question in the affirmative for at least these five, while confirming real gaps elsewhere. `ctpop_parameter_stub(&#34;pancreatic islet of Langerhans&#34;)` confirms the islet&#39;s beta/alpha/delta cell types (CL:0000169/0171/0173) as the candidate CTpop-parameterizable inputs for the islet models above, stubbing (not yet implementing) the RUI -&gt; CTpop -&gt; model parameterization seam.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">Crossing the full 1,096-model committed corpus catalog
+(`datasets/biomodel_corpus_catalog.json`) against a curated 11-FTU list
+by name/synonym substring match, 5/11 FTUs (45.5%) are covered by at
+least one model, matching 13 distinct models total
+(`n_models_matched`): pancreatic islet of Langerhans (3 models --
+Jiang2007 GSIS, Bertram2007 islet-cell oscillations, Wierschem2004
+islet electrical bursting), colon crypt of Lieberkuhn (4 models --
+Smallbone2013 Colon Crypt cycle versions 0-3), cardiac muscle/
+myocardium unit (3 models -- Cooling2007, McDougal2017, Zhou2024,
+directly SPARC-heart-relevant), liver lobule (2 models), and skin
+epidermis unit (1 model, Cursons2015). Six FTUs -- kidney glomerulus,
+kidney nephron, lung alveolus, small-intestine crypt-villus axis,
+ovarian follicle, lymph node follicle -- match zero models in the
+current corpus at this granularity. So: yes, existing BioModels do
+model several HRA FTUs already, answering Katy Boerner&#39;s question in
+the affirmative for at least these five, while confirming real gaps
+elsewhere. `ctpop_parameter_stub(&#34;pancreatic islet of Langerhans&#34;)`
+confirms the islet&#39;s beta/alpha/delta cell types (CL:0000169/0171/0173)
+as the candidate CTpop-parameterizable inputs for the islet models
+above, stubbing (not yet implementing) the RUI -&gt; CTpop -&gt; model
+parameterization seam.
+</textarea>
       </label>
     </div>
     
@@ -479,7 +552,18 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage is name/synonym substring matching against the biomodel-DO catalog&#39;s `name` field only, not curated per-model FTU annotation or model-content inspection -- a model whose title omits the FTU synonym but whose equations genuinely operate at FTU scale would be a false negative (undercounting), and a model whose title happens to contain a synonym for an unrelated reason would be a false positive (overcounting); neither is checked against actual model structure here. The CTpop parameterization seam is a v1 stub: it identifies candidate cell-type parameters, it does not bind any real CTpop cell-type count to a specific model parameter, so `pipeline_gate.gate_evaluator.result` is `needs_calibration`.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage is name/synonym substring matching against the biomodel-DO
+catalog&#39;s `name` field only, not curated per-model FTU annotation or
+model-content inspection -- a model whose title omits the FTU synonym
+but whose equations genuinely operate at FTU scale would be a false
+negative (undercounting), and a model whose title happens to contain a
+synonym for an unrelated reason would be a false positive
+(overcounting); neither is checked against actual model structure here.
+The CTpop parameterization seam is a v1 stub: it identifies candidate
+cell-type parameters, it does not bind any real CTpop cell-type count
+to a specific model parameter, so `pipeline_gate.gate_evaluator.result`
+is `needs_calibration`.
+</textarea>
       </label>
     </div>
     
@@ -598,6 +682,15 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -624,6 +717,15 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -981,7 +1083,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "ftu-model-coverage";

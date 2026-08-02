@@ -315,7 +315,9 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Does the HRA CCF API&#39;s ontology-term-occurences endpoint load into a Step-driven composite, giving an anatomical-structure term occurrence list?</div>
+           data-placeholder="+ Add the research question this study asks">Does the HRA CCF API&#39;s ontology-term-occurences endpoint load into a
+Step-driven composite, giving an anatomical-structure term occurrence list?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +330,15 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">This histogram counts, across every HRA dataset, how often each anatomy-ontology (mostly Uberon) term is annotated as the anatomical structure a sample/observation was taken from. Unlike `hra-reference-organs` (the fixed ~81-entry whole-organ 3D scaffold) or the 1,730-node ASCT+B-3D crosswalk (`hra-3d-crosswalk`, every fine-grained anatomical structure whether or not it has been used), this is usage-weighted: it reflects which anatomical structures HRA&#39;s contributing datasets actually sample from, not the full catalog of structures that exist.</textarea>
+                placeholder="Plain-English mechanism narrative.">This histogram counts, across every HRA dataset, how often each
+anatomy-ontology (mostly Uberon) term is annotated as the anatomical
+structure a sample/observation was taken from. Unlike `hra-reference-organs`
+(the fixed ~81-entry whole-organ 3D scaffold) or the 1,730-node ASCT+B-3D
+crosswalk (`hra-3d-crosswalk`, every fine-grained anatomical structure
+whether or not it has been used), this is usage-weighted: it reflects
+which anatomical structures HRA&#39;s contributing datasets actually sample
+from, not the full catalog of structures that exist.
+</textarea>
       
     </div>
 
@@ -346,7 +356,12 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">The HRA ontology-term-occurences endpoint returns 288 distinct anatomical-structure terms, count-sorted; the top term (UBERON:0013702) occurs 2,762 times -- matching hra-cell-types&#39; top CL-term count exactly, confirming both endpoints count the same underlying per-record annotations from the same HRA dataset corpus.</div>
+        <div class="finding-statement">The HRA ontology-term-occurences endpoint returns 288 distinct
+anatomical-structure terms, count-sorted; the top term
+(UBERON:0013702) occurs 2,762 times -- matching hra-cell-types&#39; top
+CL-term count exactly, confirming both endpoints count the same
+underlying per-record annotations from the same HRA dataset corpus.
+</div>
         
         
         
@@ -449,7 +464,12 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The HRA ontology-term-occurences endpoint returns 288 distinct anatomical-structure terms, count-sorted; the top term (UBERON:0013702) occurs 2,762 times -- matching hra-cell-types&#39; top CL-term count exactly, confirming both endpoints count the same underlying per-record annotations from the same HRA dataset corpus.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The HRA ontology-term-occurences endpoint returns 288 distinct
+anatomical-structure terms, count-sorted; the top term
+(UBERON:0013702) occurs 2,762 times -- matching hra-cell-types&#39; top
+CL-term count exactly, confirming both endpoints count the same
+underlying per-record annotations from the same HRA dataset corpus.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -457,7 +477,17 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run against `https://apps.humanatlas.io/api/v1/ontology-term-occurences` returned 288 distinct anatomical-structure terms, sorted by occurrence count descending. The top term (UBERON:0013702) occurs 2,762 times — matching `hra-cell-types`&#39; top CL-term count exactly, consistent with both endpoints counting the same underlying per-record annotations from the same HRA dataset corpus. The next 9 terms (UBERON:0002113, UBERON:0000948, UBERON:0001004, UBERON:0002048, UBERON:0001987, UBERON:0000955, UBERON:0002189, UBERON:0002015, UBERON:0004027) range 231-336 occurrences, an order of magnitude below the top term.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run against
+`https://apps.humanatlas.io/api/v1/ontology-term-occurences` returned
+288 distinct anatomical-structure terms, sorted by occurrence count
+descending. The top term (UBERON:0013702) occurs 2,762 times —
+matching `hra-cell-types`&#39; top CL-term count exactly, consistent with
+both endpoints counting the same underlying per-record annotations from
+the same HRA dataset corpus. The next 9 terms (UBERON:0002113,
+UBERON:0000948, UBERON:0001004, UBERON:0002048, UBERON:0001987,
+UBERON:0000955, UBERON:0002189, UBERON:0002015, UBERON:0004027) range
+231-336 occurrences, an order of magnitude below the top term.
+</textarea>
       </label>
     </div>
     
@@ -467,7 +497,12 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">288 terms is well below the ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed anatomical-structure nodes (`hra-3d-crosswalk`) — this endpoint only surfaces structures that appear in HRA&#39;s *annotated* datasets, so most of the crosswalk&#39;s fine-grained 3D anatomy has zero recorded usage here even though it exists as a named 3D structure.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">288 terms is well below the ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed
+anatomical-structure nodes (`hra-3d-crosswalk`) — this endpoint only
+surfaces structures that appear in HRA&#39;s *annotated* datasets, so most
+of the crosswalk&#39;s fine-grained 3D anatomy has zero recorded usage here
+even though it exists as a named 3D structure.
+</textarea>
       </label>
     </div>
     
@@ -586,6 +621,15 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.hra_steps.hra-anatomical-structures" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -612,6 +656,15 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -969,7 +1022,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-anatomical-structures";

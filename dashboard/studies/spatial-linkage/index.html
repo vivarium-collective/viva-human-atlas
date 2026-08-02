@@ -315,7 +315,10 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk GLB scene node(s) does it correspond to — precise enough for a 3D viewer to color/label the right node per model?</div>
+           data-placeholder="+ Add the research question this study asks">For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
+GLB scene node(s) does it correspond to — precise enough for a 3D viewer
+to color/label the right node per model?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +331,15 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Marking an organ &#34;covered&#34; is a coarse signal; a 3D viewer needs to know exactly which GLB scene node to color for a given model. This study joins each biomodel-DO organ annotation directly to the crosswalk rows sharing its Uberon CURIE, producing the (model, GLB node) pairs a viewer renders against. Because HRA ships separate male/female reference-organ GLBs, one organ annotation legitimately links to two nodes (one per sex) — the join is deliberately Uberon-only in v1, deferring &#34;pick the single best node&#34; resolution to a future viewer-side step.</textarea>
+                placeholder="Plain-English mechanism narrative.">Marking an organ &#34;covered&#34; is a coarse signal; a 3D viewer needs to know
+exactly which GLB scene node to color for a given model. This study joins
+each biomodel-DO organ annotation directly to the crosswalk rows sharing
+its Uberon CURIE, producing the (model, GLB node) pairs a viewer renders
+against. Because HRA ships separate male/female reference-organ GLBs, one
+organ annotation legitimately links to two nodes (one per sex) — the join
+is deliberately Uberon-only in v1, deferring &#34;pick the single best node&#34;
+resolution to a future viewer-side step.
+</textarea>
       
     </div>
 
@@ -346,7 +357,13 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">The live Uberon-only join produces 10 (model, GLB-node) links across 5 distinct biomodels, with every model linking to exactly 2 nodes (one per sex) -- confirming the join mechanism is deterministic and reproducible from the shared organ Uberon, even though `readout` is still a literal placeholder string (&#34;pending time-series&#34;) for every link in v1.</div>
+        <div class="finding-statement">The live Uberon-only join produces 10 (model, GLB-node) links across
+5 distinct biomodels, with every model linking to exactly 2 nodes
+(one per sex) -- confirming the join mechanism is deterministic and
+reproducible from the shared organ Uberon, even though `readout` is
+still a literal placeholder string (&#34;pending time-series&#34;) for every
+link in v1.
+</div>
         
         
         
@@ -461,7 +478,13 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The live Uberon-only join produces 10 (model, GLB-node) links across 5 distinct biomodels, with every model linking to exactly 2 nodes (one per sex) -- confirming the join mechanism is deterministic and reproducible from the shared organ Uberon, even though `readout` is still a literal placeholder string (&#34;pending time-series&#34;) for every link in v1.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The live Uberon-only join produces 10 (model, GLB-node) links across
+5 distinct biomodels, with every model linking to exactly 2 nodes
+(one per sex) -- confirming the join mechanism is deterministic and
+reproducible from the shared organ Uberon, even though `readout` is
+still a literal placeholder string (&#34;pending time-series&#34;) for every
+link in v1.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -469,7 +492,16 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live join produces 10 links across 5 distinct biomodels (25-result &#34;glucose regulation&#34; query): BIOMD0000000633 (Bulik2016 hepatic glucose metabolism) -&gt; VH_F_liver/VH_M_liver; MODEL2001080002 (Topp2000 b-cell mass/insulin/glucose), MODEL1112110004 (Silber2007 IV glucose), and BIOMD0000000382 (Sturis1991 ultradian oscillations) and BIOMD0000000372 (Tolic2000 insulin-glucose feedback) each -&gt; VH_F_pancreas/VH_M_pancreas. Every model links to exactly 2 nodes (one per sex), confirming the Uberon-only join fires correctly and is fully reproducible from the shared organ Uberon.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live join produces 10 links across 5 distinct biomodels (25-result
+&#34;glucose regulation&#34; query): BIOMD0000000633 (Bulik2016 hepatic glucose
+metabolism) -&gt; VH_F_liver/VH_M_liver; MODEL2001080002 (Topp2000 b-cell
+mass/insulin/glucose), MODEL1112110004 (Silber2007 IV glucose), and
+BIOMD0000000382 (Sturis1991 ultradian oscillations) and
+BIOMD0000000372 (Tolic2000 insulin-glucose feedback) each -&gt;
+VH_F_pancreas/VH_M_pancreas. Every model links to exactly 2 nodes (one
+per sex), confirming the Uberon-only join fires correctly and is fully
+reproducible from the shared organ Uberon.
+</textarea>
       </label>
     </div>
     
@@ -479,7 +511,13 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">`readout` is a literal placeholder string (`&#34;pending time-series&#34;`) in v1 for every link — no simulation output is wired to a node yet, so this study demonstrates the join topology only, not a live-data 3D viewer. The 2-links-per-model pattern (one per sex) also means a viewer must still resolve &#34;which sex&#39;s GLB is currently displayed&#34; to color a single node, not both.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">`readout` is a literal placeholder string (`&#34;pending time-series&#34;`) in
+v1 for every link — no simulation output is wired to a node yet, so
+this study demonstrates the join topology only, not a live-data 3D
+viewer. The 2-links-per-model pattern (one per sex) also means a
+viewer must still resolve &#34;which sex&#39;s GLB is currently displayed&#34; to
+color a single node, not both.
+</textarea>
       </label>
     </div>
     
@@ -598,6 +636,15 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.spatial_link_composite.spatial-linkage" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -624,6 +671,15 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -981,7 +1037,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "spatial-linkage";

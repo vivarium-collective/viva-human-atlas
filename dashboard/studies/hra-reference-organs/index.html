@@ -315,7 +315,9 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Does the HRA CCF API&#39;s reference-organs endpoint load into a Step-driven composite, giving an Uberon-keyed organ set (with per-sex GLB assets)?</div>
+           data-placeholder="+ Add the research question this study asks">Does the HRA CCF API&#39;s reference-organs endpoint load into a Step-driven
+composite, giving an Uberon-keyed organ set (with per-sex GLB assets)?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +330,16 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">The HRA reference-organ set is the atlas&#39;s per-sex, whole-organ 3D scaffold: each entry is a single named organ (or organ pair, e.g. kidney left/right) rendered as its own GLB asset, sex-split where anatomy differs (breast, reproductive organs) and unsplit where it doesn&#39;t (most visceral organs). This set is the anchor everything else in `hra-integration` keys off of: `glucose-biomodel-do`&#39;s synonym matching scans these organ slugs, and `hra-3d`&#39;s crosswalk propagates coverage from each organ&#39;s Uberon CURIE down to every anatomical-structure node cut from its GLB.</textarea>
+                placeholder="Plain-English mechanism narrative.">The HRA reference-organ set is the atlas&#39;s per-sex, whole-organ 3D
+scaffold: each entry is a single named organ (or organ pair, e.g. kidney
+left/right) rendered as its own GLB asset, sex-split where anatomy
+differs (breast, reproductive organs) and unsplit where it doesn&#39;t (most
+visceral organs). This set is the anchor everything else in
+`hra-integration` keys off of: `glucose-biomodel-do`&#39;s synonym matching
+scans these organ slugs, and `hra-3d`&#39;s crosswalk propagates coverage
+from each organ&#39;s Uberon CURIE down to every anatomical-structure node
+cut from its GLB.
+</textarea>
       
     </div>
 
@@ -346,7 +357,13 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">The HRA reference-organs endpoint returns 81 real organ entries across 58 distinct organ slugs, 69/81 (85.2%) resolving to a UBERON-prefixed CURIE, split 45 female-specific / 36 male-specific -- confirming the Step-based fetch drives a complete, ontology-keyed whole-organ scaffold that downstream biomodel annotation and the 3D crosswalk both key off of.</div>
+        <div class="finding-statement">The HRA reference-organs endpoint returns 81 real organ entries
+across 58 distinct organ slugs, 69/81 (85.2%) resolving to a
+UBERON-prefixed CURIE, split 45 female-specific / 36 male-specific --
+confirming the Step-based fetch drives a complete, ontology-keyed
+whole-organ scaffold that downstream biomodel annotation and the 3D
+crosswalk both key off of.
+</div>
         
         
         
@@ -449,7 +466,13 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The HRA reference-organs endpoint returns 81 real organ entries across 58 distinct organ slugs, 69/81 (85.2%) resolving to a UBERON-prefixed CURIE, split 45 female-specific / 36 male-specific -- confirming the Step-based fetch drives a complete, ontology-keyed whole-organ scaffold that downstream biomodel annotation and the 3D crosswalk both key off of.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">The HRA reference-organs endpoint returns 81 real organ entries
+across 58 distinct organ slugs, 69/81 (85.2%) resolving to a
+UBERON-prefixed CURIE, split 45 female-specific / 36 male-specific --
+confirming the Step-based fetch drives a complete, ontology-keyed
+whole-organ scaffold that downstream biomodel annotation and the 3D
+crosswalk both key off of.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -457,7 +480,15 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run against `https://apps.humanatlas.io/api/v1/reference-organs` returned 81 reference-organ entries spanning 58 distinct organ slugs (bilateral/sex-specific organs like kidney or ovary contribute more than one entry). 69/81 (85.2%) carry a UBERON-prefixed CURIE; the remaining 12 (14.8%) parse to a non-Uberon (FMA) identifier. The set splits 45 female-specific / 36 male-specific entries, reflecting per-sex organ GLBs (breast, reproductive organs) plus duplicated unisex organs modeled once per sex.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">A live run against `https://apps.humanatlas.io/api/v1/reference-organs`
+returned 81 reference-organ entries spanning 58 distinct organ slugs
+(bilateral/sex-specific organs like kidney or ovary contribute more
+than one entry). 69/81 (85.2%) carry a UBERON-prefixed CURIE; the
+remaining 12 (14.8%) parse to a non-Uberon (FMA) identifier. The set
+splits 45 female-specific / 36 male-specific entries, reflecting
+per-sex organ GLBs (breast, reproductive organs) plus duplicated
+unisex organs modeled once per sex.
+</textarea>
       </label>
     </div>
     
@@ -467,7 +498,12 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">&#34;Uberon-keyed&#34; here means the parsed CURIE prefix is literally `UBERON:`; the 14.8% FMA-prefixed entries are not un-annotated, just on a different ontology, so downstream Uberon-keyed matching (`glucose-biomodel-do`&#39;s organ index, `hra-3d`&#39;s crosswalk) silently drops them rather than flagging a translation gap.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">&#34;Uberon-keyed&#34; here means the parsed CURIE prefix is literally
+`UBERON:`; the 14.8% FMA-prefixed entries are not un-annotated, just on
+a different ontology, so downstream Uberon-keyed matching
+(`glucose-biomodel-do`&#39;s organ index, `hra-3d`&#39;s crosswalk) silently
+drops them rather than flagging a translation gap.
+</textarea>
       </label>
     </div>
     
@@ -586,6 +622,15 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.hra_steps.hra-reference-organs" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -612,6 +657,15 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -969,7 +1023,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-reference-organs";

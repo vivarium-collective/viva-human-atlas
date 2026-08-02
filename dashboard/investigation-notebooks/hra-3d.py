@@ -67,8 +67,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--vasculature').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--vasculature')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--atlas-browser').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--atlas-browser')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -293,6 +293,27 @@ print("No recorded runs for this study; nothing to reproduce.")
 
 # === Study: blood-vasculature-network ===
 STUDY = 'blood-vasculature-network'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Study: `hra-atlas-browser`
+#
+# **Question.** Can we present the full HRA-3D model-coverage picture as an interactive
+# atlas: pick any of the 50 GLB-backed HRA organs, see its regions
+# demarcated and colored by how many mechanistic models are associated with
+# it, and browse straight to those BioModels?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: hra-atlas-browser ===
+STUDY = 'hra-atlas-browser'
 STUDY_DIR = REPO / 'studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")

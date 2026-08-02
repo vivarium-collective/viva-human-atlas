@@ -315,7 +315,10 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Of the HRA ASCT+B-3D crosswalk&#39;s 1,400+ anatomical structures (and ~81 reference organs), which are covered by a mechanistic model — and can that coverage be viewed directly on the 3D anatomy?</div>
+           data-placeholder="+ Add the research question this study asks">Of the HRA ASCT+B-3D crosswalk&#39;s 1,400+ anatomical structures (and ~81
+reference organs), which are covered by a mechanistic model — and can
+that coverage be viewed directly on the 3D anatomy?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +331,16 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">Glucose regulation is a whole-body, multi-organ circuit: the liver buffers glucose via glycogen synthesis/breakdown, the pancreatic islets set the hormonal signal (insulin/glucagon) that drives that buffering, and the kidney contributes via gluconeogenesis and glucose reabsorption. A BioModels search for &#34;glucose regulation&#34; surfaces the mechanistic models literature has built for this circuit, and this study asks how much of the HRA&#39;s fine-grained 3D anatomy those models actually touch once their organ annotations are crossed with the ASCT+B-3D crosswalk — the query-scoped companion to `corpus-coverage`&#39;s full-catalog sweep.</textarea>
+                placeholder="Plain-English mechanism narrative.">Glucose regulation is a whole-body, multi-organ circuit: the liver
+buffers glucose via glycogen synthesis/breakdown, the pancreatic islets
+set the hormonal signal (insulin/glucagon) that drives that buffering,
+and the kidney contributes via gluconeogenesis and glucose reabsorption.
+A BioModels search for &#34;glucose regulation&#34; surfaces the mechanistic
+models literature has built for this circuit, and this study asks how
+much of the HRA&#39;s fine-grained 3D anatomy those models actually touch
+once their organ annotations are crossed with the ASCT+B-3D crosswalk —
+the query-scoped companion to `corpus-coverage`&#39;s full-catalog sweep.
+</textarea>
       
     </div>
 
@@ -346,7 +358,13 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">Crossing the 25-result &#34;glucose regulation&#34; biomodel-DO catalog against the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes covered (3.4%), all propagating from exactly the 4 source-organ GLBs whose Uberon is organ-tagged by the underlying catalog (liver + pancreas, both sexes) -- confirming the organ-granularity propagation rule fires correctly rather than overstating coverage at this scope.</div>
+        <div class="finding-statement">Crossing the 25-result &#34;glucose regulation&#34; biomodel-DO catalog
+against the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes
+covered (3.4%), all propagating from exactly the 4 source-organ GLBs
+whose Uberon is organ-tagged by the underlying catalog (liver +
+pancreas, both sexes) -- confirming the organ-granularity propagation
+rule fires correctly rather than overstating coverage at this scope.
+</div>
         
         
         
@@ -461,7 +479,13 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Crossing the 25-result &#34;glucose regulation&#34; biomodel-DO catalog against the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes covered (3.4%), all propagating from exactly the 4 source-organ GLBs whose Uberon is organ-tagged by the underlying catalog (liver + pancreas, both sexes) -- confirming the organ-granularity propagation rule fires correctly rather than overstating coverage at this scope.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">Crossing the 25-result &#34;glucose regulation&#34; biomodel-DO catalog
+against the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes
+covered (3.4%), all propagating from exactly the 4 source-organ GLBs
+whose Uberon is organ-tagged by the underlying catalog (liver +
+pancreas, both sexes) -- confirming the organ-granularity propagation
+rule fires correctly rather than overstating coverage at this scope.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -469,7 +493,16 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">Crossing the 25-result &#34;glucose regulation&#34; biomodel-DO catalog against the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes covered (3.4%), all propagating from 4 of 114 source-organ GLBs: `VH_F_Liver`, `VH_M_Liver`, `VH_F_Pancreas`, `VH_M_Pancreas` (both sexes of liver and pancreas). No kidney coverage at this query scope — organ-granularity coverage is exactly as broad as the underlying BioModels search/organ annotation, confirming the propagation rule fires correctly (liver and pancreas AS nodes light up, nothing else does) rather than overstating coverage.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">Crossing the 25-result &#34;glucose regulation&#34; biomodel-DO catalog against
+the 1,730-Uberon-row crosswalk marks 58/1,730 AS nodes covered (3.4%),
+all propagating from 4 of 114 source-organ GLBs: `VH_F_Liver`,
+`VH_M_Liver`, `VH_F_Pancreas`, `VH_M_Pancreas` (both sexes of liver and
+pancreas). No kidney coverage at this query scope — organ-granularity
+coverage is exactly as broad as the underlying BioModels search/organ
+annotation, confirming the propagation rule fires correctly (liver and
+pancreas AS nodes light up, nothing else does) rather than overstating
+coverage.
+</textarea>
       </label>
     </div>
     
@@ -479,7 +512,18 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage here is bounded by the 25-result query scope, not model availability — the full 1,096-model corpus covers far more (see `corpus-coverage`: 635/1,730 AS nodes, 31/114 organs, including kidney). Organ-granularity propagation also still overstates fine-grained coverage: a covered organ&#39;s Uberon marks every AS node cut from its GLB, not just nodes with direct model evidence. NOTE: the embedded 3D viewer packs under this study&#39;s `viz/hra/` are rendered from the FULL-CORPUS coverage (635/1,730, kidney included), NOT this study&#39;s glucose-query baseline — so the 3D organs show more green than the 58/1,730 figure above. See the `corpus-coverage` study for the matching corpus report.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage here is bounded by the 25-result query scope, not model
+availability — the full 1,096-model corpus covers far more (see
+`corpus-coverage`: 635/1,730 AS nodes, 31/114 organs, including
+kidney). Organ-granularity propagation also still overstates
+fine-grained coverage: a covered organ&#39;s Uberon marks every AS node
+cut from its GLB, not just nodes with direct model evidence.
+NOTE: the embedded 3D viewer packs under this study&#39;s `viz/hra/` are
+rendered from the FULL-CORPUS coverage (635/1,730, kidney included),
+NOT this study&#39;s glucose-query baseline — so the 3D organs show more
+green than the 58/1,730 figure above. See the `corpus-coverage` study
+for the matching corpus report.
+</textarea>
       </label>
     </div>
     
@@ -598,6 +642,15 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.coverage_composite.model-coverage-3d" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -624,6 +677,15 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -981,7 +1043,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "model-coverage-3d";

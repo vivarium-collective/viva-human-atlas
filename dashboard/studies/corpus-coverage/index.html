@@ -315,7 +315,12 @@
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Of the HRA ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed anatomical structures (across 114 source-organ GLBs), how many are covered once every curated BioModels model — not just a narrow search query — is crossed against them, and does full-corpus coverage reach organs a single-query search misses (e.g. kidney)?</div>
+           data-placeholder="+ Add the research question this study asks">Of the HRA ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed anatomical structures
+(across 114 source-organ GLBs), how many are covered once every curated
+BioModels model — not just a narrow search query — is crossed against
+them, and does full-corpus coverage reach organs a single-query search
+misses (e.g. kidney)?
+</div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
       <div id="objective-text" class="overview-prose" data-editable="true" data-field="objective"></div>
@@ -328,7 +333,17 @@
       
       <textarea class="biology-prose narrative-input narrative-textarea" rows="4"
                 data-narrative-path="biological_summary"
-                placeholder="Plain-English mechanism narrative.">A single BioModels search query (as in `model-coverage-3d`) only ever samples the corpus through the lens of its search terms. This study instead retrieves and organ-tags the full curated BioModels catalog (1,096 `BIOMD*` models, Task A) and crosses every organ it can tag against the ASCT+B-3D crosswalk, giving the ceiling on how much of the HRA&#39;s fine-grained 3D anatomy the *entire* published mechanistic-modeling literature (as indexed by BioModels) actually touches — not just the glucose-regulation slice. This directly measures how much anatomy is &#34;dark&#34; (unmodeled) versus &#34;lit&#34; (has at least one curated model), informing where new HRA-3D coverage work would have the most impact.</textarea>
+                placeholder="Plain-English mechanism narrative.">A single BioModels search query (as in `model-coverage-3d`) only ever
+samples the corpus through the lens of its search terms. This study
+instead retrieves and organ-tags the full curated BioModels catalog
+(1,096 `BIOMD*` models, Task A) and crosses every organ it can tag against
+the ASCT+B-3D crosswalk, giving the ceiling on how much of the HRA&#39;s
+fine-grained 3D anatomy the *entire* published mechanistic-modeling
+literature (as indexed by BioModels) actually touches — not just the
+glucose-regulation slice. This directly measures how much anatomy is
+&#34;dark&#34; (unmodeled) versus &#34;lit&#34; (has at least one curated model),
+informing where new HRA-3D coverage work would have the most impact.
+</textarea>
       
     </div>
 
@@ -346,7 +361,14 @@
           <span class="finding-kind">other</span>
           <span class="finding-status-text">novel literature</span>
         </div>
-        <div class="finding-statement">Crossing the full 1,096-model curated BioModels catalog (82/1,096, 7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS nodes / 4 organs, and critically newly reaches kidney, confirming full-corpus retrieval finds anatomically relevant models a single search term misses entirely.</div>
+        <div class="finding-statement">Crossing the full 1,096-model curated BioModels catalog (82/1,096,
+7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
+nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
+magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS
+nodes / 4 organs, and critically newly reaches kidney, confirming
+full-corpus retrieval finds anatomically relevant models a single
+search term misses entirely.
+</div>
         
         
         
@@ -461,7 +483,14 @@
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Crossing the full 1,096-model curated BioModels catalog (82/1,096, 7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS nodes / 4 organs, and critically newly reaches kidney, confirming full-corpus retrieval finds anatomically relevant models a single search term misses entirely.<span class="computed-tag">computed from findings</span></p>
+      <p class="conclusion-insight">Crossing the full 1,096-model curated BioModels catalog (82/1,096,
+7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
+nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
+magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS
+nodes / 4 organs, and critically newly reaches kidney, confirming
+full-corpus retrieval finds anatomically relevant models a single
+search term misses entirely.
+<span class="computed-tag">computed from findings</span></p>
       
       
     <div class="narrative-field">
@@ -469,7 +498,18 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The committed catalog (`datasets/biomodel_corpus_catalog.json`) retrieved 1,096/1,096 curated BioModels IDs, named all 1,096, and organ-tagged 82 (7.5%) against HRA reference-organ names. Crossing that catalog&#39;s organ-&gt;models index with the live crosswalk (1,730 Uberon-keyed AS rows / 114 source-organ GLBs) covers 635 AS nodes (36.7%) across 31 distinct organ GLBs (27.2%) — an order of magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS nodes / 4 organs (`model-coverage-3d`). Critically, kidney is now covered (`VH_F_Kidney_L`/`_R`, `VH_M_Kidney_L`/`_R`), which the narrower query missed entirely, confirming full-corpus retrieval finds anatomically relevant models a single search term does not.</textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The committed catalog (`datasets/biomodel_corpus_catalog.json`) retrieved
+1,096/1,096 curated BioModels IDs, named all 1,096, and organ-tagged
+82 (7.5%) against HRA reference-organ names. Crossing that catalog&#39;s
+organ-&gt;models index with the live crosswalk (1,730 Uberon-keyed AS
+rows / 114 source-organ GLBs) covers 635 AS nodes (36.7%) across 31
+distinct organ GLBs (27.2%) — an order of magnitude wider than the
+25-result glucose-regulation query&#39;s 58 AS nodes / 4 organs
+(`model-coverage-3d`). Critically, kidney is now covered
+(`VH_F_Kidney_L`/`_R`, `VH_M_Kidney_L`/`_R`), which the narrower query
+missed entirely, confirming full-corpus retrieval finds anatomically
+relevant models a single search term does not.
+</textarea>
       </label>
     </div>
     
@@ -479,7 +519,16 @@
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Organ-tagging yield is low relative to catalog size (82/1,096 = 7.5% tagged) — the remaining 1,014 models are either genuinely organ-agnostic (pathway/signaling models with no single anatomical site) or are organ-specific but missed by the current synonym/reference-organ-name matching (the study&#39;s main expert question). Coverage is still organ-granularity, not per-AS-node model matching: a covered organ&#39;s Uberon marks every AS node cut from its GLB as covered, which can overstate coverage for anatomically distinct sub-structures with no direct model evidence.</textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Organ-tagging yield is low relative to catalog size (82/1,096 = 7.5%
+tagged) — the remaining 1,014 models are either genuinely
+organ-agnostic (pathway/signaling models with no single anatomical
+site) or are organ-specific but missed by the current
+synonym/reference-organ-name matching (the study&#39;s main expert
+question). Coverage is still organ-granularity, not per-AS-node model
+matching: a covered organ&#39;s Uberon marks every AS node cut from its
+GLB as covered, which can overstate coverage for anatomically distinct
+sub-structures with no direct model evidence.
+</textarea>
       </label>
     </div>
     
@@ -598,6 +647,15 @@
         
       </div>
       
+      <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+        <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
+               value="viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage" placeholder="pkg.composites.name"
+               style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
+        <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
+                data-baseline-name="baseline">Set composite</button>
+      </div>
+      <div class="baseline-composite-status muted" data-baseline-name="baseline" style="font-size:0.8em;margin-top:2px"></div>
+      
       <div class="model-config-mount" style="margin-top:8px">
         <p class="muted" style="font-size:0.85em;margin:0">Loading configuration…</p></div>
       
@@ -624,6 +682,15 @@
   
   
   
+
+  
+  <div class="overview-section" id="analyses-section">
+    <h3>Analyses <span class="muted" style="font-size:0.85em;font-weight:normal">— post-run analysis modules to compute on dispatch</span></h3>
+    <p class="muted" style="font-size:0.88em">One analysis name per line (e.g. <code>doubling_time_distribution</code>). Threaded into <code>analysis_options</code> on both local and remote dispatch.</p>
+    <textarea id="study-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.88em" placeholder="doubling_time_distribution"></textarea>
+    <button type="button" class="action-btn" style="margin-top:6px" onclick="_saveStudyAnalyses()">Save analyses</button>
+    <div id="study-analyses-status" class="muted" style="font-size:0.85em;margin-top:4px"></div>
+  </div>
 </section>
 
 
@@ -981,7 +1048,7 @@
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/study/vasculature-blood-circulation", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2afc63bc22e57e33fbb21f31d1f7cd35f19ae85e", "branch": "study/vasculature-blood-circulation", "generated_at": "2026-07-28 12:44 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/hra-atlas-browser", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/722c8bbe90eb4d2bf4db5d452d6e6f9c245b1769", "branch": "feat/hra-atlas-browser", "generated_at": "2026-08-02 01:14 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "corpus-coverage";
