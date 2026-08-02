@@ -28,6 +28,7 @@ const els = {
   btnAll: document.getElementById("btn-all"),
   btnNone: document.getElementById("btn-none"),
   btnCenter: document.getElementById("btn-center"),
+  modelSearch: document.getElementById("model-search"),
   selCount: document.getElementById("sel-count"),
   legendMax: document.getElementById("legend-max"),
   bpTitle: document.getElementById("bp-title"),
@@ -164,6 +165,50 @@ async function main() {
   const groupChecks = new Map();       // system -> header checkbox element
   const raycastMeshes = [];            // meshes across all *shown* organs
   let hovered = null;
+  let modelQuery = "";                 // active model-search keyword (lowercased)
+
+  // Models in an organ whose name or BioModels id contains the search keyword.
+  function matchingModels(organ, q) {
+    if (!q) return [];
+    return organ.models.filter(
+      (m) => (m.name + " " + m.biomodel_id).toLowerCase().includes(q));
+  }
+  // Color for one shown organ under the current search: no search -> the normal
+  // model-count color; searching -> scaled by how many of its models MATCH
+  // (so the selected organs light up where the keyword is represented), and
+  // organs with no match dim out.
+  function organColorSpec(organ) {
+    if (!modelQuery) return { color: countColor(organ.n_models, atlas.max_models), opacity: 1 };
+    const n = matchingModels(organ, modelQuery).length;
+    if (!n) return { color: new THREE.Color(NOMODEL), opacity: 0.18 };
+    const maxMatch = searchMaxMatch || 1;
+    return { color: countColor(n, maxMatch), opacity: 1 };
+  }
+  let searchMaxMatch = 0;
+  // Recolor every currently-shown organ group per organColorSpec.
+  function recolorShown() {
+    searchMaxMatch = 0;
+    if (modelQuery) {
+      for (const k of selected) {
+        const o = organsByKey.get(k);
+        if (o) searchMaxMatch = Math.max(searchMaxMatch, matchingModels(o, modelQuery).length);
+      }
+    }
+    for (const k of selected) {
+      const g = groups.get(k), o = organsByKey.get(k);
+      if (!g || !o) continue;
+      const spec = organColorSpec(o);
+      g.traverse((n) => {
+        if (!n.isMesh || !n.material || n.material.isLineBasicMaterial) return;
+        n.material.color.copy(spec.color);
+        n.material.transparent = spec.opacity < 1;
+        n.material.opacity = spec.opacity;
+      });
+    }
+    // Legend tracks what the colors mean now: matches-per-organ while searching,
+    // else total models-per-organ.
+    els.legendMax.textContent = String(modelQuery ? (searchMaxMatch || 0) : atlas.max_models);
+  }
 
   // Build (or reuse) an organ's colored GLB group. Every mesh is colored by
   // the organ's model count (organ-granularity) and outlined so sub-regions
@@ -241,11 +286,15 @@ async function main() {
     els.selCount.textContent = selected.size
       ? `${selected.size} organs · ${distinctModels([...selected])} models`
       : "none shown";
+    recolorShown();          // keep colors consistent with any active search
     if (doFrame) frameSelection();
   }
 
   function focus(key) {
     focused = key;
+    // While a model search is active the panel stays on the search results
+    // (across all shown organs), not a single organ.
+    if (modelQuery) { renderModelSearch(); return; }
     const organ = organsByKey.get(key);
     if (organ) renderBioModels(organ);
   }
@@ -359,6 +408,61 @@ async function main() {
     els.bpList.innerHTML = "";
   }
 
+  function _modelLink(m) {
+    const a = document.createElement("a");
+    a.href = m.url; a.target = "_blank"; a.rel = "noopener";
+    const by = m.matched_by || [];
+    const badge = by.length
+      ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
+          by.length === 2 ? "name+annotation" : by[0]}</span>` : "";
+    a.innerHTML = `<div>${m.name} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
+    return a;
+  }
+
+  // Right-panel results for the model keyword search: matching BioModels grouped
+  // by the shown organ that carries them, each organ header swatch matching the
+  // 3D coloring (so the panel and the lit-up organs read as one view).
+  function renderModelSearch() {
+    const q = modelQuery;
+    els.bpTitle.textContent = `Models matching “${q}”`;
+    els.bpList.innerHTML = "";
+    const hits = [...selected]
+      .map((k) => ({ organ: organsByKey.get(k), models: matchingModels(organsByKey.get(k), q) }))
+      .filter((h) => h.organ && h.models.length)
+      .sort((a, b) => b.models.length - a.models.length);
+    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.biomodel_id))).size;
+    els.bpSub.textContent = hits.length
+      ? `${nModels} model${nModels === 1 ? "" : "s"} across ${hits.length} shown organ${hits.length === 1 ? "" : "s"}`
+      : `no matches in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
+    if (!hits.length) {
+      const d = document.createElement("div");
+      d.className = "empty";
+      d.textContent = selected.size
+        ? "No shown organ has a model matching that keyword."
+        : "Select organs first, then filter their models.";
+      els.bpList.appendChild(d);
+      return;
+    }
+    for (const { organ, models } of hits) {
+      const head = document.createElement("div");
+      head.className = "organ-group-head";
+      head.innerHTML = `<span class="sw" style="background:${cssColor(models.length, searchMaxMatch || 1)}"></span>` +
+        `${organ.label} · ${models.length}`;
+      els.bpList.appendChild(head);
+      for (const m of models) els.bpList.appendChild(_modelLink(m));
+    }
+  }
+
+  // React to the model keyword box: recolor the shown organs by match count and
+  // switch the panel between per-organ view and search results.
+  function onModelSearch() {
+    modelQuery = els.modelSearch.value.trim().toLowerCase();
+    recolorShown();
+    if (modelQuery) renderModelSearch();
+    else if (focused) focus(focused);
+    else resetPanel();
+  }
+
   // ---- left menu: organs grouped by anatomical system, collapsible ----
   const groupBodies = new Map();       // system -> the row-container element
   function buildMenu() {
@@ -436,6 +540,9 @@ async function main() {
   addEventListener("keydown", (e) => {
     if (e.key === "f" && !/input|textarea/i.test(e.target.tagName)) frameSelection();
   });
+  // Model keyword search (right panel): recolor shown organs by match count
+  // + list matching models grouped by organ.
+  els.modelSearch.addEventListener("input", onModelSearch);
 
   // ---- hover + click in the 3D scene ----
   const ray = new THREE.Raycaster();
