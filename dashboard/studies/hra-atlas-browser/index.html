@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Study: hra-3d-crosswalk</title>
+<title>Study: hra-atlas-browser</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
 <!-- Inherit the workbench light/dark theme (this page loads in an iframe;
@@ -14,7 +14,7 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-num-chip" style="font-size:0.5em; font-weight:700; color:#64748b; background:#f1f5f9; padding:3px 9px; border-radius:9999px; vertical-align:middle; margin-right:8px">hra-3d</span><span class="study-name" id="study-name" data-slug="hra-3d-crosswalk" title="hra-3d-crosswalk">HRA 3D Crosswalk — Full ASCT+B-3D Anatomical-Structure Tree</span>
+    <span class="study-name" id="study-name" data-slug="hra-atlas-browser" title="hra-atlas-browser">HRA Atlas Browser — organ selector + model-count gradient + BioModels links</span>
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
@@ -33,7 +33,7 @@
     
 
     
-    <div id="readiness-panel" data-slug="hra-3d-crosswalk"></div>
+    <div id="readiness-panel" data-slug="hra-atlas-browser"></div>
 
     
     
@@ -55,7 +55,7 @@
             <span class="dot"></span>2&nbsp;·&nbsp;Execution<span class="step-val">ran</span>
           </span>
           
-          <span class="status-step gate-step axis-evaluation_status gate-state-passed set" title="Gate 3 · Evidence">
+          <span class="status-step gate-step axis-evaluation_status gate-state-passed-with-conditions set" title="Gate 3 · Evidence">
             <span class="dot"></span>3&nbsp;·&nbsp;Evidence
           </span>
           
@@ -63,7 +63,7 @@
             <span class="dot"></span>4&nbsp;·&nbsp;Quality
           </span>
           
-          <span class="status-step gate-step axis-gate_status gate-state-passed set" title="Gate 5 · Decision">
+          <span class="status-step gate-step axis-gate_status gate-state-not-assessed set" title="Gate 5 · Decision">
             <span class="dot"></span>5&nbsp;·&nbsp;Decision
           </span>
           
@@ -97,13 +97,15 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-passed">
+        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
           <span class="status-detail-axis">3 · Evidence</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-passed" title="completed run + recorded verdicts">◆ computed: evaluated</span>
+          <span class="gate-computed-chip gate-state-passed-with-conditions" title="completed run + recorded verdicts + visualization readiness gate (V4)">◆ computed: evaluated</span>
           
           
+          
+          <span class="gate-viz-gap-note" style="font-size:0.86em;color:#92400e">visualization gap: no figures</span>
           
         </div>
         
@@ -117,11 +119,11 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-passed">
+        <div class="status-detail-row gate-row gate-state-not-assessed">
           <span class="status-detail-axis">5 · Decision</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-passed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: passed</span>
+          <span class="gate-computed-chip gate-state-not-assessed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: not_started</span>
           
           
           
@@ -154,17 +156,17 @@
 
 
 
-<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Does the HRA CDN&#39;s ASCT+B-3D models crosswalk load into a Step-driven
-composite, giving the full 1,400+ anatomical-structure (AS) tree — not
-just the ~81 per-organ reference-organ GLBs — with resolvable Uberon CURIEs
-and source-organ GLB names?
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Can we present the full HRA-3D model-coverage picture as an interactive
+atlas: pick any of the 50 GLB-backed HRA organs, see its regions
+demarcated and colored by how many mechanistic models are associated with
+it, and browse straight to those BioModels?
 </p>
 
 <nav class="study-tabs" aria-label="Study sections">
   
   <div class="act-cluster" data-act="study">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="study" data-gate-state="passed"></span>
+      <span class="act-gate-dot" data-gate="study" data-gate-state="passed-with-conditions"></span>
       <span class="act-label">The Study</span>
     </div>
     <div class="act-tabs">
@@ -183,7 +185,7 @@ and source-organ GLB names?
   </div>
   <div class="act-cluster" data-act="evidence">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed"></span>
+      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed-with-conditions"></span>
       <span class="act-label">Evidence</span>
     </div>
     <div class="act-tabs">
@@ -202,12 +204,12 @@ and source-organ GLB names?
   </div>
   <div class="act-cluster" data-act="decision">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed"></span>
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="not-assessed"></span>
       <span class="act-label">Decision</span>
     </div>
     <div class="act-tabs">
       
-      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Decide</button>
+      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Conclusions</button>
     </div>
   </div>
 </nav>
@@ -439,10 +441,10 @@ and source-organ GLB names?
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Does the HRA CDN&#39;s ASCT+B-3D models crosswalk load into a Step-driven
-composite, giving the full 1,400+ anatomical-structure (AS) tree — not
-just the ~81 per-organ reference-organ GLBs — with resolvable Uberon CURIEs
-and source-organ GLB names?
+           data-placeholder="+ Add the research question this study asks">Can we present the full HRA-3D model-coverage picture as an interactive
+atlas: pick any of the 50 GLB-backed HRA organs, see its regions
+demarcated and colored by how many mechanistic models are associated with
+it, and browse straight to those BioModels?
 </div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
@@ -453,18 +455,11 @@ and source-organ GLB names?
     
     <div class="overview-section">
       <div class="purpose-callout" style="background:#f8fafc;border-left:4px solid #94a3b8">
-        <strong>Summary.</strong> The Human Reference Atlas (HRA) publishes ~81 whole-organ 3D reference
-models (per-sex GLB scenes), but a mechanistic model rarely maps cleanly
-onto a whole organ — it targets a lobe, duct, nephron segment, or other
-sub-organ anatomical structure (AS). The ASCT+B-3D models crosswalk is the
-HRA&#39;s digital object that cuts each reference-organ GLB into its
-constituent AS scene nodes and keys each to a Uberon CURIE where the node
-is directly ontology-representable (`mesh` node type), leaving purely
-structural grouping nodes (`organizational`) unkeyed. This is the
-substrate every downstream HRA-3D coverage/linkage step (Tasks B and C)
-crosses against the BioModels-derived organ annotations, so its size,
-Uberon-density, and organ span set the ceiling on how fine-grained model
-coverage can ever be reported.
+        <strong>Summary.</strong> Mechanistic models cluster on a handful of organs (blood, pancreas, liver,
+brain, intestine, heart) and leave most of the body&#39;s 3D anatomy unmodeled. The
+Atlas Browser makes that distribution legible: the color gradient shows
+where modeling effort has concentrated, and the greyed organs make the
+modeling white-space visible at a glance.
 
       </div>
     </div>
@@ -484,12 +479,10 @@ coverage can ever be reported.
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure
-rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%)
-carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node
-original estimate and comfortably clearing the ~81-reference-organ
-floor -- confirming the crosswalk gives materially finer anatomical
-granularity than the whole-organ GLBs alone.
+            <span class="finding-claim finding-statement">The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
+the 14 modeled ones by model count (blood 51 max, 167 distinct models),
+linking each to its BioModels entries — a whole-atlas overview of where
+mechanistic modeling exists.
 </span>
             
           </summary>
@@ -589,7 +582,7 @@ granularity than the whole-organ GLBs alone.
           <div>
             <strong style="color:#1e293b">region-unexplored</strong>
             <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can the 18.3% organizational/unkeyed rows ever be resolved to Uberon, or is that a permanent ceiling on organ-granularity coverage?</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can sub-region (AS-level) counts replace organ-granularity coloring? See fp-as-level-coverage.</div>
           </div>
         </div>
         
@@ -602,12 +595,10 @@ granularity than the whole-organ GLBs alone.
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure
-rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%)
-carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node
-original estimate and comfortably clearing the ~81-reference-organ
-floor -- confirming the crosswalk gives materially finer anatomical
-granularity than the whole-organ GLBs alone.
+      <p class="conclusion-insight">The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
+the 14 modeled ones by model count (blood 51 max, 167 distinct models),
+linking each to its BioModels entries — a whole-atlas overview of where
+mechanistic modeling exists.
 <span class="computed-tag">computed from findings</span></p>
       
       
@@ -616,16 +607,14 @@ granularity than the whole-organ GLBs alone.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live composite loads 2,295 anatomical-structure rows spanning 116
-distinct source-organ GLBs (both sexes). 1,730/2,295 rows (75.4%) carry
-a resolvable UBERON: CURIE (`node_type=mesh`, 1,410 rows) or
-`surface` (464 rows); the remaining 419 `organizational` rows (18.3%,
-plus 2 blank) are pure grouping nodes with no Uberon and are correctly
-excluded from coverage computation (`coverage.build_coverage` skips
-rows with an empty `uberon`). This exceeds the ~1,400+ AS nodes
-originally estimated and comfortably clears the ~81-reference-organ
-floor, confirming the crosswalk gives materially finer anatomical
-granularity than the whole-organ GLBs alone.
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The atlas manifest covers all 50 GLB-backed HRA organs; 14 carry ≥1
+model (blood 51, pancreas 47, liver 33, brain 29, intestine 18,
+heart 11, lung 11, adipose 7, kidney 5, spleen 5, ovary 4, lymph node 3,
+skin 3, urinary bladder 2), 36 are greyed. Counts are distinct models
+from the union of name-synonym and SBML-annotation matching (167 distinct
+/ 229 total). Each modeled organ links to its BioModels entries. The
+gradient is organ-granularity: it shows where modeling exists across the
+body but does not yet distinguish sub-regions within an organ.
 </textarea>
       </label>
     </div>
@@ -636,12 +625,10 @@ granularity than the whole-organ GLBs alone.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Uberon coverage is real but partial (75.4%, not 100%) — the
-`organizational` fraction (18.3%) is structurally un-keyable (they are
-grouping nodes, not anatomy), so organ-granularity coverage
-(`model-coverage-3d`/`corpus-coverage`) can never reach 100% of raw
-crosswalk rows even with a complete model corpus; this is a data-model
-ceiling, not a bug.
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage is organ-granularity — every sub-region of a modeled organ
+inherits the organ&#39;s count, so the within-organ gradient is uniform.
+True per-anatomical-structure counts are the fp-as-level-coverage
+follow-up.
 </textarea>
       </label>
     </div>
@@ -686,19 +673,19 @@ ceiling, not a bug.
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="viva_human_atlas.composites.hra_steps.hra-3d-crosswalk" data-model-overrides='{"url": "https://cdn.humanatlas.io/digital-objects/ref-organ/asct-b-3d-models-crosswalk/latest/assets/asct-b-3d-models-crosswalk.csv"}'>
+    <div class="cond-block" data-model-composite="viva_human_atlas.composites.annotation_composite.annotation-recall-gain" data-model-overrides='{"annotation_catalog_path": "datasets/biomodel_annotation_catalog.json", "name_catalog_path": "datasets/biomodel_corpus_catalog.json"}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.hra_steps.hra-3d-crosswalk</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.annotation_composite.annotation-recall-gain</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('viva_human_atlas.composites.hra_steps.hra-3d-crosswalk')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('viva_human_atlas.composites.annotation_composite.annotation-recall-gain')">🧬 explore &amp; run ↗</button>
         
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
         <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
-               value="viva_human_atlas.composites.hra_steps.hra-3d-crosswalk" placeholder="pkg.composites.name"
+               value="viva_human_atlas.composites.annotation_composite.annotation-recall-gain" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
                 data-baseline-name="baseline">Set composite</button>
@@ -762,9 +749,9 @@ ceiling, not a bug.
   <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
     <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
     <a id="data-download-all" class="btn-mini" style="display:none"
-       href="/api/study-analysis-zip?study=hra-3d-crosswalk">Download all (.zip)</a>
+       href="/api/study-analysis-zip?study=hra-atlas-browser">Download all (.zip)</a>
   </div>
-  <div id="data-files" data-study="hra-3d-crosswalk">
+  <div id="data-files" data-study="hra-atlas-browser">
     <p class="empty-message">Loading result files…</p>
   </div>
 
@@ -789,7 +776,7 @@ ceiling, not a bug.
     
     <div id="readouts-download" style="margin:0 0 16px 0"></div>
 
-    <div id="readouts-table" data-study="hra-3d-crosswalk">
+    <div id="readouts-table" data-study="hra-atlas-browser">
       <p class="empty-message">Loading readouts from the composite emit plan…</p>
     </div>
 
@@ -803,25 +790,6 @@ ceiling, not a bug.
 
     <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
 
-    
-    
-    
-    <div class="figure-card embed-viz-card">
-      <iframe src="/viva-human-atlas/dashboard/reports/figures/hra-3d-crosswalk/as-per-organ.html"
-              class="figure-media-frame figure-media-frame--embed"
-              loading="lazy" title="AS nodes per organ"
-              onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
-              ></iframe>
-      
-      <p class="figure-desc muted">Bar chart of anatomical-structure node counts per source-organ GLB (top 20 of 116 organs) from the live crosswalk fetch: 2,295 rows total, 1,730 with a resolvable Uberon CURIE.</p>
-      
-      <div class="figure-caption-row">
-        <span class="figure-source-chip">embed</span>
-        <span class="figure-title">AS nodes per organ</span>
-        
-        <a href="/viva-human-atlas/dashboard/reports/figures/hra-3d-crosswalk/as-per-organ.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
-      </div>
-    </div>
     
     
 
@@ -926,7 +894,7 @@ ceiling, not a bug.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline live fetch and CSV parse of the ASCT+B-3D crosswalk completed without error.</textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -939,7 +907,7 @@ ceiling, not a bug.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The endpoint returns the expected data shape/counts (2,295 rows, exceeding the ~1,400+ estimate) with 75.4% resolvable to Uberon -- the Step-based fetch is accurate to the live crosswalk.</textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -952,17 +920,11 @@ ceiling, not a bug.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 quantifies the 75.4% Uberon-density ceiling that bounds every downstream organ-granularity coverage computation (model-coverage-3d, corpus-coverage).</textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
         </label>
       </div>
     </div>
 
-    
-    
-    
-
-    
-    
     
 
   </div>
@@ -972,18 +934,6 @@ ceiling, not a bug.
   <div class="overview-section"><h2 class="overview-label">Plan &amp; assumptions</h2>
 
     
-    <div class="overview-section">
-      <h3 class="overview-label">Pipeline gate</h3>
-      <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
-        Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
-      </p>
-      
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
-      
-      
-      
-    </div>
-    
 
     
 
@@ -992,7 +942,7 @@ ceiling, not a bug.
       <h3 class="overview-label">Limitations</h3>
       <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
       <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-        <li style="margin:2px 0">The 18.3% organizational-row fraction is structurally un-keyable (pure grouping nodes, not anatomy), so downstream organ-granularity coverage can never reach 100% of raw crosswalk rows even with a complete model corpus -- a data-model ceiling, not a bug.</li>
+        <li style="margin:2px 0">Organ-granularity gradient: sub-regions within an organ share the organ&#39;s count (no per-AS-node resolution yet).</li><li style="margin:2px 0">Organ tagging is name-synonym-based (see hra-integration); untagged models may hide real organ relevance.</li>
       </ul>
     </div>
     
@@ -1005,21 +955,38 @@ ceiling, not a bug.
 
     
     
-    
-    
-    <div class="decide-section">
-      <h3 class="overview-label">Latest run outcomes</h3>
-      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
-        baseline · seed ? ·
-        ?s simulated ·
-        ? history rows ·
-        started ?
+    <p class="muted" style="margin:0 0 10px 0;font-size:0.85em">
+      Synthesised read-only from canonical fields — edit <code>findings</code>,
+      <code>limitations</code>, and <code>discovery_implications</code> to change
+      this (and the generated report) together.
+    </p>
+    <div class="conclusions-grid conclusions-synthesis">
+      <div class="conclusion-field">
+        <h3>Claims <span class="muted small">(from findings)</span></h3>
+        
+        <ul class="synthesis-list">
+          
+          <li>The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
+the 14 modeled ones by model count (blood 51 max, 167 distinct models),
+linking each to its BioModels entries — a whole-atlas overview of where
+mechanistic modeling exists.
+ <span class="finding-tier tier-interpretation">interpretation</span></li>
+          
+        </ul>
+        
       </div>
-      
-      
-      
+      <div class="conclusion-field">
+        <h3>Evidence <span class="muted small">(from findings)</span></h3>
+        
+        
+        <ul class="synthesis-list">
+          
+          <li>summary: 50 organs, 14 modeled (167 distinct / 229 total from the name-synonym union annotation union), max_models=51 (blood); 36 organs greyed (no models).</li>
+          
+        </ul>
+        
+      </div>
     </div>
-    
     
 
   </div>
@@ -1042,13 +1009,13 @@ ceiling, not a bug.
         
         <div class="di-unc di-unc-resolved">
           <h4>✓ Resolved uncertainties</h4>
-          <ul><li>The crosswalk exceeds the original ~1,400+ AS-node estimate (2,295 rows / 1,730 Uberon-keyed), confirming it gives materially finer granularity than the 81 whole-organ GLBs.</li></ul>
+          <ul><li>The full 50-organ GLB set is enumerable and renderable with a per-organ model-count gradient and BioModels links.</li></ul>
         </div>
         
         
         <div class="di-unc di-unc-remaining">
           <h4>● Remaining uncertainties</h4>
-          <ul><li>Can the 18.3% organizational/unkeyed rows ever be resolved to Uberon, or is that a permanent ceiling on organ-granularity coverage?</li></ul>
+          <ul><li>Can sub-region (AS-level) counts replace organ-granularity coloring? See fp-as-level-coverage.</li></ul>
         </div>
         
       </div>
@@ -1071,17 +1038,17 @@ ceiling, not a bug.
           
           <div class="di-card di-fup-card">
             <div class="followup-header">
-              <strong class="followup-title">Resolve organizational-row Uberon gap</strong>
-              <span class="di-chip">analysis</span>
-              <span class="di-chip">hra-3d-crosswalk</span>
-              <span class="di-chip di-gain-medium">gain: medium</span>
+              <strong class="followup-title">AS-level (sub-organ) model coverage in the Atlas Browser</strong>
+              <span class="di-chip">method-upgrade</span>
+              <span class="di-chip">hra-atlas-browser</span>
+              <span class="di-chip di-gain-high">gain: high</span>
               
             </div>
-            <div class="di-card-why">For each of the 419 `organizational` crosswalk rows, check whether its `parent`/`label` or an adjacent `mesh`/`surface` sibling node resolves to a Uberon CURIE it could inherit, and report how many of the 18.3% un-keyed rows are recoverable vs a genuine structural-grouping ceiling.</div>
+            <div class="di-card-why">Parse SBML MIRIAM/Uberon annotations at anatomical-structure granularity, join to crosswalk AS nodes, and drive per-mesh color from per-node counts.</div>
             
             <div class="followup-actions" style="margin-top:8px">
               <button class="btn-seed-followup"
-                      onclick="_seedFollowupProposal('hra-3d-crosswalk', "fp-resolve-organizational-rows")">➕ Add to investigation</button>
+                      onclick="_seedFollowupProposal('hra-atlas-browser', "fp-as-level-coverage")">➕ Add to investigation</button>
             </div>
           </div>
           
@@ -1092,13 +1059,30 @@ ceiling, not a bug.
     
 
     
-    
-    
-    
 
   </div>
 
   
+  
+  <details class="overview-section"><summary class="overview-label">Limitations &amp; provenance</summary>
+
+    
+    
+    
+    <div class="conclusions-grid conclusions-synthesis">
+      <div class="conclusion-field">
+        <h3>Next steps <span class="muted small">(from discovery implications)</span></h3>
+        
+        <ul class="synthesis-list">
+          
+          <li><strong>AS-level (sub-organ) model coverage in the Atlas Browser</strong> — Color sub-regions within an organ by their own model count instead of inheriting the organ&#39;s count.</li>
+          
+        </ul>
+        
+      </div>
+    </div>
+
+  </details>
   
 
 </section>
@@ -1107,7 +1091,7 @@ ceiling, not a bug.
 <script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/chore/lint-studies", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "44192b60bc1c3a63e47f2509ec46711ec941e04b", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/44192b60bc1c3a63e47f2509ec46711ec941e04b", "branch": "chore/lint-studies", "generated_at": "2026-08-02 02:42 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
-window._studyName = "hra-3d-crosswalk";
+window._studyName = "hra-atlas-browser";
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
