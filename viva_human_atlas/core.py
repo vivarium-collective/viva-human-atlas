@@ -41,12 +41,23 @@ def _iter_workspace_edges(package) -> Iterable[tuple[type, str]]:
 
 def build_core():
     core = allocate_core()
-    # Register pbg-biomodels' simulator backends + types (reused by our composites).
-    from viva_biomodels.simulators import register_simulator_backends
-    from viva_biomodels import register_types as register_biomodels_types
+    # Register viva-biomodels' simulator backends + types (reused by our composites).
+    # Guarded: the read-only dashboard/report publish installs only vivarium-workbench
+    # + this workspace (`uv pip install -e . --no-deps`), so viva_biomodels may be
+    # absent in CI. Degrade to spec-only rendering (workspace types + local Steps
+    # still register) rather than failing the whole registry build.
+    try:
+        from viva_biomodels.simulators import register_simulator_backends
+        from viva_biomodels import register_types as register_biomodels_types
+        register_simulator_backends(core)
+        register_biomodels_types(core)
+    except ImportError as exc:  # sim backend unavailable — fine for read-only rendering
+        import warnings
+        warnings.warn(
+            f"viva_biomodels unavailable ({exc}); registering workspace types only. "
+            "Sim backends are inactive, but composites/studies still render from spec."
+        )
     from viva_human_atlas.types import register_workspace_types
-    register_simulator_backends(core)
-    register_biomodels_types(core)
     register_workspace_types(core)
     # Register this workspace's local Steps by dotted path and short name.
     for cls, dotted in _iter_workspace_edges(viva_human_atlas):
