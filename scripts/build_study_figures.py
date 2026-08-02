@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from viva_human_atlas import coverage, results_source, viz
+from viva_human_atlas import annotation_gain, coverage, results_source, viz
 from viva_human_atlas.ftu_coverage import build_ftu_model_coverage
 from viva_human_atlas.hra_api import (
     fetch_anatomical_structure_terms,
@@ -156,6 +156,29 @@ def build_ftu_model_coverage_figure() -> None:
     _write("ftu-model-coverage", "models-per-ftu", html)
 
 
+def build_annotation_recall_gain_figure() -> None:
+    name_catalog = coverage.load_corpus_catalog("datasets/biomodel_corpus_catalog.json")
+    annotation_catalog = coverage.load_corpus_catalog("datasets/biomodel_annotation_catalog.json")
+    gain = annotation_gain.compare_catalogs(name_catalog, annotation_catalog)
+    per_organ = sorted(gain["delta"]["per_organ"], key=lambda row: row["union_models"], reverse=True)
+    organs = [row["organ"] for row in per_organ]
+    html = viz.grouped_bar_html(
+        organs,
+        [
+            {"name": "name-only", "y": [row["name_models"] for row in per_organ]},
+            {"name": "annotation", "y": [row["annotation_models"] for row in per_organ]},
+            {"name": "union", "y": [row["union_models"] for row in per_organ]},
+        ],
+        title=(
+            "Recall gain: name-only vs annotation-based organ matching "
+            f"({gain['name']['n_models_total']} vs {gain['annotation']['n_models_total']} models, "
+            f"union {gain['union']['n_models_total']})"
+        ),
+        yaxis_title="models",
+    )
+    _write("annotation-recall-gain", "recall-gain", html)
+
+
 def build_spatial_linkage_figure() -> None:
     out = build_spatial_links(GLUCOSE_QUERY, GLUCOSE_MAX_RESULTS)
     counts = Counter(link["label"] for link in out["links"])
@@ -185,6 +208,7 @@ def main() -> None:
     build_ftu_glomerulus_figure()
     build_ftu_model_coverage_figure()
     build_spatial_linkage_figure()
+    build_annotation_recall_gain_figure()
 
 
 if __name__ == "__main__":

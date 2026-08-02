@@ -1,0 +1,2494 @@
+{
+  "organs": [
+    {
+      "key": "blood",
+      "label": "Blood",
+      "uberon": "UBERON:0004537",
+      "system": "Cardiovascular",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
+      },
+      "n_models": 51,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000268",
+          "name": "Reed2008_Glutathione_Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000268",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000276",
+          "name": "Shrestha2010_HypoCalcemia_PTHresponse",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000276",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000277",
+          "name": "Shrestha2010_HyperCalcemia_PTHresponse",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000277",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000282",
+          "name": "Chance1952_Catalase_Mechanism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000282",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000332",
+          "name": "Bungay2006_Plasma",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000332",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000335",
+          "name": "Hockin2002_BloodCoagulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000335",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000336",
+          "name": "Jones1994_BloodCoagulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000336",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000338",
+          "name": "Wajima2009_BloodCoagulation_aPTTtest",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000339",
+          "name": "Wajima2009_BloodCoagulation_PTtest",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000340",
+          "name": "Wajima2009_BloodCoagulation_warfarin_heparin",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000345",
+          "name": "Koschorreck2008_InsulinClearance",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000345",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000362",
+          "name": "Butenas2004_BloodCoagulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000362",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000365",
+          "name": "Hockin1999_BloodCoagulation_VaInactivation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000365",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000428",
+          "name": "Achcar2012 - Glycolysis in bloodstream form T. brucei",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000428",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000434",
+          "name": "McAuley2012 - Whole-body Cholesterol Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000434",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000450",
+          "name": "Reyes-Palomares2012 -  a combined model hepatic polyamine and sulfur aminoacid metabolism - version2",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000450",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000490",
+          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000494",
+          "name": "Roblitz2013 - Menstrual Cycle following GnRH analogue administration",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000494",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000512",
+          "name": "Benson2014 - FAAH inhibitors for the treatment of osteoarthritic pain",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000512",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000521",
+          "name": "Ribba2012 - Low-grade gliomas, tumour growth inhibition model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000521",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000534",
+          "name": "Dwivedi2014 - Healthy Volunteer IL6 Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000535",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6 Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000535",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000536",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - sgp130 activity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000536",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000537",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000551",
+          "name": "Das2010 - Effect of a gamma-secretase inhibitor on Amyloid-beta dynamics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000551",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000611",
+          "name": "Nayak2015 - Blood Coagulation Network - Predicting the Effects of Various Therapies on Biomarkers",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000611",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000672",
+          "name": "Brown1997 - Plasma Melatonin Levels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000672",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000674",
+          "name": "Reyes-Palomares2012 - a combined model hepatic polyamine and sulfur aminoacid metabolism - version1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000674",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000734",
+          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000739",
+          "name": "Bravo2012 - Modelling blood coagulation factor Va inactivation by APC",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000739",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000740",
+          "name": "Panteleev2010 - Blood Coagulation: Full Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000740",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000747",
+          "name": "Nagashima2002 - Simulating blood coagulation inhibitory effects",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000747",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000755",
+          "name": "Hansen2019 - Nine species reduced model of blood coagulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000755",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000788",
+          "name": "Schropp2019 - Target-Mediated Drug Disposition Model for Bispecific Antibodies",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000788",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000925",
+          "name": "Dunster2016 - Nondimensional Coagulation Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000925",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000951",
+          "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000951",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001011",
+          "name": "Leon-Triana2020 - CAR T-cell therapy in B-cell acute lymphoblastic leukaemia",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001011",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001012",
+          "name": "Leon-Triana2020 - CAR T-cell therapy in B-cell acute lymphoblastic leukaemia with contribution from immature B cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001012",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001016",
+          "name": "Bakshi2020 - Truncated minimal model of alternative pathway of complement system",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001016",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001017",
+          "name": "Bakshi2020 - Minimal model of alternative pathway of complement system",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001017",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001018",
+          "name": "Bakshi2020 - Properdin model of alternative pathway of complement system",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001018",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001024",
+          "name": "Chaudhury2020 - Lotka-Volterra mathematical model of CAR-T cell and tumour kinetics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001024",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001025",
+          "name": "Chaudhury2020 - EC50 expansion and killing mathematical model of CAR-T cell and tumour kinetics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001025",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001026",
+          "name": "Kurlovics2021 - Metformin partitioning between plasma and RBC with independent Kin and Kout coefficients",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001026",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001028",
+          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001029",
+          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001040",
+          "name": "Kurlovics2021 - Metformin partitioning from plasma to RBC,  single coefficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001040",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001069",
+          "name": "Alam2019 - Machine learning approach of automatic identification and counting of blood cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001069",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "pancreas",
+      "label": "Pancreas",
+      "uberon": "UBERON:0001264",
+      "system": "Digestive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-female/v1.3/assets/3d-vh-f-pancreas.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-male/v1.3/assets/3d-vh-m-pancreas.glb"
+      },
+      "n_models": 47,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000058",
+          "name": "Bindschadler2001_coupled_Ca_oscillators",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000058",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000059",
+          "name": "Fridlyand2003_Calcium_flux",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000059",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000137",
+          "name": "Sedaghat2002_InsulinSignalling_noFeedback",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000137",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000223",
+          "name": "Borisov2009_EGF_Insulin_Crosstalk",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000223",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000225",
+          "name": "Westermark2003_Pancreatic_GlycOsc_basic",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000225",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000236",
+          "name": "Westermark2003_Pancreatic_GlycOsc_extended",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000236",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000239",
+          "name": "Jiang2007 - GSIS system, Pancreatic Beta Cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000239",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000327",
+          "name": "Whitcomb2004_Bicarbonate_Pancreas",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000327",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000341",
+          "name": "Topp2000_BetaCellMass_Diabetes",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000341",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000343",
+          "name": "Brannmark2010_InsulinSignalling_Mifamodel",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000343",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000345",
+          "name": "Koschorreck2008_InsulinClearance",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000345",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000348",
+          "name": "Fridlyand2010_GlucoseSensitivity_A",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000348",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000349",
+          "name": "Fridlyand2010_GlucoseSensitivity_B",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000349",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000356",
+          "name": "Nyman2011_M3Hierarachical_InsulinGlucosedynamics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000356",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000371",
+          "name": "DeVries2000_PancreaticBetaCells_InsulinSecretion",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000371",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000372",
+          "name": "Tolic2000_InsulinGlucoseFeedback",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000372",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000373",
+          "name": "Bertram2004_PancreaticBetaCell_modelB",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000373",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000374",
+          "name": "Bertram1995_PancreaticBetaCell_CRAC",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000374",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000375",
+          "name": "Mears1997_CRAC_PancreaticBetaCells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000375",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000376",
+          "name": "Bertram2007_IsletCell_Oscillations",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000376",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000377",
+          "name": "Bertram2000_PancreaticBetaCells_Oscillations",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000377",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000378",
+          "name": "Chay1997_CalciumConcentration",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000378",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000379",
+          "name": "DallaMan2007_MealModel_GlucoseInsulinSystem",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000379",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000381",
+          "name": "Maree2006_DuCa_Type1DiabetesModel",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000381",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000382",
+          "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000382",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000423",
+          "name": "Nyman2012_InsulinSignalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000423",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000435",
+          "name": "deBack2012 - Lineage Specification in Pancreas Development",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000435",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000448",
+          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000448",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000449",
+          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000449",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000474",
+          "name": "Smith2013 - Regulation of Insulin Signalling by Oxidative Stress",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000474",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000482",
+          "name": "Noguchi2013 - Insulin dependent glucose metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000482",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000540",
+          "name": "Yugi2014 - Insulin induced signalling (PFKL phosphorylation) - model 1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000540",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000541",
+          "name": "Yugi2014 - Insulin induced signalling (PFKL phosphorylation) - model 2",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000541",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000580",
+          "name": "Sonntag2012 - mTOR model - IRS dependent regulation of AMPK by insulin",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000580",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000585",
+          "name": "Rateitschak2012 - Interferon-gamma (IFN\u03b3) induced STAT1 signalling (PC_IFNg100)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000585",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000620",
+          "name": "Palmer2014 - Effect of IL-1\u03b2-Blocking therapies in T2DM - Disease Condition",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000620",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000621",
+          "name": "Palmer2014 - Effect of IL-1\u03b2-Blocking therapies in T2DM - Healthy Condition",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000621",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000668",
+          "name": "Zhu2015 - Combined gemcitabine and birinapant in pancreatic cancer cells - basic PD model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000668",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000669",
+          "name": "Zhu2015 - Combined gemcitabine and birinapant in pancreatic cancer cells - mechanistic PD model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000669",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000682",
+          "name": "Wierschem2004 - Electrical bursting activity in Pancreatic Islets",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000682",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000744",
+          "name": "Hu2019 - Pancreatic cancer dynamics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000744",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000792",
+          "name": "Hu2019 - Modeling Pancreatic Cancer Dynamics with Immunotherapy",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000792",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000811",
+          "name": "He2017 - A mathematical model of pancreatic cancer with two kinds of treatments",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000811",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000833",
+          "name": "DiCamillo2016 - Insulin signalling pathway - Rule-based model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000833",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000878",
+          "name": "Lenbury2001_InsulinKineticsModel_A",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000878",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000929",
+          "name": "Li2016 - Model for pancreatic cancer patients receiving immunotherapy",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000929",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000965",
+          "name": "LeBeau1999 - IP3-dependent intracellular calcium oscillations due to agonist stimulation from Cholecytokinin",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000965",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "liver",
+      "label": "Liver",
+      "uberon": "UBERON:0002107",
+      "system": "Digestive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-female/v1.2/assets/3d-vh-f-liver.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-male/v1.2/assets/3d-vh-m-liver.glb"
+      },
+      "n_models": 33,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000151",
+          "name": "Singh2006_IL6_Signal_Transduction",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000151",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000328",
+          "name": "Bucher2011_Atorvastatin_Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000328",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000329",
+          "name": "Kummer2000 - Oscillations in Calcium Signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000329",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000345",
+          "name": "Koschorreck2008_InsulinClearance",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000345",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000450",
+          "name": "Reyes-Palomares2012 -  a combined model hepatic polyamine and sulfur aminoacid metabolism - version2",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000450",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000498",
+          "name": "Mitchell2013 - Liver Iron Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000498",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000505",
+          "name": "vanEunen2013 - Network dynamics of fatty acid \u03b2-oxidation (steady-state model)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000505",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000506",
+          "name": "vanEunen2013 - Network dynamics of fatty acid \u03b2-oxidation (time-course model)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000506",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000534",
+          "name": "Dwivedi2014 - Healthy Volunteer IL6 Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000535",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6 Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000535",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000536",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - sgp130 activity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000536",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000537",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000568",
+          "name": "Mueller2015 - Hepatocyte proliferation, T160 phosphorylation of CDK2",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000568",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000576",
+          "name": "Kolodkin2013 - Nuclear receptor-mediated cortisol signalling network",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000576",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000602",
+          "name": "Stavrum2013 - Tryptophan Metabolism in Liver",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000602",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000609",
+          "name": "Reddyhoff2015 - Acetaminophen metabolism and toxicity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000609",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000624",
+          "name": "Sluka2016 - Acetaminophen metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000624",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000633",
+          "name": "Bulik2016 - Regulation of hepatic glucose metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000633",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000674",
+          "name": "Reyes-Palomares2012 - a combined model hepatic polyamine and sulfur aminoacid metabolism - version1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000674",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000713",
+          "name": "Aston2018 - Dynamics of Hepatitis C Infection",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000713",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000734",
+          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000834",
+          "name": "Verma2016 - Ca(2+) Signal Propagation Along Hepatocyte Cords",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000834",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000835",
+          "name": "Rao2014 - Fatty acid beta-oxidation (reduced model)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000835",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000916",
+          "name": "Kraan199_Kinetics of Cortisol Metabolism and Excretion.",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000916",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001005",
+          "name": "Bae2017 - Mathematical analysis of circadian disruption and metabolic re-entrainment of hepatic gluconeogenesis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001005",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001027",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose peroral",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001027",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001028",
+          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001029",
+          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001039",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose intavenous",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001039",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001102",
+          "name": "Burbano2023 - HGFsignaling_in_FattyLiverDisease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001102",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "brain",
+      "label": "Brain",
+      "uberon": "UBERON:0000955",
+      "system": "Nervous",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-female/v1.4/assets/3d-allen-f-brain.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb"
+      },
+      "n_models": 29,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000302",
+          "name": "Wang1996_Synaptic_Inhibition_Two_Neuron",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000302",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000512",
+          "name": "Benson2014 - FAAH inhibitors for the treatment of osteoarthritic pain",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000512",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000531",
+          "name": "Crespo2012 - Kinetics of Amyloid Fibril Formation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000531",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000532",
+          "name": "Vazquez2014 - Chemical inhibition from amyloid protein aggregation kinetics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000532",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000533",
+          "name": "Steckmann2012 - Amyloid beta-protein fibrillogenesis (kinetics of secondary structure conversion)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000533",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000538",
+          "name": "Clarke2000 - One-hit model of cell death in neuronal degenerations",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000538",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000542",
+          "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000548",
+          "name": "Sneppen2009 - Modeling proteasome dynamics in Parkinson's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000548",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000552",
+          "name": "Ehrenstein2000 - Positive-Feedback model for the loss of acetylcholine in Alzheimer's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000552",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000553",
+          "name": "Ehrenstein1997 - The choline-leakage hypothesis in Alzheimer's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000553",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000554",
+          "name": "Cloutier2009 - Brain Energy Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000554",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000555",
+          "name": "Auer2010 - Correlation between lag time and aggregation rate in protein aggregation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000555",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000556",
+          "name": "Ortega2013 - Interplay between secretases determines biphasic amyloid-beta level",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000556",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000558",
+          "name": "Cloutier2012 - Feedback motif for Parkinson's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000558",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000561",
+          "name": "Martins2013 - True and apparent inhibition of amyloid fribril formation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000561",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000566",
+          "name": "Morris2009 - \u03b1-Synuclein aggregation variable temperature and pH",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000566",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000567",
+          "name": "Morris2008 - Fitting protein aggregation data via F-W 2-step mechanism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000567",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000570",
+          "name": "Aubert2002 - Coupling between Brain electrical activity, Metabolism and Hemodynamics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000570",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000618",
+          "name": "Krohn2011 - Cerebral amyloid-\u03b2 proteostasis regulated by membrane transport protein ABCC1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000618",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000627",
+          "name": "Winter2017 - Brain Energy Metabolism with PPP",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000627",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000775",
+          "name": "Iarosz2015 - brain tumor",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000775",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000921",
+          "name": "Khajanchi2017 - Uniform Persistence and Global Stability for a Brain Tumor and Immune System Interaction",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000921",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001027",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose peroral",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001027",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001028",
+          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001029",
+          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001039",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose intavenous",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001039",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "intestine",
+      "label": "Intestine",
+      "uberon": "UBERON:0000059",
+      "system": "Digestive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/large-intestine-female/v1.3/assets/3d-sbu-f-large-intestine.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/large-intestine-male/v1.3/assets/3d-sbu-m-large-intestine.glb"
+      },
+      "n_models": 18,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000320",
+          "name": "Grange2001 - PK interaction of L-dopa and benserazide",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000320",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000321",
+          "name": "Grange2001 - L Dopa PK model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000321",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000434",
+          "name": "McAuley2012 - Whole-body Cholesterol Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000434",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000451",
+          "name": "Carbo2013 - Cytokine driven CD4+ T Cell differentiation and phenotype plasticity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000451",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000490",
+          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000534",
+          "name": "Dwivedi2014 - Healthy Volunteer IL6 Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000535",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6 Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000535",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000537",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000583",
+          "name": "Leber2015 - Mucosal immunity and gut microbiome interaction during C. difficile infection",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000583",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000613",
+          "name": "Peterson2010 - Integrated calcium homeostasis and bone remodelling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000613",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000895",
+          "name": "Schokker2013 - A mathematical model representing cellular immune development and response to Salmonella of chicken intestinal tissue",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000895",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001027",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose peroral",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001027",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001028",
+          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001029",
+          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001039",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose intavenous",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001039",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "heart",
+      "label": "Heart",
+      "uberon": "UBERON:0000948",
+      "system": "Cardiovascular",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-female/v1.3/assets/3d-vh-f-heart.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-male/v1.3/assets/3d-vh-m-heart.glb"
+      },
+      "n_models": 11,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000126",
+          "name": "Clancy2002_CardiacSodiumChannel_WT",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000126",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000400",
+          "name": "Cooling2007_IP3transients_CardiacMyocyte",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000400",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000961",
+          "name": "McDougal2017 - Metabolism in ischemic cardiomyocytes",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000961",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001027",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose peroral",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001027",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001028",
+          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001029",
+          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001039",
+          "name": "Zake2021 - PBPK model of metformin in mice: single dose intavenous",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001039",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001100",
+          "name": "Mohr2022 - Rabbit Purkinje Cardiac Electrophysiology",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001100",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lung",
+      "label": "Lung",
+      "uberon": "UBERON:0001004",
+      "system": "Respiratory",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
+      },
+      "n_models": 11,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000427",
+          "name": "Bianconi2012 - EGFR and IGF1R pathway in lung cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000427",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000490",
+          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000710",
+          "name": "Hernandez-Vargas2012 - Innate immune system dynamics to Influenza virus",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000710",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000827",
+          "name": "Ito2019 - gefitnib resistance of lung adenocarcinoma caused by MET amplification",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000827",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000865",
+          "name": "Nikolaev2019 - Immunobiochemical reconstruction of influenza lung infection-melanoma skin cancer interactions",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000865",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000924",
+          "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000924",
+          "matched_by": [
+            "name",
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001074",
+          "name": "Liu2023 - Predicting the efficacy of immune checkpoint inhibitors monotherapy in advanced non-small cell lung cancer: a machine learning method based on multidimensional data",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001074",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001077",
+          "name": "Adlung2021 - Cell-to-cell variability in JAK2/STAT5 pathway",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001077",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "adipose",
+      "label": "Adipose",
+      "uberon": "UBERON:0014455",
+      "system": "Connective",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-female/v1.0/assets/3d-vh-f-adipose.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-male/v1.0/assets/3d-vh-m-adipose.glb"
+      },
+      "n_models": 7,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000343",
+          "name": "Brannmark2010_InsulinSignalling_Mifamodel",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000343",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000356",
+          "name": "Nyman2011_M3Hierarachical_InsulinGlucosedynamics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000356",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000448",
+          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000448",
+          "matched_by": [
+            "name"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000449",
+          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000449",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "kidney",
+      "label": "Kidney",
+      "uberon": "UBERON:0004538",
+      "system": "Urinary",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-female-left/v1.3/assets/3d-vh-f-kidney-l.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-male-left/v1.3/assets/3d-vh-m-kidney-l.glb"
+      },
+      "n_models": 5,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000842",
+          "name": "Heitzler2012 - GPCR signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000842",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000908",
+          "name": "dePillis2013 - Mathematical modeling of regulatory T cell effects on renal cell carcinoma treatment",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000908",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "spleen",
+      "label": "Spleen",
+      "uberon": "UBERON:0002106",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-female/v1.3/assets/3d-vh-f-spleen.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
+      },
+      "n_models": 5,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000734",
+          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000761",
+          "name": "Cappuccio2006 - Cancer immunotherapy by interleukin-21",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000761",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ovary-female-left",
+      "label": "Ovary Female Left",
+      "uberon": "UBERON:0002119",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-left/v1.3/assets/3d-vh-f-ovary-l.glb",
+        "male": null
+      },
+      "n_models": 4,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000332",
+          "name": "Bungay2006_Plasma",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000332",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000333",
+          "name": "Bungay2006_FollicularFluid",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000333",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000334",
+          "name": "Bungay2003_Thrombin_Generation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000334",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000741",
+          "name": "Eftimie2018 - Cancer and Immune biomarkers",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000741",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lymph-node",
+      "label": "Lymph Node",
+      "uberon": "UBERON:0002509",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-female/v1.4/assets/3d-nih-f-lymph-node.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-male/v1.4/assets/3d-nih-m-lymph-node.glb"
+      },
+      "n_models": 3,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000527",
+          "name": "Kaiser2014 - Salmonella persistence after ciprofloxacin treatment",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000527",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000761",
+          "name": "Cappuccio2006 - Cancer immunotherapy by interleukin-21",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000761",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001022",
+          "name": "Creemers2021 - Tumor-immune dynamics and implications on immunotherapy responses",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001022",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "skin",
+      "label": "Skin",
+      "uberon": "UBERON:0002097",
+      "system": "Integumentary",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
+      },
+      "n_models": 3,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000659",
+          "name": "Cursons2015 - Regulation of ERK-MAPK signaling in human epidermis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000659",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000695",
+          "name": "FelixGarza2017 - Blue Light Treatment of Psoriasis (simplified)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000695",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000000865",
+          "name": "Nikolaev2019 - Immunobiochemical reconstruction of influenza lung infection-melanoma skin cancer interactions",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000865",
+          "matched_by": [
+            "name"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "urinary-bladder",
+      "label": "Urinary Bladder",
+      "uberon": "UBERON:0001255",
+      "system": "Urinary",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-female/v1.2/assets/3d-vh-f-urinary-bladder.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-male/v1.2/assets/3d-vh-m-urinary-bladder.glb"
+      },
+      "n_models": 2,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000746",
+          "name": "Saad2017 - immune checkpoint and BCG in superficial bladder cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000746",
+          "matched_by": [
+            "annotation"
+          ]
+        },
+        {
+          "biomodel_id": "BIOMD0000001034",
+          "name": "Bunimovich-Mendrazitsky2007 - Mathematical model of BCG immunotherapy",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001034",
+          "matched_by": [
+            "annotation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "epiploic-appendage-of-transverse-colon",
+      "label": "Epiploic Appendage Of Transverse Colon",
+      "uberon": "fma15046",
+      "system": "Digestive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-female/v1.0/assets/3d-vh-f-epiploic-appendage-of-transverse-colon.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-male/v1.0/assets/3d-vh-m-epiploic-appendage-of-transverse-colon.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "eye-female-left",
+      "label": "Eye Female Left",
+      "uberon": "UBERON:0004548",
+      "system": "Nervous",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "eye-female-right",
+      "label": "Eye Female Right",
+      "uberon": "UBERON:0004549",
+      "system": "Nervous",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "eye-male-left",
+      "label": "Eye Male Left",
+      "uberon": "UBERON:0004548",
+      "system": "Nervous",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "eye-male-right",
+      "label": "Eye Male Right",
+      "uberon": "UBERON:0004549",
+      "system": "Nervous",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "fallopian-tube-female-left",
+      "label": "Fallopian Tube Female Left",
+      "uberon": "UBERON:0001303",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/fallopian-tube-female-left/v1.2/assets/3d-vh-f-fallopian-tube-l.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "fallopian-tube-female-right",
+      "label": "Fallopian Tube Female Right",
+      "uberon": "UBERON:0001302",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/fallopian-tube-female-right/v1.2/assets/3d-vh-f-fallopian-tube-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "intervertebral-disk",
+      "label": "Intervertebral Disk",
+      "uberon": "UBERON:0001066",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-female/v1.0/assets/3d-vh-f-intervertebral-disk.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-male/v1.0/assets/3d-vh-m-intervertebral-disk.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "knee-female-left",
+      "label": "Knee Female Left",
+      "uberon": "fma24978",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-left/v1.3/assets/3d-vh-f-knee-l.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "knee-female-right",
+      "label": "Knee Female Right",
+      "uberon": "fma24977",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-right/v1.3/assets/3d-vh-f-knee-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "knee-male-left",
+      "label": "Knee Male Left",
+      "uberon": "fma24978",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-left/v1.2/assets/3d-vh-m-knee-l.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "knee-male-right",
+      "label": "Knee Male Right",
+      "uberon": "fma24977",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-right/v1.2/assets/3d-vh-m-knee-r.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "larynx",
+      "label": "Larynx",
+      "uberon": "UBERON:0001737",
+      "system": "Respiratory",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-female/v1.1/assets/3d-vh-f-larynx.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-male/v1.1/assets/3d-vh-m-larynx.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "main-bronchus",
+      "label": "Main Bronchus",
+      "uberon": "UBERON:0002182",
+      "system": "Respiratory",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-female/v1.1/assets/3d-vh-f-main-bronchus.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "mammary-gland-female-left",
+      "label": "Mammary Gland Female Left",
+      "uberon": "fma57991",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mammary-gland-female-left/v1.1/assets/3d-vh-f-mammary-gland-l.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "mammary-gland-female-right",
+      "label": "Mammary Gland Female Right",
+      "uberon": "fma57987",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mammary-gland-female-right/v1.1/assets/3d-vh-f-mammary-gland-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "manubrium",
+      "label": "Manubrium",
+      "uberon": "UBERON:2001553",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/manubrium-female/v1.0/assets/3d-vh-f-manubrium.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "mouth",
+      "label": "Mouth",
+      "uberon": "UBERON:0000165",
+      "system": "Digestive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-female/v1.0/assets/3d-vh-f-mouth.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-male/v1.0/assets/3d-vh-m-mouth.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "omentum",
+      "label": "Omentum",
+      "uberon": "UBERON:0003688",
+      "system": "Digestive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-female/v1.0/assets/3d-vh-f-omentum.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-male/v1.0/assets/3d-vh-m-omentum.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "ovary-female-right",
+      "label": "Ovary Female Right",
+      "uberon": "UBERON:0002118",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "palatine-tonsil-female-left",
+      "label": "Palatine Tonsil Female Left",
+      "uberon": "fma54974",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-female-left/v1.2/assets/3d-vh-f-palatine-tonsil-l.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "palatine-tonsil-female-right",
+      "label": "Palatine Tonsil Female Right",
+      "uberon": "fma54973",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-female-right/v1.2/assets/3d-vh-f-palatine-tonsil-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "palatine-tonsil-male-left",
+      "label": "Palatine Tonsil Male Left",
+      "uberon": "fma54974",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-left/v1.2/assets/3d-vh-m-palatine-tonsil-l.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "palatine-tonsil-male-right",
+      "label": "Palatine Tonsil Male Right",
+      "uberon": "fma54973",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-right/v1.2/assets/3d-vh-m-palatine-tonsil-r.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "pelvis",
+      "label": "Pelvis",
+      "uberon": "UBERON:0001270",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-female/v1.3/assets/3d-vh-f-pelvis.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-male/v1.3/assets/3d-vh-m-pelvis.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "placenta-full-term",
+      "label": "Placenta Full Term",
+      "uberon": "UBERON:0001987",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/placenta-full-term-female/v1.1/assets/3d-vh-f-placenta-full-term.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "prostate",
+      "label": "Prostate",
+      "uberon": "UBERON:0000079",
+      "system": "Reproductive",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/prostate-male/v1.2/assets/3d-vh-m-prostate.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "spinal-cord",
+      "label": "Spinal Cord",
+      "uberon": "UBERON:0002240",
+      "system": "Nervous",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-female/v1.1/assets/3d-vh-f-spinal-cord.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "sternum",
+      "label": "Sternum",
+      "uberon": "UBERON:0000975",
+      "system": "Musculoskeletal",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/sternum-female/v1.0/assets/3d-vh-f-sternum.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "thymus",
+      "label": "Thymus",
+      "uberon": "UBERON:0002370",
+      "system": "Lymphatic / immune",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-female/v1.3/assets/3d-vh-f-thymus.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "trachea",
+      "label": "Trachea",
+      "uberon": "UBERON:0003126",
+      "system": "Respiratory",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-female/v1.1/assets/3d-vh-f-trachea.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "ureter-female-left",
+      "label": "Ureter Female Left",
+      "uberon": "UBERON:0001223",
+      "system": "Urinary",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-female-left/v1.2/assets/3d-vh-f-ureter-l.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "ureter-female-right",
+      "label": "Ureter Female Right",
+      "uberon": "UBERON:0001222",
+      "system": "Urinary",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-female-right/v1.2/assets/3d-vh-f-ureter-r.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "ureter-male-left",
+      "label": "Ureter Male Left",
+      "uberon": "UBERON:0001223",
+      "system": "Urinary",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-left/v1.2/assets/3d-vh-m-ureter-l.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "ureter-male-right",
+      "label": "Ureter Male Right",
+      "uberon": "UBERON:0001222",
+      "system": "Urinary",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-right/v1.2/assets/3d-vh-m-ureter-r.glb"
+      },
+      "n_models": 0,
+      "models": []
+    },
+    {
+      "key": "uterus",
+      "label": "Uterus",
+      "uberon": "UBERON:0000995",
+      "system": "Reproductive",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/uterus-female/v1.2/assets/3d-vh-f-uterus.glb",
+        "male": null
+      },
+      "n_models": 0,
+      "models": []
+    }
+  ],
+  "systems": [
+    "Digestive",
+    "Cardiovascular",
+    "Respiratory",
+    "Nervous",
+    "Urinary",
+    "Reproductive",
+    "Musculoskeletal",
+    "Lymphatic / immune",
+    "Integumentary",
+    "Connective"
+  ],
+  "max_models": 51,
+  "summary": {
+    "n_organs": 50,
+    "n_modeled": 14,
+    "n_models_total": 229,
+    "n_models_distinct": 167,
+    "n_systems": 10
+  }
+}

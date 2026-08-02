@@ -28,40 +28,43 @@ from __future__ import annotations
 from pathlib import Path
 
 
-def _studies_with_hra(ws_root) -> list:
-    """Slugs of studies (sorted) that have a materialized `viz/hra/coverage.json`.
-
-    For a match `<study>/viz/hra/coverage.json`, the study slug is three
-    parents up from the file: `hra` (p.parent) -> `viz` (.parent) ->
-    `<study>` (.parent).
-    """
+def _studies_with_atlas(ws_root) -> list:
     root = Path(ws_root) / "studies"
     return (
-        sorted(p.parent.parent.parent.name for p in root.glob("*/viz/hra/coverage.json"))
-        if root.exists()
-        else []
+        sorted(p.parent.parent.parent.name for p in root.glob("*/viz/atlas/atlas.json"))
+        if root.exists() else []
     )
 
 
-def _targets(ws_root) -> list:
+def _atlas_targets(ws_root) -> list:
     return [
-        {
-            "study": s,
-            "label": f"HRA Organ Viewer — {s}",
-            "detail": "3D organ colored by model coverage",
-            "href": f"studies/{s}/viz/hra/index.html",
-        }
-        for s in _studies_with_hra(ws_root)
+        {"study": s, "label": f"HRA Atlas Browser — {s}",
+         "detail": "3D organ browser colored by model count",
+         "href": f"/studies/{s}/viz/atlas/index.html"}
+        for s in _studies_with_atlas(ws_root)
     ]
 
 
-def _launch(ws_root, study=None, run=None, ctx=None) -> dict:
-    """Live-path launcher callback: resolve `study` straight to its
-    materialized `viz/hra/index.html` href (`run`/`ctx` accepted for contract
-    compatibility but unused — this viewer needs no server-side rendering)."""
-    if not study:
-        return {"error": "no study selected", "status": 400}
-    return {"url": f"studies/{study}/viz/hra/index.html"}
+def _atlas_launch(ws_root, study=None, run=None, ctx=None) -> dict:
+    """Live-path launcher callback → the materialized `viz/atlas/index.html`.
+
+    The Atlas Browser is a single global page (all organs in one manifest), so
+    it opens the same place regardless of `study`/`run`. When launched from a
+    per-run chip (Runs DB tab) no `study` is passed, so default to the
+    workspace's atlas study rather than erroring; `run`/`ctx` are accepted for
+    contract compatibility but unused (no server-side rendering)."""
+    atlas_studies = _studies_with_atlas(ws_root)
+    if not atlas_studies:
+        return {"error": "no atlas pack found", "status": 404}
+    # The Atlas Browser is a single global page. When launched from a per-run
+    # chip, `study` is the RUN's study (e.g. annotation-recall-gain) which
+    # usually has NO viz/atlas/ pack -- building /studies/<that>/viz/atlas/...
+    # would 404 into a blank tab. Only honor `study` when it actually has an
+    # atlas pack; otherwise resolve to the atlas-pack study. Absolute
+    # (root-relative) URL so window.open resolves against the workbench origin.
+    if study not in atlas_studies:
+        study = atlas_studies[0]
+    return {"url": f"/studies/{study}/viz/atlas/index.html"}
 
 
 def get_viewers(ws_root) -> list:
@@ -69,12 +72,13 @@ def get_viewers(ws_root) -> list:
     materialized `viz/hra/` pack)."""
     return [
         {
-            "id": "hra-glb-viewer",
-            "title": "HRA Organ Viewer",
-            "description": "3D HRA organ (GLB) colored by mechanistic-model coverage.",
+            "id": "hra-atlas-browser",
+            "title": "HRA Atlas Browser",
+            "description": "3D HRA organ browser: pick an organ, see regions colored by model count, click through to BioModels.",
             "kind": "launcher",
-            "applies": lambda ws: bool(_studies_with_hra(ws)),
-            "targets": _targets,
-            "launch": _launch,
-        }
+            "requires": ["observables"],
+            "applies": lambda ws: bool(_studies_with_atlas(ws)),
+            "targets": _atlas_targets,
+            "launch": _atlas_launch,
+        },
     ]

@@ -1,0 +1,578 @@
+{
+  "BTO:0004383": {
+    "label": "follicular fluid",
+    "count": 66
+  },
+  "BTO:0000131": {
+    "label": "blood plasma",
+    "count": 33
+  },
+  "BTO:0000152": {
+    "label": "infected cell",
+    "count": 31
+  },
+  "BTO:0000141": {
+    "label": "bone marrow",
+    "count": 23
+  },
+  "BTO:0000648": {
+    "label": "intestine",
+    "count": 22
+  },
+  "BTO:0000142": {
+    "label": "brain",
+    "count": 20
+  },
+  "BTO:0000089": {
+    "label": "blood",
+    "count": 17
+  },
+  "BTO:0000783": {
+    "label": "pancreatic beta cell",
+    "count": 16
+  },
+  "BTO:0000759": {
+    "label": "liver",
+    "count": 16
+  },
+  "BTO:0000093": {
+    "label": "MCF-7 cell",
+    "count": 15
+  },
+  "BTO:0000424": {
+    "label": "erythrocyte",
+    "count": 15
+  },
+  "BTO:0000801": {
+    "label": "macrophage",
+    "count": 15
+  },
+  "BTO:0001660": {
+    "label": "respiratory smooth muscle",
+    "count": 15
+  },
+  "BTO:0000667": {
+    "label": "keratinocyte",
+    "count": 13
+  },
+  "BTO:0000567": {
+    "label": "HeLa cell",
+    "count": 12
+  },
+  "BTO:0001593": {
+    "label": "osteoblast",
+    "count": 12
+  },
+  "BTO:0002330": {
+    "label": "lamina propria",
+    "count": 12
+  },
+  "BTO:0000289": {
+    "label": "cytotoxic T-lymphocyte",
+    "count": 12
+  },
+  "BTO:0001211": {
+    "label": "breast epithelial cell",
+    "count": 12
+  },
+  "BTO:0000316": {
+    "label": "culture medium",
+    "count": 11
+  },
+  "BTO:0002417": {
+    "label": "helper T-lymphocyte",
+    "count": 11
+  },
+  "BTO:0002042": {
+    "label": "dendritic cell",
+    "count": 11
+  },
+  "BTO:0002014": {
+    "label": "B16-F10 cell",
+    "count": 10
+  },
+  "BTO:0000575": {
+    "label": "hepatocyte",
+    "count": 9
+  },
+  "BTO:0000140": {
+    "label": "bone",
+    "count": 9
+  },
+  "BTO:0000968": {
+    "label": "osteoclast",
+    "count": 9
+  },
+  "BTO:0000782": {
+    "label": "T-lymphocyte",
+    "count": 8
+  },
+  "BTO:0000305": {
+    "label": "crypt",
+    "count": 8
+  },
+  "BTO:0000414": {
+    "label": "epithelial cell",
+    "count": 8
+  },
+  "BTO:0000398": {
+    "label": "enterocyte",
+    "count": 8
+  },
+  "BTO:0000304": {
+    "label": "PANC-1 cell",
+    "count": 7
+  },
+  "BTO:0000767": {
+    "label": "mesenteric lymph node",
+    "count": 6
+  },
+  "BTO:0000988": {
+    "label": "pancreas",
+    "count": 6
+  },
+  "BTO:0001281": {
+    "label": "spleen",
+    "count": 5
+  },
+  "BTO:0001103": {
+    "label": "skeletal muscle",
+    "count": 5
+  },
+  "BTO:0000763": {
+    "label": "lung",
+    "count": 5
+  },
+  "BTO:0001009": {
+    "label": "PC-12 cell",
+    "count": 5
+  },
+  "BTO:0000545": {
+    "label": "gut",
+    "count": 5
+  },
+  "BTO:0004520": {
+    "label": "regulatory T-lymphocyte",
+    "count": 5
+  },
+  "BTO:0003092": {
+    "label": "urinary system",
+    "count": 5
+  },
+  "BTO:0000365": {
+    "label": "duodenum",
+    "count": 4
+  },
+  "BTO:0000671": {
+    "label": "kidney",
+    "count": 4
+  },
+  "BTO:0000389": {
+    "label": "mature ovarian follicle",
+    "count": 4
+  },
+  "BTO:0000292": {
+    "label": "corpus luteum",
+    "count": 4
+  },
+  "BTO:0001239": {
+    "label": "serum",
+    "count": 4
+  },
+  "BTO:0000130": {
+    "label": "neutrophil",
+    "count": 4
+  },
+  "BTO:0000914": {
+    "label": "natural killer cell",
+    "count": 4
+  },
+  "BTO:0000634": {
+    "label": "integument",
+    "count": 3
+  },
+  "BTO:0000562": {
+    "label": "heart",
+    "count": 3
+  },
+  "BTO:0001363": {
+    "label": "testis",
+    "count": 3
+  },
+  "BTO:0001307": {
+    "label": "stomach",
+    "count": 3
+  },
+  "BTO:0001487": {
+    "label": "adipose tissue",
+    "count": 3
+  },
+  "BTO:0001518": {
+    "label": "B-cell lymphoma cell line",
+    "count": 3
+  },
+  "BTO:0004973": {
+    "label": "Hodgkin lymphoma cell line",
+    "count": 3
+  },
+  "BTO:0000991": {
+    "label": "pancreatic islet",
+    "count": 3
+  },
+  "BTO:0000416": {
+    "label": "epithelium",
+    "count": 3
+  },
+  "BTO:0000725": {
+    "label": "hematopoietic stem cell",
+    "count": 3
+  },
+  "BTO:0000784": {
+    "label": "lymph node",
+    "count": 3
+  },
+  "BTO:0005600": {
+    "label": "outer nuclear layer",
+    "count": 3
+  },
+  "BTO:0005655": {
+    "label": "Th17 cell",
+    "count": 3
+  },
+  "BTO:0000584": {
+    "label": "pancreatic cancer cell",
+    "count": 3
+  },
+  "BTO:0000848": {
+    "label": "melanoma cell",
+    "count": 3
+  },
+  "BTO:0000876": {
+    "label": "monocyte",
+    "count": 3
+  },
+  "BTO:0000379": {
+    "label": "embryo",
+    "count": 3
+  },
+  "BTO:0000362": {
+    "label": "urinary bladder cancer cell",
+    "count": 3
+  },
+  "BTO:0004254": {
+    "label": "cancer stem cell",
+    "count": 3
+  },
+  "BTO:0000888": {
+    "label": "muscle fibre",
+    "count": 3
+  },
+  "BTO:0000028": {
+    "label": "pancreatic acinar cell",
+    "count": 2
+  },
+  "BTO:0000997": {
+    "label": "parathyroid gland",
+    "count": 2
+  },
+  "BTO:0000443": {
+    "label": "adipocyte",
+    "count": 2
+  },
+  "BTO:0002101": {
+    "label": "multiple myeloma cell",
+    "count": 2
+  },
+  "BTO:0000356": {
+    "label": "breast cancer cell line",
+    "count": 2
+  },
+  "BTO:0002774": {
+    "label": "amyloid plaque",
+    "count": 2
+  },
+  "BTO:0001073": {
+    "label": "hypophysis",
+    "count": 2
+  },
+  "BTO:0000249": {
+    "label": "chondrocyte",
+    "count": 2
+  },
+  "BTO:0001823": {
+    "label": "synovium",
+    "count": 2
+  },
+  "BTO:0000938": {
+    "label": "neuron",
+    "count": 2
+  },
+  "BTO:0000165": {
+    "label": "C2C12 cell",
+    "count": 2
+  },
+  "BTO:0001590": {
+    "label": "MRC-5 cell",
+    "count": 2
+  },
+  "BTO:0001678": {
+    "label": "Th1 cell",
+    "count": 2
+  },
+  "BTO:0005568": {
+    "label": "gastrointestinal mucosa",
+    "count": 2
+  },
+  "BTO:0000149": {
+    "label": "breast",
+    "count": 2
+  },
+  "BTO:0000404": {
+    "label": "epidermis",
+    "count": 2
+  },
+  "BTO:0001854": {
+    "label": "vascular endothelial cell",
+    "count": 2
+  },
+  "BTO:0000661": {
+    "label": "JURKAT cell",
+    "count": 2
+  },
+  "BTO:0000526": {
+    "label": "glioma cell",
+    "count": 2
+  },
+  "BTO:0000553": {
+    "label": "peripheral blood",
+    "count": 2
+  },
+  "BTO:0004178": {
+    "label": "leukemic stem cell",
+    "count": 2
+  },
+  "BTO:0002312": {
+    "label": "mature cell",
+    "count": 2
+  },
+  "BTO:0000195": {
+    "label": "CACO-2 cell",
+    "count": 2
+  },
+  "BTO:0000599": {
+    "label": "Hep-G2 cell",
+    "count": 2
+  },
+  "BTO:0000218": {
+    "label": "BALB/3T3 cell",
+    "count": 2
+  },
+  "BTO:0006111": {
+    "label": "M2 macrophage",
+    "count": 2
+  },
+  "BTO:0000123": {
+    "label": "bladder",
+    "count": 2
+  },
+  "BTO:0002690": {
+    "label": "biofilm",
+    "count": 2
+  },
+  "BTO:0000393": {
+    "label": "endothelium",
+    "count": 2
+  },
+  "BTO:0000931": {
+    "label": "neuroblastoma cell",
+    "count": 1
+  },
+  "BTO:0000007": {
+    "label": "HEK-293 cell",
+    "count": 1
+  },
+  "BTO:0001011": {
+    "label": "cerebellar Purkinje cell",
+    "count": 1
+  },
+  "BTO:0001571": {
+    "label": "erythroblast",
+    "count": 1
+  },
+  "BTO:0000920": {
+    "label": "neocortex",
+    "count": 1
+  },
+  "BTO:0000601": {
+    "label": "hippocampus",
+    "count": 1
+  },
+  "BTO:0000312": {
+    "label": "motoneuron",
+    "count": 1
+  },
+  "BTO:0002058": {
+    "label": "non-small cell lung cancer cell",
+    "count": 1
+  },
+  "BTO:0000608": {
+    "label": "hepatoma cell",
+    "count": 1
+  },
+  "BTO:0000421": {
+    "label": "connective tissue",
+    "count": 1
+  },
+  "BTO:0002050": {
+    "label": "osteogenic cell",
+    "count": 1
+  },
+  "BTO:0005092": {
+    "label": "chondrogenic cell",
+    "count": 1
+  },
+  "BTO:0000083": {
+    "label": "female reproductive system",
+    "count": 1
+  },
+  "BTO:0000757": {
+    "label": "plasmodium",
+    "count": 1
+  },
+  "BTO:0003123": {
+    "label": "microvascular endothelial cell",
+    "count": 1
+  },
+  "BTO:0035490": {
+    "label": null,
+    "count": 1
+  },
+  "BTO:0000613": {
+    "label": "hypocotyl",
+    "count": 1
+  },
+  "BTO:0000237": {
+    "label": "cerebrospinal fluid",
+    "count": 1
+  },
+  "BTO:0000099": {
+    "label": "astrocyte",
+    "count": 1
+  },
+  "BTO:0002045": {
+    "label": "capillary",
+    "count": 1
+  },
+  "BTO:0003718": {
+    "label": "vasculature",
+    "count": 1
+  },
+  "BTO:0004042": {
+    "label": "subcutaneous adipose tissue",
+    "count": 1
+  },
+  "BTO:0000452": {
+    "label": "fibroblast",
+    "count": 1
+  },
+  "BTO:0004910": {
+    "label": "retinal pigment epithelium cell",
+    "count": 1
+  },
+  "BTO:0004790": {
+    "label": "hTERT-RPE1 cell",
+    "count": 1
+  },
+  "BTO:0001102": {
+    "label": "blood vessel",
+    "count": 1
+  },
+  "BTO:0001271": {
+    "label": "leukemia cell",
+    "count": 1
+  },
+  "BTO:0000973": {
+    "label": "respiratory mucosa",
+    "count": 1
+  },
+  "BTO:0001044": {
+    "label": "phagocyte",
+    "count": 1
+  },
+  "BTO:0002038": {
+    "label": "osteocyte",
+    "count": 1
+  },
+  "BTO:0004167": {
+    "label": "lymphatic endothelial cell",
+    "count": 1
+  },
+  "BTO:0000975": {
+    "label": "ovary",
+    "count": 1
+  },
+  "BTO:0001418": {
+    "label": "urinary bladder",
+    "count": 1
+  },
+  "BTO:0000898": {
+    "label": "myeloma cell",
+    "count": 1
+  },
+  "BTO:0000731": {
+    "label": "acute lymphoblastic leukemia cell",
+    "count": 1
+  },
+  "BTO:0001610": {
+    "label": "thyroid cancer cell line",
+    "count": 1
+  },
+  "BTO:0001489": {
+    "label": "whole body",
+    "count": 1
+  },
+  "BTO:0005937": {
+    "label": "intestinal epithelial cell",
+    "count": 1
+  },
+  "BTO:0000647": {
+    "label": "intestinal wall",
+    "count": 1
+  },
+  "BTO:0000493": {
+    "label": "gall bladder",
+    "count": 1
+  },
+  "BTO:0000146": {
+    "label": "brain stem",
+    "count": 1
+  },
+  "BTO:0000785": {
+    "label": "lymphoma cell",
+    "count": 1
+  },
+  "BTO:0000775": {
+    "label": "lymphocyte",
+    "count": 1
+  },
+  "BTO:0006256": {
+    "label": "solid cancer cell",
+    "count": 1
+  },
+  "BTO:0000527": {
+    "label": "glioblastoma cell",
+    "count": 1
+  },
+  "BTO:0005810": {
+    "label": "immune system",
+    "count": 1
+  },
+  "BTO:0006110": {
+    "label": "M1 macrophage",
+    "count": 1
+  },
+  "BTO:0006223": {
+    "label": "neural ectoderm",
+    "count": 1
+  }
+}

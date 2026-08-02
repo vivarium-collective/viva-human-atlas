@@ -1,0 +1,6 @@
+{
+  "atlas": "atlas.json",
+  "coverage": "coverage.json",
+  "overview_glb": "https://cdn.humanatlas.io/digital-objects/ref-organ/united-female/v1.4/assets/3d-vh-f-united.glb",
+  "node_field": "node_name"
+}

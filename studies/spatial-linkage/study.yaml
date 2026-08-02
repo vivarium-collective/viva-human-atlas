@@ -1,5 +1,6 @@
 schema_version: 4
 name: spatial-linkage
+investigation: hra-3d
 title: "Spatial Linkage — Model -> AS -> GLB Scene-Node Links"
 created: '2026-07-26'
 status: running

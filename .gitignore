@@ -10,3 +10,9 @@ models/
 reports/published/
 .contracts-*.md
 studies/*/viz/report_card/
+
+.pbg/runs/
+.pbg/composite-runs.db
+
+studies/*/sims/
+studies/*/runs.db

@@ -1,5 +1,6 @@
 schema_version: 4
 name: ctpop-islet-parameterization
+investigation: hra-3d
 title: "CTpop -> Topp2000 Islet Parameterization — Beta-Cell Composition Shifts the Glucose Setpoint"
 created: '2026-07-26'
 status: running

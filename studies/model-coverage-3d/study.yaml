@@ -1,5 +1,6 @@
 schema_version: 4
 name: model-coverage-3d
+investigation: hra-3d
 title: "Model Coverage 3D — AS/Organ Coverage from BioModel-DO Annotations"
 created: '2026-07-26'
 status: running

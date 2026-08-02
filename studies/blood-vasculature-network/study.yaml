@@ -1,5 +1,6 @@
 schema_version: 4
 name: blood-vasculature-network
+investigation: hra-3d
 title: "Blood Vasculature Network — VCCF transport graph to couple organ models"
 created: '2026-07-28'
 status: running

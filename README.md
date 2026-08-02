@@ -16,6 +16,12 @@ https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/model-c
 (Also registered as an "HRA Organ Viewer" analysis tool — launchable from the
 Analyses tab in a live `vivarium-workbench serve`.)
 
+🧭 **HRA Atlas Browser (organ selector, model-count gradient, BioModels links):**
+`studies/hra-atlas-browser/viz/atlas/index.html` — pick any of the 50
+GLB-backed HRA organs, see its regions colored by associated model count,
+and click through to BioModels. Built by `scripts/build_atlas_pack.py`;
+launchable from the Analyses tab as "HRA Atlas Browser".
+
 ## Investigations
 
 - **`glucose-regulation`** — query BioModels for "glucose regulation", run each
@@ -28,6 +34,15 @@ Analyses tab in a live `vivarium-workbench serve`.)
   each glucose model annotated with an HRA Uberon organ term, plus the inverse
   **organ → models** index. This is the ontology bridge toward the 3D spatial
   model.
+  - **Annotation-based organ matching:** Extract SBML **MIRIAM annotations**
+    from BioModels and cross-reference anatomy via a **BTO → Uberon organ
+    crosswalk**. Two studies compare annotation-based vs. name-synonym matching:
+    annotation matching tags 114 models across 14 organs; name-synonym tags 82
+    across 10 organs. Combined, they cover 167 models, adding 85 models and 4
+    organs (lymph node, ovary, spleen, urinary bladder). Name-synonym still wins
+    some organs (e.g., pancreas). Most BioModels annotate anatomy via BTO terms
+    rather than direct Uberon links. (See `studies/annotation-organ-matching`
+    and `studies/annotation-recall-gain`.)
 
 ## Layout
 

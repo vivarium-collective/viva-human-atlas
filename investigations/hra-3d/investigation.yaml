@@ -58,7 +58,9 @@ executive:
     the glomerulus FTU both load correctly, but neither carries live model
     results yet: spatial-linkage's readout is a placeholder, and
     organ-granularity coverage still overstates fine-grained per-AS-node
-    evidence.
+    evidence. An interactive Atlas Browser (hra-atlas-browser) now presents
+    all 50 GLB-backed organs with a per-organ model-count gradient and
+    BioModels links.
   verdict_status: passing-with-caveats
   decisions_needed:
     - question: "Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?"
@@ -99,6 +101,7 @@ studies:
   - ftu-model-coverage
   - ctpop-islet-parameterization
   - blood-vasculature-network
+  - hra-atlas-browser
 
 inputs:
   references:
@@ -126,3 +129,5 @@ acceptance_criteria:
     behavior: "Crossing the full curated BioModels catalog against the crosswalk covers materially more AS nodes/organs than the single-query model-coverage-3d study, including organs the narrow query misses."
   - study: ftu-model-coverage
     behavior: "Crossing the full curated BioModels catalog against a curated HRA functional-tissue-unit (FTU) list by name/synonym match marks at least one FTU covered, matching Katy Boerner's question of whether existing models try to model FTUs."
+  - study: hra-atlas-browser
+    behavior: "The atlas manifest enumerates all GLB-backed HRA organs, colors the modeled ones by model count, and links each to its BioModels entries."

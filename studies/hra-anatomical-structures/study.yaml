@@ -1,5 +1,6 @@
 schema_version: 4
 name: hra-anatomical-structures
+investigation: hra-integration
 title: "HRA Anatomical-Structure Term Occurrences"
 created: '2026-07-26'
 status: running
