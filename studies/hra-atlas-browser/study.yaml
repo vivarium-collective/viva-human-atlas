@@ -16,24 +16,24 @@ question: |
   it, and browse straight to those BioModels?
 
 study_card:
-  goal: "Cross the corpus catalog's organ_index (50 GLB organs) with organ_to_models into an atlas manifest, and render it as a self-contained three.js organ browser with a model-count color gradient and clickable BioModels."
-  mechanism: "build_atlas_manifest(load_corpus_catalog()) -> atlas.json (per-organ n_models + BioModels links) + build_corpus_coverage -> coverage.json -> viz/atlas/ three.js viewer (organ <select>, per-mesh EdgesGeometry outlines, log-scaled count color, BioModels side panel)."
-  expected_result: "All 50 organs selectable; 10 modeled organs colored by count (pancreas 36 brightest), 40 greyed; each organ's BioModels list links to ebi.ac.uk/biomodels."
+  goal: "Cross the union of the name-synonym and SBML-annotation model catalogs (organ_index over 50 GLB organs x organ_to_models) into an atlas manifest, and render it as a self-contained three.js organ browser with a model-count color gradient and clickable BioModels."
+  mechanism: "merge_catalogs(name-synonym corpus catalog, SBML-annotation catalog) -> build_atlas_manifest -> atlas.json (per-organ n_models_distinct + per-model provenance + BioModels links) -> viz/atlas/ three.js viewer (organ menu grouped by anatomical system, per-mesh EdgesGeometry outlines, viridis log-scaled count color, BioModels side panel with keyword search)."
+  expected_result: "All 50 organs selectable; 14 modeled organs colored by count (blood 51 brightest), 36 greyed; each organ's BioModels list links to ebi.ac.uk/biomodels."
   main_expert_question: "Is an organ-granularity model-count gradient a useful whole-atlas overview of where mechanistic modeling exists, given it cannot yet distinguish sub-regions within one organ?"
 
 biological_summary: |
-  Mechanistic models cluster on a handful of organs (pancreas, blood, liver,
-  lung, brain, heart) and leave most of the body's 3D anatomy unmodeled. The
+  Mechanistic models cluster on a handful of organs (blood, pancreas, liver,
+  brain, intestine, heart) and leave most of the body's 3D anatomy unmodeled. The
   Atlas Browser makes that distribution legible: the color gradient shows
   where modeling effort has concentrated, and the greyed organs make the
   modeling white-space visible at a glance.
 
 readouts:
-  - "atlas manifest: n_organs (50), n_modeled (10), n_models_total, max_models (36)"
+  - "atlas manifest: n_organs (50), n_modeled (14), n_models_distinct (167), n_models_total (229), max_models (51)"
   - "per-organ n_models + BioModels id/name/url list"
 
 report:
-  title: "HRA Atlas Browser — 10/50 organs modeled, pancreas dominant"
+  title: "HRA Atlas Browser — 14/50 organs modeled, blood dominant"
   verdict: passing-with-caveats
   confidence: high
   evidence_quality: measured
@@ -41,12 +41,14 @@ report:
     Present HRA-3D model coverage as an interactive organ browser with a
     model-count gradient and BioModels links.
   conclusion: |
-    The atlas manifest covers all 50 GLB-backed HRA organs; 10 carry ≥1
-    model (pancreas 36, blood 19, liver 9, lung 6, brain 5, heart 4,
-    adipose 2, intestine 2, skin 1, kidney 1), 40 are greyed. Each modeled
-    organ links to its BioModels entries. The gradient is organ-granularity:
-    it shows where modeling exists across the body but does not yet
-    distinguish sub-regions within an organ.
+    The atlas manifest covers all 50 GLB-backed HRA organs; 14 carry ≥1
+    model (blood 51, pancreas 47, liver 33, brain 29, intestine 18,
+    heart 11, lung 11, adipose 7, kidney 5, spleen 5, ovary 4, lymph node 3,
+    skin 3, urinary bladder 2), 36 are greyed. Counts are distinct models
+    from the union of name-synonym and SBML-annotation matching (167 distinct
+    / 229 total). Each modeled organ links to its BioModels entries. The
+    gradient is organ-granularity: it shows where modeling exists across the
+    body but does not yet distinguish sub-regions within an organ.
   caveat: |
     Coverage is organ-granularity — every sub-region of a modeled organ
     inherits the organ's count, so the within-organ gradient is uniform.
@@ -54,6 +56,13 @@ report:
     follow-up.
 
 embed_visualizations: []
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.annotation_composite.annotation-recall-gain
+    params:
+      name_catalog_path: "datasets/biomodel_corpus_catalog.json"
+      annotation_catalog_path: "datasets/biomodel_annotation_catalog.json"
 
 runs:
   - name: baseline
@@ -66,11 +75,11 @@ findings:
     claim_scope: mechanism
     statement: |
       The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
-      the 10 modeled ones by model count (pancreas 36 max), linking each to
-      its BioModels entries — a whole-atlas overview of where mechanistic
-      modeling exists.
+      the 14 modeled ones by model count (blood 51 max, 167 distinct models),
+      linking each to its BioModels entries — a whole-atlas overview of where
+      mechanistic modeling exists.
     evidence:
-      summary: "50 organs, 10 modeled (n_models_total from organ_to_models), max_models=36 (pancreas); 40 organs greyed (no models)."
+      summary: "50 organs, 14 modeled (167 distinct / 229 total from the name-synonym union annotation union), max_models=51 (blood); 36 organs greyed (no models)."
 
 limitations:
   - "Organ-granularity gradient: sub-regions within an organ share the organ's count (no per-AS-node resolution yet)."
