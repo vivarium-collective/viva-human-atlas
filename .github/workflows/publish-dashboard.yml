@@ -82,7 +82,7 @@ jobs:
         run: |
           uv pip install \
             "process-bigraph @ git+https://github.com/vivarium-collective/process-bigraph.git@main" \
-            "pbg-biomodels @ git+https://github.com/vivarium-collective/pbg-biomodels.git@main" \
+            "viva-biomodels @ git+https://github.com/vivarium-collective/pbg-biomodels.git@main" \
             "pbg-copasi @ git+https://github.com/vivarium-collective/pbg-copasi.git@main" \
             "pbg-tellurium @ git+https://github.com/vivarium-collective/pbg-tellurium.git@main" \
             || echo "sibling process-package install failed — the registry guard will catch an empty build"
