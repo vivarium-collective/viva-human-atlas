@@ -75,8 +75,15 @@ jobs:
         # guard fails the job loudly rather than shipping/clobbering with an
         # empty "None registered" snapshot.
         run: |
-          uv pip install \
-            "viva-biomodels @ git+https://github.com/vivarium-collective/pbg-biomodels.git@main" \
+          # --no-deps: viva-biomodels' pyproject pins vivarium-workbench (+ copasi/
+          # tellurium) via [tool.uv.sources] LOCAL PATHS (../vivarium-dashboard, …)
+          # for local dev; those paths don't exist on a clean runner, so resolving
+          # viva-biomodels' deps from git aborts the whole install. vivarium-workbench
+          # is already installed (prior step), and copasi/tellurium are installed here
+          # alongside — so install these three packages themselves, without chasing
+          # their (path-source) deps.
+          uv pip install --no-deps \
+            "viva-biomodels @ git+https://github.com/vivarium-collective/viva-biomodels.git@main" \
             "pbg-copasi @ git+https://github.com/vivarium-collective/pbg-copasi.git@main" \
             "pbg-tellurium @ git+https://github.com/vivarium-collective/pbg-tellurium.git@main" \
             || echo "sibling process-package install failed — the registry guard will catch an empty build"
