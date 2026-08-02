@@ -53,5 +53,16 @@ for pack in "$WS_ROOT"/studies/*/viz/hra; do
   echo "copied viewer pack: studies/$slug/viz/hra"
 done
 
+# Same for the self-contained HRA Atlas Browser packs (studies/*/viz/atlas).
+# Unlike viz/hra these ARE committed, but the static publisher still doesn't
+# copy arbitrary viz/ trees, so the atlas index.html would 404 without this.
+for pack in "$WS_ROOT"/studies/*/viz/atlas; do
+  [ -d "$pack" ] || continue
+  slug=$(basename "$(dirname "$(dirname "$pack")")")
+  dest="$OUT/studies/$slug/viz/atlas"
+  mkdir -p "$dest"; cp -R "$pack"/. "$dest/"
+  echo "copied viewer pack: studies/$slug/viz/atlas"
+done
+
 touch "$OUT/.nojekyll"
 echo "built read-only dashboard bundle at $OUT ($(du -sh "$OUT" | cut -f1))"
