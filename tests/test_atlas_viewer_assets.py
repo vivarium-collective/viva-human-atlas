@@ -47,6 +47,18 @@ def test_viewer_groups_by_organ_system():
     assert "viridis" in js.lower()                     # high-contrast colormap
 
 
+def test_viewer_has_model_keyword_search():
+    # A keyword search on the model side (right panel) filters models and
+    # recolors the shown organs by how many of their models match, so you see
+    # WHERE the matching models are represented.
+    js = (VIZ / "viewer.js").read_text(encoding="utf-8")
+    html = (VIZ / "index.html").read_text(encoding="utf-8")
+    assert "model-search" in html                       # the model keyword box
+    assert "matchingModels" in js                       # per-organ keyword match
+    assert "recolorShown" in js                         # recolor organs by match
+    assert "renderModelSearch" in js                    # results grouped by organ
+
+
 def test_write_atlas_pack_only_writes_json(tmp_path):
     # write_atlas_pack must never create/overwrite the hand-written
     # index.html/viewer.js — those are committed viewer assets, not
