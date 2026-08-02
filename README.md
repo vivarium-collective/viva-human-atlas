@@ -17,10 +17,12 @@ https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/model-c
 Analyses tab in a live `vivarium-workbench serve`.)
 
 🧭 **HRA Atlas Browser (organ selector, model-count gradient, BioModels links):**
-`studies/hra-atlas-browser/viz/atlas/index.html` — pick any of the 50
-GLB-backed HRA organs, see its regions colored by associated model count,
-and click through to BioModels. Built by `scripts/build_atlas_pack.py`;
-launchable from the Analyses tab as "HRA Atlas Browser".
+https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/hra-atlas-browser/viz/atlas/index.html
+— pick any of the 50 GLB-backed HRA organs (or compose them with "All modeled"),
+see regions colored by associated model count (viridis), and click through to
+BioModels. The manifest is the union of name-synonym and SBML-annotation
+matching (167 models across 14 organs). Built by `scripts/build_atlas_pack.py`;
+also launchable from the Analyses tab as "HRA Atlas Browser".
 
 ## Investigations
 
