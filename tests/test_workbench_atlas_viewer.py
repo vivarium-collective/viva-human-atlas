@@ -19,9 +19,9 @@ def test_atlas_viewer_present_and_targets_index(tmp_path):
     viewer = next(v for v in get_viewers(tmp_path) if v["id"] == "hra-atlas-browser")
     assert viewer["applies"](tmp_path) is True
     targets = viewer["targets"](tmp_path)
-    assert targets[0]["href"] == "studies/hra-atlas-browser/viz/atlas/index.html"
+    assert targets[0]["href"] == "/studies/hra-atlas-browser/viz/atlas/index.html"
     assert viewer["launch"](tmp_path, study="hra-atlas-browser")["url"] == \
-        "studies/hra-atlas-browser/viz/atlas/index.html"
+        "/studies/hra-atlas-browser/viz/atlas/index.html"
 
 
 def test_atlas_viewer_requires_observables(tmp_path):
