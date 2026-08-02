@@ -28,3 +28,14 @@ def test_atlas_viewer_requires_observables(tmp_path):
     _mk(tmp_path, "hra-atlas-browser")
     viewer = next(v for v in get_viewers(tmp_path) if v["id"] == "hra-atlas-browser")
     assert viewer.get("requires") == ["observables"]
+
+
+def test_atlas_launch_ignores_a_run_study_without_a_pack(tmp_path):
+    # Launched from a per-run chip, `study` is the RUN's study (which has no
+    # atlas pack). It must still resolve to the atlas-pack study, not build a
+    # 404 URL under the run's study (that was the blank-tab bug).
+    _mk(tmp_path, "hra-atlas-browser")
+    viewer = next(v for v in get_viewers(tmp_path) if v["id"] == "hra-atlas-browser")
+    result = viewer["launch"](tmp_path, study="annotation-recall-gain",
+                              run="annotation-recall-gain__123__abc")
+    assert result["url"] == "/studies/hra-atlas-browser/viz/atlas/index.html"

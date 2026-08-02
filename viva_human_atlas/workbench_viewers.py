@@ -53,15 +53,17 @@ def _atlas_launch(ws_root, study=None, run=None, ctx=None) -> dict:
     per-run chip (Runs DB tab) no `study` is passed, so default to the
     workspace's atlas study rather than erroring; `run`/`ctx` are accepted for
     contract compatibility but unused (no server-side rendering)."""
-    if not study:
-        atlas_studies = _studies_with_atlas(ws_root)
-        if not atlas_studies:
-            return {"error": "no atlas pack found", "status": 404}
+    atlas_studies = _studies_with_atlas(ws_root)
+    if not atlas_studies:
+        return {"error": "no atlas pack found", "status": 404}
+    # The Atlas Browser is a single global page. When launched from a per-run
+    # chip, `study` is the RUN's study (e.g. annotation-recall-gain) which
+    # usually has NO viz/atlas/ pack -- building /studies/<that>/viz/atlas/...
+    # would 404 into a blank tab. Only honor `study` when it actually has an
+    # atlas pack; otherwise resolve to the atlas-pack study. Absolute
+    # (root-relative) URL so window.open resolves against the workbench origin.
+    if study not in atlas_studies:
         study = atlas_studies[0]
-    # Absolute (root-relative) URL: the frontend opens this via window.open in a
-    # new tab, which resolves a bare "studies/..." against the current SPA page
-    # path (→ wrong URL → blank tab). A leading slash pins it to the workbench
-    # origin so it always loads the materialized page.
     return {"url": f"/studies/{study}/viz/atlas/index.html"}
 
 
