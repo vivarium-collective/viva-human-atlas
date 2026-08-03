@@ -91,7 +91,7 @@
           <span class="status-detail-axis">2 · Execution</span>
           <span class="status-chip gate-state-passed">ran</span>
           
-          <span class="gate-computed-chip gate-state-passed" title="1 completed run(s)">◆ computed: ran</span>
+          <span class="gate-computed-chip gate-state-passed" title="2 completed run(s)">◆ computed: ran</span>
           
           
           
@@ -209,7 +209,7 @@ it, and browse straight to those BioModels?
     </div>
     <div class="act-tabs">
       
-      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Conclusions</button>
+      <button class="study-pillar" data-kind="conclusions" onclick="_setStudyTab('conclusions')">Decide</button>
     </div>
   </div>
 </nav>
@@ -556,9 +556,9 @@ mechanistic modeling exists.
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
           <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">claim-untested</strong>
-            <code style="font-size:0.82em">replication</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">single run — no replication across seeds declared (add robustness.seeds or simulation_set.seeds)</div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
           </div>
         </div>
         
@@ -566,11 +566,11 @@ mechanistic modeling exists.
         
         
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
+          <span style="padding:1px 8px;border-radius:9999px;background:#fef9c3;color:#854d0e;font-weight:600;font-size:0.72em;white-space:nowrap">medium</span>
           <div>
-            <strong style="color:#1e293b">control-absent</strong>
-            <code style="font-size:0.82em">negative_control</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">replication</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">only 2 replicates — add seeds for a robustness claim</div>
           </div>
         </div>
         
@@ -701,7 +701,7 @@ follow-up.
       
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
         
-        
+        <span class="cond-pill"><span class="cond-pill-k">steps</span>=5</span>
         
         <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
       </div>
@@ -877,6 +877,12 @@ follow-up.
     
     
     
+    <p class="muted small verdict-frozen-indicator" style="margin:0 0 8px 0"
+       title="Content digest (sha256, sorted-key canonical JSON) of the frozen verdict payload — a locked record, not a live recompute.">
+      <span class="frozen-glyph">🔒</span> frozen 2026-08-03 14:08 UTC ·
+      <code style="font-family:ui-monospace,monospace">bb47e9e557</code>
+    </p>
+    
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
       <h3 class="overview-label">⚖️ Verdicts — three-track outcome
@@ -926,6 +932,12 @@ follow-up.
     </div>
 
     
+    
+    
+
+    
+    
+    
 
   </div>
 
@@ -955,38 +967,21 @@ follow-up.
 
     
     
-    <p class="muted" style="margin:0 0 10px 0;font-size:0.85em">
-      Synthesised read-only from canonical fields — edit <code>findings</code>,
-      <code>limitations</code>, and <code>discovery_implications</code> to change
-      this (and the generated report) together.
-    </p>
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Claims <span class="muted small">(from findings)</span></h3>
-        
-        <ul class="synthesis-list">
-          
-          <li>The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
-the 14 modeled ones by model count (blood 51 max, 167 distinct models),
-linking each to its BioModels entries — a whole-atlas overview of where
-mechanistic modeling exists.
- <span class="finding-tier tier-interpretation">interpretation</span></li>
-          
-        </ul>
-        
+    
+    
+    <div class="decide-section">
+      <h3 class="overview-label">Latest run outcomes</h3>
+      <div style="font-size:0.88em;color:#64748b;margin-bottom:8px">
+        baseline · seed ? ·
+        ?s simulated ·
+        ? history rows ·
+        started ?
       </div>
-      <div class="conclusion-field">
-        <h3>Evidence <span class="muted small">(from findings)</span></h3>
-        
-        
-        <ul class="synthesis-list">
-          
-          <li>summary: 50 organs, 14 modeled (167 distinct / 229 total from the name-synonym union annotation union), max_models=51 (blood); 36 organs greyed (no models).</li>
-          
-        </ul>
-        
-      </div>
+      
+      
+      
     </div>
+    
     
 
   </div>
@@ -1059,36 +1054,19 @@ mechanistic modeling exists.
     
 
     
+    
+    
+    
 
   </div>
 
   
   
-  <details class="overview-section"><summary class="overview-label">Limitations &amp; provenance</summary>
-
-    
-    
-    
-    <div class="conclusions-grid conclusions-synthesis">
-      <div class="conclusion-field">
-        <h3>Next steps <span class="muted small">(from discovery implications)</span></h3>
-        
-        <ul class="synthesis-list">
-          
-          <li><strong>AS-level (sub-organ) model coverage in the Atlas Browser</strong> — Color sub-regions within an organ by their own model count instead of inheriting the organ&#39;s count.</li>
-          
-        </ul>
-        
-      </div>
-    </div>
-
-  </details>
-  
 
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "ba97fa5be4f51e131f91cc19a38ca957911258ff", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/ba97fa5be4f51e131f91cc19a38ca957911258ff", "branch": "main", "generated_at": "2026-08-02 12:01 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "e1bac845e48053cc8798b6ce6e5877166eb35e8f", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/e1bac845e48053cc8798b6ce6e5877166eb35e8f", "branch": "main", "generated_at": "2026-08-03 14:15 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-atlas-browser";
