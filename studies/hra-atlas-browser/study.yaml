@@ -67,6 +67,24 @@ baseline:
 runs:
   - name: baseline
     status: completed
+  - name: viva_human_atlas.composites.annotation_composite.annotation-recall-gain__1785766096__8c31a3
+    status: completed
+    timestamp: 1785766098.989163
+    emitter:
+      kind: unknown
+    params: '{"name_catalog_path": "datasets/biomodel_corpus_catalog.json", "annotation_catalog_path": "datasets/biomodel_annotation_catalog.json"}'
+    computed_outcomes:
+      _status: store_unresolved
+    provenance:
+      params:
+        annotation_catalog_path:
+          value: datasets/biomodel_annotation_catalog.json
+          source: override
+        name_catalog_path:
+          value: datasets/biomodel_corpus_catalog.json
+          source: override
+      params_captured_at: '2026-08-03'
+      params_source: dashboard-runner
 
 findings:
   - id: F-01
