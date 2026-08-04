@@ -15,6 +15,8 @@ import os
 import sys
 from pathlib import Path
 
+import requests
+
 REPO = Path(__file__).resolve().parents[1]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
@@ -27,15 +29,24 @@ from viva_human_atlas.biomodel_do import build_organ_index
 from viva_human_atlas.annotation_match import fetch_sbml
 
 _IRI = "https://identifiers.org/biomodels.db:{}"
+_MODEL_URL = "https://www.ebi.ac.uk/biomodels/{}"
 
 
-def _default_meta(biomodel_id: str) -> dict:
-    import biomodels
-    m = biomodels.get_metadata(biomodel_id) or {}
-    pub = (m.get("publication") or {})
-    return {"name": m.get("name") or biomodel_id, "pmid": pub.get("pmid") or pub.get("id"),
-            "doi": pub.get("doi"), "journal": pub.get("journal"), "year": pub.get("year"),
-            "title": pub.get("title")}
+def _default_meta(biomodel_id: str, *, _get=None) -> dict:
+    # The `biomodels` python client's get_metadata() returns a pydantic
+    # Metadata object exposing only model_id + files -- no publication/name --
+    # so the BioModels REST model endpoint is used directly instead.
+    get = _get or requests.get
+    r = get(_MODEL_URL.format(biomodel_id), params={"format": "json"}, timeout=30)
+    r.raise_for_status()
+    d = r.json()
+    pub = d.get("publication") or {}
+    ptype = (pub.get("type") or "").lower()
+    acc = pub.get("accession")
+    pmid = acc if "pubmed" in ptype else None
+    doi = acc if "doi" in ptype else (pub.get("doi") or None)
+    return {"name": d.get("name") or biomodel_id, "pmid": pmid, "doi": doi,
+            "journal": pub.get("journal"), "year": pub.get("year"), "title": pub.get("title")}
 
 
 def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,

@@ -145,3 +145,55 @@ def test_main_skips_existing_id_unless_forced(tmp_path, monkeypatch):
     rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm", "--force"])
     assert rc == 0
     assert calls == ["BIOMD1"]  # reprocessed with --force
+
+
+class _Resp:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def json(self):
+        return self._payload
+
+    def raise_for_status(self):
+        pass
+
+
+def test_default_meta_parses_pubmed_publication():
+    payload = {
+        "name": "Bulik2016 - Regulation of hepatic glucose metabolism",
+        "publication": {"type": "PubMed ID", "accession": "26935066",
+                        "journal": "BMC biology",
+                        "title": "The relative importance of kinetic mechanisms ..."},
+    }
+    meta = bhm._default_meta("BIOMD0000000001", _get=lambda url, **k: _Resp(payload))
+    assert meta["name"] == "Bulik2016 - Regulation of hepatic glucose metabolism"
+    assert meta["pmid"] == "26935066"
+    assert meta["doi"] is None
+    assert meta["journal"] == "BMC biology"
+    assert meta["title"] == "The relative importance of kinetic mechanisms ..."
+
+
+def test_default_meta_parses_doi_publication():
+    payload = {
+        "name": "SomeModel",
+        "publication": {"type": "DOI", "accession": "10.1006/x", "journal": "JTB"},
+    }
+    meta = bhm._default_meta("BIOMD0000000002", _get=lambda url, **k: _Resp(payload))
+    assert meta["doi"] == "10.1006/x"
+    assert meta["pmid"] is None
+
+
+def test_default_meta_handles_missing_publication():
+    payload = {"name": "NoPubModel"}
+    meta = bhm._default_meta("BIOMD0000000003", _get=lambda url, **k: _Resp(payload))
+    assert meta["name"] == "NoPubModel"
+    assert meta["pmid"] is None
+    assert meta["doi"] is None
+
+
+def test_default_meta_falls_back_to_id_when_no_name():
+    payload = {}
+    meta = bhm._default_meta("BIOMD0000000004", _get=lambda url, **k: _Resp(payload))
+    assert meta["name"] == "BIOMD0000000004"
+    assert meta["pmid"] is None
+    assert meta["doi"] is None
