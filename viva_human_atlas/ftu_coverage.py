@@ -92,7 +92,7 @@ HRA_FTUS = [
     {
         "ftu": "small-intestine crypt-villus axis",
         "organ": "small intestine",
-        "uberon": "UBERON:0013640",
+        "uberon": "UBERON:0001213",
         "cell_types": [],
         "synonyms": ["villus", "enterocyte"],
     },
@@ -124,7 +124,7 @@ HRA_FTUS = [
     {
         "ftu": "lymph node follicle",
         "organ": "lymph node",
-        "uberon": "UBERON:0010393",
+        "uberon": "UBERON:0010748",
         "cell_types": [],
         "synonyms": ["lymphoid follicle", "germinal center", "germinal centre"],
     },
