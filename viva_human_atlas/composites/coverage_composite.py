@@ -27,11 +27,20 @@ def build_model_coverage_3d_document(
     state: Dict[str, Any] = {
         "coverage": [],
         "coverage_summary": {},
+        # `CoverageStep` declares a `catalog` input (used by the corpus
+        # composites). This one drives coverage from a live `query`, so the
+        # store is left empty and the Step falls back to a live BioModels
+        # search — behavior unchanged, the empty store just satisfies the port.
+        "corpus_catalog": {
+            "biomodel_dos": [],
+            "organ_index": {},
+            "organ_to_models": {},
+        },
         "coverage_step": {
             "_type": "step",
             "address": COVERAGE_STEP_ADDRESS,
             "config": {"query": query, "max_results": max_results},
-            "inputs": {},
+            "inputs": {"catalog": ["corpus_catalog"]},
             "outputs": {
                 "coverage": ["coverage"],
                 "coverage_summary": ["coverage_summary"],

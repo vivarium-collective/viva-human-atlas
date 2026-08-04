@@ -8,6 +8,8 @@ can ask "which glucose models touch the liver / pancreas / kidney?".
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 from process_bigraph import Step
@@ -155,6 +157,115 @@ def build_biomodel_do_catalog(
     """
     models = search_biomodels_detailed(query, max_results, _get=_get_search)
     return build_catalog_from_models(models, _get_hra=_get_hra)
+
+
+def load_or_build_corpus_catalog(
+    catalog_path: Optional[str] = None,
+    query: Optional[str] = None,
+    max_results: int = 25,
+    *,
+    _get_search: Optional[Callable] = None,
+    _get_hra: Optional[Callable] = None,
+) -> dict:
+    """Return a `{biomodel_dos, organ_index, organ_to_models}` catalog,
+    producing it IN-PROCESS so a composite no longer needs a pre-generated
+    file on disk.
+
+    Resolution order:
+      1. `catalog_path` names an existing catalog file -> load it (fast,
+         offline; the committed file is an optional cache/override).
+      2. `query` given -> live query-scoped catalog (`build_biomodel_do_catalog`).
+      3. otherwise -> live FULL-corpus build (every curated BIOMD id), the same
+         work `scripts/build_biomodel_catalog.py` does, promoted to run inside
+         the composite (network; ~1,096 models, ~2-3 min).
+    """
+    if catalog_path and Path(catalog_path).exists():
+        payload = json.loads(Path(catalog_path).read_text(encoding="utf-8"))
+        # committed catalogs are wrapped `{n_ids, n_named, n_tagged, catalog}`;
+        # accept either the wrapper or an already-inner catalog dict.
+        return payload.get("catalog", payload)
+    if query:
+        return build_biomodel_do_catalog(
+            query, max_results, _get_search=_get_search, _get_hra=_get_hra
+        )
+    from viva_human_atlas.biomodels_search import (
+        fetch_all_biomodel_ids,
+        fetch_biomodels_named,
+    )
+    models = fetch_biomodels_named(fetch_all_biomodel_ids())
+    return build_catalog_from_models(models, _get_hra=_get_hra)
+
+
+def catalog_to_output(catalog: dict) -> dict:
+    """Wrap a catalog dict as a `biomodel_catalog` Step output. `organ_index`
+    and `organ_to_models` are `map` types, whose apply only updates existing
+    keys unless brand-new keys are introduced via the `_add` sentinel (same
+    convention as `BiomodelDOCatalogStep.update`'s `organ_to_models`)."""
+    return {
+        "biomodel_dos": catalog.get("biomodel_dos", []),
+        "organ_index": {"_add": catalog.get("organ_index", {})},
+        "organ_to_models": {"_add": catalog.get("organ_to_models", {})},
+    }
+
+
+class CorpusCatalogStep(Step):
+    """Step: produce the full-corpus biomodel-DO catalog IN-GRAPH.
+
+    A self-contained, in-composite source of the
+    `{biomodel_dos, organ_index, organ_to_models}` catalog that the coverage /
+    annotation Steps consume — so the catalog is no longer a hidden file
+    dependency buried in a downstream Step's `config`. When `catalog_path`
+    names an existing committed catalog it is loaded (fast, offline — the file
+    is an optional cache/override); otherwise the catalog is built live from
+    the BioModels registry + HRA reference organs (the work
+    `scripts/build_biomodel_catalog.py` does, promoted from a script to a
+    Step). Emits into a `corpus_catalog` store downstream Steps read.
+    """
+
+    description = (
+        "Produce the full-corpus biomodel-DO catalog in-graph: load the "
+        "committed catalog cache if present, else build it live from the "
+        "BioModels registry + HRA reference organs."
+    )
+
+    config_schema = {
+        "catalog_path": "string",
+        "query": "string",
+        "max_results": "integer",
+    }
+
+    def inputs(self):
+        return {}
+
+    def outputs(self):
+        return {"corpus_catalog": "biomodel_catalog"}
+
+    def update(self, inputs):
+        catalog = load_or_build_corpus_catalog(
+            catalog_path=self.config.get("catalog_path") or None,
+            query=self.config.get("query") or None,
+            max_results=int(self.config.get("max_results", 25) or 25),
+        )
+        return {"corpus_catalog": catalog_to_output(catalog)}
+
+
+CorpusCatalogStep.contract = {
+    "summary": CorpusCatalogStep.description,
+    "outputs": {
+        "corpus_catalog": (
+            "The full biomodel-DO catalog `{biomodel_dos, organ_index, "
+            "organ_to_models}` — either loaded from the committed cache "
+            "(`catalog_path`) or built live from BioModels + HRA."
+        ),
+    },
+    "assumptions": [
+        "`catalog_path` is a cache/override, not a hard prerequisite: absent "
+        "the file, the Step builds the catalog live (network required). This "
+        "is what makes the downstream coverage/annotation composites "
+        "self-contained rather than dependent on an out-of-composite build "
+        "script.",
+    ],
+}
 
 
 class BiomodelDOCatalogStep(Step):
