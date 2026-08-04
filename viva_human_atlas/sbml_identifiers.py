@@ -13,8 +13,8 @@ _COLLECTIONS = (
     ("chebi", "chebi"),
     ("uniprot", "uniprot"),
     ("kegg", "kegg"),
-    ("/go/", "go"), ("obo/go", "go"), (":go:", "go"), ("_go_", "go"),
-    ("/cl/", "cl"), ("obo/cl", "cl"), (":cl:", "cl"),
+    ("/go/", "go"), ("obo/go", "go"), ("obo.go", "go"), (":go:", "go"), ("_go_", "go"),
+    ("/cl/", "cl"), ("obo/cl", "cl"), ("obo.cl", "cl"), (":cl:", "cl"),
     ("uberon", "uberon"),
     ("fma", "fma"),
     ("bto", "bto"),
@@ -27,7 +27,8 @@ def collection_of_uri(uri: str):
     """`(collection, curie_or_accession)` for a MIRIAM resource URI, or None."""
     u = uri.replace("%3A", ":").replace("%3a", ":")
     low = u.lower()
-    token = u.rstrip("/").rsplit("/", 1)[-1]
+    # trailing "#fragment" is decoration, never part of the identifier
+    token = u.rstrip("/").rsplit("/", 1)[-1].split("#", 1)[0]
     for needle, key in _COLLECTIONS:
         if needle in low:
             tail = token.rsplit(":", 1)[-1].rsplit("_", 1)[-1]
@@ -61,6 +62,9 @@ def extract_identifiers(sbml_text: str) -> dict:
         _element_ids(model.getCompartment(i), bucket)
     for i in range(model.getNumSpecies()):
         _element_ids(model.getSpecies(i), bucket)
+    # GO biological-process terms most often annotate <reaction>, not <species>
+    for i in range(model.getNumReactions()):
+        _element_ids(model.getReaction(i), bucket)
     out = {k: sorted(v) for k, v in bucket.items()}
     out["n_species"] = model.getNumSpecies()
     return out
