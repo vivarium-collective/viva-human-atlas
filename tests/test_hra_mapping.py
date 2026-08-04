@@ -23,3 +23,24 @@ def test_map_to_hra_organ_ftu_celltype():
     assert "CL:0000169" in cl_ids  # beta cell, from the islet FTU
     assert "UBERON:0001264" in out["uberon_organ_ids"]
     assert "UBERON:0000006" in out["uberon_subregion_ids"]
+
+
+def test_map_to_hra_id_lists_sorted_and_deduped():
+    out = map_to_hra(
+        ["UBERON:0002107", "UBERON:0001264", "UBERON:0001264", "UBERON:0000006", "UBERON:0000006"],
+        "",
+        ORGAN_INDEX,
+    )
+    assert out["uberon_organ_ids"] == ["UBERON:0001264", "UBERON:0002107"]
+    assert out["uberon_subregion_ids"] == ["UBERON:0000006"]
+
+
+def test_map_to_hra_empty_inputs():
+    out = map_to_hra([], "", ORGAN_INDEX)
+    assert out == {
+        "organs": [],
+        "functional_tissue_units": [],
+        "cell_types": [],
+        "uberon_organ_ids": [],
+        "uberon_subregion_ids": [],
+    }

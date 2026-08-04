@@ -33,8 +33,9 @@ def map_to_hra(uberon_ids, name: str, organ_index: dict, *, ftus: Optional[list]
     uberon_ids = list(uberon_ids or [])
     organ_uberons = {e["uberon"] for e in organ_index.values() if e.get("uberon")}
 
-    uberon_organ_ids = sorted(u for u in uberon_ids if u in organ_uberons)
-    uberon_subregion_ids = sorted(u for u in uberon_ids if u not in organ_uberons)
+    # sorted + deduped, so repeated annotations in one model collapse.
+    uberon_organ_ids = sorted({u for u in uberon_ids if u in organ_uberons})
+    uberon_subregion_ids = sorted({u for u in uberon_ids if u not in organ_uberons})
 
     # organs: organ-level Uberon hits + name-synonym organ matches.
     ub_to_organ = {e["uberon"]: k for k, e in organ_index.items() if e.get("uberon")}
