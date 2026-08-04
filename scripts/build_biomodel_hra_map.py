@@ -96,12 +96,22 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         hra = {"organs": [], "functional_tissue_units": [], "cell_types": [],
                "uberon_organ_ids": [], "uberon_subregion_ids": []}
 
+    # Preferred paper link is PubMed (most BioModels record a PubMed ID, not a
+    # DOI); fall back to a DOI link, then None.
+    pmid, doi = meta.get("pmid"), meta.get("doi")
+    paper_url = (
+        f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid
+        else f"https://doi.org/{doi}" if doi else None
+    )
+
     entry = {
         "identifier": _IRI.format(biomodel_id),
         "repository": "biomodels",
         "biomodel_id": biomodel_id,
         "name": meta.get("name"),
-        "paper_doi": meta.get("doi"),
+        "paper_url": paper_url,
+        "paper_pmid": pmid,
+        "paper_doi": doi,
         "organs": hra["organs"],
         "functional_tissue_units": hra["functional_tissue_units"],
         "cell_types": hra["cell_types"],

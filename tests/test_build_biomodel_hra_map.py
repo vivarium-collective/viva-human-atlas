@@ -19,6 +19,9 @@ def test_build_entry_shape():
     assert entry["identifier"] == "https://identifiers.org/biomodels.db:BIOMD0000000341"
     assert entry["repository"] == "biomodels"
     assert entry["paper_doi"] == "10.1006/x"
+    # PubMed is the preferred paper link (falls back to DOI, then None)
+    assert entry["paper_pmid"] == "11073807"
+    assert entry["paper_url"] == "https://pubmed.ncbi.nlm.nih.gov/11073807/"
     assert {"label": "pancreas", "uberon": "UBERON:0001264"} in entry["organs"]
     assert entry["molecular_ids"]["chebi"] == ["CHEBI:17234"]
     assert entry["molecular_ids"]["reactome"] == []
