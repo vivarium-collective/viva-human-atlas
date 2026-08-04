@@ -206,3 +206,15 @@ Importable entry point `build_biomodel_hra_entry(biomodel_id, ...) -> dict`
 - `functional_tissue_units[].uberon` comes from the enriched `HRA_FTUS` table;
   FTUs a model matches by organ inherit that organ's FTUs.
 - Full-text token budget / truncation tuned during subset validation.
+
+## Increment: BioPAX identifiers (added 2026-08-04)
+
+Each BioModel ships an auto-generated BioPAX Level-3 OWL/RDF. `biopax_identifiers.py`
+fetches it (`.../model/download/{id}?filename={id}-biopax3.owl`, biopax2 fallback,
+cached) and harvests `<bp:db>/<bp:id>` Xref pairs — a clean complementary source to
+the SBML MIRIAM pass — parsed with stdlib ElementTree (no rdflib/pybiopax dep).
+Collections: CHEBI, UniProt, KEGG, GO (unioned into `molecular_ids` with the SBML
+ids), plus **Reactome** (new `molecular_ids.reactome`) and organism **NCBI Taxon**
+(`provenance.taxonomy`) that the SBML pass doesn't collect. Per-collection source
+provenance is recorded in `provenance.id_sources` = `{collection: {sbml, biopax,
+biopax_only}}`. Error-isolated like the other stages.

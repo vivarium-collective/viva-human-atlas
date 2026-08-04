@@ -867,3 +867,183 @@ git commit -m "feat(script): assemble biomodel->HRA JSON DB (resume, atomic writ
 **Type consistency:** `extract_identifiers` dict keys match across T1/T5; `map_to_hra` return keys (`organs/functional_tissue_units/cell_types/uberon_organ_ids/uberon_subregion_ids`) match T2 test and T5 consumer; `get_literature_text` keys (`abstract/fulltext/text_source/has_fulltext`) match T3/T5; `extract(...)` signature matches T4/T5; injectable seam names in T5 (`_sbml/_ids/_meta/_lit/_llm`) match the test.
 
 **Note for implementer:** the `_default_meta` publication-field names (`pub["pmid"]/["doi"]/["journal"]/["year"]/["title"]`) are the expected shape of `biomodels.get_metadata`; verify the real client's field names during Task 6 Step 2 and adjust `_default_meta` only (all tests inject `_meta`, so they're unaffected).
+
+---
+
+### Task 7: BioPAX identifiers — complementary Xref source (increment)
+
+**Files:**
+- Create: `viva_human_atlas/biopax_identifiers.py`
+- Modify: `scripts/build_biomodel_hra_map.py` (add a BioPAX stage to `build_entry`; union into `molecular_ids`; add `reactome`; record `provenance.id_sources` + `provenance.taxonomy`)
+- Test: `tests/test_biopax_identifiers.py`, extend `tests/test_build_biomodel_hra_map.py`
+
+**Interfaces:**
+- Produces:
+  - `extract_biopax_identifiers(owl_text: str) -> {"chebi","uniprot","kegg","go","reactome","taxonomy"}` (each sorted+deduped list).
+  - `fetch_biopax(biomodel_id, *, _get=None, cache_dir=None) -> str | None` (GET `.../model/download/{id}?filename={id}-biopax3.owl`, fall back to `-biopax2.owl`, atomic-cache).
+- `build_entry` gains injectable seams `_biopax=fetch_biopax`, `_biopax_ids=extract_biopax_identifiers`.
+
+**Global constraints (same as the rest of the plan):** injectable `_get`/seams; tests stub and never hit network; sorted+deduped; ontology CURIEs upper-case with colon; atomic cache writes; per-stage error isolation (a BioPAX failure records `biopax:{e}` in `provenance.errors`, never aborts).
+
+- [ ] **Step 1: Write the failing test (`tests/test_biopax_identifiers.py`)**
+
+```python
+from viph := None  # placeholder to avoid import at collection if module missing
+from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers
+
+_OWL = """<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:bp="http://www.biopax.org/release/biopax-level3.owl#">
+ <bp:UnificationXref rdf:about="a">
+  <bp:id>C00013</bp:id><bp:db>KEGG Compound</bp:db></bp:UnificationXref>
+ <bp:UnificationXref rdf:about="b">
+  <bp:id>CHEBI:89363</bp:id><bp:db>ChEBI</bp:db></bp:UnificationXref>
+ <bp:UnificationXref rdf:about="c">
+  <bp:id>GO:0005783</bp:id><bp:db>Gene Ontology</bp:db></bp:UnificationXref>
+ <bp:UnificationXref rdf:about="d">
+  <bp:id>P01308</bp:id><bp:db>UniProt</bp:db></bp:UnificationXref>
+ <bp:UnificationXref rdf:about="e">
+  <bp:id>R-HSA-70171</bp:id><bp:db>Reactome</bp:db></bp:UnificationXref>
+ <bp:UnificationXref rdf:about="f">
+  <bp:id>9606</bp:id><bp:db>Taxonomy</bp:db></bp:UnificationXref>
+ <bp:PublicationXref rdf:about="g">
+  <bp:id>26935066</bp:id><bp:db>PubMed</bp:db></bp:PublicationXref>
+</rdf:RDF>"""
+
+
+def test_extract_biopax_identifiers_by_db():
+    out = extract_biopax_identifiers(_OWL)
+    assert out["kegg"] == ["C00013"]
+    assert out["chebi"] == ["CHEBI:89363"]
+    assert out["go"] == ["GO:0005783"]
+    assert out["uniprot"] == ["P01308"]
+    assert out["reactome"] == ["R-HSA-70171"]
+    assert out["taxonomy"] == ["NCBITaxon:9606"]  # normalized to a CURIE
+
+
+def test_extract_biopax_ignores_publication_and_bad_xml():
+    out = extract_biopax_identifiers(_OWL)
+    assert "26935066" not in out["chebi"] + out["kegg"]  # PublicationXref skipped
+    assert extract_biopax_identifiers("not xml")["chebi"] == []
+```
+(Delete the `from viph := None` placeholder line — it is only there so you remember the module must exist; write the real import.)
+
+- [ ] **Step 2: Run test to verify it fails** — `ModuleNotFoundError`.
+
+- [ ] **Step 3: Implement `viva_human_atlas/biopax_identifiers.py`**
+
+```python
+"""Extract cross-reference identifiers from a BioModel's auto-generated BioPAX
+Level-3 OWL/RDF — a clean complementary source to the SBML MIRIAM annotations.
+BioPAX Xrefs carry <bp:db>/<bp:id> pairs with human-readable db names; harvest
+CHEBI/UniProt/KEGG/GO/Reactome ids + organism NCBI Taxon, via stdlib
+ElementTree (no rdflib/pybiopax dependency)."""
+from __future__ import annotations
+
+import hashlib
+import os
+from pathlib import Path
+from typing import Callable, Optional
+from xml.etree import ElementTree as ET
+
+import requests
+
+_BP = "{http://www.biopax.org/release/biopax-level3.owl#}"
+_DOWNLOAD = "https://www.ebi.ac.uk/biomodels/model/download/{}"
+_TIMEOUT = 60
+
+# db-name substring (lowercased) -> output collection key.
+_DB_MAP = (
+    ("chebi", "chebi"), ("uniprot", "uniprot"), ("kegg", "kegg"),
+    ("gene ontology", "go"), ("reactome", "reactome"), ("taxonomy", "taxonomy"),
+)
+_KEYS = ["chebi", "uniprot", "kegg", "go", "reactome", "taxonomy"]
+
+
+def _normalize(collection: str, ident: str) -> str:
+    ident = (ident or "").strip()
+    if collection == "chebi" and not ident.upper().startswith("CHEBI:"):
+        ident = "CHEBI:" + ident.split(":")[-1]
+    elif collection == "go" and not ident.upper().startswith("GO:"):
+        ident = "GO:" + ident.split(":")[-1]
+    elif collection == "taxonomy" and not ident.upper().startswith("NCBITAXON:"):
+        ident = "NCBITaxon:" + ident.split(":")[-1]
+    return ident
+
+
+def extract_biopax_identifiers(owl_text: str) -> dict:
+    buckets = {k: set() for k in _KEYS}
+    try:
+        root = ET.fromstring(owl_text)
+    except ET.ParseError:
+        return {k: [] for k in _KEYS}
+    for el in root.iter():
+        if el.tag.split("}")[-1] not in ("UnificationXref", "RelationshipXref"):
+            continue
+        db = (el.findtext(_BP + "db") or "").lower()
+        ident = el.findtext(_BP + "id")
+        if not ident:
+            continue
+        for needle, key in _DB_MAP:
+            if needle in db:
+                buckets[key].add(_normalize(key, ident))
+                break
+    return {k: sorted(v) for k, v in buckets.items()}
+
+
+def fetch_biopax(biomodel_id: str, *, _get: Optional[Callable] = None, cache_dir=None) -> Optional[str]:
+    get = _get or requests.get
+
+    def produce():
+        for fn in (f"{biomodel_id}-biopax3.owl", f"{biomodel_id}-biopax2.owl"):
+            r = get(_DOWNLOAD.format(biomodel_id), params={"filename": fn}, timeout=_TIMEOUT)
+            if getattr(r, "status_code", 200) == 200 and (r.text or "").strip():
+                return r.text
+        return None
+
+    if not cache_dir:
+        return produce()
+    p = Path(cache_dir) / (hashlib.sha1(f"biopax:{biomodel_id}".encode()).hexdigest() + ".owl")
+    if p.exists():
+        return p.read_text(encoding="utf-8") or None
+    val = produce()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text(val or "", encoding="utf-8")
+    os.replace(tmp, p)
+    return val
+```
+
+- [ ] **Step 4: Run test to verify it passes.**
+
+- [ ] **Step 5: Wire into `build_entry`** (`scripts/build_biomodel_hra_map.py`)
+
+Add imports: `from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers, fetch_biopax`.
+Add seams to `build_entry(...)`: `_biopax=fetch_biopax, _biopax_ids=extract_biopax_identifiers`.
+After the SBML/ids stage, add an error-isolated BioPAX stage and change the molecular-id assembly to union SBML+BioPAX with source provenance:
+
+```python
+    biopax = {"chebi": [], "uniprot": [], "kegg": [], "go": [], "reactome": [], "taxonomy": []}
+    try:
+        owl = _biopax(biomodel_id, cache_dir=cache_dir)
+        if owl:
+            biopax = _biopax_ids(owl)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"biopax:{e}")
+
+    # union SBML + BioPAX per molecular collection, tracking each source
+    molecular, id_sources = {}, {}
+    for k in ("chebi", "uniprot", "kegg", "go"):
+        s, b = set(ids[k]), set(biopax[k])
+        molecular[k] = sorted(s | b)
+        id_sources[k] = {"sbml": len(s), "biopax": len(b), "biopax_only": sorted(b - s)}
+    molecular["reactome"] = sorted(biopax["reactome"])
+    id_sources["reactome"] = {"sbml": 0, "biopax": len(biopax["reactome"]),
+                              "biopax_only": sorted(biopax["reactome"])}
+```
+
+Then set `entry["molecular_ids"] = molecular` (replacing the old `{k: ids[k] for k in (...)}`), and in `provenance` add `"id_sources": id_sources` and `"taxonomy": biopax["taxonomy"]`. Leave `ontology_ids` (cl/uberon/fma/bto) as the SBML set.
+
+- [ ] **Step 6: Extend `tests/test_build_biomodel_hra_map.py`** — a `build_entry` test injecting `_biopax`/`_biopax_ids` stubs that assert: BioPAX kegg/chebi union with SBML into `molecular_ids`; `reactome` populated; `provenance.id_sources["kegg"]["biopax_only"]` lists the BioPAX-only id; `provenance.taxonomy` set; and a `_biopax` that raises records `biopax:` in `provenance.errors` without aborting.
+
+- [ ] **Step 7:** Run the full offline suite `-m "not network"`; commit `feat(biopax): union BioPAX Xref ids (chebi/uniprot/kegg/go/reactome/taxonomy) with source provenance`.
