@@ -16,9 +16,10 @@ try:
 except ModuleNotFoundError:
     from pbg_superpowers.composite_generator import composite_generator
 
-# Fully-dotted address (see `hra_steps.py` for why: lets vivarium-workbench
-# resolve this Step's description/contract without a live-built core).
+# Fully-dotted addresses (see `hra_steps.py` for why: lets vivarium-workbench
+# resolve these Steps' description/contract without a live-built core).
 FTU_COVERAGE_STEP_ADDRESS = "local:viva_human_atlas.ftu_coverage.FtuModelCoverageStep"
+CORPUS_CATALOG_STEP_ADDRESS = "local:viva_human_atlas.biomodel_do.CorpusCatalogStep"
 
 DEFAULT_CATALOG_PATH = "datasets/biomodel_corpus_catalog.json"
 
@@ -30,11 +31,26 @@ def build_ftu_model_coverage_document(
     state: Dict[str, Any] = {
         "ftu_coverage": [],
         "ftu_coverage_summary": {},
+        # In-graph catalog store: produced by `corpus_catalog_step` (committed
+        # cache if present, else live), consumed by `ftu_coverage_step` —
+        # replaces the old hidden `config.catalog_path` file read.
+        "corpus_catalog": {
+            "biomodel_dos": [],
+            "organ_index": {},
+            "organ_to_models": {},
+        },
+        "corpus_catalog_step": {
+            "_type": "step",
+            "address": CORPUS_CATALOG_STEP_ADDRESS,
+            "config": {"catalog_path": catalog_path},
+            "inputs": {},
+            "outputs": {"corpus_catalog": ["corpus_catalog"]},
+        },
         "ftu_coverage_step": {
             "_type": "step",
             "address": FTU_COVERAGE_STEP_ADDRESS,
-            "config": {"catalog_path": catalog_path},
-            "inputs": {},
+            "config": {},
+            "inputs": {"catalog": ["corpus_catalog"]},
             "outputs": {
                 "ftu_coverage": ["ftu_coverage"],
                 "ftu_coverage_summary": ["ftu_coverage_summary"],

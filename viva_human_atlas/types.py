@@ -68,6 +68,16 @@ WORKSPACE_TYPES = {
         "provenance": "tree",
     },
     "organ_to_models": "map[list[string]]",
+    "organ_index_entry": {
+        "uberon": "maybe[string]",
+        "sexes": "list[string]",
+        "asset_urls": "list[string]",
+    },
+    "biomodel_catalog": {
+        "biomodel_dos": "list[biomodel_do]",
+        "organ_index": "map[organ_index_entry]",
+        "organ_to_models": "organ_to_models",
+    },
     "as_3d": {
         "node_name": "string",
         "label": "string",

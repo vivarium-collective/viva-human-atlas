@@ -17,18 +17,36 @@ except ModuleNotFoundError:
     from pbg_superpowers.composite_generator import composite_generator
 
 VASCULATURE_STEP_ADDRESS = "local:viva_human_atlas.vasculature_step.VasculatureNetworkStep"
+FTU_PATH_TABLE_STEP_ADDRESS = "local:viva_human_atlas.vasculature_step.FTUPathTableStep"
+
+DEFAULT_FTU_TABLE_PATH = "datasets/vasculature/FTU_Table_S1_260611.csv"
 
 
-def build_vasculature_network_document(include_routes: bool = True) -> Dict[str, Any]:
+def build_vasculature_network_document(
+    include_routes: bool = True,
+    ftu_table_path: str = DEFAULT_FTU_TABLE_PATH,
+) -> Dict[str, Any]:
     emit_schema = {"vascular_network_summary": "node", "ftu_routes": "node"}
     state: Dict[str, Any] = {
         "vascular_network_summary": {},
         "ftu_routes": {},
+        # In-graph FTU path table: `ftu_path_table_step` reads the CSV (from a
+        # config path, not a hardcoded one), `vasculature_network_step`
+        # consumes the parsed table — the file dependency is now a declared,
+        # visible input rather than a read buried inside the graph builder.
+        "ftu_table_json": "",
+        "ftu_path_table_step": {
+            "_type": "step",
+            "address": FTU_PATH_TABLE_STEP_ADDRESS,
+            "config": {"path": ftu_table_path},
+            "inputs": {},
+            "outputs": {"ftu_table_json": ["ftu_table_json"]},
+        },
         "vasculature_network_step": {
             "_type": "step",
             "address": VASCULATURE_STEP_ADDRESS,
             "config": {"include_routes": include_routes},
-            "inputs": {},
+            "inputs": {"ftu_table_json": ["ftu_table_json"]},
             "outputs": {
                 "vascular_network_summary": ["vascular_network_summary"],
                 "ftu_routes": ["ftu_routes"],

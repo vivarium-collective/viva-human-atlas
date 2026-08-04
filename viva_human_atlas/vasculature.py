@@ -17,11 +17,20 @@ there for provenance + licenses):
     whole-body circuit.
 
   * ``vccf/Vessel.csv`` — the VCCF master vessel table (type/subtype, body part,
-    artery-vein pairing, ``BranchesFrom`` parent links). Used to annotate each
-    node with a vessel class (artery / vein / capillary / chamber).
+    artery-vein pairing, ``BranchesFrom`` parent links). Present under
+    ``datasets/vasculature/`` as reference/provenance only; it is NOT read by
+    this builder. Vessel class (artery / vein / capillary / chamber) is derived
+    from the ``FTU_Table_S1`` ``PathStep`` sign and the heart-chamber set (see
+    ``_klass_for``), not from ``Vessel.csv``.
 
 The builder is deliberately dependency-light (stdlib ``csv`` only, an adjacency
 dict rather than a networkx import) so it runs anywhere the workspace does.
+
+Data seam: ``load_ftu_table`` parses the CSV into ``(ftu_paths, ftu_ids)``;
+``build_vascular_graph`` / ``vascular_network_summary`` accept those parsed
+structures directly (``ftu_paths=`` / ``ftu_ids=``) so the file read can be
+lifted into an upstream ``FTUPathTableStep`` and handed over in-graph, rather
+than every consumer reading a hardcoded dataset path.
 """
 from __future__ import annotations
 
@@ -71,12 +80,8 @@ class VascularNetwork:
         return sorted(u for (u, d) in self.edges if d == vessel)
 
 
-def load_ftu_paths(ws_root: Path | str | None = None) -> dict[str, list[dict]]:
-    """FTU name -> ordered path steps (by ``PathStep``) from ``FTU_Table_S1``.
-
-    Each step dict: ``{step, vessel, vessel_id}``.
-    """
-    fp = _dataset_dir(ws_root) / "FTU_Table_S1_260611.csv"
+def _parse_ftu_paths(fp: Path) -> dict[str, list[dict]]:
+    """FTU name -> ordered path steps (by ``PathStep``) from a CSV file path."""
     by_ftu: dict[str, list[dict]] = defaultdict(list)
     with open(fp, newline="", encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
@@ -96,6 +101,41 @@ def load_ftu_paths(ws_root: Path | str | None = None) -> dict[str, list[dict]]:
     return dict(by_ftu)
 
 
+def _parse_ftu_ids(fp: Path) -> dict[str, str]:
+    """FTU name -> ontology id (Uberon/FMA), from a CSV file path."""
+    ftu_ids: dict[str, str] = {}
+    with open(fp, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            ftu = r["FTU"].strip()
+            if ftu and ftu not in ftu_ids and (r.get("FTUID") or "").strip():
+                ftu_ids[ftu] = r["FTUID"].strip()
+    return ftu_ids
+
+
+def load_ftu_paths(ws_root: Path | str | None = None) -> dict[str, list[dict]]:
+    """FTU name -> ordered path steps (by ``PathStep``) from ``FTU_Table_S1``.
+
+    Each step dict: ``{step, vessel, vessel_id}``.
+    """
+    return _parse_ftu_paths(_dataset_dir(ws_root) / "FTU_Table_S1_260611.csv")
+
+
+def load_ftu_table(
+    path: Path | str | None = None, ws_root: Path | str | None = None
+) -> tuple[dict[str, list[dict]], dict[str, str]]:
+    """Parse ``FTU_Table_S1`` into ``(ftu_paths, ftu_ids)``.
+
+    ``path`` names the CSV directly; otherwise it resolves to
+    ``datasets/vasculature/FTU_Table_S1_260611.csv`` under ``ws_root`` (default
+    this repo). This is the single file-read seam — an upstream
+    ``FTUPathTableStep`` calls it once and hands the parsed table to
+    ``build_vascular_graph`` in-graph, so consumers no longer read a hardcoded
+    dataset path.
+    """
+    fp = Path(path) if path else (_dataset_dir(ws_root) / "FTU_Table_S1_260611.csv")
+    return _parse_ftu_paths(fp), _parse_ftu_ids(fp)
+
+
 def _klass_for(step: int, vessel: str) -> str:
     if vessel.lower() in HEART_CHAMBERS:
         return "chamber"
@@ -106,19 +146,24 @@ def _klass_for(step: int, vessel: str) -> str:
     return "capillary"   # step == 0 is the FTU exchange vessel
 
 
-def build_vascular_graph(ws_root: Path | str | None = None) -> VascularNetwork:
-    """Build the directed whole-body transport graph from the FTU paths."""
-    ftu_paths = load_ftu_paths(ws_root)
-    net = VascularNetwork()
+def build_vascular_graph(
+    ws_root: Path | str | None = None,
+    *,
+    ftu_paths: dict[str, list[dict]] | None = None,
+    ftu_ids: dict[str, str] | None = None,
+) -> VascularNetwork:
+    """Build the directed whole-body transport graph from the FTU paths.
 
-    # FTU id: taken from the step-0 (capillary) row's FTU id column, via the raw
-    # table (the path rows carry PathVessel ids, not the FTU id), so read it once.
-    fp = _dataset_dir(ws_root) / "FTU_Table_S1_260611.csv"
-    with open(fp, newline="", encoding="utf-8") as fh:
-        for r in csv.DictReader(fh):
-            ftu = r["FTU"].strip()
-            if ftu and ftu not in net.ftu_ids and (r.get("FTUID") or "").strip():
-                net.ftu_ids[ftu] = r["FTUID"].strip()
+    When ``ftu_paths`` is given (e.g. handed over in-graph by an upstream
+    ``FTUPathTableStep``) it is used directly and no file is read; otherwise the
+    table is loaded from ``ws_root`` (default this repo).
+    """
+    if ftu_paths is None:
+        ftu_paths, loaded_ids = load_ftu_table(ws_root=ws_root)
+        if ftu_ids is None:
+            ftu_ids = loaded_ids
+    net = VascularNetwork()
+    net.ftu_ids = dict(ftu_ids or {})
 
     for ftu, steps in ftu_paths.items():
         route: list[str] = []
@@ -138,9 +183,17 @@ def build_vascular_graph(ws_root: Path | str | None = None) -> VascularNetwork:
     return net
 
 
-def vascular_network_summary(ws_root: Path | str | None = None) -> dict:
-    """Structured summary + closed-circuit validation for the study readout."""
-    net = build_vascular_graph(ws_root)
+def vascular_network_summary(
+    ws_root: Path | str | None = None,
+    *,
+    ftu_paths: dict[str, list[dict]] | None = None,
+    ftu_ids: dict[str, str] | None = None,
+) -> dict:
+    """Structured summary + closed-circuit validation for the study readout.
+
+    Accepts a pre-parsed ``ftu_paths``/``ftu_ids`` (in-graph handover) or loads
+    from ``ws_root`` when not given."""
+    net = build_vascular_graph(ws_root, ftu_paths=ftu_paths, ftu_ids=ftu_ids)
     klass_counts: dict[str, int] = defaultdict(int)
     for n in net.nodes.values():
         klass_counts[n["klass"]] += 1

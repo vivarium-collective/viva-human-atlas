@@ -240,7 +240,10 @@ class FtuModelCoverageStep(Step):
     config_schema = {"catalog_path": "string"}
 
     def inputs(self):
-        return {}
+        # `catalog` is wired to an upstream `CorpusCatalogStep` in the
+        # composite (self-contained, in-graph catalog); the committed
+        # `catalog_path` remains a config fallback when wired standalone.
+        return {"catalog": "biomodel_catalog"}
 
     def outputs(self):
         return {
@@ -249,8 +252,12 @@ class FtuModelCoverageStep(Step):
         }
 
     def update(self, inputs):
-        catalog_path = self.config.get("catalog_path") or _DEFAULT_CATALOG_PATH
-        out = build_ftu_model_coverage(catalog_path=catalog_path)
+        catalog = (inputs or {}).get("catalog") or None
+        if catalog and catalog.get("biomodel_dos"):
+            out = build_ftu_model_coverage(catalog=catalog)
+        else:
+            catalog_path = self.config.get("catalog_path") or _DEFAULT_CATALOG_PATH
+            out = build_ftu_model_coverage(catalog_path=catalog_path)
         return {"ftu_coverage": out["ftu_coverage"], "ftu_coverage_summary": out["summary"]}
 
 

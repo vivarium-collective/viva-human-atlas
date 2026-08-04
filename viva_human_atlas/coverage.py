@@ -211,18 +211,27 @@ class CoverageStep(Step):
     }
 
     def inputs(self):
-        return {}
+        # `catalog` is wired to an upstream `CorpusCatalogStep`'s output store
+        # in the corpus composites (self-contained, in-graph catalog). When it
+        # arrives empty (e.g. `model-coverage-3d`, which drives coverage from a
+        # live query) `update` falls back to config/live search — so the same
+        # Step serves both the live-query and corpus composites.
+        return {"catalog": "biomodel_catalog"}
 
     def outputs(self):
         return {"coverage": "list[coverage_row]", "coverage_summary": "coverage_summary"}
 
     def update(self, inputs):
-        catalog_path = self.config.get("catalog_path")
-        if catalog_path:
-            # Corpus mode (Task B, `corpus-coverage` composite): use the
-            # committed full-corpus catalog instead of a live BioModels
-            # search/annotate.
-            out = build_corpus_coverage(catalog_path)
+        catalog = (inputs or {}).get("catalog") or None
+        if catalog and catalog.get("biomodel_dos"):
+            # Corpus mode: the catalog was produced in-graph by an upstream
+            # CorpusCatalogStep and handed over via the `corpus_catalog` store.
+            out = build_coverage(query=_CORPUS_QUERY_LABEL, catalog=catalog)
+        elif self.config.get("catalog_path"):
+            # Backwards-compatible offline fallback: read the committed catalog
+            # file directly (kept so the Step still works if wired without an
+            # upstream producer).
+            out = build_corpus_coverage(self.config["catalog_path"])
         else:
             out = build_coverage(
                 self.config.get("query", "glucose regulation"),
