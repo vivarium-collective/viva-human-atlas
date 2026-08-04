@@ -27,6 +27,7 @@ from viva_human_atlas.literature import get_literature_text
 from viva_human_atlas import llm_extract
 from viva_human_atlas.biomodel_do import build_organ_index
 from viva_human_atlas.annotation_match import fetch_sbml
+from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers, fetch_biopax
 
 _IRI = "https://identifiers.org/biomodels.db:{}"
 _MODEL_URL = "https://www.ebi.ac.uk/biomodels/{}"
@@ -52,7 +53,8 @@ def _default_meta(biomodel_id: str, *, _get=None) -> dict:
 def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
                 llm_model="claude-haiku-4-5-20251001",
                 _sbml=fetch_sbml, _ids=extract_identifiers, _meta=_default_meta,
-                _lit=get_literature_text, _llm=None) -> dict:
+                _lit=get_literature_text, _llm=None,
+                _biopax=fetch_biopax, _biopax_ids=extract_biopax_identifiers) -> dict:
     errors = []
     ids = {"chebi": [], "uniprot": [], "kegg": [], "go": [], "cl": [], "uberon": [], "fma": [], "bto": [], "n_species": 0}
     try:
@@ -63,6 +65,24 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         meta = _meta(biomodel_id)
     except Exception as e:  # noqa: BLE001
         meta = {"name": biomodel_id}; errors.append(f"metadata:{e}")
+
+    biopax = {"chebi": [], "uniprot": [], "kegg": [], "go": [], "reactome": [], "taxonomy": []}
+    try:
+        owl = _biopax(biomodel_id, cache_dir=cache_dir)
+        if owl:
+            biopax = _biopax_ids(owl)
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"biopax:{e}")
+
+    # union SBML + BioPAX per molecular collection, tracking each source
+    molecular, id_sources = {}, {}
+    for k in ("chebi", "uniprot", "kegg", "go"):
+        s, b = set(ids[k]), set(biopax[k])
+        molecular[k] = sorted(s | b)
+        id_sources[k] = {"sbml": len(s), "biopax": len(b), "biopax_only": sorted(b - s)}
+    molecular["reactome"] = sorted(biopax["reactome"])
+    id_sources["reactome"] = {"sbml": 0, "biopax": len(biopax["reactome"]),
+                              "biopax_only": sorted(biopax["reactome"])}
 
     try:
         hra = map_to_hra(ids["uberon"], meta.get("name", ""), organ_index)
@@ -85,7 +105,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         "organs": hra["organs"],
         "functional_tissue_units": hra["functional_tissue_units"],
         "cell_types": hra["cell_types"],
-        "molecular_ids": {k: ids[k] for k in ("chebi", "uniprot", "kegg", "go")},
+        "molecular_ids": molecular,
         "ontology_ids": {k: ids[k] for k in ("cl", "uberon", "fma", "bto")},
         "provenance": {
             "pmid": meta.get("pmid"), "title": meta.get("title"),
@@ -94,6 +114,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
             "uberon_organ_ids": hra["uberon_organ_ids"],
             "uberon_subregion_ids": hra["uberon_subregion_ids"],
             "text_source": "none", "has_fulltext": False, "errors": errors,
+            "id_sources": id_sources, "taxonomy": biopax["taxonomy"],
         },
     }
 

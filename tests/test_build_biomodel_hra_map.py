@@ -14,15 +14,60 @@ def test_build_entry_shape():
                         "cl": [], "uberon": ["UBERON:0001264"], "fma": [], "bto": [], "n_species": 1},
         _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x", "journal": "JTB", "year": 2000, "title": "T"},
         _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None, "text_source": "none", "has_fulltext": False},
+        _biopax=lambda i, **k: None,
     )
     assert entry["identifier"] == "https://identifiers.org/biomodels.db:BIOMD0000000341"
     assert entry["repository"] == "biomodels"
     assert entry["paper_doi"] == "10.1006/x"
     assert {"label": "pancreas", "uberon": "UBERON:0001264"} in entry["organs"]
     assert entry["molecular_ids"]["chebi"] == ["CHEBI:17234"]
+    assert entry["molecular_ids"]["reactome"] == []
     assert entry["ontology_ids"]["uberon"] == ["UBERON:0001264"]
     assert "literature" not in entry  # no_llm
     assert entry["provenance"]["pmid"] == "11073807"
+    assert entry["provenance"]["id_sources"]["chebi"] == {"sbml": 1, "biopax": 0, "biopax_only": []}
+    assert entry["provenance"]["taxonomy"] == []
+
+
+def test_build_entry_unions_biopax_with_sbml_and_records_provenance():
+    entry = bhm.build_entry(
+        "BIOMD0000000341", ORGAN_INDEX, no_llm=True,
+        _sbml=lambda i: "<sbml/>",
+        _ids=lambda s: {"chebi": ["CHEBI:17234"], "uniprot": [], "kegg": ["C00013"], "go": [],
+                        "cl": [], "uberon": ["UBERON:0001264"], "fma": [], "bto": [], "n_species": 1},
+        _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x", "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None, "text_source": "none", "has_fulltext": False},
+        _biopax=lambda i, **k: "<owl/>",
+        _biopax_ids=lambda owl: {"chebi": ["CHEBI:17234"], "uniprot": ["P01308"], "kegg": ["C99999"],
+                                 "go": ["GO:0005783"], "reactome": ["R-HSA-70171"], "taxonomy": ["NCBITaxon:9606"]},
+    )
+    assert entry["molecular_ids"]["chebi"] == ["CHEBI:17234"]  # union, deduped
+    assert entry["molecular_ids"]["kegg"] == ["C00013", "C99999"]  # union of sbml + biopax
+    assert entry["molecular_ids"]["uniprot"] == ["P01308"]
+    assert entry["molecular_ids"]["go"] == ["GO:0005783"]
+    assert entry["molecular_ids"]["reactome"] == ["R-HSA-70171"]
+    assert entry["provenance"]["id_sources"]["kegg"]["biopax_only"] == ["C99999"]
+    assert entry["provenance"]["id_sources"]["chebi"]["biopax_only"] == []
+    assert entry["provenance"]["taxonomy"] == ["NCBITaxon:9606"]
+
+
+def test_biopax_stage_isolated_on_error():
+    def boom(i, **k):
+        raise RuntimeError("boom-biopax")
+
+    entry = bhm.build_entry(
+        "BIOMD0000000341", ORGAN_INDEX, no_llm=True,
+        _sbml=lambda i: "<sbml/>",
+        _ids=lambda s: {"chebi": ["CHEBI:17234"], "uniprot": [], "kegg": [], "go": [],
+                        "cl": [], "uberon": ["UBERON:0001264"], "fma": [], "bto": [], "n_species": 1},
+        _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x", "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None, "text_source": "none", "has_fulltext": False},
+        _biopax=boom,
+    )
+    assert entry["molecular_ids"]["chebi"] == ["CHEBI:17234"]  # SBML ids still present
+    assert entry["molecular_ids"]["reactome"] == []
+    assert entry["provenance"]["taxonomy"] == []
+    assert any(e.startswith("biopax:") for e in entry["provenance"]["errors"])
 
 
 def test_db_upsert_and_atomic_write(tmp_path):
@@ -45,6 +90,7 @@ def test_sbml_stage_isolated_on_error():
                           "journal": "JTB", "year": 2000, "title": "T"},
         _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None,
                                       "text_source": "none", "has_fulltext": False},
+        _biopax=lambda i, **k: None,
     )
     assert entry["molecular_ids"]["chebi"] == []
     assert entry["ontology_ids"]["uberon"] == []
@@ -67,6 +113,7 @@ def test_hra_stage_isolated_on_error(monkeypatch):
                           "journal": "JTB", "year": 2000, "title": "T"},
         _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None,
                                       "text_source": "none", "has_fulltext": False},
+        _biopax=lambda i, **k: None,
     )
     assert entry["organs"] == []
     assert entry["functional_tissue_units"] == []
@@ -95,6 +142,7 @@ def test_literature_failure_recorded_as_lit_and_skips_llm(monkeypatch):
                           "journal": "JTB", "year": 2000, "title": "T"},
         _lit=boom_lit,
         _llm=spy_llm,
+        _biopax=lambda i, **k: None,
     )
     assert "literature" not in entry
     assert llm_calls == []
@@ -116,6 +164,7 @@ def test_llm_failure_recorded_as_llm_not_lit():
         _lit=lambda pmid, doi, **k: {"abstract": "abc", "fulltext": None,
                                       "text_source": "abstract", "has_fulltext": False},
         _llm=boom_llm,
+        _biopax=lambda i, **k: None,
     )
     assert "literature" not in entry
     assert any(e.startswith("llm:") for e in entry["provenance"]["errors"])
