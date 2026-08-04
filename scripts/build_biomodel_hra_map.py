@@ -23,11 +23,12 @@ if str(REPO) not in sys.path:
 
 from viva_human_atlas.sbml_identifiers import extract_identifiers
 from viva_human_atlas.hra_mapping import map_to_hra
-from viva_human_atlas.literature import get_literature_text
+from viva_human_atlas.literature import get_literature_text, fetch_pubmed_mesh
 from viva_human_atlas import llm_extract
 from viva_human_atlas.biomodel_do import build_organ_index
 from viva_human_atlas.annotation_match import fetch_sbml
 from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers, fetch_biopax
+from viva_human_atlas.anatomy_crosswalk import crosswalk_anatomy, crosswalk_mesh_labels
 
 _IRI = "https://identifiers.org/biomodels.db:{}"
 _MODEL_URL = "https://www.ebi.ac.uk/biomodels/{}"
@@ -54,7 +55,8 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
                 llm_model="claude-haiku-4-5-20251001",
                 _sbml=fetch_sbml, _ids=extract_identifiers, _meta=_default_meta,
                 _lit=get_literature_text, _llm=None,
-                _biopax=fetch_biopax, _biopax_ids=extract_biopax_identifiers) -> dict:
+                _biopax=fetch_biopax, _biopax_ids=extract_biopax_identifiers,
+                _bto_map=None, _mesh_label_map=None, _pubmed_mesh=fetch_pubmed_mesh) -> dict:
     errors = []
     ids = {"chebi": [], "uniprot": [], "kegg": [], "go": [], "cl": [], "uberon": [], "fma": [], "bto": [], "n_species": 0}
     try:
@@ -74,22 +76,43 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
     except Exception as e:  # noqa: BLE001
         errors.append(f"biopax:{e}")
 
-    # union SBML + BioPAX per molecular collection, tracking each source
-    molecular, id_sources = {}, {}
-    for k in ("chebi", "uniprot", "kegg", "go"):
-        s, b = set(ids[k]), set(biopax[k])
-        molecular[k] = sorted(s | b)
-        id_sources[k] = {"sbml": len(s), "biopax": len(b), "biopax_only": sorted(b - s)}
+    # union SBML + BioPAX per molecular collection
+    molecular = {k: sorted(set(ids[k]) | set(biopax[k])) for k in ("chebi", "uniprot", "kegg", "go")}
     molecular["reactome"] = sorted(biopax["reactome"])
-    id_sources["reactome"] = {"sbml": 0, "biopax": len(biopax["reactome"]),
-                              "biopax_only": sorted(biopax["reactome"])}
 
+    # BioModels' SBML/BioPAX essentially never carry MeSH ids, but PubMed
+    # assigns MeSH headings per paper -- an anatomy-relevant stage that runs
+    # regardless of --no-llm (it isn't part of the LLM extraction stage).
+    mesh_terms = []
     try:
-        hra = map_to_hra(ids["uberon"], meta.get("name", ""), organ_index)
-        # merge SBML-annotated CL directly into cell_types
+        mesh_terms = _pubmed_mesh(meta.get("pmid"), cache_dir=cache_dir) if meta.get("pmid") else []
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"mesh:{e}")
+    mesh = sorted({f"MESH:{t['id']}" for t in mesh_terms})
+
+    # Enrich Uberon/CL from BTO (SBML/BioPAX anatomy) and MeSH (PubMed
+    # headings) crosswalks, then feed the enriched Uberon into HRA mapping.
+    # The crosswalk sub-stage is nested inside the HRA stage's try/except: a
+    # crosswalk failure is isolated (`crosswalk:{e}`) and falls back to the
+    # raw SBML/BioPAX uberon/cl without aborting the HRA mapping itself.
+    ont_uberon, ont_cl = sorted(set(ids["uberon"])), sorted(set(ids["cl"]))
+    try:
+        try:
+            raw_ont = {"uberon": ids["uberon"], "cl": ids["cl"], "mesh": mesh,
+                       "fma": ids["fma"], "bto": ids["bto"]}
+            derived_bto = crosswalk_anatomy(raw_ont, bto_map=_bto_map)
+            derived_mesh = crosswalk_mesh_labels(mesh_terms, _mesh_label_map)
+            ont_uberon = sorted(set(ids["uberon"]) | set(derived_bto["uberon"]) | set(derived_mesh["uberon"]))
+            ont_cl = sorted(set(ids["cl"]) | set(derived_mesh["cl"]))
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"crosswalk:{e}")
+
+        hra = map_to_hra(ont_uberon, meta.get("name", ""), organ_index)
+        # merge SBML-annotated + MeSH-derived CL directly into cell_types
         cl_seen = {c["cl"] for c in hra["cell_types"]}
-        for cl in ids["cl"]:
+        for cl in ont_cl:
             if cl not in cl_seen:
+                cl_seen.add(cl)
                 hra["cell_types"].append({"label": None, "cl": cl})
     except Exception as e:  # noqa: BLE001
         errors.append(f"hra:{e}")
@@ -112,19 +135,17 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         "paper_url": paper_url,
         "paper_pmid": pmid,
         "paper_doi": doi,
+        "taxonomy": biopax["taxonomy"],
         "organs": hra["organs"],
         "functional_tissue_units": hra["functional_tissue_units"],
         "cell_types": hra["cell_types"],
         "molecular_ids": molecular,
-        "ontology_ids": {k: ids[k] for k in ("cl", "uberon", "fma", "bto")},
+        "ontology_ids": {"uberon": ont_uberon, "cl": ont_cl, "mesh": mesh,
+                         "fma": ids["fma"], "bto": ids["bto"]},
         "provenance": {
-            "pmid": meta.get("pmid"), "title": meta.get("title"),
-            "journal": meta.get("journal"), "year": meta.get("year"),
+            "journal": meta.get("journal"), "year": meta.get("year"), "title": meta.get("title"),
             "n_species": ids["n_species"],
-            "uberon_organ_ids": hra["uberon_organ_ids"],
-            "uberon_subregion_ids": hra["uberon_subregion_ids"],
             "text_source": "none", "has_fulltext": False, "errors": errors,
-            "id_sources": id_sources, "taxonomy": biopax["taxonomy"],
         },
     }
 
@@ -151,14 +172,23 @@ def upsert_db(db: dict, entry: dict) -> None:
 
 
 def load_db(path: str) -> dict:
+    """Internal representation is always a `{biomodel_id: entry}` dict, but
+    the on-disk file is a JSON array (see `write_db`); a legacy id-keyed
+    object is still accepted so resuming an old-format DB keeps working."""
     p = Path(path)
-    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    if not p.exists():
+        return {}
+    data = json.loads(p.read_text(encoding="utf-8"))
+    if isinstance(data, list):
+        return {e["biomodel_id"]: e for e in data}
+    return data
 
 
 def write_db(db: dict, path: str) -> None:
     p = Path(path); p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(p.suffix + ".tmp")
-    tmp.write_text(json.dumps(db, indent=2), encoding="utf-8")
+    ordered = sorted(db.values(), key=lambda e: e.get("biomodel_id", ""))
+    tmp.write_text(json.dumps(ordered, indent=2), encoding="utf-8")
     os.replace(tmp, p)
 
 

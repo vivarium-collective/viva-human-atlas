@@ -3,6 +3,7 @@ open-access full text. Disk-cached; injectable `_get` for offline tests."""
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 import time
@@ -88,6 +89,38 @@ def fetch_oa_fulltext(pmid, *, _get: Optional[Callable] = None, cache_dir=None):
         return txt or None
 
     return _cached(cache_dir, f"fulltext:{pmid}", produce)
+
+
+_MESH_HEADING_RE = re.compile(r'<DescriptorName UI="(D\d+)"[^>]*>([^<]+)</DescriptorName>')
+
+
+def fetch_pubmed_mesh(pmid, *, _get: Optional[Callable] = None, cache_dir=None) -> list:
+    """`[{"id": "D008099", "label": "Liver"}, ...]` -- the MeSH headings NLM
+    assigned to a paper, parsed from the PubMed efetch abstract XML (the same
+    record `fetch_abstract` reads, but MeSH headings live in `MeshHeadingList`
+    rather than `AbstractText`). `[]` if there's no pmid, or on any error."""
+    if not pmid:
+        return []
+    real = _get is None
+    get = _get or requests.get
+
+    def produce():
+        params = {"db": "pubmed", "id": str(pmid), "rettype": "abstract", "retmode": "xml"}
+        if real:
+            params["tool"] = _TOOL
+            params["email"] = _EMAIL
+            _polite_pause()
+        r = get(_EFETCH, params=params, timeout=_TIMEOUT)
+        r.raise_for_status()
+        terms = [{"id": uid, "label": label.strip()}
+                 for uid, label in _MESH_HEADING_RE.findall(r.text)]
+        return json.dumps(terms)
+
+    try:
+        cached = _cached(cache_dir, f"mesh:{pmid}", produce)
+    except Exception:  # noqa: BLE001
+        return []
+    return json.loads(cached) if cached else []
 
 
 def get_literature_text(pmid, doi=None, *, _get: Optional[Callable] = None, cache_dir=None) -> dict:
