@@ -2,7 +2,9 @@
 """Build the BioModels -> HRA mapping JSON DB (keyed by model id).
 
 Reusable, resumable: each per-model stage (SBML / metadata / HRA / literature /
-LLM) is cached and error-isolated; the DB is upserted and atomically written.
+LLM) is error-isolated (a stage failure is recorded into `provenance.errors`
+and never aborts the entry); the literature and LLM stages are additionally
+disk-cached via `cache_dir`. The DB is upserted and atomically written.
 See docs/superpowers/specs/2026-08-04-biomodel-hra-map-design.md.
 """
 from __future__ import annotations
@@ -51,12 +53,17 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
     except Exception as e:  # noqa: BLE001
         meta = {"name": biomodel_id}; errors.append(f"metadata:{e}")
 
-    hra = map_to_hra(ids["uberon"], meta.get("name", ""), organ_index)
-    # merge SBML-annotated CL directly into cell_types
-    cl_seen = {c["cl"] for c in hra["cell_types"]}
-    for cl in ids["cl"]:
-        if cl not in cl_seen:
-            hra["cell_types"].append({"label": None, "cl": cl})
+    try:
+        hra = map_to_hra(ids["uberon"], meta.get("name", ""), organ_index)
+        # merge SBML-annotated CL directly into cell_types
+        cl_seen = {c["cl"] for c in hra["cell_types"]}
+        for cl in ids["cl"]:
+            if cl not in cl_seen:
+                hra["cell_types"].append({"label": None, "cl": cl})
+    except Exception as e:  # noqa: BLE001
+        errors.append(f"hra:{e}")
+        hra = {"organs": [], "functional_tissue_units": [], "cell_types": [],
+               "uberon_organ_ids": [], "uberon_subregion_ids": []}
 
     entry = {
         "identifier": _IRI.format(biomodel_id),
@@ -80,15 +87,20 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
     }
 
     if not no_llm:
+        lit = None
         try:
             lit = _lit(meta.get("pmid"), meta.get("doi"), cache_dir=cache_dir)
             entry["provenance"]["text_source"] = lit["text_source"]
             entry["provenance"]["has_fulltext"] = lit["has_fulltext"]
-            extractor = _llm or llm_extract.extract
-            entry["literature"] = extractor(meta.get("name"), lit["abstract"], lit["fulltext"],
-                                            model=llm_model, cache_dir=cache_dir)
         except Exception as e:  # noqa: BLE001
-            errors.append(f"llm:{e}")
+            errors.append(f"lit:{e}")
+        if lit is not None:
+            try:
+                extractor = _llm or llm_extract.extract
+                entry["literature"] = extractor(meta.get("name"), lit["abstract"], lit["fulltext"],
+                                                model=llm_model, cache_dir=cache_dir)
+            except Exception as e:  # noqa: BLE001
+                errors.append(f"llm:{e}")
     return entry
 
 

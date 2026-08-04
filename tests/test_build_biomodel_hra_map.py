@@ -32,3 +32,116 @@ def test_db_upsert_and_atomic_write(tmp_path):
     bhm.write_db(db, str(path))
     loaded = bhm.load_db(str(path))
     assert "BIOMD1" in loaded
+
+
+def test_sbml_stage_isolated_on_error():
+    def boom(i):
+        raise RuntimeError("boom-sbml")
+
+    entry = bhm.build_entry(
+        "BIOMD0000000341", ORGAN_INDEX, no_llm=True,
+        _sbml=boom,
+        _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x",
+                          "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None,
+                                      "text_source": "none", "has_fulltext": False},
+    )
+    assert entry["molecular_ids"]["chebi"] == []
+    assert entry["ontology_ids"]["uberon"] == []
+    assert entry["provenance"]["n_species"] == 0
+    assert any(e.startswith("sbml:") for e in entry["provenance"]["errors"])
+
+
+def test_hra_stage_isolated_on_error(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("boom-hra")
+
+    monkeypatch.setattr(bhm, "map_to_hra", boom)
+    entry = bhm.build_entry(
+        "BIOMD0000000341", ORGAN_INDEX, no_llm=True,
+        _sbml=lambda i: "<sbml/>",
+        _ids=lambda s: {"chebi": [], "uniprot": [], "kegg": [], "go": [],
+                        "cl": ["CL:0000169"], "uberon": ["UBERON:0001264"], "fma": [], "bto": [],
+                        "n_species": 1},
+        _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x",
+                          "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None,
+                                      "text_source": "none", "has_fulltext": False},
+    )
+    assert entry["organs"] == []
+    assert entry["functional_tissue_units"] == []
+    assert entry["cell_types"] == []
+    assert entry["provenance"]["uberon_organ_ids"] == []
+    assert entry["provenance"]["uberon_subregion_ids"] == []
+    assert any(e.startswith("hra:") for e in entry["provenance"]["errors"])
+
+
+def test_literature_failure_recorded_as_lit_and_skips_llm(monkeypatch):
+    def boom_lit(pmid, doi, **k):
+        raise RuntimeError("boom-lit")
+
+    llm_calls = []
+
+    def spy_llm(name, abstract, fulltext, **k):
+        llm_calls.append((name, abstract, fulltext))
+        return {}
+
+    entry = bhm.build_entry(
+        "BIOMD0000000341", ORGAN_INDEX, no_llm=False,
+        _sbml=lambda i: "<sbml/>",
+        _ids=lambda s: {"chebi": [], "uniprot": [], "kegg": [], "go": [], "cl": [],
+                        "uberon": ["UBERON:0001264"], "fma": [], "bto": [], "n_species": 1},
+        _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x",
+                          "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=boom_lit,
+        _llm=spy_llm,
+    )
+    assert "literature" not in entry
+    assert llm_calls == []
+    assert any(e.startswith("lit:") for e in entry["provenance"]["errors"])
+    assert not any(e.startswith("llm:") for e in entry["provenance"]["errors"])
+
+
+def test_llm_failure_recorded_as_llm_not_lit():
+    def boom_llm(name, abstract, fulltext, **k):
+        raise RuntimeError("boom-llm")
+
+    entry = bhm.build_entry(
+        "BIOMD0000000341", ORGAN_INDEX, no_llm=False,
+        _sbml=lambda i: "<sbml/>",
+        _ids=lambda s: {"chebi": [], "uniprot": [], "kegg": [], "go": [], "cl": [],
+                        "uberon": ["UBERON:0001264"], "fma": [], "bto": [], "n_species": 1},
+        _meta=lambda i: {"name": "Topp2000", "pmid": "11073807", "doi": "10.1006/x",
+                          "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=lambda pmid, doi, **k: {"abstract": "abc", "fulltext": None,
+                                      "text_source": "abstract", "has_fulltext": False},
+        _llm=boom_llm,
+    )
+    assert "literature" not in entry
+    assert any(e.startswith("llm:") for e in entry["provenance"]["errors"])
+    assert not any(e.startswith("lit:") for e in entry["provenance"]["errors"])
+
+
+def test_main_skips_existing_id_unless_forced(tmp_path, monkeypatch):
+    out = tmp_path / "db.json"
+    ids_file = tmp_path / "ids.txt"
+    ids_file.write_text("BIOMD1\n")
+
+    calls = []
+
+    def fake_build_entry(bid, organ_index, **kw):
+        calls.append(bid)
+        return {"identifier": f"x:{bid}", "biomodel_id": bid}
+
+    monkeypatch.setattr(bhm, "build_entry", fake_build_entry)
+    monkeypatch.setattr(bhm, "build_organ_index", lambda *a, **k: {})
+    # pre-seed the db with BIOMD1 already present.
+    bhm.write_db({"BIOMD1": {"identifier": "x:BIOMD1", "biomodel_id": "BIOMD1"}}, str(out))
+
+    rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm"])
+    assert rc == 0
+    assert calls == []  # skipped: already in db, no --force
+
+    rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm", "--force"])
+    assert rc == 0
+    assert calls == ["BIOMD1"]  # reprocessed with --force
