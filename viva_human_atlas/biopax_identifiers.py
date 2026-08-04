@@ -1,8 +1,17 @@
 """Extract cross-reference identifiers from a BioModel's auto-generated BioPAX
-Level-3 OWL/RDF — a clean complementary source to the SBML MIRIAM annotations.
-BioPAX Xrefs carry <bp:db>/<bp:id> pairs with human-readable db names; harvest
-CHEBI/UniProt/KEGG/GO/Reactome ids + organism NCBI Taxon, via stdlib
-ElementTree (no rdflib/pybiopax dependency)."""
+OWL/RDF (Level 3 or Level 2) — a clean complementary source to the SBML MIRIAM
+annotations. BioPAX Xrefs carry db/id pairs with human-readable db names;
+harvest CHEBI/UniProt/KEGG/GO/Reactome ids + organism NCBI Taxon, via stdlib
+ElementTree (no rdflib/pybiopax dependency).
+
+Namespace- and case-agnostic by design: BioPAX Level 3 uses the
+`biopax-level3.owl#` namespace with `UnificationXref`/`RelationshipXref` tags
+and `bp:db`/`bp:id` children, while Level 2 (the BioModels download fallback)
+uses a different namespace with lowercase-initial `unificationXref`/
+`relationshipXref` tags and upper-case `bp:DB`/`bp:ID` children. Rather than
+hardcode either, xref elements and their db/id children are matched by
+lowercased local name so both levels work identically.
+"""
 from __future__ import annotations
 
 import hashlib
@@ -13,7 +22,6 @@ from xml.etree import ElementTree as ET
 
 import requests
 
-_BP = "{http://www.biopax.org/release/biopax-level3.owl#}"
 _DOWNLOAD = "https://www.ebi.ac.uk/biomodels/model/download/{}"
 _TIMEOUT = 60
 
@@ -24,15 +32,15 @@ _DB_MAP = (
 )
 _KEYS = ["chebi", "uniprot", "kegg", "go", "reactome", "taxonomy"]
 
+# collection -> CURIE prefix to rebuild unconditionally (drops any existing
+# prefix/case, e.g. "chebi:17234" -> "CHEBI:17234").
+_PREFIX = {"chebi": "CHEBI", "go": "GO", "taxonomy": "NCBITaxon"}
+
 
 def _normalize(collection: str, ident: str) -> str:
     ident = (ident or "").strip()
-    if collection == "chebi" and not ident.upper().startswith("CHEBI:"):
-        ident = "CHEBI:" + ident.split(":")[-1]
-    elif collection == "go" and not ident.upper().startswith("GO:"):
-        ident = "GO:" + ident.split(":")[-1]
-    elif collection == "taxonomy" and not ident.upper().startswith("NCBITAXON:"):
-        ident = "NCBITaxon:" + ident.split(":")[-1]
+    if collection in _PREFIX:
+        return f"{_PREFIX[collection]}:{ident.split(':')[-1]}"
     return ident
 
 
@@ -43,10 +51,17 @@ def extract_biopax_identifiers(owl_text: str) -> dict:
     except ET.ParseError:
         return {k: [] for k in _KEYS}
     for el in root.iter():
-        if el.tag.split("}")[-1] not in ("UnificationXref", "RelationshipXref"):
+        local = el.tag.split("}")[-1].lower()
+        if not local.endswith("xref") or local == "publicationxref":
             continue
-        db = (el.findtext(_BP + "db") or "").lower()
-        ident = el.findtext(_BP + "id")
+        db = ident = None
+        for child in el:
+            cl = child.tag.split("}")[-1].lower()
+            if cl == "db":
+                db = child.text
+            elif cl == "id":
+                ident = child.text
+        db = (db or "").lower()
         if not ident:
             continue
         for needle, key in _DB_MAP:
