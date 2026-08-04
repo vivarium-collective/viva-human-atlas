@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
-from typing import Optional
 
 _STR_LIST = {"type": "array", "items": {"type": "string"}}
 LITERATURE_TOOL = {
@@ -38,7 +38,9 @@ def _cache_put(cache_dir, key, value):
     if cache_dir:
         p = Path(cache_dir) / (key + ".json")
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(value))
+        tmp = p.with_suffix(p.suffix + ".tmp")
+        tmp.write_text(json.dumps(value))
+        os.replace(tmp, p)
 
 
 def extract(name, abstract, fulltext, *, model="claude-haiku-4-5-20251001", client=None, cache_dir=None) -> dict:

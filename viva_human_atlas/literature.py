@@ -3,7 +3,9 @@ open-access full text. Disk-cached; injectable `_get` for offline tests."""
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import time
 from pathlib import Path
 from typing import Callable, Optional
 from xml.etree import ElementTree as ET
@@ -13,6 +15,14 @@ import requests
 _EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 _EPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 _TIMEOUT = 30
+# NCBI/Europe PMC politeness: identify ourselves and stay under ~3 req/s.
+_TOOL = "viva-human-atlas"
+_EMAIL = "agmon.eran@gmail.com"
+_MIN_INTERVAL = 0.34  # seconds, ~3 req/s
+
+
+def _polite_pause():
+    time.sleep(_MIN_INTERVAL)
 
 
 def _cached(cache_dir, key, produce):
@@ -24,17 +34,25 @@ def _cached(cache_dir, key, produce):
         return t or None
     val = produce()
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(val or "", encoding="utf-8")
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text(val or "", encoding="utf-8")
+    os.replace(tmp, p)
     return val
 
 
 def fetch_abstract(pmid, *, _get: Optional[Callable] = None, cache_dir=None):
     if not pmid:
         return None
+    real = _get is None
     get = _get or requests.get
 
     def produce():
-        r = get(_EFETCH, params={"db": "pubmed", "id": str(pmid), "rettype": "abstract", "retmode": "xml"}, timeout=_TIMEOUT)
+        params = {"db": "pubmed", "id": str(pmid), "rettype": "abstract", "retmode": "xml"}
+        if real:
+            params["tool"] = _TOOL
+            params["email"] = _EMAIL
+            _polite_pause()
+        r = get(_EFETCH, params=params, timeout=_TIMEOUT)
         r.raise_for_status()
         root = ET.fromstring(r.text)
         parts = [(e.text or "") for e in root.iter("AbstractText")]
@@ -47,13 +65,21 @@ def fetch_abstract(pmid, *, _get: Optional[Callable] = None, cache_dir=None):
 def fetch_oa_fulltext(pmid, *, _get: Optional[Callable] = None, cache_dir=None):
     if not pmid:
         return None
+    real = _get is None
     get = _get or requests.get
 
     def produce():
-        s = get(f"{_EPMC}/search", params={"query": f"EXT_ID:{pmid} AND SRC:MED", "format": "json", "resultType": "core"}, timeout=_TIMEOUT)
+        params = {"query": f"EXT_ID:{pmid} AND SRC:MED", "format": "json", "resultType": "core"}
+        if real:
+            params["tool"] = _TOOL
+            params["email"] = _EMAIL
+            _polite_pause()
+        s = get(f"{_EPMC}/search", params=params, timeout=_TIMEOUT)
         s.raise_for_status()
         if '"isOpenAccess":"Y"' not in s.text and '"inEPMC":"Y"' not in s.text:
             return None
+        if real:
+            _polite_pause()
         f = get(f"{_EPMC}/MED/{pmid}/fullTextXML", timeout=_TIMEOUT)
         if getattr(f, "status_code", 200) != 200:
             return None

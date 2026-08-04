@@ -131,6 +131,15 @@ def write_db(db: dict, path: str) -> None:
     os.replace(tmp, p)
 
 
+def should_process(db: dict, bid: str, force: bool) -> bool:
+    if force:
+        return True
+    entry = db.get(bid)
+    if entry is None:
+        return True
+    return bool(entry.get("provenance", {}).get("errors"))  # reprocess if it errored
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Build the BioModels -> HRA mapping JSON DB.")
     ap.add_argument("--out", default=str(REPO / "datasets" / "biomodel_hra_map.json"))
@@ -156,7 +165,7 @@ def main(argv=None) -> int:
     organ_index = build_organ_index()
     Path(a.cache_dir).mkdir(parents=True, exist_ok=True)
     for i, bid in enumerate(ids, 1):
-        if bid in db and not a.force:
+        if not should_process(db, bid, a.force):
             continue
         try:
             upsert_db(db, build_entry(bid, organ_index, cache_dir=a.cache_dir,

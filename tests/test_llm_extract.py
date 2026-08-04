@@ -29,3 +29,19 @@ def test_extract_no_text_returns_empty_and_no_call():
     client = _FakeClient({})
     assert llm_extract.extract("x", None, None, client=client) == {}
     assert client.calls == 0
+
+
+def test_extract_cache_round_trip(tmp_path):
+    client = _FakeClient({"organs": ["pancreas"], "summary": "x"})
+    first = llm_extract.extract("Topp2000", "beta-cell mass...", None,
+                                client=client, cache_dir=tmp_path)
+    assert first == {"organs": ["pancreas"], "summary": "x"}
+    assert client.calls == 1
+    cache_files = list(tmp_path.glob("*.json"))
+    assert len(cache_files) == 1
+
+    # second call, same inputs -> cache hit: same result, no extra client call.
+    second = llm_extract.extract("Topp2000", "beta-cell mass...", None,
+                                 client=client, cache_dir=tmp_path)
+    assert second == first
+    assert client.calls == 1

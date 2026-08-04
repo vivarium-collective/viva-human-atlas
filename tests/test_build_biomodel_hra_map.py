@@ -122,6 +122,28 @@ def test_llm_failure_recorded_as_llm_not_lit():
     assert not any(e.startswith("lit:") for e in entry["provenance"]["errors"])
 
 
+def test_should_process_absent_id_is_true():
+    assert bhm.should_process({}, "BIOMD1", False) is True
+
+
+def test_should_process_present_no_errors_not_forced_is_false():
+    db = {"BIOMD1": {"provenance": {"errors": []}}}
+    assert bhm.should_process(db, "BIOMD1", False) is False
+
+
+def test_should_process_present_with_errors_is_true():
+    db = {"BIOMD1": {"provenance": {"errors": ["lit:boom"]}}}
+    assert bhm.should_process(db, "BIOMD1", False) is True
+
+
+def test_should_process_forced_is_true_regardless():
+    db_clean = {"BIOMD1": {"provenance": {"errors": []}}}
+    db_errored = {"BIOMD1": {"provenance": {"errors": ["lit:boom"]}}}
+    assert bhm.should_process(db_clean, "BIOMD1", True) is True
+    assert bhm.should_process(db_errored, "BIOMD1", True) is True
+    assert bhm.should_process({}, "BIOMD1", True) is True
+
+
 def test_main_skips_existing_id_unless_forced(tmp_path, monkeypatch):
     out = tmp_path / "db.json"
     ids_file = tmp_path / "ids.txt"
@@ -145,6 +167,29 @@ def test_main_skips_existing_id_unless_forced(tmp_path, monkeypatch):
     rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm", "--force"])
     assert rc == 0
     assert calls == ["BIOMD1"]  # reprocessed with --force
+
+
+def test_main_resumes_errored_entry_without_force(tmp_path, monkeypatch):
+    out = tmp_path / "db.json"
+    ids_file = tmp_path / "ids.txt"
+    ids_file.write_text("BIOMD1\n")
+
+    calls = []
+
+    def fake_build_entry(bid, organ_index, **kw):
+        calls.append(bid)
+        return {"identifier": f"x:{bid}", "biomodel_id": bid,
+                "provenance": {"errors": []}}
+
+    monkeypatch.setattr(bhm, "build_entry", fake_build_entry)
+    monkeypatch.setattr(bhm, "build_organ_index", lambda *a, **k: {})
+    # pre-seed the db with BIOMD1 present but transiently errored (empty entry).
+    bhm.write_db({"BIOMD1": {"identifier": "x:BIOMD1", "biomodel_id": "BIOMD1",
+                             "provenance": {"errors": ["lit:boom"]}}}, str(out))
+
+    rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm"])
+    assert rc == 0
+    assert calls == ["BIOMD1"]  # retried on resume even without --force
 
 
 class _Resp:
