@@ -59,10 +59,10 @@ jobs:
         # composite in the dashboard rather than aborting the whole publish.
         run: |
           uv venv
-          # vivarium-workbench@main (0.3.29) requires process-bigraph>=1.7.0,
-          # which is now released on PyPI (1.7.1), so @main installs cleanly and
-          # uv resolves its deps (process-bigraph, viva-marketplace, …) itself.
-          # No more version pin or git@main process-bigraph workaround needed.
+          # This workspace requires vivarium-workbench with `baseline.step`
+          # (>= v0.3.33, #745) — its single-Step studies use `baseline.step`
+          # instead of wrapper composites. Tracked via @main (which resolves its
+          # own deps: process-bigraph, viva-marketplace, …).
           uv pip install \
             "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main"
           uv pip install -e . --no-deps || echo "workspace has no installable build; composites render from spec only"
