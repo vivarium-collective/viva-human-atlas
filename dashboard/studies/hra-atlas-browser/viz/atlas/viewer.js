@@ -37,19 +37,20 @@ const els = {
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
-// Viridis colormap (perceptually-uniform, high chroma variation) so distinct
-// model counts read as distinct colors — dark purple (few) -> teal -> green ->
-// yellow (many) — far more separable than a single-hue green ramp. n==0 (no
-// model) is a neutral grey, off the ramp entirely.
-const VIRIDIS = [
-  [68, 1, 84], [71, 44, 122], [59, 81, 139], [44, 113, 142], [33, 144, 141],
-  [39, 173, 129], [92, 200, 99], [170, 220, 50], [253, 231, 37],
+// ColorBrewer YlGnBu (9-class sequential) — a perceptually-ordered
+// light-yellow (few) -> green -> teal -> dark-blue (many) ramp, the standard
+// sequential scheme for a single magnitude. Distinct in hue from the warm
+// subregion ramp, and n==0 (no model) is a neutral grey, off the ramp entirely.
+// https://colorbrewer2.org/#type=sequential&scheme=YlGnBu
+const YLGNBU = [
+  [255, 255, 217], [237, 248, 177], [199, 233, 180], [127, 205, 187],
+  [65, 182, 196], [29, 145, 192], [34, 94, 168], [37, 52, 148], [8, 29, 88],
 ];
-function viridis(t) {
+function ylGnBu(t) {
   t = Math.max(0, Math.min(1, t));
-  const x = t * (VIRIDIS.length - 1);
+  const x = t * (YLGNBU.length - 1);
   const i = Math.floor(x), f = x - i;
-  const a = VIRIDIS[i], b = VIRIDIS[Math.min(i + 1, VIRIDIS.length - 1)];
+  const a = YLGNBU[i], b = YLGNBU[Math.min(i + 1, YLGNBU.length - 1)];
   return new THREE.Color(
     (a[0] + (b[0] - a[0]) * f) / 255,
     (a[1] + (b[1] - a[1]) * f) / 255,
@@ -57,33 +58,25 @@ function viridis(t) {
   );
 }
 // Log scale so the low-count majority (1..9) still spreads across the ramp
-// instead of bunching at one end while pancreas (36) dominates.
+// instead of bunching at one end while blood (51) dominates.
 function countColor(n, max) {
   if (!n) return new THREE.Color(NOMODEL);
   const t = max > 1 ? Math.log1p(n) / Math.log1p(max) : 1;
-  return viridis(t);
+  return ylGnBu(t);
 }
 const cssColor = (n, max) => "#" + countColor(n, max).getHexString();
 
-// Subregions (anatomical structures with their own models) are colored on a
-// SEPARATE warm ramp (amber -> deep orange) so a modeled structure pops out of
-// its organ's viridis base — "this specific structure has models," distinct in
-// hue from the organ-level count coloring.
-const WARM = [[255, 224, 178], [255, 167, 38], [239, 108, 0], [191, 54, 12]];
-function warm(t) {
-  t = Math.max(0, Math.min(1, t));
-  const x = t * (WARM.length - 1);
-  const i = Math.floor(x), f = x - i;
-  const a = WARM[i], b = WARM[Math.min(i + 1, WARM.length - 1)];
-  return new THREE.Color(
-    (a[0] + (b[0] - a[0]) * f) / 255,
-    (a[1] + (b[1] - a[1]) * f) / 255,
-    (a[2] + (b[2] - a[2]) * f) / 255,
-  );
-}
+// A modeled subregion is colored on the SAME YlGnBu ramp as everything else,
+// by its COMBINED count — the organ's whole-organ models PLUS the models
+// localized to that structure — so it reads as a darker shade of the same
+// scheme than the rest of its organ (see `subregionCount`), not a different hue.
 // Normalize a GLB scene-node name for matching against a subregion's
 // crosswalk node_names (exporters vary punctuation/case).
 const normNode = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+// A subregion's displayed model count = the organ's whole-organ models + the
+// models specifically placed at this structure.
+const subregionCount = (organ, sub) => organ.n_models + (sub.n_models || 0);
 
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
@@ -121,7 +114,7 @@ async function main() {
   const organsByKey = new Map(atlas.organs.map((o) => [o.key, o]));
   // Per-organ subregion lookup: organ key -> Map(normalized node_name ->
   // subregion). Lets `colorMesh` decide, per GLB mesh, whether it's a modeled
-  // anatomical structure (warm) or just organ base (viridis).
+  // anatomical structure (darker, by its combined count) or organ base.
   const subIndexByKey = new Map();
   for (const o of atlas.organs) {
     const idx = new Map();
@@ -130,10 +123,12 @@ async function main() {
     }
     subIndexByKey.set(o.key, idx);
   }
-  const maxSub = atlas.max_subregion_models || atlas.max_models || 1;
-  const subColor = (n) =>
-    warm(maxSub > 1 ? Math.log1p(n) / Math.log1p(maxSub) : 1);
-  const cssSubColor = (n) => "#" + subColor(n).getHexString();
+  // Color scale max includes subregion combined totals (organ + localized),
+  // which can exceed any organ's whole-organ count, so the ramp stays accurate.
+  const maxCount = Math.max(
+    atlas.max_models || 1,
+    ...atlas.organs.flatMap((o) => (o.subregions || []).map((s) => subregionCount(o, s))),
+  );
   // Composed views must not overlay both sexes of the same structure (that
   // renders "double legs" — male knee bones poking through the female skin).
   // Collapse -female-/-male- variants (keeping left/right) to ONE sex,
@@ -215,7 +210,7 @@ async function main() {
   // (so the selected organs light up where the keyword is represented), and
   // organs with no match dim out.
   function organColorSpec(organ) {
-    if (!modelQuery) return { color: countColor(organ.n_models, atlas.max_models), opacity: 1 };
+    if (!modelQuery) return { color: countColor(organ.n_models, maxCount), opacity: 1 };
     const n = matchingModels(organ, modelQuery).length;
     if (!n) return { color: new THREE.Color(NOMODEL), opacity: 0.18 };
     const maxMatch = searchMaxMatch || 1;
@@ -256,7 +251,10 @@ async function main() {
     node.userData.organKey = organ.key;
     node.userData.regionName = node.name;
     node.userData.sub = sub;
-    const col = sub ? subColor(sub.n_models) : countColor(organ.n_models, atlas.max_models);
+    // Same YlGnBu ramp for both; a subregion uses its COMBINED count (organ +
+    // localized), so it reads as a darker shade than the rest of the organ.
+    const count = sub ? subregionCount(organ, sub) : organ.n_models;
+    const col = countColor(count, maxCount);
     if (node.material && !node.material.isLineBasicMaterial) {
       node.material.color.copy(col);
       node.material.transparent = false;
@@ -492,21 +490,25 @@ async function main() {
     return a;
   }
 
-  // Right-panel list for one clicked subregion: its own models (each linking to
-  // BioModels), with a badge for how the model was placed there (FTU / cell type).
+  // Right-panel list for one clicked subregion: the models it carries — the
+  // organ's whole-organ models PLUS the ones localized here — the localized
+  // ones listed first and badged (FTU / cell type); the rest are region-wide.
   function renderSubregion(sub, organ) {
+    const localIds = new Set((sub.models || []).map((m) => m.biomodel_id));
+    const regionWide = (organ.models || []).filter((m) => !localIds.has(m.biomodel_id));
+    const total = subregionCount(organ, sub);
     els.bpTitle.textContent = sub.label || "Subregion";
     els.bpSub.textContent =
-      `${sub.n_models} BioModel${sub.n_models === 1 ? "" : "s"} · ${sub.uberon || ""} · in ${organ.label}`;
+      `${total} BioModel${total === 1 ? "" : "s"} · ${sub.n_models} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
-    if (!sub.models || !sub.models.length) {
+    for (const m of (sub.models || [])) els.bpList.appendChild(_modelLink(m));
+    for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
+    if (!total) {
       const d = document.createElement("div");
       d.className = "empty";
-      d.textContent = "No models placed at this subregion.";
+      d.textContent = "No models associated with this structure.";
       els.bpList.appendChild(d);
-      return;
     }
-    for (const m of sub.models) els.bpList.appendChild(_modelLink(m));
   }
 
   // Right-panel results for the model keyword search: matching BioModels grouped
@@ -588,7 +590,7 @@ async function main() {
         row.dataset.label = o.label.toLowerCase();
         row.innerHTML =
           `<span class="chk">✓</span>` +
-          `<span class="sw" style="background:${cssColor(o.n_models, atlas.max_models)}"></span>` +
+          `<span class="sw" style="background:${cssColor(o.n_models, maxCount)}"></span>` +
           `<span class="nm" title="${o.label}">${o.label}</span>` +
           `<span class="ct">${o.n_models || ""}</span>` +
           `<span class="only" role="button">only</span>`;
@@ -651,7 +653,8 @@ async function main() {
     const organ = organsByKey.get(hovered.userData.organKey);
     const sub = hovered.userData.sub;
     if (sub) {
-      setStatus(`${sub.label} · ${organ.label} — ${sub.n_models} model${sub.n_models === 1 ? "" : "s"} here (click to list)`);
+      const total = subregionCount(organ, sub);
+      setStatus(`${sub.label} · ${organ.label} — ${total} model${total === 1 ? "" : "s"} (${sub.n_models} localized here · click to list)`);
     } else {
       setStatus(`${hovered.userData.regionName} · ${organ.label} (${organ.n_models} model${organ.n_models === 1 ? "" : "s"})`);
     }
