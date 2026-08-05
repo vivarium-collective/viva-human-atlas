@@ -154,6 +154,27 @@ def _label(key: str) -> str:
     return key.replace("-", " ").title()
 
 
+# Biologically sex-specific organs whose key does NOT carry a `-female-`/`-male-`
+# suffix (those are handled by the suffix check in `organ_sex`). GLB availability
+# alone is NOT a reliable signal — unisex bones like manubrium/sternum ship only
+# a female asset — so these are curated explicitly.
+FEMALE_ONLY_ORGANS = {"placenta-full-term", "uterus"}
+MALE_ONLY_ORGANS = {"prostate"}
+
+
+def organ_sex(key: str) -> str:
+    """"female" | "male" | "both" — which sex's anatomy an organ belongs to, so
+    the viewer never shows female-specific anatomy (placenta, uterus, ovary…) in
+    the male view or vice versa. Sex-specific organs are identified by a
+    `-female-`/`-male-` key suffix OR the curated sets above; everything else is
+    unisex ("both")."""
+    if "-female" in key or key in FEMALE_ONLY_ORGANS:
+        return "female"
+    if "-male" in key or key in MALE_ONLY_ORGANS:
+        return "male"
+    return "both"
+
+
 def _glb_by_sex(asset_urls: list[str]) -> dict:
     out = {"female": None, "male": None}
     for url in asset_urls or []:
@@ -261,6 +282,7 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
             "system": _system_for(key, uberon, systems_map),
             "glb": _glb_by_sex(entry.get("asset_urls") or []),
             "glbs": _glbs_by_sex(entry.get("asset_urls") or []),
+            "sex": organ_sex(key),
             "n_models": len(models),
             "models": models,
             "subregions": sub_list,

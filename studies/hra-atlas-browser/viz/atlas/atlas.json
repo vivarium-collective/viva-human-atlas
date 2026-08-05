@@ -17,6 +17,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
         ]
       },
+      "sex": "both",
       "n_models": 52,
       "models": [
         {
@@ -498,6 +499,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-male/v1.3/assets/3d-vh-m-pancreas.glb"
         ]
       },
+      "sex": "both",
       "n_models": 51,
       "models": [
         {
@@ -883,6 +885,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-male/v1.2/assets/3d-vh-m-liver.glb"
         ]
       },
+      "sex": "both",
       "n_models": 48,
       "models": [
         {
@@ -1145,6 +1148,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
         ]
       },
+      "sex": "both",
       "n_models": 43,
       "models": [
         {
@@ -1444,6 +1448,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
         ]
       },
+      "sex": "both",
       "n_models": 43,
       "models": [
         {
@@ -1681,6 +1686,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
         ]
       },
+      "sex": "both",
       "n_models": 34,
       "models": [
         {
@@ -1873,6 +1879,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb"
         ]
       },
+      "sex": "both",
       "n_models": 28,
       "models": [
         {
@@ -2090,6 +2097,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/small-intestine-male/v1.2/assets/3d-vh-m-small-intestine.glb"
         ]
       },
+      "sex": "both",
       "n_models": 28,
       "models": [
         {
@@ -2973,6 +2981,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 26,
       "models": [
         {
@@ -3125,6 +3134,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-male/v1.3/assets/3d-vh-m-heart.glb"
         ]
       },
+      "sex": "both",
       "n_models": 15,
       "models": [
         {
@@ -3684,6 +3694,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
         ]
       },
+      "sex": "both",
       "n_models": 9,
       "models": [
         {
@@ -3751,6 +3762,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
         ]
       },
+      "sex": "both",
       "n_models": 8,
       "models": [
         {
@@ -3860,6 +3872,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
         ]
       },
+      "sex": "both",
       "n_models": 7,
       "models": [
         {
@@ -3917,6 +3930,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-male/v1.0/assets/3d-vh-m-adipose.glb"
         ]
       },
+      "sex": "both",
       "n_models": 6,
       "models": [
         {
@@ -3975,6 +3989,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/renal-pelvis-male-right/v1.0/assets/3d-vh-m-renal-pelvis-r.glb"
         ]
       },
+      "sex": "both",
       "n_models": 5,
       "models": [
         {
@@ -4066,6 +4081,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
         ]
       },
+      "sex": "both",
       "n_models": 5,
       "models": [
         {
@@ -4111,6 +4127,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 4,
       "models": [
         {
@@ -4153,6 +4170,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-male/v1.4/assets/3d-nih-m-lymph-node.glb"
         ]
       },
+      "sex": "both",
       "n_models": 3,
       "models": [
         {
@@ -4415,6 +4433,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-male/v1.2/assets/3d-vh-m-urinary-bladder.glb"
         ]
       },
+      "sex": "both",
       "n_models": 2,
       "models": [
         {
@@ -4447,6 +4466,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-male/v1.0/assets/3d-vh-m-epiploic-appendage-of-transverse-colon.glb"
         ]
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4466,6 +4486,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4485,6 +4506,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4504,6 +4526,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4523,6 +4546,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4542,6 +4566,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4561,6 +4586,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4582,6 +4608,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-male/v1.0/assets/3d-vh-m-intervertebral-disk.glb"
         ]
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4601,6 +4628,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4620,6 +4648,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4639,6 +4668,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-left/v1.2/assets/3d-vh-m-knee-l.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4658,6 +4688,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-right/v1.2/assets/3d-vh-m-knee-r.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4679,6 +4710,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-male/v1.1/assets/3d-vh-m-larynx.glb"
         ]
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4698,6 +4730,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4717,6 +4750,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4736,6 +4770,7 @@
         ],
         "male": []
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4757,6 +4792,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-male/v1.0/assets/3d-vh-m-mouth.glb"
         ]
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4778,6 +4814,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-male/v1.0/assets/3d-vh-m-omentum.glb"
         ]
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4797,6 +4834,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4816,6 +4854,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4835,6 +4874,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4854,6 +4894,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-left/v1.2/assets/3d-vh-m-palatine-tonsil-l.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4873,6 +4914,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-right/v1.2/assets/3d-vh-m-palatine-tonsil-r.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4894,6 +4936,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-male/v1.3/assets/3d-vh-m-pelvis.glb"
         ]
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4913,6 +4956,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/prostate-male/v1.2/assets/3d-vh-m-prostate.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4932,6 +4976,7 @@
         ],
         "male": []
       },
+      "sex": "both",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4951,6 +4996,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4970,6 +5016,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -4989,6 +5036,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-left/v1.2/assets/3d-vh-m-ureter-l.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -5008,6 +5056,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-right/v1.2/assets/3d-vh-m-ureter-r.glb"
         ]
       },
+      "sex": "male",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -5027,6 +5076,7 @@
         ],
         "male": []
       },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []

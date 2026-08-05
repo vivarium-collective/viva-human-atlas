@@ -143,11 +143,13 @@ async function main() {
     const other = sex === "female" ? "male" : "female";
     return (o.glbs?.[sex]?.length ? o.glbs[sex] : (o.glbs?.[other] || []));
   }
-  // An organ whose KEY names the OPPOSITE sex is hidden in this mode; organs
-  // with no sex in their key (e.g. prostate, heart) are always visible.
+  // Show an organ only in its own sex's view: the manifest's `sex` field
+  // ("female"/"male"/"both") covers both key-suffixed variants (ovary-female-*)
+  // AND biologically sex-specific organs with plain keys (placenta, uterus,
+  // prostate). Falls back to key inference for older manifests without `sex`.
   function visibleForSex(o) {
-    if (sex === "female") return !(/-male\b/.test(o.key) || /-male-/.test(o.key));
-    return !/-female/.test(o.key);
+    const s = o.sex || (/-male/.test(o.key) ? "male" : /-female/.test(o.key) ? "female" : "both");
+    return s === "both" || s === sex;
   }
   // Recomputed for the current sex: keys of the organs the menu/landing use.
   let allKeys = [], modeledKeys = [];
