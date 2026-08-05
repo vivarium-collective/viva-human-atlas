@@ -75,6 +75,50 @@ def load_hrapop(path: Optional[str] = None) -> dict:
     return out
 
 
+def load_hrapop_as(path: Optional[str] = None) -> dict:
+    """Per-anatomical-structure (AS) cell-type composition — the un-collapsed
+    counterpart of `load_hrapop` (which aggregates AS away to the organ).
+
+    Returns `{organ_key: {"raw_names": [...], "organ_total": float,
+    "cl_organ_count": {cell_id: float}, "as": {as_uberon: {"label",
+    "total", "cts": {cell_id: float}}}}}` where `organ_key` is the lowercased
+    HRApop organ name. Unlike `load_hrapop`, cell ids are kept as-is (both
+    `CL:` and `ASCTB-TEMP:` — dropping the latter would discard whole cell
+    types like colonocyte), so the per-AS composition is complete. `total`
+    and `organ_total` are summed `cell_count` over all cells (the denominator
+    for within-AS fraction); `cl_organ_count` is the per-cell organ total (the
+    denominator for enrichment).
+    """
+    p = Path(path) if path else _DEFAULT_CSV
+    if not p.exists():
+        return {}
+    out: dict[str, dict] = {}
+    with open(p, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            organ = (r.get("organ") or "").strip().lower()
+            if not organ:
+                continue
+            cell = _curie(r.get("cell_id", ""))
+            if not cell:
+                continue
+            try:
+                cnt = float(r.get("cell_count") or 0)
+            except ValueError:
+                cnt = 0.0
+            o = out.setdefault(organ, {"raw_names": set(), "organ_total": 0.0,
+                                       "cl_organ_count": {}, "as": {}})
+            o["raw_names"].add((r.get("organ") or "").strip())
+            o["organ_total"] += cnt
+            o["cl_organ_count"][cell] = o["cl_organ_count"].get(cell, 0.0) + cnt
+            a = o["as"].setdefault(_curie(r.get("as", "")),
+                                   {"label": r.get("as_label") or None, "total": 0.0, "cts": {}})
+            a["total"] += cnt
+            a["cts"][cell] = a["cts"].get(cell, 0.0) + cnt
+    for o in out.values():
+        o["raw_names"] = sorted(o["raw_names"])
+    return out
+
+
 def _organ_match(model_organ: str, hrapop: dict) -> Optional[str]:
     """Match a model organ label to a HRApop organ key by word-subset (so
     `intestine`->`large/small intestine`, `kidney`->`left/right kidney`,

@@ -65,6 +65,26 @@ function countColor(n, max) {
 }
 const cssColor = (n, max) => "#" + countColor(n, max).getHexString();
 
+// Subregions (anatomical structures with their own models) are colored on a
+// SEPARATE warm ramp (amber -> deep orange) so a modeled structure pops out of
+// its organ's viridis base — "this specific structure has models," distinct in
+// hue from the organ-level count coloring.
+const WARM = [[255, 224, 178], [255, 167, 38], [239, 108, 0], [191, 54, 12]];
+function warm(t) {
+  t = Math.max(0, Math.min(1, t));
+  const x = t * (WARM.length - 1);
+  const i = Math.floor(x), f = x - i;
+  const a = WARM[i], b = WARM[Math.min(i + 1, WARM.length - 1)];
+  return new THREE.Color(
+    (a[0] + (b[0] - a[0]) * f) / 255,
+    (a[1] + (b[1] - a[1]) * f) / 255,
+    (a[2] + (b[2] - a[2]) * f) / 255,
+  );
+}
+// Normalize a GLB scene-node name for matching against a subregion's
+// crosswalk node_names (exporters vary punctuation/case).
+const normNode = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
   els.bpSub.textContent = organ.n_models
@@ -99,6 +119,21 @@ async function main() {
   const cfg = await fetch("config.json").then((r) => r.json());
   const atlas = await fetch(cfg.atlas).then((r) => r.json());
   const organsByKey = new Map(atlas.organs.map((o) => [o.key, o]));
+  // Per-organ subregion lookup: organ key -> Map(normalized node_name ->
+  // subregion). Lets `colorMesh` decide, per GLB mesh, whether it's a modeled
+  // anatomical structure (warm) or just organ base (viridis).
+  const subIndexByKey = new Map();
+  for (const o of atlas.organs) {
+    const idx = new Map();
+    for (const s of o.subregions || []) {
+      for (const nn of s.node_names || []) idx.set(normNode(nn), s);
+    }
+    subIndexByKey.set(o.key, idx);
+  }
+  const maxSub = atlas.max_subregion_models || atlas.max_models || 1;
+  const subColor = (n) =>
+    warm(maxSub > 1 ? Math.log1p(n) / Math.log1p(maxSub) : 1);
+  const cssSubColor = (n) => "#" + subColor(n).getHexString();
   // Composed views must not overlay both sexes of the same structure (that
   // renders "double legs" — male knee bones poking through the female skin).
   // Collapse -female-/-male- variants (keeping left/right) to ONE sex,
@@ -136,8 +171,10 @@ async function main() {
   }
   els.legendMax.textContent = String(atlas.max_models);
   const distinctTotal = atlas.summary.n_models_distinct ?? atlas.summary.n_models_total;
+  const nSub = atlas.summary.n_subregions || 0;
   els.summary.textContent =
-    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct BioModels`;
+    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct BioModels`
+    + (nSub ? ` · ${nSub} modeled subregion${nSub === 1 ? "" : "s"} in ${atlas.summary.n_organs_with_subregions} organ${atlas.summary.n_organs_with_subregions === 1 ? "" : "s"}` : "");
 
   // ---- scene ----
   const app = document.getElementById("app");
@@ -197,6 +234,7 @@ async function main() {
     for (const k of selected) {
       const g = groups.get(k), o = organsByKey.get(k);
       if (!g || !o) continue;
+      if (!modelQuery) { colorOrganGroup(k); continue; }  // subregion-aware base
       const spec = organColorSpec(o);
       g.traverse((n) => {
         if (!n.isMesh || !n.material || n.material.isLineBasicMaterial) return;
@@ -210,35 +248,65 @@ async function main() {
     els.legendMax.textContent = String(modelQuery ? (searchMaxMatch || 0) : atlas.max_models);
   }
 
-  // Build (or reuse) an organ's colored GLB group. Every mesh is colored by
-  // the organ's model count (organ-granularity) and outlined so sub-regions
-  // read as distinct shapes.
+  // Color ONE mesh: if its node name matches a modeled subregion, warm ramp by
+  // the subregion's own model count (and tag userData.sub for hover/click);
+  // otherwise the organ-level viridis base. Stores userData for raycasting.
+  function colorMesh(node, organ) {
+    const sub = subIndexByKey.get(organ.key)?.get(normNode(node.name)) || null;
+    node.userData.organKey = organ.key;
+    node.userData.regionName = node.name;
+    node.userData.sub = sub;
+    const col = sub ? subColor(sub.n_models) : countColor(organ.n_models, atlas.max_models);
+    if (node.material && !node.material.isLineBasicMaterial) {
+      node.material.color.copy(col);
+      node.material.transparent = false;
+      node.material.opacity = 1;
+    }
+  }
+  // Recolor every mesh of a shown organ to its base (subregion-or-organ) colors.
+  function colorOrganGroup(key) {
+    const g = groups.get(key), organ = organsByKey.get(key);
+    if (!g || !organ) return;
+    g.traverse((n) => { if (n.isMesh) colorMesh(n, organ); });
+  }
+
+  // Build (or reuse) an organ's colored GLB group. Each mesh is colored either
+  // by its own modeled-subregion count (warm) or the organ's model count
+  // (viridis base), and outlined so sub-regions read as distinct shapes.
+  const loadGLB = (url) => new Promise((resolve, reject) =>
+    loader.load(url, (gltf) => resolve(gltf.scene), undefined, reject));
+
   function ensureLoaded(key) {
     if (groups.has(key)) return Promise.resolve(groups.get(key));
     if (loading.has(key)) return loading.get(key);
     const organ = organsByKey.get(key);
-    const url = organ && (organ.glb.female || organ.glb.male);
-    if (!url) return Promise.reject(new Error(`${key}: no GLB asset`));
-    const p = new Promise((resolve, reject) => {
-      loader.load(url, (gltf) => {
-        const group = gltf.scene;
-        const color = countColor(organ.n_models, atlas.max_models);
-        group.traverse((node) => {
-          if (!node.isMesh) return;
-          node.material = new THREE.MeshStandardMaterial({ color: color.clone() });
-          const edges = new THREE.LineSegments(
-            new THREE.EdgesGeometry(node.geometry, 30),
-            new THREE.LineBasicMaterial({ color: 0x0e1116, transparent: true, opacity: 0.5 })
-          );
-          node.add(edges);
-          node.userData.organKey = key;
-          node.userData.regionName = node.name;
-        });
-        groups.set(key, group);
-        loading.delete(key);
-        resolve(group);
-      }, undefined, (err) => { loading.delete(key); reject(err); });
-    });
+    // Load ALL same-sex GLBs for the organ (bilateral/multi-part organs like
+    // kidney ship one GLB per side), preferring female; fall back to the single
+    // glb field for older manifests.
+    const gl = organ && organ.glbs;
+    let urls = gl ? (gl.female && gl.female.length ? gl.female : (gl.male || [])) : [];
+    if (!urls.length) {
+      const u = organ && (organ.glb.female || organ.glb.male);
+      urls = u ? [u] : [];
+    }
+    if (!urls.length) return Promise.reject(new Error(`${key}: no GLB asset`));
+    const p = Promise.all(urls.map(loadGLB)).then((scenes) => {
+      const group = new THREE.Group();
+      for (const s of scenes) group.add(s);
+      group.traverse((node) => {
+        if (!node.isMesh) return;
+        node.material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(node.geometry, 30),
+          new THREE.LineBasicMaterial({ color: 0x0e1116, transparent: true, opacity: 0.5 })
+        );
+        node.add(edges);
+        colorMesh(node, organ);
+      });
+      groups.set(key, group);
+      loading.delete(key);
+      return group;
+    }).catch((err) => { loading.delete(key); throw err; });
     loading.set(key, p);
     return p;
   }
@@ -412,11 +480,33 @@ async function main() {
     const a = document.createElement("a");
     a.href = m.url; a.target = "_blank"; a.rel = "noopener";
     const by = m.matched_by || [];
-    const badge = by.length
+    let badge = by.length
       ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
           by.length === 2 ? "name+annotation" : by[0]}</span>` : "";
-    a.innerHTML = `<div>${m.name} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
+    // subregion model rows carry `via` (how the model reached this structure)
+    if (!badge && m.via) {
+      badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
+        m.via === "ftu" ? "FTU" : "cell type"}</span>`;
+    }
+    a.innerHTML = `<div>${m.name || m.biomodel_id} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
     return a;
+  }
+
+  // Right-panel list for one clicked subregion: its own models (each linking to
+  // BioModels), with a badge for how the model was placed there (FTU / cell type).
+  function renderSubregion(sub, organ) {
+    els.bpTitle.textContent = sub.label || "Subregion";
+    els.bpSub.textContent =
+      `${sub.n_models} BioModel${sub.n_models === 1 ? "" : "s"} · ${sub.uberon || ""} · in ${organ.label}`;
+    els.bpList.innerHTML = "";
+    if (!sub.models || !sub.models.length) {
+      const d = document.createElement("div");
+      d.className = "empty";
+      d.textContent = "No models placed at this subregion.";
+      els.bpList.appendChild(d);
+      return;
+    }
+    for (const m of sub.models) els.bpList.appendChild(_modelLink(m));
   }
 
   // Right-panel results for the model keyword search: matching BioModels grouped
@@ -559,11 +649,24 @@ async function main() {
     if (!hovered) return;
     hovered.material.emissive = new THREE.Color(0x2b3a44);
     const organ = organsByKey.get(hovered.userData.organKey);
-    setStatus(`${hovered.userData.regionName} · ${organ.label} (${organ.n_models} model${organ.n_models === 1 ? "" : "s"})`);
+    const sub = hovered.userData.sub;
+    if (sub) {
+      setStatus(`${sub.label} · ${organ.label} — ${sub.n_models} model${sub.n_models === 1 ? "" : "s"} here (click to list)`);
+    } else {
+      setStatus(`${hovered.userData.regionName} · ${organ.label} (${organ.n_models} model${organ.n_models === 1 ? "" : "s"})`);
+    }
   });
-  // Click an organ in the 3D scene to focus its BioModels in the panel.
+  // Click a structure: a modeled subregion lists its own models; anything else
+  // focuses the whole organ's BioModels.
   renderer.domElement.addEventListener("click", () => {
-    if (hovered) focus(hovered.userData.organKey);
+    if (!hovered) return;
+    const sub = hovered.userData.sub;
+    if (sub && !modelQuery) {
+      focused = hovered.userData.organKey;
+      renderSubregion(sub, organsByKey.get(hovered.userData.organKey));
+    } else {
+      focus(hovered.userData.organKey);
+    }
   });
 
   addEventListener("resize", () => {
