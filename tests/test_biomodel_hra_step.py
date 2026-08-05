@@ -104,6 +104,30 @@ def test_step_update_emits_path_count_and_summary(tmp_path):
     }
 
 
+def test_step_writes_per_run_analysis_copy_when_dir_injected(tmp_path):
+    db = tmp_path / "db.json"
+    bhm.write_db(_sample_db(), str(db))
+    out = tmp_path / "analyses" / "run1"
+    core = build_core()
+    step = bhm.BiomodelHraMapStep(config={
+        "db_path": str(db), "build_if_missing": False,
+        "analysis_out_dir": str(out)}, core=core)
+    step.update({})
+    artifact = out / "biomodel_hra_map.json"
+    assert artifact.exists()
+    assert json.loads(artifact.read_text())  # non-empty DB array
+
+
+def test_step_no_analysis_copy_without_dir(tmp_path):
+    db = tmp_path / "db.json"
+    bhm.write_db(_sample_db(), str(db))
+    core = build_core()
+    step = bhm.BiomodelHraMapStep(config={"db_path": str(db), "build_if_missing": False}, core=core)
+    out = step.update({})  # no analysis_out_dir -> no write, no error
+    assert out["n_models"] == 2
+    assert not (tmp_path / "analyses").exists()
+
+
 def test_step_summary_matches_committed_corpus_db():
     """The Step over the committed DB reports the headline coverage the study
     report + summary figure quote (1,096 models; 978 molecular; 215 Uberon;

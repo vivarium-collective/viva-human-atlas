@@ -376,6 +376,10 @@ class BiomodelHraMapStep(Step):
         "no_llm": "boolean",
         "build_if_missing": "boolean",
         "limit": "integer",
+        # Injected by the workbench for a `baseline.step` run
+        # (`<study>/analyses/<run_id>/`): when set, the DB is written there so it
+        # is downloadable from the Runs/Analysis tab under this run.
+        "analysis_out_dir": "string",
     }
 
     def inputs(self):
@@ -399,11 +403,27 @@ class BiomodelHraMapStep(Step):
             limit=int(limit) if limit else None,
         )
         summary = summarize_map(entries)
+        self._write_analysis_copy(entries)
         return {
             "db_path": str(db_path),
             "n_models": summary["n_models"],
             "summary": summary,
         }
+
+    def _write_analysis_copy(self, entries) -> None:
+        """When the workbench injects `analysis_out_dir` (a `baseline.step` run's
+        `<study>/analyses/<run_id>/`), write the DB there as a downloadable
+        per-run analysis artifact. Best-effort — never fails the run."""
+        out_dir = self.config.get("analysis_out_dir")
+        if not out_dir:
+            return
+        try:
+            out = Path(out_dir)
+            out.mkdir(parents=True, exist_ok=True)
+            (out / "biomodel_hra_map.json").write_text(
+                json.dumps(list(entries), indent=2), encoding="utf-8")
+        except Exception:  # noqa: BLE001
+            pass
 
 
 BiomodelHraMapStep.contract = {
