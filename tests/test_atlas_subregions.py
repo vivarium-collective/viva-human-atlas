@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 
 import viva_human_atlas.hra_pop as hra_pop
-from viva_human_atlas.atlas_subregions import place_models
+from viva_human_atlas.atlas_subregions import place_models, _mirror_name, _nodes_by_uberon
 from viva_human_atlas.atlas_pack import (
     build_atlas_from_hra_map, build_atlas_manifest, build_and_write_atlas,
 )
@@ -55,6 +55,26 @@ def _kidney_model():
     return {"biomodel_id": "BIOMD1", "name": "Kidney model",
             "organs": [{"label": "kidney", "uberon": "UBERON:0004538"}],
             "cell_types": [{"cl": "CL:PODO"}], "functional_tissue_units": []}
+
+
+def test_mirror_name_flips_left_right_suffix():
+    assert _mirror_name("Allen_olfactory_bulb_L") == "Allen_olfactory_bulb_R"
+    assert _mirror_name("Allen_olfactory_bulb_R") == "Allen_olfactory_bulb_L"
+    assert _mirror_name("VH_F_liver") is None
+
+
+def test_nodes_by_uberon_recovers_unannotated_bilateral_twin():
+    # The crosswalk annotates the Uberon on the LEFT twin only; the RIGHT twin's
+    # row has a blank uberon. Both meshes must still resolve under the Uberon.
+    crosswalk = [
+        {"node_name": "Allen_olfactory_bulb_L", "label": "olfactory bulb",
+         "uberon": "UBERON:0002264", "organ_glb": "Allen_F_Brain"},
+        {"node_name": "Allen_olfactory_bulb_R", "label": "",
+         "uberon": "", "organ_glb": "Allen_F_Brain"},
+    ]
+    nodes = _nodes_by_uberon(crosswalk)["UBERON:0002264"]
+    names = sorted(n["node_name"] for n in nodes)
+    assert names == ["Allen_olfactory_bulb_L", "Allen_olfactory_bulb_R"]
 
 
 def test_cell_type_enrichment_places_at_cortex_with_both_side_nodes():
