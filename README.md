@@ -11,13 +11,18 @@ ontology-linked outputs that can connect to the HRA's 3D reference organs.
 📊 **Read-only workbench (showcase):**
 https://vivarium-collective.github.io/viva-human-atlas/dashboard/
 
-🧭 **HRA Atlas Browser (organ selector, model-count gradient, BioModels links):**
+🧭 **HRA Atlas Browser (organ selector, model-count gradient, subregion placement, BioModels links):**
 https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/hra-atlas-browser/viz/atlas/index.html
 — pick any of the 50 GLB-backed HRA organs (or compose them with "All modeled"),
-see regions colored by associated model count (viridis), and click through to
-BioModels. The manifest is the union of name-synonym and SBML-annotation
-matching (167 models across 14 organs). Built by `scripts/build_atlas_pack.py`;
-also launchable from the Analyses tab as "HRA Atlas Browser".
+see organs colored by associated model count (viridis), and click through to
+BioModels. Built from the **BioModels→HRA map DB** (see below): **172 distinct
+models across 14 organs**. Where the data supports it, models are placed at
+specific organ **subregions** driven up from their cell types / FTUs — **14
+models onto 6 subregions in 4 organs** (brain hippocampal formation + olfactory
+bulb, kidney outer cortex, lymph-node follicle, colon), colored on a warm ramp
+and listed per-structure on hover/click; everything else falls back to the whole
+organ. Built by `scripts/build_atlas_pack.py` / the `hra-atlas-browser`
+composite; also launchable from the Analyses tab.
 
 ## Investigations
 
@@ -40,6 +45,16 @@ also launchable from the Analyses tab as "HRA Atlas Browser".
     some organs (e.g., pancreas). Most BioModels annotate anatomy via BTO terms
     rather than direct Uberon links. (See `studies/annotation-organ-matching`
     and `studies/annotation-recall-gain`.)
+  - **BioModels→HRA corpus map:** the whole curated corpus (**1,096 models**)
+    harvested into one reusable JSON DB (`datasets/biomodel_hra_map.json`), each
+    model with molecular ids (CHEBI/UniProt/KEGG/GO/Reactome), publication link,
+    organism, and HRA organ/FTU/cell-type mapping (anatomy crosswalked from paper
+    **MeSH** + BTO), with 112 models carrying **HRApop** measured cell-type
+    populations. Exposed as a reusable Vivarium **Step** (`BiomodelHraMapStep`,
+    cache-or-load) and a downloadable workspace dataset, with a committed summary
+    figure (`reports/figures/biomodel_hra_summary.png`). This DB is what the Atlas
+    Browser's organ→models and subregion placement now build on.
+    (See `studies/biomodel-hra-map`.)
 
 ## Composites
 
@@ -50,6 +65,7 @@ also launchable from the Analyses tab as "HRA Atlas Browser".
 |---|---|
 | `annotation-organ-matching` | Summarize the committed annotation-based (SBML MIRIAM + BTO crosswalk) organ-matching catalog: model/organ counts and the biological-qualifier/ontology distribution behind each organ tag. |
 | `annotation-recall-gain` | Compare the annotation-based organ-matching catalog against the name-synonym catalog to quantify the recall gain (organs/models added) from parsing SBML MIRIAM/BTO annotations. |
+| `biomodel-hra-map` | Make the BioModels->HRA map DB available (cache-or-load) and emit its path, model count, and coverage summary. |
 | `blood-vasculature-network` | Pull the HRA/VCCF vasculature data (28 FTU heart->FTU->heart paths + VCCF vessel classes) and build a directed whole-body blood-transport graph, validating every FTU closes a circuit through the hear… |
 | `corpus-coverage` | Cross the ASCT+B-3D crosswalk's anatomical structures with the committed full-corpus catalog's organ->models index (1,096 curated BioModels, Task A) to mark model coverage, at organ granularity. |
 | `ctpop-islet-parameterization` | Bind documented HRA-aligned islet beta-cell-composition fractions to the Topp2000 beta-cell-mass model's (BIOMD0000000341) initial beta-cell mass, and run healthy vs beta-depleted composition scenari… |
@@ -59,6 +75,7 @@ also launchable from the Analyses tab as "HRA Atlas Browser".
 | `glucose-regulation` | Query BioModels for a text term (default 'glucose regulation'), then run every matching model under COPASI and Tellurium and score their agreement (all-pairs nRMSE). |
 | `hra-3d-crosswalk` | Fetch the ASCT+B-3D models crosswalk (1,400+ anatomical structures) from the HRA CDN's `asct-b-3d-models-crosswalk.csv` digital object. |
 | `hra-anatomical-structures` | Fetch HRA anatomical-structure term occurrences from the CCF API. |
+| `hra-atlas-browser` | Regenerate the HRA Atlas Browser pack from the BioModels->HRA map DB (Phase 1), placing each model at the organ subregion(s) its cell types / FTUs resolve to — via HRApop per-AS cell populations + th… |
 | `hra-cell-types` | Fetch HRA cell-type term occurrences (Cell Ontology) from the CCF API. |
 | `hra-reference-organs` | Fetch HRA reference organs (Uberon-keyed, per-sex GLB assets) from the CCF API. |
 | `model-coverage-3d` | Cross the ASCT+B-3D crosswalk's anatomical structures with the biomodel-DO organ->models index to mark model coverage, at organ granularity. |
@@ -72,8 +89,14 @@ viva_human_atlas/
   hra_api.py            # HRA CCF-API client + process-bigraph Steps
   biomodels_search.py   # BioModels REST text search
   biomodel_do.py        # biomodel Digital Objects (Uberon organ annotation + organ->models index)
-  composites/           # @composite_generator entries (glucose-regulation, hra-*, glucose-biomodel-do)
-investigations/         # glucose-regulation, hra-integration
+  biomodel_hra.py       # BioModels->HRA corpus map: extraction core + BiomodelHraMapStep
+  hra_pop.py            # HRApop cell-type populations (organ + per-AS loaders)
+  atlas_subregions.py   # place models at organ subregions (cell types / FTUs -> AS)
+  atlas_pack.py         # Atlas Browser manifest builder + offline orchestrator
+  atlas_browser.py      # AtlasBrowserStep (regenerate the atlas pack)
+  composites/           # @composite_generator entries (glucose-regulation, hra-*, biomodel-hra-map, hra-atlas-browser)
+scripts/                # build_biomodel_hra_map.py, make_biomodel_hra_figure.py, build_atlas_pack.py
+investigations/         # glucose-regulation, hra-integration, hra-3d
 studies/                # one study per composite; demonstrate loading
 references/sources/     # DynXR proposal extraction + HRA/WPP context + curated references
 ```
