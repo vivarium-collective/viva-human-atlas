@@ -123,6 +123,17 @@ jobs:
           fi
           rm -rf dashboard && mkdir -p dashboard
           cp -R "$GITHUB_WORKSPACE/reports/published/dashboard/." dashboard/
+          # Root redirect so the bare Pages URL (…/viva-human-atlas/) lands on
+          # the app instead of 404ing (the bundle only lives under dashboard/).
+          cat > index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>viva-human-atlas</title>
+          <meta http-equiv="refresh" content="0; url=./dashboard/">
+          <link rel="canonical" href="./dashboard/">
+          <script>location.replace('./dashboard/' + location.search + location.hash)</script>
+          <a href="./dashboard/">viva-human-atlas dashboard →</a>
+          HTML
           git add -A
           if git diff --cached --quiet; then
             echo "dashboard snapshot unchanged; skipping commit"
