@@ -14,7 +14,7 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="hra-atlas-browser" title="hra-atlas-browser">HRA Atlas Browser — organ selector + model-count gradient + BioModels links</span>
+    <span class="study-name" id="study-name" data-slug="hra-atlas-browser" title="hra-atlas-browser">HRA Atlas Browser — organ selector + model-count gradient + subregion placement</span>
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
@@ -63,7 +63,7 @@
             <span class="dot"></span>4&nbsp;·&nbsp;Quality
           </span>
           
-          <span class="status-step gate-step axis-gate_status gate-state-not-assessed set" title="Gate 5 · Decision">
+          <span class="status-step gate-step axis-gate_status gate-state-passed set" title="Gate 5 · Decision">
             <span class="dot"></span>5&nbsp;·&nbsp;Decision
           </span>
           
@@ -91,7 +91,7 @@
           <span class="status-detail-axis">2 · Execution</span>
           <span class="status-chip gate-state-passed">ran</span>
           
-          <span class="gate-computed-chip gate-state-passed" title="2 completed run(s)">◆ computed: ran</span>
+          <span class="gate-computed-chip gate-state-passed" title="1 completed run(s)">◆ computed: ran</span>
           
           
           
@@ -119,11 +119,11 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-not-assessed">
+        <div class="status-detail-row gate-row gate-state-passed">
           <span class="status-detail-axis">5 · Decision</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-not-assessed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: not_started</span>
+          <span class="gate-computed-chip gate-state-passed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: passed</span>
           
           
           
@@ -157,9 +157,11 @@
 
 
 <p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Can we present the full HRA-3D model-coverage picture as an interactive
-atlas: pick any of the 50 GLB-backed HRA organs, see its regions
-demarcated and colored by how many mechanistic models are associated with
-it, and browse straight to those BioModels?
+atlas — pick any of the 50 GLB-backed HRA organs, see it colored by how many
+mechanistic models are associated with it, browse straight to those
+BioModels — AND go one level deeper, placing models at the specific organ
+SUBREGIONS (anatomical structures) their cell types / FTUs resolve to,
+rather than distributing every model uniformly across the whole organ?
 </p>
 
 <nav class="study-tabs" aria-label="Study sections">
@@ -204,7 +206,7 @@ it, and browse straight to those BioModels?
   </div>
   <div class="act-cluster" data-act="decision">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="decision" data-gate-state="not-assessed"></span>
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed"></span>
       <span class="act-label">Decision</span>
     </div>
     <div class="act-tabs">
@@ -442,9 +444,11 @@ it, and browse straight to those BioModels?
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
            data-placeholder="+ Add the research question this study asks">Can we present the full HRA-3D model-coverage picture as an interactive
-atlas: pick any of the 50 GLB-backed HRA organs, see its regions
-demarcated and colored by how many mechanistic models are associated with
-it, and browse straight to those BioModels?
+atlas — pick any of the 50 GLB-backed HRA organs, see it colored by how many
+mechanistic models are associated with it, browse straight to those
+BioModels — AND go one level deeper, placing models at the specific organ
+SUBREGIONS (anatomical structures) their cell types / FTUs resolve to,
+rather than distributing every model uniformly across the whole organ?
 </div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
@@ -456,10 +460,27 @@ it, and browse straight to those BioModels?
     <div class="overview-section">
       <div class="purpose-callout" style="background:#f8fafc;border-left:4px solid #94a3b8">
         <strong>Summary.</strong> Mechanistic models cluster on a handful of organs (blood, pancreas, liver,
-brain, intestine, heart) and leave most of the body&#39;s 3D anatomy unmodeled. The
-Atlas Browser makes that distribution legible: the color gradient shows
-where modeling effort has concentrated, and the greyed organs make the
-modeling white-space visible at a glance.
+brain, intestine, heart) and leave most of the body&#39;s 3D anatomy unmodeled;
+and within a modeled organ, most models describe organ-wide biochemistry, not
+a specific sub-structure. This Atlas Browser makes both legible. It is now
+generated from the BioModels-&gt;HRA map DB (the biomodel-hra-map study&#39;s
+reusable JSON) rather than the older name/annotation catalogs, giving 172
+distinct models across 14 organs. On top of the organ-level count gradient,
+it places models at specific anatomical structures wherever the data
+supports it, two ways: (1) anatomy the model itself carries — an FTU or
+ontology Uberon that maps to a specific GLB mesh in the ASCT+B crosswalk;
+(2) a cell type placed at an anatomical structure only where HRApop measures
+it enriched above the organ average. That resolves 14 models onto 6
+subregions in 4 organs — brain hippocampal formation (4) + olfactory bulb (1),
+kidney outer cortex (all 5 kidney models, cell-type enriched), lymph-node
+follicle (3, via the follicle FTU), and colon caecum (1) + transverse colon
+(1) — colored on a warm ramp so a modeled structure pops out of its organ.
+Everything else falls back to the whole organ, which is the honest majority:
+HRApop&#39;s anatomical structures are coarse (gross regions, not FTUs), and most
+curated FTUs (islet, glomerulus, lobule, alveolus) have no 3D-crosswalk mesh
+to color — so pancreas and liver, though heavily modeled, stay whole-organ.
+The machinery is general: as HRApop coverage, the 3D crosswalk, or per-model
+annotation improve, more subregions light up automatically.
 
       </div>
     </div>
@@ -480,15 +501,63 @@ modeling white-space visible at a glance.
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
             <span class="finding-claim finding-statement">The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
-the 14 modeled ones by model count (blood 51 max, 167 distinct models),
-linking each to its BioModels entries — a whole-atlas overview of where
-mechanistic modeling exists.
+the 14 modeled ones by model count (blood 51 max, 172 distinct models),
+now generated from the reusable BioModels-&gt;HRA map DB rather than the
+older name/annotation catalogs — a whole-atlas overview of where
+mechanistic modeling exists, each organ linking to its BioModels.
 </span>
             
           </summary>
           <div class="finding-drawer">
             <div class="finding-header">
               <span class="finding-id">F-01</span>
+              <span class="finding-kind">other</span>
+              <span class="finding-status-text">novel literature</span>
+            </div>
+            
+            
+            <div class="finding-evidence">
+              
+              
+              
+              
+              
+              
+            </div>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+          </div>
+        </details>
+      </div>
+      
+      
+      
+      
+      
+      <div class="finding-card finding-kind-other finding-status-novel">
+        <details class="finding-details">
+          <summary class="finding-row">
+            <span class="finding-status-glyph">◆</span>
+            <span class="finding-claim finding-statement">Driving placement up from the models&#39; own anatomy annotations + cell
+types resolves 14 models onto 6 organ subregions in 4 organs — brain
+hippocampal formation (4) + olfactory bulb (1), kidney outer cortex (5,
+cell-type enriched), lymph node follicle (3), intestine caecum (1) +
+transverse colon (1) — replacing uniform within-organ distribution with
+per-anatomical-structure coloring where the data supports it, and falling
+back to the whole organ elsewhere.
+</span>
+            
+          </summary>
+          <div class="finding-drawer">
+            <div class="finding-header">
+              <span class="finding-id">F-02</span>
               <span class="finding-kind">other</span>
               <span class="finding-status-text">novel literature</span>
             </div>
@@ -556,9 +625,9 @@ mechanistic modeling exists.
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
           <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">control-absent</strong>
-            <code style="font-size:0.82em">negative_control</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
+            <strong style="color:#1e293b">claim-untested</strong>
+            <code style="font-size:0.82em">replication</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">single run — no replication across seeds declared (add robustness.seeds or simulation_set.seeds)</div>
           </div>
         </div>
         
@@ -566,11 +635,11 @@ mechanistic modeling exists.
         
         
         <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#fef9c3;color:#854d0e;font-weight:600;font-size:0.72em;white-space:nowrap">medium</span>
+          <span style="padding:1px 8px;border-radius:9999px;background:#fee2e2;color:#991b1b;font-weight:600;font-size:0.72em;white-space:nowrap">high</span>
           <div>
-            <strong style="color:#1e293b">claim-untested</strong>
-            <code style="font-size:0.82em">replication</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">only 2 replicates — add seeds for a robustness claim</div>
+            <strong style="color:#1e293b">control-absent</strong>
+            <code style="font-size:0.82em">negative_control</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">no controls — declare a system that SHOULD fail the criteria (externally-maintained / -supplied) plus a clearly-passing / borderline case so the metric is calibrated, not just asserted</div>
           </div>
         </div>
         
@@ -582,7 +651,19 @@ mechanistic modeling exists.
           <div>
             <strong style="color:#1e293b">region-unexplored</strong>
             <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can sub-region (AS-level) counts replace organ-granularity coloring? See fp-as-level-coverage.</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Would a committed HRApop-derived per-AS index at finer granularity (or an FTU-&gt;AS mesh crosswalk covering islet/glomerulus/lobule) resolve the heavily modeled pancreas/liver into subregions?</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can a stricter, cell-type-specificity-aware cross-organ gate light up multi-organ placement for genuinely cell-type-defined models without the generic-cell-type smear?</div>
           </div>
         </div>
         
@@ -596,9 +677,10 @@ mechanistic modeling exists.
       <h2 class="overview-label">Conclusion</h2>
       
       <p class="conclusion-insight">The atlas manifest enumerates all 50 GLB-backed HRA organs and colors
-the 14 modeled ones by model count (blood 51 max, 167 distinct models),
-linking each to its BioModels entries — a whole-atlas overview of where
-mechanistic modeling exists.
+the 14 modeled ones by model count (blood 51 max, 172 distinct models),
+now generated from the reusable BioModels-&gt;HRA map DB rather than the
+older name/annotation catalogs — a whole-atlas overview of where
+mechanistic modeling exists, each organ linking to its BioModels.
 <span class="computed-tag">computed from findings</span></p>
       
       
@@ -607,14 +689,20 @@ mechanistic modeling exists.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The atlas manifest covers all 50 GLB-backed HRA organs; 14 carry ≥1
-model (blood 51, pancreas 47, liver 33, brain 29, intestine 18,
-heart 11, lung 11, adipose 7, kidney 5, spleen 5, ovary 4, lymph node 3,
-skin 3, urinary bladder 2), 36 are greyed. Counts are distinct models
-from the union of name-synonym and SBML-annotation matching (167 distinct
-/ 229 total). Each modeled organ links to its BioModels entries. The
-gradient is organ-granularity: it shows where modeling exists across the
-body but does not yet distinguish sub-regions within an organ.
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The atlas manifest covers all 50 GLB-backed HRA organs; 14 carry &gt;=1
+model (blood 51, pancreas 47, liver 46, brain 28, intestine 18, heart 10,
+adipose 6, lung 6, kidney 5, skin 5, spleen 5, ovary 4, lymph node 3,
+urinary bladder 2), now sourced from the BioModels-&gt;HRA map DB (172
+distinct models). Subregion placement resolves 14 models onto 6 anatomical
+structures in 4 organs: brain -&gt; hippocampal formation (4) + olfactory bulb
+(1) (from the models&#39; own anatomy annotations), kidney -&gt; outer cortex of
+kidney (all 5 kidney models, cell-type-enriched), lymph node -&gt; lymph node
+follicle (3, via the follicle FTU), intestine -&gt; caecum (1) + transverse
+colon (1). Each modeled subregion is colored on a warm ramp over the organ&#39;s
+viridis base and lists its own models on hover/click; bilateral organs load
+both sides (kidney L+R). All other models — including every model in the
+heavily modeled pancreas, liver, and blood — fall back to the whole organ,
+the honest majority given the data.
 </textarea>
       </label>
     </div>
@@ -625,10 +713,16 @@ body but does not yet distinguish sub-regions within an organ.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Coverage is organ-granularity — every sub-region of a modeled organ
-inherits the organ&#39;s count, so the within-organ gradient is uniform.
-True per-anatomical-structure counts are the fp-as-level-coverage
-follow-up.
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Subregion resolution is real but modest (14 models, 4 organs) and bounded by
+the data, not the method: HRApop&#39;s anatomical structures are coarse gross
+regions (so a cell type rarely enriches in exactly one), and most curated
+FTUs (pancreatic islet, glomerulus, liver lobule, lung alveolus) have NO 3D
+mesh in the ASCT+B crosswalk to color, so the strongest models (pancreas,
+liver) stay whole-organ. Placement is enrichment-gated and, by default,
+within the model&#39;s tagged organ(s): cross-organ cell-type placement is
+available but off, because the mostly-generic cell types models carry (from
+the MeSH crosswalk) would otherwise smear many models onto whichever organ
+has the most anatomical structures.
 </textarea>
       </label>
     </div>
@@ -673,19 +767,19 @@ follow-up.
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="viva_human_atlas.composites.annotation_composite.annotation-recall-gain" data-model-overrides='{"annotation_catalog_path": "datasets/biomodel_annotation_catalog.json", "name_catalog_path": "datasets/biomodel_corpus_catalog.json"}'>
+    <div class="cond-block" data-model-composite="viva_human_atlas.composites.atlas_browser_composite.hra-atlas-browser" data-model-overrides='{"cross_organ_max": 0, "db_path": "datasets/biomodel_hra_map.json", "enrichment": 1.25}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.annotation_composite.annotation-recall-gain</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.atlas_browser_composite.hra-atlas-browser</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('viva_human_atlas.composites.annotation_composite.annotation-recall-gain')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('viva_human_atlas.composites.atlas_browser_composite.hra-atlas-browser')">🧬 explore &amp; run ↗</button>
         
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
         <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
-               value="viva_human_atlas.composites.annotation_composite.annotation-recall-gain" placeholder="pkg.composites.name"
+               value="viva_human_atlas.composites.atlas_browser_composite.hra-atlas-browser" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
                 data-baseline-name="baseline">Set composite</button>
@@ -701,7 +795,7 @@ follow-up.
       
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
         
-        <span class="cond-pill"><span class="cond-pill-k">steps</span>=5</span>
+        
         
         <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
       </div>
@@ -877,12 +971,6 @@ follow-up.
     
     
     
-    <p class="muted small verdict-frozen-indicator" style="margin:0 0 8px 0"
-       title="Content digest (sha256, sorted-key canonical JSON) of the frozen verdict payload — a locked record, not a live recompute.">
-      <span class="frozen-glyph">🔒</span> frozen 2026-08-03 14:08 UTC ·
-      <code style="font-family:ui-monospace,monospace">bb47e9e557</code>
-    </p>
-    
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
       <h3 class="overview-label">⚖️ Verdicts — three-track outcome
@@ -946,6 +1034,20 @@ follow-up.
   <div class="overview-section"><h2 class="overview-label">Plan &amp; assumptions</h2>
 
     
+    <div class="overview-section">
+      <h3 class="overview-label">Pipeline gate</h3>
+      <p class="muted" style="margin: 0 0 8px 0;font-size:0.88em">
+        Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
+      </p>
+      
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;biomodel-hra-map&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;annotation-recall-gain&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+      </div>
+      
+      
+      
+    </div>
+    
 
     
 
@@ -954,7 +1056,7 @@ follow-up.
       <h3 class="overview-label">Limitations</h3>
       <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
       <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-        <li style="margin:2px 0">Organ-granularity gradient: sub-regions within an organ share the organ&#39;s count (no per-AS-node resolution yet).</li><li style="margin:2px 0">Organ tagging is name-synonym-based (see hra-integration); untagged models may hide real organ relevance.</li>
+        <li style="margin:2px 0">Subregion resolution is bounded by HRApop&#39;s coarse anatomical-structure granularity (gross regions, not FTUs) — most cell types are spread evenly across an organ&#39;s structures and enrich in none, so their models correctly fall back to the whole organ.</li><li style="margin:2px 0">Most curated FTUs (pancreatic islet UBERON:0000006, glomerulus, liver lobule, lung alveolus) have NO mesh in the ASCT+B-3D crosswalk, so FTU-direct placement fires only for FTUs that do (lymph node follicle) — the heavily modeled pancreas/liver stay whole-organ despite carrying an FTU.</li><li style="margin:2px 0">Cross-organ cell-type placement is off by default: the mostly-generic cell types models carry (from the MeSH crosswalk) are not specific enough to place a model into an organ it isn&#39;t tagged to without smearing many models onto the most-subdivided organs (colon, lung).</li>
       </ul>
     </div>
     
@@ -1004,13 +1106,13 @@ follow-up.
         
         <div class="di-unc di-unc-resolved">
           <h4>✓ Resolved uncertainties</h4>
-          <ul><li>The full 50-organ GLB set is enumerable and renderable with a per-organ model-count gradient and BioModels links.</li></ul>
+          <ul><li>The Atlas Browser can be generated directly from the reusable BioModels-&gt;HRA map DB (biomodel-hra-map) and can place models at specific organ subregions driven by their cell types / FTUs, not just at whole organs — realizing the fp-as-level-coverage follow-up.</li><li>Where the data supports it (kidney cortex, lymph-node follicle, colon), per-anatomical-structure coloring replaces uniform within-organ distribution; where it does not, whole-organ fallback is the honest and correct behavior.</li></ul>
         </div>
         
         
         <div class="di-unc di-unc-remaining">
           <h4>● Remaining uncertainties</h4>
-          <ul><li>Can sub-region (AS-level) counts replace organ-granularity coloring? See fp-as-level-coverage.</li></ul>
+          <ul><li>Would a committed HRApop-derived per-AS index at finer granularity (or an FTU-&gt;AS mesh crosswalk covering islet/glomerulus/lobule) resolve the heavily modeled pancreas/liver into subregions?</li><li>Can a stricter, cell-type-specificity-aware cross-organ gate light up multi-organ placement for genuinely cell-type-defined models without the generic-cell-type smear?</li></ul>
         </div>
         
       </div>
@@ -1026,24 +1128,41 @@ follow-up.
       <div class="di-group">
         <h3>Follow-up study proposals
           <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
-          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(2)</span></h3>
         <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
         <div class="followup-list">
           
           
           <div class="di-card di-fup-card">
             <div class="followup-header">
-              <strong class="followup-title">AS-level (sub-organ) model coverage in the Atlas Browser</strong>
+              <strong class="followup-title">An FTU -&gt; 3D-mesh crosswalk so islet/glomerulus/lobule models place at their FTU</strong>
               <span class="di-chip">method-upgrade</span>
               <span class="di-chip">hra-atlas-browser</span>
               <span class="di-chip di-gain-high">gain: high</span>
               
             </div>
-            <div class="di-card-why">Parse SBML MIRIAM/Uberon annotations at anatomical-structure granularity, join to crosswalk AS nodes, and drive per-mesh color from per-node counts.</div>
+            <div class="di-card-why">Build/curate an FTU-Uberon -&gt; GLB-node crosswalk (e.g. islet -&gt; a pancreas-body region, glomerulus -&gt; renal cortex), and place FTU models onto those meshes; measure the subregion coverage gain.</div>
             
             <div class="followup-actions" style="margin-top:8px">
               <button class="btn-seed-followup"
-                      onclick="_seedFollowupProposal('hra-atlas-browser', "fp-as-level-coverage")">➕ Add to investigation</button>
+                      onclick="_seedFollowupProposal('hra-atlas-browser', "fp-ftu-mesh-crosswalk")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">Cell-type-specificity-gated cross-organ placement</strong>
+              <span class="di-chip">method-upgrade</span>
+              <span class="di-chip">hra-atlas-browser</span>
+              <span class="di-chip di-gain-medium">gain: medium</span>
+              
+            </div>
+            <div class="di-card-why">Weight each cell type by its cross-organ specificity in HRApop, and admit cross-organ placement only for models whose cell types are specific; compare against the within-organ-only default.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('hra-atlas-browser', "fp-specificity-cross-organ")">➕ Add to investigation</button>
             </div>
           </div>
           
@@ -1066,7 +1185,7 @@ follow-up.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "e1bac845e48053cc8798b6ce6e5877166eb35e8f", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/e1bac845e48053cc8798b6ce6e5877166eb35e8f", "branch": "main", "generated_at": "2026-08-03 14:15 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2be53ee0a468045b4ff5143894c13ebb6028c0f7", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2be53ee0a468045b4ff5143894c13ebb6028c0f7", "branch": "main", "generated_at": "2026-08-05 15:33 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-atlas-browser";

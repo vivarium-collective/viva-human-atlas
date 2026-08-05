@@ -67,8 +67,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas')
+if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
+    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -302,25 +302,13 @@ print("No recorded runs for this study; nothing to reproduce.")
 # ## Study: `hra-atlas-browser`
 #
 # **Question.** Can we present the full HRA-3D model-coverage picture as an interactive
-# atlas: pick any of the 50 GLB-backed HRA organs, see its regions
-# demarcated and colored by how many mechanistic models are associated with
-# it, and browse straight to those BioModels?
+# atlas — pick any of the 50 GLB-backed HRA organs, see it colored by how many
+# mechanistic models are associated with it, browse straight to those
+# BioModels — AND go one level deeper, placing models at the specific organ
+# SUBREGIONS (anatomical structures) their cell types / FTUs resolve to,
+# rather than distributing every model uniformly across the whole organ?
 
 # ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `baseline` | `viva_human_atlas.composites.annotation_composite.annotation-recall-gain` | 5 | name_catalog_path=datasets/biomodel_corpus_catalog.json, annotation_catalog_path=datasets/biomodel_annotation_catalog.json |
-
-# ### Specification (process-bigraph) — load, inspect, edit
-#
-# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
-
-# **Composite `viva_human_atlas.composites.annotation_composite.annotation-recall-gain`** — `spec_viva_human_atlas_composites_annotation_composite_annotation_recall_gain` (a plain, editable dict)
-
-from viva_superpowers.composite_spec import load_spec
-spec_viva_human_atlas_composites_annotation_composite_annotation_recall_gain = load_spec(REPO / 'viva_human_atlas/composites/viva_human_atlas.composites.annotation_composite.annotation-recall-gain.composite.yaml')
-describe_spec(spec_viva_human_atlas_composites_annotation_composite_annotation_recall_gain)
 
 # ### Run
 #
@@ -332,21 +320,7 @@ STUDY_DIR = REPO / 'studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
-# Runtime knobs — edit freely. STEPS = number of composite steps;
-# INTERVAL = global dt filling ${interval} placeholders (a per-process
-# interval pinned in the edit cell above takes precedence).
-STEPS_baseline = 5
-INTERVAL_baseline = 0.1
-
-if RERUN:
-    with quiet():  # the sim prints per-step progress; keep it out of the notebook
-        # Generic process-bigraph protocol (no workspace runner detected):
-        from viva_superpowers.composite_spec import build_composite_from_spec
-        comp = build_composite_from_spec(spec_viva_human_atlas_composites_annotation_composite_annotation_recall_gain, {'interval': INTERVAL_baseline}, core=core)
-        comp.run(STEPS_baseline)  # writes the composite's declared emitter
-    print(f'ran 1 simulation(s) -> {RUNS_DB}')
-else:
-    print("RERUN=False — rendering committed", RUNS_DB)
+print("No recorded runs for this study; nothing to reproduce.")
 
 # ## Open decisions
 # - Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?

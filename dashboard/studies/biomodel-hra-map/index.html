@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Study: corpus-coverage</title>
+<title>Study: biomodel-hra-map</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
 <!-- Inherit the workbench light/dark theme (this page loads in an iframe;
@@ -14,7 +14,7 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="corpus-coverage" title="corpus-coverage">Corpus Coverage — Full 1,096-Model BioModels Catalog on HRA 3D Anatomy</span>
+    <span class="study-name" id="study-name" data-slug="biomodel-hra-map" title="biomodel-hra-map">BioModels → HRA Map — Harvesting the Curated Corpus into the Human Reference Atlas</span>
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
@@ -33,7 +33,7 @@
     
 
     
-    <div id="readiness-panel" data-slug="corpus-coverage"></div>
+    <div id="readiness-panel" data-slug="biomodel-hra-map"></div>
 
     
     
@@ -63,7 +63,7 @@
             <span class="dot"></span>4&nbsp;·&nbsp;Quality
           </span>
           
-          <span class="status-step gate-step axis-gate_status gate-state-passed-with-conditions set" title="Gate 5 · Decision">
+          <span class="status-step gate-step axis-gate_status gate-state-passed set" title="Gate 5 · Decision">
             <span class="dot"></span>5&nbsp;·&nbsp;Decision
           </span>
           
@@ -117,11 +117,11 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
+        <div class="status-detail-row gate-row gate-state-passed">
           <span class="status-detail-axis">5 · Decision</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-passed-with-conditions" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: needs_calibration</span>
+          <span class="gate-computed-chip gate-state-passed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: passed</span>
           
           
           
@@ -154,18 +154,19 @@
 
 
 
-<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Of the HRA ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed anatomical structures
-(across 114 source-organ GLBs), how many are covered once every curated
-BioModels model — not just a narrow search query — is crossed against
-them, and does full-corpus coverage reach organs a single-query search
-misses (e.g. kidney)?
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Can we harvest the entire curated BioModels corpus into a single, reusable
+JSON DB that links each model to the Human Reference Atlas — molecular
+identifiers (CHEBI/UniProt/KEGG/GO/Reactome), publication link, organism,
+and HRA organ / FTU / cell-type mapping (Uberon/CL) — as a downloadable
+workspace resource the Atlas Browser and downstream coverage studies can
+key off, and how much of the corpus does each annotation actually reach?
 </p>
 
 <nav class="study-tabs" aria-label="Study sections">
   
   <div class="act-cluster" data-act="study">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="study" data-gate-state="passed-with-conditions"></span>
+      <span class="act-gate-dot" data-gate="study" data-gate-state="passed"></span>
       <span class="act-label">The Study</span>
     </div>
     <div class="act-tabs">
@@ -203,7 +204,7 @@ misses (e.g. kidney)?
   </div>
   <div class="act-cluster" data-act="decision">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed-with-conditions"></span>
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed"></span>
       <span class="act-label">Decision</span>
     </div>
     <div class="act-tabs">
@@ -440,11 +441,12 @@ misses (e.g. kidney)?
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">Of the HRA ASCT+B-3D crosswalk&#39;s 1,730 Uberon-keyed anatomical structures
-(across 114 source-organ GLBs), how many are covered once every curated
-BioModels model — not just a narrow search query — is crossed against
-them, and does full-corpus coverage reach organs a single-query search
-misses (e.g. kidney)?
+           data-placeholder="+ Add the research question this study asks">Can we harvest the entire curated BioModels corpus into a single, reusable
+JSON DB that links each model to the Human Reference Atlas — molecular
+identifiers (CHEBI/UniProt/KEGG/GO/Reactome), publication link, organism,
+and HRA organ / FTU / cell-type mapping (Uberon/CL) — as a downloadable
+workspace resource the Atlas Browser and downstream coverage studies can
+key off, and how much of the corpus does each annotation actually reach?
 </div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
@@ -455,16 +457,28 @@ misses (e.g. kidney)?
     
     <div class="overview-section">
       <div class="purpose-callout" style="background:#f8fafc;border-left:4px solid #94a3b8">
-        <strong>Summary.</strong> A single BioModels search query (as in `model-coverage-3d`) only ever
-samples the corpus through the lens of its search terms. This study
-instead retrieves and organ-tags the full curated BioModels catalog
-(1,096 `BIOMD*` models, Task A) and crosses every organ it can tag against
-the ASCT+B-3D crosswalk, giving the ceiling on how much of the HRA&#39;s
-fine-grained 3D anatomy the *entire* published mechanistic-modeling
-literature (as indexed by BioModels) actually touches — not just the
-glucose-regulation slice. This directly measures how much anatomy is
-&#34;dark&#34; (unmodeled) versus &#34;lit&#34; (has at least one curated model),
-informing where new HRA-3D coverage work would have the most impact.
+        <strong>Summary.</strong> BioModels is the curated repository of published quantitative systems-
+biology models, but its models are annotated for biochemistry (species -&gt;
+CHEBI/UniProt/KEGG, processes -&gt; GO/Reactome), not for anatomy — so linking
+a model to the Human Reference Atlas (which is organized by organ -&gt;
+anatomical structure -&gt; functional tissue unit -&gt; cell type) requires
+reconstructing the anatomical context from whatever signal each model and
+its paper carry. This study harvests the full curated corpus (1,096 models)
+into one reusable JSON DB. Molecular identifiers come straight out of each
+model&#39;s SBML MIRIAM annotations (unioned with its BioPAX export): GO reaches
+967 models (88%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%). HRA
+anatomy is reconstructed from three complementary sources — direct SBML
+Uberon/CL, a BTO-&gt;Uberon crosswalk over the model&#39;s own tissue annotations,
+and (the biggest lever) the MeSH headings PubMed assigns each model&#39;s paper,
+crosswalked to Uberon/CL through an SSSOM mapping. That reconstruction tags
+215 models (20%) with &gt;=1 Uberon term, 322 (29%) with a cell type, 180 (16%)
+with an HRA organ, and 116 (11%) with a functional tissue unit. Finally, for
+the 112 models (10%) that resolve to an organ HRApop measures, the DB carries
+HRApop&#39;s measured cell-type populations (Bueckle 2026) at organ granularity.
+The result is a single downloadable workspace resource (a Vivarium Step loads
+it network-free) that turns &#34;which BioModels does the HRA cover, and with
+what molecular + anatomical detail&#34; into a queryable table — the foundation
+the Atlas Browser and the corpus-coverage / annotation studies build on.
 
       </div>
     </div>
@@ -484,19 +498,67 @@ informing where new HRA-3D coverage work would have the most impact.
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">Crossing the full 1,096-model curated BioModels catalog (82/1,096,
-7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
-nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
-magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS
-nodes / 4 organs, and critically newly reaches kidney, confirming
-full-corpus retrieval finds anatomically relevant models a single
-search term misses entirely.
+            <span class="finding-claim finding-statement">All 1,096 curated BioModels harvest into one JSON DB with dense
+molecular coverage and recall-limited-but-real HRA-anatomy coverage.
+Molecular (from the models&#39; own SBML/BioPAX): GO 967 (88%), UniProt
+507 (46%), CHEBI 480 (44%), KEGG 322 (29%); 978 models (89%) carry
+&gt;=1 molecular id. HRA anatomy (reconstructed via SBML Uberon/CL +
+BTO-&gt;Uberon + paper-MeSH-&gt;Uberon/CL crosswalks): Uberon 215 (20%),
+cell types 322 (29%), organs 180 (16%), FTUs 116 (11%). HRApop
+measured cell-type populations attach to 112 models (10%).
 </span>
             
           </summary>
           <div class="finding-drawer">
             <div class="finding-header">
               <span class="finding-id">F-01</span>
+              <span class="finding-kind">other</span>
+              <span class="finding-status-text">novel literature</span>
+            </div>
+            
+            
+            <div class="finding-evidence">
+              
+              
+              
+              
+              
+              
+            </div>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+          </div>
+        </details>
+      </div>
+      
+      
+      
+      
+      
+      <div class="finding-card finding-kind-other finding-status-novel">
+        <details class="finding-details">
+          <summary class="finding-row">
+            <span class="finding-status-glyph">◆</span>
+            <span class="finding-claim finding-statement">The molecular-vs-anatomy coverage gap (89% molecular vs 20% Uberon)
+reflects BioModels curation practice: models are annotated for
+biochemistry (species -&gt; CHEBI/UniProt/KEGG, reactions -&gt; GO), not for
+anatomy, so HRA mapping depends on reconstructing anatomical context
+from outside the model — the paper&#39;s PubMed MeSH headings are the
+single biggest anatomy lever (MeSH reaches 915 models, 83%, vs 20% for
+any Uberon), crosswalked to Uberon/CL.
+</span>
+            
+          </summary>
+          <div class="finding-drawer">
+            <div class="finding-header">
+              <span class="finding-id">F-02</span>
               <span class="finding-kind">other</span>
               <span class="finding-status-text">novel literature</span>
             </div>
@@ -590,7 +652,7 @@ search term misses entirely.
           <div>
             <strong style="color:#1e293b">region-unexplored</strong>
             <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models?</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can HRApop cell-type populations be joined at SUBREGION (anatomical-structure) granularity rather than aggregated to the organ, so a model attaches to the specific organ subregion its cell types/FTUs imply — the driver for placing models at subregions in the Atlas Browser?</div>
           </div>
         </div>
         
@@ -602,7 +664,7 @@ search term misses entirely.
           <div>
             <strong style="color:#1e293b">region-unexplored</strong>
             <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Would running the LLM literature-extraction stage materially raise HRA-anatomy recall beyond the MeSH/BTO crosswalks, or does it mostly duplicate what MeSH already captures?</div>
           </div>
         </div>
         
@@ -615,13 +677,14 @@ search term misses entirely.
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Crossing the full 1,096-model curated BioModels catalog (82/1,096,
-7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
-nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
-magnitude wider than the 25-result glucose-regulation query&#39;s 58 AS
-nodes / 4 organs, and critically newly reaches kidney, confirming
-full-corpus retrieval finds anatomically relevant models a single
-search term misses entirely.
+      <p class="conclusion-insight">All 1,096 curated BioModels harvest into one JSON DB with dense
+molecular coverage and recall-limited-but-real HRA-anatomy coverage.
+Molecular (from the models&#39; own SBML/BioPAX): GO 967 (88%), UniProt
+507 (46%), CHEBI 480 (44%), KEGG 322 (29%); 978 models (89%) carry
+&gt;=1 molecular id. HRA anatomy (reconstructed via SBML Uberon/CL +
+BTO-&gt;Uberon + paper-MeSH-&gt;Uberon/CL crosswalks): Uberon 215 (20%),
+cell types 322 (29%), organs 180 (16%), FTUs 116 (11%). HRApop
+measured cell-type populations attach to 112 models (10%).
 <span class="computed-tag">computed from findings</span></p>
       
       
@@ -630,17 +693,21 @@ search term misses entirely.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The committed catalog (`datasets/biomodel_corpus_catalog.json`) retrieved
-1,096/1,096 curated BioModels IDs, named all 1,096, and organ-tagged
-82 (7.5%) against HRA reference-organ names. Crossing that catalog&#39;s
-organ-&gt;models index with the live crosswalk (1,730 Uberon-keyed AS
-rows / 114 source-organ GLBs) covers 635 AS nodes (36.7%) across 31
-distinct organ GLBs (27.2%) — an order of magnitude wider than the
-25-result glucose-regulation query&#39;s 58 AS nodes / 4 organs
-(`model-coverage-3d`). Critically, kidney is now covered
-(`VH_F_Kidney_L`/`_R`, `VH_M_Kidney_L`/`_R`), which the narrower query
-missed entirely, confirming full-corpus retrieval finds anatomically
-relevant models a single search term does not.
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">Done and measured. All 1,096 curated BioModels are harvested into
+datasets/biomodel_hra_map.json, one entry each, exposed as a reusable
+Vivarium Step (BiomodelHraMapStep, cache-or-load, network-free) and a
+downloadable workspace dataset. Molecular annotation is dense because it
+comes from the models&#39; own curated SBML: GO 967/1,096 (88%), MeSH
+915 (83%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%), and 978
+models (89%) carry at least one molecular id. HRA anatomy — reconstructed
+from SBML Uberon/CL + BTO-&gt;Uberon + paper-MeSH-&gt;Uberon/CL crosswalks —
+is sparser but real: 215 models (20%) carry &gt;=1 Uberon term, 322 (29%) a
+cell type, 180 (16%) an HRA organ, 116 (11%) a functional tissue unit.
+112 models (10%) additionally carry HRApop measured cell-type populations
+at organ granularity. The molecular-vs-anatomy coverage gap is the
+finding: BioModels curation annotates biochemistry densely and anatomy
+barely, so HRA mapping depends on reconstructing anatomical context from
+the paper (MeSH), not just the model.
 </textarea>
       </label>
     </div>
@@ -651,15 +718,17 @@ relevant models a single search term does not.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Organ-tagging yield is low relative to catalog size (82/1,096 = 7.5%
-tagged) — the remaining 1,014 models are either genuinely
-organ-agnostic (pathway/signaling models with no single anatomical
-site) or are organ-specific but missed by the current
-synonym/reference-organ-name matching (the study&#39;s main expert
-question). Coverage is still organ-granularity, not per-AS-node model
-matching: a covered organ&#39;s Uberon marks every AS node cut from its
-GLB as covered, which can overstate coverage for anatomically distinct
-sub-structures with no direct model evidence.
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">HRA-anatomy coverage (Uberon 20%) is recall-limited and leans on the
+paper-MeSH -&gt; Uberon/CL crosswalk to reach models whose SBML carries no
+anatomy at all — a paper&#39;s MeSH headings describe the study, not
+necessarily the exact tissue the model represents, so a MeSH-derived
+Uberon is a weaker anatomical claim than a model-annotated one. HRApop
+populations are joined at ORGAN granularity (the DB aggregates HRApop&#39;s
+anatomical-structure-level counts to the organ), not per-subregion, so a
+model tagged to an organ inherits that organ&#39;s whole-organ composition.
+The LLM literature-extraction stage was not run for the committed DB (no
+ANTHROPIC_API_KEY), so no `literature` blocks are present — molecular and
+MeSH/BTO anatomy coverage stand on their own.
 </textarea>
       </label>
     </div>
@@ -704,19 +773,19 @@ sub-structures with no direct model evidence.
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage" data-model-overrides='{"catalog_path": "datasets/biomodel_corpus_catalog.json"}'>
+    <div class="cond-block" data-model-composite="viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map" data-model-overrides='{"build_if_missing": false, "db_path": "datasets/biomodel_hra_map.json"}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
         
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage</code>
+        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map</code>
         <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage')">🧬 explore &amp; run ↗</button>
+                onclick="_openCompositeLoom('viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map')">🧬 explore &amp; run ↗</button>
         
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
         <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
-               value="viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage" placeholder="pkg.composites.name"
+               value="viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
                 data-baseline-name="baseline">Set composite</button>
@@ -780,9 +849,9 @@ sub-structures with no direct model evidence.
   <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
     <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
     <a id="data-download-all" class="btn-mini" style="display:none"
-       href="/api/study-analysis-zip?study=corpus-coverage">Download all (.zip)</a>
+       href="/api/study-analysis-zip?study=biomodel-hra-map">Download all (.zip)</a>
   </div>
-  <div id="data-files" data-study="corpus-coverage">
+  <div id="data-files" data-study="biomodel-hra-map">
     <p class="empty-message">Loading result files…</p>
   </div>
 
@@ -807,7 +876,7 @@ sub-structures with no direct model evidence.
     
     <div id="readouts-download" style="margin:0 0 16px 0"></div>
 
-    <div id="readouts-table" data-study="corpus-coverage">
+    <div id="readouts-table" data-study="biomodel-hra-map">
       <p class="empty-message">Loading readouts from the composite emit plan…</p>
     </div>
 
@@ -825,19 +894,19 @@ sub-structures with no direct model evidence.
     
     
     <div class="figure-card embed-viz-card">
-      <iframe src="/viva-human-atlas/dashboard/reports/figures/corpus-coverage/coverage-per-organ.html"
+      <iframe src="/viva-human-atlas/dashboard/reports/figures/biomodel-hra-map/summary.html"
               class="figure-media-frame figure-media-frame--embed"
-              loading="lazy" title="Coverage per organ (full corpus)"
+              loading="lazy" title="Harvesting BioModels into the HRA"
               onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
               ></iframe>
       
-      <p class="figure-desc muted">Bar chart of models-per-organ from the full 1,096-model catalog&#39;s coverage crossing: 635/1,730 AS nodes covered across 31/114 organ GLBs, including kidney.</p>
+      <p class="figure-desc muted">1,096 curated BioModels mapped to the HRA. Left: how many models carry each annotation (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%, KEGG 29%, cell types 29%, Uberon 20%, organs 16%, FTUs 11%, HRApop 10%). Right: per-model term-count distributions for organs, FTUs, cell types, Uberon, paper MeSH, and GO. Molecular annotation (blue) is dense; HRA anatomy (amber) is recall-limited but real.</p>
       
       <div class="figure-caption-row">
         <span class="figure-source-chip">embed</span>
-        <span class="figure-title">Coverage per organ (full corpus)</span>
+        <span class="figure-title">Harvesting BioModels into the HRA</span>
         
-        <a href="/viva-human-atlas/dashboard/reports/figures/corpus-coverage/coverage-per-organ.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
+        <a href="/viva-human-atlas/dashboard/reports/figures/biomodel-hra-map/summary.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
       </div>
     </div>
     
@@ -944,7 +1013,7 @@ sub-structures with no direct model evidence.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline full-corpus coverage-crossing composite (committed catalog x crosswalk) completed without error.</textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline biomodel-hra-map composite (BiomodelHraMapStep -&gt; build_or_load) loads the committed datasets/biomodel_hra_map.json network-free and emits n_models=1096 with a non-empty coverage summary; the same core (viva_human_atlas.biomodel_hra) backs the scripts/build_biomodel_hra_map.py CLI, so Step and CLI cannot diverge.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -957,7 +1026,7 @@ sub-structures with no direct model evidence.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">Coverage is organ-granularity, name-based tagging (82/1,096 = 7.5% of the corpus tagged), not calibrated per-AS-node model evidence -- real and an order of magnitude wider than the query-scoped study (635 vs 58 AS nodes), but recall-limited by the current synonym-matching tagger, so gated needs_calibration rather than passed.</textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">Molecular ids are read directly from each model&#39;s curated SBML MIRIAM annotations (union with BioPAX), so molecular coverage is as authoritative as BioModels curation; HRA anatomy is reconstructed via documented BTO-&gt;Uberon and MeSH-label-&gt;Uberon/CL SSSOM crosswalks, which is transparent and traceable per model but weaker than a model-annotated Uberon (hence passing-with-caveats, not passed-clean).</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -970,7 +1039,7 @@ sub-structures with no direct model evidence.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 shows full-corpus retrieval, not just query choice, is the coverage bottleneck -- it finds anatomically relevant models a single search term misses entirely (kidney newly covered) -- the study&#39;s central interpretive claim.</textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01/F-02 answer the question quantitatively — the whole corpus harvests into one reusable, downloadable DB, and the coverage profile (dense molecular, sparse-but-real anatomy, MeSH as the dominant anatomy lever) tells downstream studies exactly where HRA linkage is strong and where it depends on paper-level reconstruction.</textarea>
         </label>
       </div>
     </div>
@@ -996,7 +1065,9 @@ sub-structures with no direct model evidence.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;glucose-biomodel-do&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;annotation-organ-matching&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+      </div>
       
       
       
@@ -1010,7 +1081,7 @@ sub-structures with no direct model evidence.
       <h3 class="overview-label">Limitations</h3>
       <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
       <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-        <li style="margin:2px 0">92.5% of the corpus (1,014/1,096) is untagged -- either genuinely organ-agnostic (pathway/signaling models with no single anatomical site) or organ-specific but missed by the current synonym/reference-organ-name matching.</li><li style="margin:2px 0">Coverage is still organ-granularity, not per-AS-node model matching: a covered organ&#39;s Uberon marks every AS node cut from its GLB as covered, which can overstate coverage for anatomically distinct sub-structures with no direct model evidence.</li>
+        <li style="margin:2px 0">HRA-anatomy coverage (Uberon 215/1,096, 20%) is recall-limited and leans on the paper-MeSH -&gt; Uberon/CL crosswalk to reach models whose SBML annotates no anatomy — a MeSH-derived Uberon describes the paper&#39;s subject, not necessarily the exact tissue the model represents.</li><li style="margin:2px 0">HRApop cell-type populations are joined at ORGAN granularity (HRApop&#39;s anatomical-structure-level counts aggregated to the organ), not per-subregion, so a model inherits its organ&#39;s whole-organ composition rather than a subregion-specific one.</li><li style="margin:2px 0">The LLM literature-extraction stage was not run for the committed DB (no ANTHROPIC_API_KEY), so no per-model `literature` blocks are present; the DB&#39;s coverage stands on SBML/BioPAX molecular ids + MeSH/BTO anatomy alone.</li>
       </ul>
     </div>
     
@@ -1060,13 +1131,13 @@ sub-structures with no direct model evidence.
         
         <div class="di-unc di-unc-resolved">
           <h4>✓ Resolved uncertainties</h4>
-          <ul><li>Full-corpus retrieval materially widens coverage over a single query (635 vs 58 AS nodes) and newly reaches kidney, confirming retrieval breadth is a real, measurable lever independent of query choice.</li></ul>
+          <ul><li>The full curated BioModels corpus (1,096 models) can be harvested into a single reusable JSON DB linking each model to the HRA, and served both as a Vivarium Step (cache-or-load, network-free) and a downloadable workspace dataset.</li><li>Corpus-wide coverage is now measured: molecular annotation is dense (89% carry &gt;=1 molecular id) while HRA anatomy is recall-limited but real (20% Uberon, 29% cell types), with paper MeSH (83%) the dominant anatomy lever.</li></ul>
         </div>
         
         
         <div class="di-unc di-unc-remaining">
           <h4>● Remaining uncertainties</h4>
-          <ul><li>Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models?</li><li>Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?</li></ul>
+          <ul><li>Can HRApop cell-type populations be joined at SUBREGION (anatomical-structure) granularity rather than aggregated to the organ, so a model attaches to the specific organ subregion its cell types/FTUs imply — the driver for placing models at subregions in the Atlas Browser?</li><li>Would running the LLM literature-extraction stage materially raise HRA-anatomy recall beyond the MeSH/BTO crosswalks, or does it mostly duplicate what MeSH already captures?</li></ul>
         </div>
         
       </div>
@@ -1082,24 +1153,41 @@ sub-structures with no direct model evidence.
       <div class="di-group">
         <h3>Follow-up study proposals
           <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
-          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
+          <span class="muted" style="font-weight:normal;font-size:0.85em">(2)</span></h3>
         <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
         <div class="followup-list">
           
           
           <div class="di-card di-fup-card">
             <div class="followup-header">
-              <strong class="followup-title">Coverage gap analysis</strong>
-              <span class="di-chip">analysis</span>
-              <span class="di-chip">corpus-coverage</span>
+              <strong class="followup-title">Place biomodels at HRA organ SUBREGIONS (not whole organs) in the Atlas Browser from this DB</strong>
+              <span class="di-chip">methodological</span>
+              <span class="di-chip">biomodel-hra-map</span>
               <span class="di-chip di-gain-high">gain: high</span>
               
             </div>
-            <div class="di-card-why">Cross the full corpus-coverage organ-&gt;models index against the complete 114-organ-GLB / 1,730-AS-node crosswalk to list every organ/AS-node with zero covering models, ranked by AS-node count, as a prioritized modeling-gap report.</div>
+            <div class="di-card-why">Consume biomodel-hra-map (the Step or the cached JSON) in the HRA Atlas Browser composite; for each model, map its cell types/FTUs to the HRApop anatomical structures (AS-granular in the source CSV) they occur in, place the model at those subregions, and fall back to the whole organ where no subregion resolves.</div>
             
             <div class="followup-actions" style="margin-top:8px">
               <button class="btn-seed-followup"
-                      onclick="_seedFollowupProposal('corpus-coverage', "fp-coverage-gap-analysis")">➕ Add to investigation</button>
+                      onclick="_seedFollowupProposal('biomodel-hra-map', "fp-atlas-browser-subregion-placement")">➕ Add to investigation</button>
+            </div>
+          </div>
+          
+          
+          <div class="di-card di-fup-card">
+            <div class="followup-header">
+              <strong class="followup-title">Measure the HRA-anatomy recall gain from running the LLM literature-extraction stage</strong>
+              <span class="di-chip">methodological</span>
+              <span class="di-chip">biomodel-hra-map</span>
+              <span class="di-chip di-gain-medium">gain: medium</span>
+              
+            </div>
+            <div class="di-card-why">Run build_map with an ANTHROPIC_API_KEY over a sample of models, and compare the Uberon/CL set the LLM stage adds against the MeSH/BTO-derived set already present.</div>
+            
+            <div class="followup-actions" style="margin-top:8px">
+              <button class="btn-seed-followup"
+                      onclick="_seedFollowupProposal('biomodel-hra-map', "fp-llm-anatomy-recall")">➕ Add to investigation</button>
             </div>
           </div>
           
@@ -1125,7 +1213,7 @@ sub-structures with no direct model evidence.
 <script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "2be53ee0a468045b4ff5143894c13ebb6028c0f7", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/2be53ee0a468045b4ff5143894c13ebb6028c0f7", "branch": "main", "generated_at": "2026-08-05 15:33 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
-window._studyName = "corpus-coverage";
+window._studyName = "biomodel-hra-map";
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
