@@ -1,7 +1,9 @@
-import json, importlib.util, pathlib
-spec = importlib.util.spec_from_file_location(
-    "bhm", pathlib.Path("scripts/build_biomodel_hra_map.py"))
-bhm = importlib.util.module_from_spec(spec); spec.loader.exec_module(bhm)
+import json
+# The extraction pipeline lives in the shared core module
+# `viva_human_atlas.biomodel_hra` (the CLI `scripts/build_biomodel_hra_map.py`
+# and the workbench `BiomodelHraMapStep` both call it), so the pipeline tests
+# target the module directly.
+import viva_human_atlas.biomodel_hra as bhm
 
 ORGAN_INDEX = {
     "pancreas": {"uberon": "UBERON:0001264", "asset_urls": []},
@@ -395,10 +397,8 @@ def test_should_process_forced_is_true_regardless():
     assert bhm.should_process({}, "BIOMD1", True) is True
 
 
-def test_main_skips_existing_id_unless_forced(tmp_path, monkeypatch):
+def test_build_map_skips_existing_id_unless_forced(tmp_path, monkeypatch):
     out = tmp_path / "db.json"
-    ids_file = tmp_path / "ids.txt"
-    ids_file.write_text("BIOMD1\n")
 
     calls = []
 
@@ -411,19 +411,16 @@ def test_main_skips_existing_id_unless_forced(tmp_path, monkeypatch):
     # pre-seed the db with BIOMD1 already present.
     bhm.write_db({"BIOMD1": {"identifier": "x:BIOMD1", "biomodel_id": "BIOMD1"}}, str(out))
 
-    rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm"])
-    assert rc == 0
-    assert calls == []  # skipped: already in db, no --force
+    bhm.build_map(ids=["BIOMD1"], out=str(out), cache_dir=str(tmp_path / "cache"), no_llm=True)
+    assert calls == []  # skipped: already in db, no force
 
-    rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm", "--force"])
-    assert rc == 0
-    assert calls == ["BIOMD1"]  # reprocessed with --force
+    bhm.build_map(ids=["BIOMD1"], out=str(out), cache_dir=str(tmp_path / "cache"),
+                  no_llm=True, force=True)
+    assert calls == ["BIOMD1"]  # reprocessed with force
 
 
-def test_main_resumes_errored_entry_without_force(tmp_path, monkeypatch):
+def test_build_map_resumes_errored_entry_without_force(tmp_path, monkeypatch):
     out = tmp_path / "db.json"
-    ids_file = tmp_path / "ids.txt"
-    ids_file.write_text("BIOMD1\n")
 
     calls = []
 
@@ -438,9 +435,8 @@ def test_main_resumes_errored_entry_without_force(tmp_path, monkeypatch):
     bhm.write_db({"BIOMD1": {"identifier": "x:BIOMD1", "biomodel_id": "BIOMD1",
                              "provenance": {"errors": ["lit:boom"]}}}, str(out))
 
-    rc = bhm.main(["--ids-file", str(ids_file), "--out", str(out), "--no-llm"])
-    assert rc == 0
-    assert calls == ["BIOMD1"]  # retried on resume even without --force
+    bhm.build_map(ids=["BIOMD1"], out=str(out), cache_dir=str(tmp_path / "cache"), no_llm=True)
+    assert calls == ["BIOMD1"]  # retried on resume even without force
 
 
 class _Resp:

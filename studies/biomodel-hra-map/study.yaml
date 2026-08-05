@@ -1,0 +1,189 @@
+schema_version: 4
+name: biomodel-hra-map
+investigation: hra-integration
+title: "BioModels → HRA Map — Harvesting the Curated Corpus into the Human Reference Atlas"
+created: '2026-08-04'
+status: running
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Evaluate
+
+question: |
+  Can we harvest the entire curated BioModels corpus into a single, reusable
+  JSON DB that links each model to the Human Reference Atlas — molecular
+  identifiers (CHEBI/UniProt/KEGG/GO/Reactome), publication link, organism,
+  and HRA organ / FTU / cell-type mapping (Uberon/CL) — as a downloadable
+  workspace resource the Atlas Browser and downstream coverage studies can
+  key off, and how much of the corpus does each annotation actually reach?
+
+study_card:
+  goal: "Build datasets/biomodel_hra_map.json: one entry per curated BioModel with molecular ids, PubMed/DOI link, organism, and HRA organ/FTU/cell-type mapping (anatomy crosswalked from paper MeSH + BTO, cell types from CL), plus HRApop measured cell-type populations for the models that resolve to an HRApop organ — exposed as a reusable Vivarium Step + a downloadable workspace dataset."
+  mechanism: "BiomodelHraMapStep.update -> biomodel_hra.build_or_load(datasets/biomodel_hra_map.json): cache-or-load (network-free load of the committed DB, or a live rebuild if absent). Each per-model entry is built by build_entry: fetch_sbml + extract_identifiers (SBML MIRIAM CVTerms -> CHEBI/UniProt/KEGG/GO/Uberon/CL/FMA/BTO) unioned with BioPAX ids; PubMed MeSH headings; anatomy crosswalked to Uberon/CL via the BTO->Uberon and MeSH-label->Uberon/CL SSSOM crosswalks; map_to_hra binds the enriched Uberon set to HRA organs/FTUs; HRApop measured cell-type populations joined at organ granularity. summarize_map reports coverage."
+  expected_result: "A 1,096-model JSON array where near-total molecular coverage (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%) coexists with sparser but real HRA-anatomy coverage (Uberon 20%, cell types 29%, organs 16%, FTUs 11%), and 112 models (10%) carry HRApop measured cell-type populations — molecular annotation is dense because it comes from the models' own curated SBML, while HRA anatomy is recall-limited because most models annotate biochemistry, not anatomy."
+  main_expert_question: "Is the paper-MeSH -> Uberon/CL crosswalk (which contributes anatomy to models whose SBML carries no Uberon at all) a defensible way to raise HRA-anatomy recall, or should HRA mapping be restricted to anatomy the model itself annotates (SBML MIRIAM Uberon/BTO), even at much lower recall?"
+
+biological_summary: |
+  BioModels is the curated repository of published quantitative systems-
+  biology models, but its models are annotated for biochemistry (species ->
+  CHEBI/UniProt/KEGG, processes -> GO/Reactome), not for anatomy — so linking
+  a model to the Human Reference Atlas (which is organized by organ ->
+  anatomical structure -> functional tissue unit -> cell type) requires
+  reconstructing the anatomical context from whatever signal each model and
+  its paper carry. This study harvests the full curated corpus (1,096 models)
+  into one reusable JSON DB. Molecular identifiers come straight out of each
+  model's SBML MIRIAM annotations (unioned with its BioPAX export): GO reaches
+  967 models (88%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%). HRA
+  anatomy is reconstructed from three complementary sources — direct SBML
+  Uberon/CL, a BTO->Uberon crosswalk over the model's own tissue annotations,
+  and (the biggest lever) the MeSH headings PubMed assigns each model's paper,
+  crosswalked to Uberon/CL through an SSSOM mapping. That reconstruction tags
+  215 models (20%) with >=1 Uberon term, 322 (29%) with a cell type, 180 (16%)
+  with an HRA organ, and 116 (11%) with a functional tissue unit. Finally, for
+  the 112 models (10%) that resolve to an organ HRApop measures, the DB carries
+  HRApop's measured cell-type populations (Bueckle 2026) at organ granularity.
+  The result is a single downloadable workspace resource (a Vivarium Step loads
+  it network-free) that turns "which BioModels does the HRA cover, and with
+  what molecular + anatomical detail" into a queryable table — the foundation
+  the Atlas Browser and the corpus-coverage / annotation studies build on.
+
+readouts:
+  - "n_models (1,096 curated BioModels harvested into the DB)"
+  - "coverage.{go,mesh,uniprot,chebi,kegg,cell_types,organs,functional_tissue_units,uberon,hra_pop_cell_types}.{count,mean,max} (per-annotation corpus coverage)"
+  - "n_with_molecular / n_with_uberon / n_with_hrapop (headline coverage counts)"
+  - "datasets/biomodel_hra_map.json (the downloadable per-model DB itself, registered as a workspace dataset)"
+
+report:
+  title: "BioModels → HRA Map — 1,096 Models Harvested; Molecular Coverage Dense, HRA Anatomy Recall-Limited but Real"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Harvest the full curated BioModels corpus into one reusable JSON DB
+    linking each model to the HRA (molecular ids, publication, organism, HRA
+    organ/FTU/cell-type), and measure how much of the corpus each annotation
+    reaches.
+  conclusion: |
+    Done and measured. All 1,096 curated BioModels are harvested into
+    datasets/biomodel_hra_map.json, one entry each, exposed as a reusable
+    Vivarium Step (BiomodelHraMapStep, cache-or-load, network-free) and a
+    downloadable workspace dataset. Molecular annotation is dense because it
+    comes from the models' own curated SBML: GO 967/1,096 (88%), MeSH
+    915 (83%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%), and 978
+    models (89%) carry at least one molecular id. HRA anatomy — reconstructed
+    from SBML Uberon/CL + BTO->Uberon + paper-MeSH->Uberon/CL crosswalks —
+    is sparser but real: 215 models (20%) carry >=1 Uberon term, 322 (29%) a
+    cell type, 180 (16%) an HRA organ, 116 (11%) a functional tissue unit.
+    112 models (10%) additionally carry HRApop measured cell-type populations
+    at organ granularity. The molecular-vs-anatomy coverage gap is the
+    finding: BioModels curation annotates biochemistry densely and anatomy
+    barely, so HRA mapping depends on reconstructing anatomical context from
+    the paper (MeSH), not just the model.
+  caveat: |
+    HRA-anatomy coverage (Uberon 20%) is recall-limited and leans on the
+    paper-MeSH -> Uberon/CL crosswalk to reach models whose SBML carries no
+    anatomy at all — a paper's MeSH headings describe the study, not
+    necessarily the exact tissue the model represents, so a MeSH-derived
+    Uberon is a weaker anatomical claim than a model-annotated one. HRApop
+    populations are joined at ORGAN granularity (the DB aggregates HRApop's
+    anatomical-structure-level counts to the organ), not per-subregion, so a
+    model tagged to an organ inherits that organ's whole-organ composition.
+    The LLM literature-extraction stage was not run for the committed DB (no
+    ANTHROPIC_API_KEY), so no `literature` blocks are present — molecular and
+    MeSH/BTO anatomy coverage stand on their own.
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map
+    params:
+      db_path: "datasets/biomodel_hra_map.json"
+      build_if_missing: false
+
+embed_visualizations:
+  - name: "Harvesting BioModels into the HRA"
+    url: "/reports/figures/biomodel-hra-map/summary.html"
+    description: "1,096 curated BioModels mapped to the HRA. Left: how many models carry each annotation (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%, KEGG 29%, cell types 29%, Uberon 20%, organs 16%, FTUs 11%, HRApop 10%). Right: per-model term-count distributions for organs, FTUs, cell types, Uberon, paper MeSH, and GO. Molecular annotation (blue) is dense; HRA anatomy (amber) is recall-limited but real."
+
+runs:
+  - name: baseline
+    status: completed
+
+pipeline_gate:
+  gate_evaluator:
+    result: passed
+  # The foundational corpus map the annotation/coverage studies build on: it
+  # generalizes glucose-biomodel-do's name-match and annotation-organ-matching's
+  # SBML/BTO matcher to the whole corpus and adds the molecular + MeSH + HRApop
+  # layers, so the investigation graph shows it downstream of those seeds.
+  prerequisites:
+    - study: glucose-biomodel-do
+      relation: leads-to
+    - study: annotation-organ-matching
+      relation: leads-to
+
+findings:
+  - id: F-01
+    tier: measurement
+    mechanism_origin: observed
+    claim_scope: corpus
+    statement: |
+      All 1,096 curated BioModels harvest into one JSON DB with dense
+      molecular coverage and recall-limited-but-real HRA-anatomy coverage.
+      Molecular (from the models' own SBML/BioPAX): GO 967 (88%), UniProt
+      507 (46%), CHEBI 480 (44%), KEGG 322 (29%); 978 models (89%) carry
+      >=1 molecular id. HRA anatomy (reconstructed via SBML Uberon/CL +
+      BTO->Uberon + paper-MeSH->Uberon/CL crosswalks): Uberon 215 (20%),
+      cell types 322 (29%), organs 180 (16%), FTUs 116 (11%). HRApop
+      measured cell-type populations attach to 112 models (10%).
+    evidence:
+      summary: "n_models=1096. coverage counts (models with >=1 term): go=967, mesh=915, uniprot=507, chebi=480, kegg=322, cell_types=322, organs=180, functional_tissue_units=116, uberon=215, hra_pop_cell_types=112. n_with_molecular=978, n_with_uberon=215, n_with_hrapop=112."
+  - id: F-02
+    tier: interpretation
+    mechanism_origin: observed
+    claim_scope: mechanism
+    statement: |
+      The molecular-vs-anatomy coverage gap (89% molecular vs 20% Uberon)
+      reflects BioModels curation practice: models are annotated for
+      biochemistry (species -> CHEBI/UniProt/KEGG, reactions -> GO), not for
+      anatomy, so HRA mapping depends on reconstructing anatomical context
+      from outside the model — the paper's PubMed MeSH headings are the
+      single biggest anatomy lever (MeSH reaches 915 models, 83%, vs 20% for
+      any Uberon), crosswalked to Uberon/CL.
+    evidence:
+      summary: "MeSH coverage (915/1,096, 83%, from PubMed) dwarfs direct/derived Uberon coverage (215/1,096, 20%): most models carry no anatomy in their own SBML, and the Uberon they do get is dominated by the MeSH->Uberon and BTO->Uberon crosswalks rather than direct SBML Uberon annotations."
+
+conclusion_verdicts:
+  regression_compatibility:
+    basis: "The baseline biomodel-hra-map composite (BiomodelHraMapStep -> build_or_load) loads the committed datasets/biomodel_hra_map.json network-free and emits n_models=1096 with a non-empty coverage summary; the same core (viva_human_atlas.biomodel_hra) backs the scripts/build_biomodel_hra_map.py CLI, so Step and CLI cannot diverge."
+  biological_validation:
+    basis: "Molecular ids are read directly from each model's curated SBML MIRIAM annotations (union with BioPAX), so molecular coverage is as authoritative as BioModels curation; HRA anatomy is reconstructed via documented BTO->Uberon and MeSH-label->Uberon/CL SSSOM crosswalks, which is transparent and traceable per model but weaker than a model-annotated Uberon (hence passing-with-caveats, not passed-clean)."
+  explanatory_gain:
+    basis: "F-01/F-02 answer the question quantitatively — the whole corpus harvests into one reusable, downloadable DB, and the coverage profile (dense molecular, sparse-but-real anatomy, MeSH as the dominant anatomy lever) tells downstream studies exactly where HRA linkage is strong and where it depends on paper-level reconstruction."
+
+limitations:
+  - "HRA-anatomy coverage (Uberon 215/1,096, 20%) is recall-limited and leans on the paper-MeSH -> Uberon/CL crosswalk to reach models whose SBML annotates no anatomy — a MeSH-derived Uberon describes the paper's subject, not necessarily the exact tissue the model represents."
+  - "HRApop cell-type populations are joined at ORGAN granularity (HRApop's anatomical-structure-level counts aggregated to the organ), not per-subregion, so a model inherits its organ's whole-organ composition rather than a subregion-specific one."
+  - "The LLM literature-extraction stage was not run for the committed DB (no ANTHROPIC_API_KEY), so no per-model `literature` blocks are present; the DB's coverage stands on SBML/BioPAX molecular ids + MeSH/BTO anatomy alone."
+
+discovery_implications:
+  resolved_uncertainties:
+    - "The full curated BioModels corpus (1,096 models) can be harvested into a single reusable JSON DB linking each model to the HRA, and served both as a Vivarium Step (cache-or-load, network-free) and a downloadable workspace dataset."
+    - "Corpus-wide coverage is now measured: molecular annotation is dense (89% carry >=1 molecular id) while HRA anatomy is recall-limited but real (20% Uberon, 29% cell types), with paper MeSH (83%) the dominant anatomy lever."
+  remaining_uncertainties:
+    - "Can HRApop cell-type populations be joined at SUBREGION (anatomical-structure) granularity rather than aggregated to the organ, so a model attaches to the specific organ subregion its cell types/FTUs imply — the driver for placing models at subregions in the Atlas Browser?"
+    - "Would running the LLM literature-extraction stage materially raise HRA-anatomy recall beyond the MeSH/BTO crosswalks, or does it mostly duplicate what MeSH already captures?"
+  followup_study_proposals:
+    - id: fp-atlas-browser-subregion-placement
+      title: "Place biomodels at HRA organ SUBREGIONS (not whole organs) in the Atlas Browser from this DB"
+      motivation: "This DB resolves cell types + FTUs per model and joins HRApop at organ granularity; the Atlas Browser currently distributes models uniformly within an organ. Driving placement up from a model's cell types/FTUs to the specific HRApop anatomical structure would let models attach to subregions (visible on hover), falling back to the whole organ only where subregion resolution is absent."
+      study_type: methodological
+      proposed_experiment: "Consume biomodel-hra-map (the Step or the cached JSON) in the HRA Atlas Browser composite; for each model, map its cell types/FTUs to the HRApop anatomical structures (AS-granular in the source CSV) they occur in, place the model at those subregions, and fall back to the whole organ where no subregion resolves."
+      expected_information_gain: high
+      source_trigger: biomodel-hra-map
+    - id: fp-llm-anatomy-recall
+      title: "Measure the HRA-anatomy recall gain from running the LLM literature-extraction stage"
+      motivation: "The committed DB has no `literature` blocks (LLM stage unrun). Running it over abstracts/full text could extract anatomy the MeSH/BTO crosswalks miss — or mostly duplicate MeSH."
+      study_type: methodological
+      proposed_experiment: "Run build_map with an ANTHROPIC_API_KEY over a sample of models, and compare the Uberon/CL set the LLM stage adds against the MeSH/BTO-derived set already present."
+      expected_information_gain: medium
+      source_trigger: biomodel-hra-map

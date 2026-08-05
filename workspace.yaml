@@ -5,7 +5,15 @@ package_path: viva_human_atlas
 observables: []
 visualizations: []
 simulations: []
-datasets: []
+datasets:
+  - name: biomodel-hra-map
+    path: datasets/biomodel_hra_map.json
+    sha256: 0b18aa7e9bd83a4cd8397c031f2b65526a4002fe738c2ebf6449676312772cf8
+    claims:
+      - 1096 curated BioModels harvested and mapped to the Human Reference Atlas
+      - Per model: molecular ids (CHEBI/UniProt/KEGG/GO/Reactome), publication links, organism, and HRA organ/FTU/cell-type mapping
+      - Anatomy crosswalked from paper MeSH (via PubMed) + BTO; 215 models carry >=1 Uberon term
+      - 112 models linked to HRApop measured cell-type populations
 references_bib: references/papers.bib
 imports:
   pbg-biomodels:
