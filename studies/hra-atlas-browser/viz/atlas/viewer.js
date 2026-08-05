@@ -28,6 +28,8 @@ const els = {
   btnAll: document.getElementById("btn-all"),
   btnNone: document.getElementById("btn-none"),
   btnCenter: document.getElementById("btn-center"),
+  sexFemale: document.getElementById("sex-female"),
+  sexMale: document.getElementById("sex-male"),
   modelSearch: document.getElementById("model-search"),
   selCount: document.getElementById("sel-count"),
   legendMax: document.getElementById("legend-max"),
@@ -129,24 +131,32 @@ async function main() {
     atlas.max_models || 1,
     ...atlas.organs.flatMap((o) => (o.subregions || []).map((s) => subregionCount(o, s))),
   );
+  // ---- sex mode (B2) ----
   // Composed views must not overlay both sexes of the same structure (that
   // renders "double legs" — male knee bones poking through the female skin).
-  // Collapse -female-/-male- variants (keeping left/right) to ONE sex,
-  // preferring female (matches the default female GLBs), for multi-organ sets.
-  function singleSex(keys) {
-    const seen = new Set(), out = [];
-    for (const k of keys) {
-      const base = k.replace(/-(female|male)/, "");   // keep left/right
-      const isMale = /-male/.test(k);
-      if (isMale && keys.some((o) => o !== k && o.replace(/-(female|male)/, "") === base && /-female/.test(o))) {
-        continue;   // a female twin exists -> skip the male duplicate
-      }
-      if (!seen.has(base)) { seen.add(base); out.push(k); }
-    }
-    return out;
+  // Instead of collapsing variants, the browser shows ONE sex's anatomy at a
+  // time; the Female|Male toggle rebuilds the scene for the chosen sex.
+  let sex = "female";
+  // Current sex's GLBs for an organ, falling back to the other sex so organs
+  // that ship only one side's asset (e.g. prostate) still render.
+  function glbsForSex(o) {
+    const other = sex === "female" ? "male" : "female";
+    return (o.glbs?.[sex]?.length ? o.glbs[sex] : (o.glbs?.[other] || []));
   }
-  const allKeys = singleSex(atlas.organs.map((o) => o.key));
-  const modeledKeys = atlas.organs.filter((o) => o.n_models > 0).map((o) => o.key);
+  // An organ whose KEY names the OPPOSITE sex is hidden in this mode; organs
+  // with no sex in their key (e.g. prostate, heart) are always visible.
+  function visibleForSex(o) {
+    if (sex === "female") return !(/-male\b/.test(o.key) || /-male-/.test(o.key));
+    return !/-female/.test(o.key);
+  }
+  // Recomputed for the current sex: keys of the organs the menu/landing use.
+  let allKeys = [], modeledKeys = [];
+  function recomputeKeys() {
+    const vis = atlas.organs.filter(visibleForSex);
+    allKeys = vis.map((o) => o.key);
+    modeledKeys = vis.filter((o) => o.n_models > 0).map((o) => o.key);
+  }
+  recomputeKeys();
   // distinct BioModels represented by a set of organ keys (union of ids)
   function distinctModels(keys) {
     const ids = new Set();
@@ -198,6 +208,9 @@ async function main() {
   const raycastMeshes = [];            // meshes across all *shown* organs
   let hovered = null;
   let modelQuery = "";                 // active model-search keyword (lowercased)
+  // ---- explode (B4) ----
+  let explodeAnim = null;              // {meshes:[{mesh,from,to}], start, dur}
+  let explodedKey = null;              // organ key currently in exploded state
 
   // Models in an organ whose name or BioModels id contains the search keyword.
   function matchingModels(organ, q) {
@@ -278,13 +291,12 @@ async function main() {
     if (groups.has(key)) return Promise.resolve(groups.get(key));
     if (loading.has(key)) return loading.get(key);
     const organ = organsByKey.get(key);
-    // Load ALL same-sex GLBs for the organ (bilateral/multi-part organs like
-    // kidney ship one GLB per side), preferring female; fall back to the single
-    // glb field for older manifests.
-    const gl = organ && organ.glbs;
-    let urls = gl ? (gl.female && gl.female.length ? gl.female : (gl.male || [])) : [];
+    // Load ALL current-sex GLBs for the organ (bilateral/multi-part organs like
+    // kidney ship one GLB per side); fall back to the other sex, then to the
+    // single glb field for older manifests.
+    let urls = organ ? glbsForSex(organ) : [];
     if (!urls.length) {
-      const u = organ && (organ.glb.female || organ.glb.male);
+      const u = organ && organ.glb && (organ.glb.female || organ.glb.male);
       urls = u ? [u] : [];
     }
     if (!urls.length) return Promise.reject(new Error(`${key}: no GLB asset`));
@@ -300,6 +312,7 @@ async function main() {
         );
         node.add(edges);
         colorMesh(node, organ);
+        node.userData.homePos = node.position.clone();  // for explode/collapse
       });
       groups.set(key, group);
       loading.delete(key);
@@ -343,7 +356,8 @@ async function main() {
     for (const [key, row] of rows) row.classList.toggle("selected", selected.has(key));
     // System header checkbox: none / partial / all of its organs selected.
     for (const [system, chk] of groupChecks) {
-      const keys = organsBySystem.get(system).map((o) => o.key);
+      const keys = organsBySystem.get(system).filter(visibleForSex).map((o) => o.key);
+      if (!keys.length) continue;
       const on = keys.filter((k) => selected.has(k)).length;
       chk.classList.toggle("on", on === keys.length);
       chk.classList.toggle("partial", on > 0 && on < keys.length);
@@ -367,6 +381,7 @@ async function main() {
 
   // Add/remove an organ from the composed scene.
   function toggle(key) {
+    collapseExplode(true);
     if (selected.has(key)) {
       selected.delete(key);
       applySelection(false);
@@ -388,6 +403,7 @@ async function main() {
   }
 
   function selectOnly(key) {
+    collapseExplode(true);              // isolating a new organ drops any explode
     selected.clear();
     selected.add(key);
     focus(key);
@@ -397,10 +413,117 @@ async function main() {
       .catch((e) => setStatus(`failed: ${e.message || e}`));
   }
 
+  // ---- explode / collapse (B4) ----
+  const easeInOutCubic = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+  // Return each mesh of the exploded organ to its stored home position.
+  // instant=true snaps back (used when the group is being replaced/hidden);
+  // otherwise animate the return via the shared explodeAnim.
+  function collapseExplode(instant) {
+    if (!explodedKey) { if (instant) explodeAnim = null; return; }
+    const g = groups.get(explodedKey);
+    explodedKey = null;
+    if (!g) { explodeAnim = null; return; }
+    const meshes = [];
+    g.traverse((n) => {
+      if (n.isMesh && n.userData.homePos) {
+        meshes.push({ mesh: n, from: n.position.clone(), to: n.userData.homePos.clone() });
+      }
+    });
+    if (instant || !meshes.length) {
+      for (const m of meshes) m.mesh.position.copy(m.to);
+      explodeAnim = null;
+      return;
+    }
+    explodeAnim = { meshes, start: performance.now(), dur: 700 };
+  }
+
+  // Push every mesh of the (already loaded, isolated) organ outward from the
+  // group's bounding-box center, along the center->mesh-centroid direction, by
+  // ~0.6x the organ's size. Local position deltas are derived per mesh so the
+  // motion is correct through each mesh's parent transform.
+  function runExplode(key) {
+    collapseExplode(true);
+    const g = groups.get(key);
+    if (!g) return;
+    g.updateWorldMatrix(true, true);
+    const box = new THREE.Box3().setFromObject(g);
+    if (box.isEmpty()) return;
+    const center = box.getCenter(new THREE.Vector3());
+    const dist = (box.getSize(new THREE.Vector3()).length() || 1) * 0.6;
+    const meshes = [];
+    g.traverse((n) => {
+      if (!n.isMesh || !n.userData.homePos) return;
+      const mb = new THREE.Box3().setFromObject(n);
+      if (mb.isEmpty()) return;
+      const dir = mb.getCenter(new THREE.Vector3()).sub(center);
+      if (dir.lengthSq() < 1e-9) dir.set(0, 1, 0);
+      dir.normalize().multiplyScalar(dist);
+      const parent = n.parent;
+      const homeLocal = n.userData.homePos.clone();
+      const homeWorld = parent.localToWorld(homeLocal.clone());
+      const targetLocal = parent.worldToLocal(homeWorld.add(dir));
+      meshes.push({ mesh: n, from: n.position.clone(), to: targetLocal });
+    });
+    if (!meshes.length) return;
+    explodeAnim = { meshes, start: performance.now(), dur: 700 };
+    explodedKey = key;
+    setStatus(`exploded ${organsByKey.get(key).label} — click “explode” again to collapse`);
+  }
+
+  // Row "explode" button: toggle. If this organ is already exploded, collapse
+  // (animated); otherwise isolate it, load it, frame it, then explode.
+  function explodeOrgan(key) {
+    if (explodedKey === key) { collapseExplode(false); return; }
+    collapseExplode(true);
+    selected.clear();
+    selected.add(key);
+    focus(key);
+    applySelection(false);
+    setStatus(`loading ${organsByKey.get(key).label}…`);
+    ensureLoaded(key).then(() => {
+      applySelection(true);            // show + frame the organ first
+      runExplode(key);                 // then blow it apart
+    }).catch((e) => setStatus(`failed: ${e.message || e}`));
+  }
+
+  // ---- sex switch (B2) ----
+  function updateSexToggle() {
+    els.sexFemale?.classList.toggle("active", sex === "female");
+    els.sexMale?.classList.toggle("active", sex === "male");
+  }
+  // Rebuild the whole scene for the chosen sex: the cached groups hold the other
+  // sex's GLBs, so drop them, rebuild the menu for the now-visible organs, prune
+  // the selection to what exists in this sex, then reload+reframe the survivors.
+  function switchSex(next) {
+    if (next === sex || (next !== "female" && next !== "male")) return;
+    sex = next;
+    explodeAnim = null; explodedKey = null;
+    for (const [, g] of groups) { if (g.parent === scene) scene.remove(g); }
+    groups.clear();
+    loading.clear();
+    recomputeKeys();
+    buildMenu();
+    for (const k of [...selected]) {
+      if (!visibleForSex(organsByKey.get(k))) selected.delete(k);
+    }
+    updateSexToggle();
+    const keep = [...selected];
+    if (keep.length) {
+      selectMany(keep, sex === "female" ? "female anatomy" : "male anatomy");
+    } else {
+      focused = null;
+      applySelection(false);
+      resetPanel();
+      setStatus("nothing selected");
+    }
+  }
+
   // Add or remove every organ in a system, based on whether they're all
   // already selected (toggle). Loads any missing GLBs.
   function toggleSystem(system) {
-    const keys = organsBySystem.get(system).map((o) => o.key);
+    collapseExplode(true);
+    const keys = organsBySystem.get(system).filter(visibleForSex).map((o) => o.key);
     const allOn = keys.every((k) => selected.has(k));
     if (allOn) {
       for (const k of keys) selected.delete(k);
@@ -418,7 +541,7 @@ async function main() {
   }
 
   function onlySystem(system) {
-    selectMany(organsBySystem.get(system).map((o) => o.key), system);
+    selectMany(organsBySystem.get(system).filter(visibleForSex).map((o) => o.key), system);
   }
 
   // Load a set of keys already added to `selected`, framing when the batch is in.
@@ -437,6 +560,7 @@ async function main() {
   }
 
   function selectMany(keys, label) {
+    collapseExplode(true);
     selected.clear();
     for (const k of keys) selected.add(k);
     focus(keys[0]);
@@ -456,6 +580,7 @@ async function main() {
   }
 
   function clearAll() {
+    collapseExplode(true);
     selected.clear();
     focused = null;
     applySelection(false);
@@ -559,8 +684,13 @@ async function main() {
   const groupBodies = new Map();       // system -> the row-container element
   function buildMenu() {
     els.list.innerHTML = "";
+    // Rebuilt per sex switch, so drop references to the old (detached) DOM.
+    rows.clear();
+    groupChecks.clear();
+    groupBodies.clear();
     for (const system of systemsList) {
-      const organs = organsBySystem.get(system) || [];
+      const organs = (organsBySystem.get(system) || []).filter(visibleForSex);
+      if (!organs.length) continue;   // no organs for this sex -> hide the system
       const modeled = organs.filter((o) => o.n_models > 0).length;
 
       const group = document.createElement("div");
@@ -593,9 +723,11 @@ async function main() {
           `<span class="sw" style="background:${cssColor(o.n_models, maxCount)}"></span>` +
           `<span class="nm" title="${o.label}">${o.label}</span>` +
           `<span class="ct">${o.n_models || ""}</span>` +
-          `<span class="only" role="button">only</span>`;
+          `<span class="only" role="button">only</span>` +
+          `<span class="explode" role="button" title="Isolate and explode this organ">explode</span>`;
         row.addEventListener("click", (e) => {
           if (e.target.classList.contains("only")) { selectOnly(o.key); return; }
+          if (e.target.classList.contains("explode")) { explodeOrgan(o.key); return; }
           toggle(o.key);
         });
         body.appendChild(row);
@@ -629,6 +761,10 @@ async function main() {
   els.btnNone.addEventListener("click", clearAll);
   // Recenter the camera on whatever is currently visible.
   els.btnCenter.addEventListener("click", frameSelection);
+  // Female | Male segmented toggle: rebuild the scene for the chosen sex.
+  els.sexFemale?.addEventListener("click", () => switchSex("female"));
+  els.sexMale?.addEventListener("click", () => switchSex("male"));
+  updateSexToggle();
   addEventListener("keydown", (e) => {
     if (e.key === "f" && !/input|textarea/i.test(e.target.tagName)) frameSelection();
   });
@@ -679,6 +815,14 @@ async function main() {
   });
   (function animate() {
     requestAnimationFrame(animate);
+    // Drive the explode/collapse tween (B4) from the single shared loop.
+    if (explodeAnim) {
+      let t = (performance.now() - explodeAnim.start) / explodeAnim.dur;
+      if (t >= 1) t = 1;
+      const e = easeInOutCubic(t);
+      for (const m of explodeAnim.meshes) m.mesh.position.lerpVectors(m.from, m.to, e);
+      if (t >= 1) explodeAnim = null;
+    }
     controls.update();
     renderer.render(scene, camera);
   })();

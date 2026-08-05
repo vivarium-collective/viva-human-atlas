@@ -29,6 +29,7 @@ FTUs usually are but that isn't assumed since the join is by Uberon):
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -65,19 +66,48 @@ def load_crosswalk(path=None) -> list:
         return list(csv.DictReader(fh))
 
 
+def _mirror_name(node: str):
+    """The left/right twin of a bilateral GLB mesh name, or None. The ASCT+B-3D
+    crosswalk names bilateral meshes `<base>_L` / `<base>_R` (e.g.
+    `Allen_olfactory_bulb_L`); return the opposite side's name."""
+    m = re.search(r"^(.*)_([LR])$", node or "")
+    if not m:
+        return None
+    return f"{m.group(1)}_{'R' if m.group(2) == 'L' else 'L'}"
+
+
 def _nodes_by_uberon(crosswalk: list) -> dict:
-    """AS Uberon CURIE -> list of {node_name, label, organ_glb}."""
+    """AS Uberon CURIE -> list of {node_name, label, organ_glb}.
+
+    Bilateral robustness: some bilateral structures annotate the Uberon on only
+    ONE side's mesh (e.g. `Allen_olfactory_bulb_L` has UBERON:0002264 but
+    `Allen_olfactory_bulb_R`'s row leaves it blank). So after indexing the
+    annotated nodes, each node's `_L`/`_R` mesh twin (if it exists in the
+    crosswalk) is added under the same Uberon — so both sides color."""
+    all_nodes = {}
+    for r in crosswalk:
+        n = (r.get("node_name") or "").strip()
+        if n:
+            all_nodes[n] = r
     idx: dict[str, list] = {}
     for r in crosswalk:
         ub = (r.get("uberon") or "").strip()
         node = (r.get("node_name") or "").strip()
         if not ub or not node:
             continue
-        idx.setdefault(ub, []).append({
-            "node_name": node,
-            "label": (r.get("label") or "").strip(),
-            "organ_glb": (r.get("organ_glb") or "").strip(),
-        })
+        entries = idx.setdefault(ub, [])
+        seen = {e["node_name"] for e in entries}
+        for nm in (node, _mirror_name(node)):
+            if not nm or nm in seen or nm not in all_nodes:
+                continue
+            seen.add(nm)
+            twin = all_nodes[nm]
+            entries.append({
+                "node_name": nm,
+                "label": (r.get("label") or twin.get("label") or "").strip(),
+                # the twin declares its own organ_glb; fall back to this row's
+                "organ_glb": (twin.get("organ_glb") or r.get("organ_glb") or "").strip(),
+            })
     return idx
 
 
