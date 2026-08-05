@@ -70,7 +70,7 @@ report:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.hra_steps.hra-3d-crosswalk
+    step: local:viva_human_atlas.hra_api.HRACrosswalkStep
     params:
       url: "https://cdn.humanatlas.io/digital-objects/ref-organ/asct-b-3d-models-crosswalk/latest/assets/asct-b-3d-models-crosswalk.csv"
 

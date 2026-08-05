@@ -70,7 +70,7 @@ report:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.coverage_composite.model-coverage-3d
+    step: local:viva_human_atlas.coverage.CoverageStep
     params:
       query: "glucose regulation"
       max_results: 25

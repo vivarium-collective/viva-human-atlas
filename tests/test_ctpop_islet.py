@@ -21,10 +21,14 @@ from pathlib import Path
 from process_bigraph import Composite, gather_emitter_results
 
 import viva_human_atlas.ctpop_islet as ctpop_islet
-import viva_human_atlas.composites.ctpop_islet_composite as ctpop_islet_composites
 from viva_human_atlas.core import build_core
 
+from _step_doc import step_doc, resolve_step_class, registered_step_addresses
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
+CTPOP_ADDRESS = "local:viva_human_atlas.ctpop_islet.CtpopIsletParameterizationStep"
+CTPOP_CONFIG = {"model_id": "BIOMD0000000341", "t_end": 4000.0, "n_points": 200}
 
 
 def test_beta_fraction_to_beta_mass_scales_proportionally():
@@ -93,8 +97,8 @@ def test_ctpop_islet_composite_loads(monkeypatch):
 
     monkeypatch.setattr(ctpop_islet, "run_topp_with_composition", fake_run)
 
-    doc = ctpop_islet_composites.build_ctpop_islet_document()
     core = build_core()
+    doc = step_doc(CTPOP_ADDRESS, CTPOP_CONFIG, core)
     composite = Composite(doc, core=core)
     composite.run(0.0)  # Steps run on init; this flushes the emitter.
     snap = (gather_emitter_results(composite).get(("emitter",)) or [{}])[-1]
@@ -105,34 +109,27 @@ def test_ctpop_islet_composite_loads(monkeypatch):
     assert snap.get("reference_beta_fraction") == 0.54
 
 
-def test_generator_is_discovered():
-    try:
-        from viva_superpowers.composite_generator import discover_generators
-    except ModuleNotFoundError:
-        from pbg_superpowers.composite_generator import discover_generators
-    import viva_human_atlas  # noqa: F401  (fires decorators)
-
-    names = {g.name for g in discover_generators().values()}
-    assert "ctpop-islet-parameterization" in names
-
-
-def test_study_baseline_resolves_to_registered_generator():
-    try:
-        from viva_superpowers.composite_generator import discover_generators
-    except ModuleNotFoundError:
-        from pbg_superpowers.composite_generator import discover_generators
-    import viva_human_atlas  # noqa: F401  (fires decorators)
-
-    generator_ids = set(discover_generators().keys())
-    assert generator_ids, "discover_generators() returned nothing"
+def test_study_baseline_references_registered_step():
+    """The study migrated from `baseline.composite` (a single-Step wrapper
+    generator) to `baseline.step`. Assert its baseline references a real,
+    registered Step at the expected address."""
+    core = build_core()
+    registered = registered_step_addresses(core)
 
     study_path = REPO_ROOT / "studies" / "ctpop-islet-parameterization" / "study.yaml"
     study = yaml.safe_load(study_path.read_text(encoding="utf-8"))
     baseline = study.get("baseline") or []
     assert baseline, "baseline must be non-empty"
-    composite_id = baseline[0]["composite"]
-    assert composite_id in generator_ids, (
-        f"baseline.composite {composite_id!r} not in discover_generators() keys"
+    assert "composite" not in baseline[0], (
+        "baseline still uses `composite`; expected migrated `step`"
+    )
+    address = baseline[0]["step"]
+    assert address == CTPOP_ADDRESS, (
+        f"baseline.step {address!r} != expected {CTPOP_ADDRESS!r}"
+    )
+    resolve_step_class(address)
+    assert address in registered, (
+        f"baseline.step {address!r} not registered in build_core()"
     )
 
 

@@ -63,7 +63,7 @@ report:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.spatial_link_composite.spatial-linkage
+    step: local:viva_human_atlas.spatial_link.SpatialLinkStep
     params:
       query: "glucose regulation"
       max_results: 25

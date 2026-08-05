@@ -92,7 +92,7 @@ embed_visualizations: []
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.atlas_browser_composite.hra-atlas-browser
+    step: local:viva_human_atlas.atlas_browser.AtlasBrowserStep
     params:
       db_path: "datasets/biomodel_hra_map.json"
       enrichment: 1.25

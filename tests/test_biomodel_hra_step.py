@@ -120,13 +120,16 @@ def test_step_summary_matches_committed_corpus_db():
     assert out["summary"]["n_with_hrapop"] == 112
 
 
-def test_study_yaml_wires_composite_and_figure():
+def test_study_yaml_wires_step_and_figure():
     study = yaml.safe_load(
         (REPO_ROOT / "studies" / "biomodel-hra-map" / "study.yaml").read_text(encoding="utf-8"))
     assert study["name"] == "biomodel-hra-map"
     assert study["investigation"] == "hra-integration"
-    assert study["baseline"][0]["composite"] == (
-        "viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map")
+    # Migrated from `baseline.composite` (single-Step wrapper) to `baseline.step`
+    # referencing the Step directly.
+    assert "composite" not in study["baseline"][0]
+    assert study["baseline"][0]["step"] == (
+        "local:viva_human_atlas.biomodel_hra.BiomodelHraMapStep")
     assert study["embed_visualizations"][0]["url"] == (
         "/reports/figures/biomodel-hra-map/summary.html")
 

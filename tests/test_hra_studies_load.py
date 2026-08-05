@@ -1,26 +1,49 @@
-"""Demonstrate-loading tests for the HRA-integration composites.
+"""Demonstrate-loading tests for the HRA-integration Steps.
 
-Offline (mocked): each of the four composite generators is built via
-`build_core()`, run once, and the RAMEmitter snapshot is asserted non-empty.
-`discover_generators()` must surface all four.
+`baseline.step` replaced the single-Step wrapper composites: each study now
+references its Step directly. Offline (mocked): each Step is wrapped in a
+single-Step composite doc via `step_doc(...)`, built via `build_core()`, run
+once, and the RAMEmitter snapshot is asserted non-empty. Each migrated study's
+`baseline.step` must resolve to a real, registered Step.
 
-`@pytest.mark.network`: the same composites are built and run against the
-real HRA API (and real BioModels search), asserting realistic counts.
+`@pytest.mark.network`: the same Steps are built and run against the real HRA
+API (and real BioModels search), asserting realistic counts.
 """
 from __future__ import annotations
+
+import yaml
+from pathlib import Path
 
 import pytest
 from process_bigraph import Composite, gather_emitter_results
 
 import viva_human_atlas.biomodel_do as biomodel_do
-import viva_human_atlas.composites.biomodel_do_composite as biomodel_do_composites
-import viva_human_atlas.composites.hra_steps as hra_steps_composites
 import viva_human_atlas.hra_api as hra_api
 from viva_human_atlas.core import build_core
 
+from _step_doc import step_doc, resolve_step_class, registered_step_addresses
 
-def _run(doc):
-    core = build_core()
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+REFERENCE_ORGANS_ADDRESS = "local:viva_human_atlas.hra_api.HRAReferenceOrgansStep"
+CELL_TYPES_ADDRESS = "local:viva_human_atlas.hra_api.HRACellTypesStep"
+ANATOMICAL_STRUCTURES_ADDRESS = "local:viva_human_atlas.hra_api.HRAAnatomicalStructuresStep"
+BIOMODEL_DO_ADDRESS = "local:viva_human_atlas.biomodel_do.BiomodelDOCatalogStep"
+
+_HRA_BASE = {"base_url": "https://apps.humanatlas.io/api"}
+_DO_CONFIG = {"query": "glucose regulation", "max_results": 25}
+
+# migrated study slug -> expected baseline step address
+STUDY_STEP_ADDRESSES = {
+    "hra-reference-organs": REFERENCE_ORGANS_ADDRESS,
+    "hra-cell-types": CELL_TYPES_ADDRESS,
+    "hra-anatomical-structures": ANATOMICAL_STRUCTURES_ADDRESS,
+    "glucose-biomodel-do": BIOMODEL_DO_ADDRESS,
+}
+
+
+def _run(doc, core=None):
+    core = core or build_core()
     composite = Composite(doc, core=core)
     composite.run(0.0)  # Steps run on init; this flushes the emitter.
     snap = (gather_emitter_results(composite).get(("emitter",)) or [{}])[-1]
@@ -74,8 +97,9 @@ def test_hra_reference_organs_composite_loads(monkeypatch):
     monkeypatch.setattr(
         hra_api, "fetch_reference_organs", lambda *a, **k: _FAKE_REFERENCE_ORGANS
     )
-    doc = hra_steps_composites.build_hra_reference_organs()
-    snap = _run(doc)
+    core = build_core()
+    doc = step_doc(REFERENCE_ORGANS_ADDRESS, _HRA_BASE, core)
+    snap = _run(doc, core)
     organs = snap.get("reference_organs", [])
     assert len(organs) >= 1
     assert organs[0]["uberon"] == "UBERON:0001264"
@@ -83,8 +107,9 @@ def test_hra_reference_organs_composite_loads(monkeypatch):
 
 def test_hra_cell_types_composite_loads(monkeypatch):
     monkeypatch.setattr(hra_api, "fetch_cell_type_terms", lambda *a, **k: _FAKE_CELL_TYPES)
-    doc = hra_steps_composites.build_hra_cell_types()
-    snap = _run(doc)
+    core = build_core()
+    doc = step_doc(CELL_TYPES_ADDRESS, _HRA_BASE, core)
+    snap = _run(doc, core)
     cell_types = snap.get("cell_types", [])
     assert len(cell_types) >= 1
     assert cell_types[0]["cl"] == "CL:0000182"
@@ -94,8 +119,9 @@ def test_hra_anatomical_structures_composite_loads(monkeypatch):
     monkeypatch.setattr(
         hra_api, "fetch_anatomical_structure_terms", lambda *a, **k: _FAKE_ANATOMICAL_STRUCTURES
     )
-    doc = hra_steps_composites.build_hra_anatomical_structures()
-    snap = _run(doc)
+    core = build_core()
+    doc = step_doc(ANATOMICAL_STRUCTURES_ADDRESS, _HRA_BASE, core)
+    snap = _run(doc, core)
     structures = snap.get("anatomical_structures", [])
     assert len(structures) >= 1
     assert structures[0]["term"] == "UBERON:0014455"
@@ -105,8 +131,9 @@ def test_glucose_biomodel_do_composite_loads(monkeypatch):
     monkeypatch.setattr(
         biomodel_do, "build_biomodel_do_catalog", lambda *a, **k: _FAKE_CATALOG
     )
-    doc = biomodel_do_composites.build_glucose_biomodel_do()
-    snap = _run(doc)
+    core = build_core()
+    doc = step_doc(BIOMODEL_DO_ADDRESS, _DO_CONFIG, core)
+    snap = _run(doc, core)
     dos = snap.get("biomodel_dos", [])
     organ_to_models = snap.get("organ_to_models", {})
     assert len(dos) >= 1
@@ -114,25 +141,36 @@ def test_glucose_biomodel_do_composite_loads(monkeypatch):
     assert organ_to_models.get("UBERON:0001264") == ["BIOMD_ISLET"]
 
 
-def test_all_four_generators_discovered():
-    try:
-        from viva_superpowers.composite_generator import discover_generators
-    except ModuleNotFoundError:
-        from pbg_superpowers.composite_generator import discover_generators
-    import viva_human_atlas  # noqa: F401  (fires decorators)
-
-    names = {g.name for g in discover_generators().values()}
-    assert {
-        "hra-reference-organs",
-        "hra-cell-types",
-        "hra-anatomical-structures",
-        "glucose-biomodel-do",
-    } <= names
+def test_all_four_study_baselines_reference_registered_steps():
+    """The four HRA-integration studies migrated from `baseline.composite`
+    (single-Step wrapper generators) to `baseline.step`. Assert each migrated
+    study's baseline references a real, registered Step at the expected
+    address."""
+    core = build_core()
+    registered = registered_step_addresses(core)
+    for slug, expected_address in STUDY_STEP_ADDRESSES.items():
+        study_path = REPO_ROOT / "studies" / slug / "study.yaml"
+        study = yaml.safe_load(study_path.read_text(encoding="utf-8"))
+        baseline = study.get("baseline") or []
+        assert baseline, f"{slug}: baseline must be non-empty"
+        assert "composite" not in baseline[0], (
+            f"{slug}: baseline still uses `composite`; expected migrated `step`"
+        )
+        address = baseline[0]["step"]
+        assert address == expected_address, (
+            f"{slug}: baseline.step {address!r} != expected {expected_address!r}"
+        )
+        # Resolves to a real Step subclass ...
+        resolve_step_class(address)
+        # ... and is registered by build_core().
+        assert address in registered, (
+            f"{slug}: baseline.step {address!r} not registered in build_core()"
+        )
 
 
 @pytest.mark.network
 def test_hra_reference_organs_live():
-    doc = hra_steps_composites.build_hra_reference_organs()
+    doc = step_doc(REFERENCE_ORGANS_ADDRESS, _HRA_BASE, build_core())
     snap = _run(doc)
     organs = snap.get("reference_organs", [])
     # Live count as of 2026-07-26: 81 reference organs. Assert a generous
@@ -152,7 +190,7 @@ def test_hra_reference_organs_live():
 
 @pytest.mark.network
 def test_glucose_biomodel_do_live():
-    doc = biomodel_do_composites.build_glucose_biomodel_do()
+    doc = step_doc(BIOMODEL_DO_ADDRESS, _DO_CONFIG, build_core())
     snap = _run(doc)
     dos = snap.get("biomodel_dos", [])
     organ_to_models = snap.get("organ_to_models", {})

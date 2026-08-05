@@ -67,7 +67,7 @@ embed_visualizations:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.hra_steps.hra-anatomical-structures
+    step: local:viva_human_atlas.hra_api.HRAAnatomicalStructuresStep
     params:
       base_url: "https://apps.humanatlas.io/api"
 

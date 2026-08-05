@@ -67,7 +67,7 @@ report:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.hra_steps.ftu-glomerulus
+    step: local:viva_human_atlas.hra_api.HRAFtuStep
     params:
       slug: "glomerulus"
 

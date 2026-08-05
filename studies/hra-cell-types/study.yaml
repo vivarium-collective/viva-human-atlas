@@ -66,7 +66,7 @@ embed_visualizations:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.hra_steps.hra-cell-types
+    step: local:viva_human_atlas.hra_api.HRACellTypesStep
     params:
       base_url: "https://apps.humanatlas.io/api"
 

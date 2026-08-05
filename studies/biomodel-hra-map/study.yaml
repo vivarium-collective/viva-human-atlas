@@ -94,7 +94,7 @@ report:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.biomodel_hra_map_composite.biomodel-hra-map
+    step: local:viva_human_atlas.biomodel_hra.BiomodelHraMapStep
     params:
       db_path: "datasets/biomodel_hra_map.json"
       build_if_missing: false
