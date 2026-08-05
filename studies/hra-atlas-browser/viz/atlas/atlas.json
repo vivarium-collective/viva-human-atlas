@@ -4,7 +4,7 @@
       "key": "blood",
       "label": "Blood",
       "uberon": "UBERON:0004537",
-      "system": "Cardiovascular",
+      "system": "Cardiovascular System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
@@ -17,7 +17,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
         ]
       },
-      "n_models": 51,
+      "n_models": 52,
       "models": [
         {
           "biomodel_id": "BIOMD0000000259",
@@ -205,6 +205,11 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000788"
         },
         {
+          "biomodel_id": "BIOMD0000000873",
+          "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873"
+        },
+        {
           "biomodel_id": "BIOMD0000000925",
           "name": "Dunster2016 - Nondimensional Coagulation Model",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000925"
@@ -275,13 +280,212 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001069"
         }
       ],
-      "subregions": []
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_common_hepatic_artery",
+            "VH_M_common_hepatic_artery"
+          ],
+          "uberon": "UBERON:0005436",
+          "label": "common hepatic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_inferior_mesenteric_artery",
+            "VH_M_inferior_mesenteric_artery"
+          ],
+          "uberon": "UBERON:0001183",
+          "label": "inferior mesenteric artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_renal_artery",
+            "VH_M_left_renal_artery"
+          ],
+          "uberon": "UBERON:0001186",
+          "label": "left renal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_middle_colic_artery",
+            "VH_M_middle_colic_artery"
+          ],
+          "uberon": "UBERON:0001196",
+          "label": "middle colic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_opthalmic_artery_L",
+            "VH_F_opthalmic_artery_R",
+            "VH_M_opthalmic_artery_L",
+            "VH_M_opthalmic_artery_R"
+          ],
+          "uberon": "UBERON:0001619",
+          "label": "ophthalmic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_renal_artery",
+            "VH_M_renal_artery"
+          ],
+          "uberon": "UBERON:0001184",
+          "label": "renal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_right_renal_artery",
+            "VH_M_right_renal_artery"
+          ],
+          "uberon": "UBERON:0001185",
+          "label": "right renal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_sigmoid_artery",
+            "VH_F_sigmoid_artery_a",
+            "VH_F_sigmoid_artery_b",
+            "VH_F_sigmoid_artery_c",
+            "VH_M_sigmoid_artery",
+            "VH_M_sigmoid_artery_a",
+            "VH_M_sigmoid_artery_b",
+            "VH_M_sigmoid_artery_c"
+          ],
+          "uberon": "UBERON:0035180",
+          "label": "sigmoid artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_splenic_artery",
+            "VH_M_splenic_artery"
+          ],
+          "uberon": "UBERON:0001194",
+          "label": "splenic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_inferior_mesenteric_vein",
+            "VH_F_superior_mesenteric_artery",
+            "VH_M_superior_mesenteric_artery",
+            "VH_M_superior_mesenteric_vein"
+          ],
+          "uberon": "UBERON:0001182",
+          "label": "superior mesenteric artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_superior_rectal_artery",
+            "VH_F_superior_rectal_vein",
+            "VH_M_superior_rectal_vein"
+          ],
+          "uberon": "UBERON:0035040",
+          "label": "superior rectal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
     },
     {
       "key": "pancreas",
       "label": "Pancreas",
       "uberon": "UBERON:0001264",
-      "system": "Digestive",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-female/v1.3/assets/3d-vh-f-pancreas.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-male/v1.3/assets/3d-vh-m-pancreas.glb"
@@ -294,7 +498,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/pancreas-male/v1.3/assets/3d-vh-m-pancreas.glb"
         ]
       },
-      "n_models": 47,
+      "n_models": 51,
       "models": [
         {
           "biomodel_id": "BIOMD0000000058",
@@ -330,6 +534,11 @@
           "biomodel_id": "BIOMD0000000239",
           "name": "Jiang2007 - GSIS system, Pancreatic Beta Cells",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000239"
+        },
+        {
+          "biomodel_id": "BIOMD0000000293",
+          "name": "Proctor2010 - UCHL1 Protein Aggregation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293"
         },
         {
           "biomodel_id": "BIOMD0000000327",
@@ -427,6 +636,11 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000423"
         },
         {
+          "biomodel_id": "BIOMD0000000434",
+          "name": "McAuley2012 - Whole-body Cholesterol Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000434"
+        },
+        {
           "biomodel_id": "BIOMD0000000435",
           "name": "deBack2012 - Lineage Specification in Pancreas Development",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000435"
@@ -462,9 +676,19 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000541"
         },
         {
+          "biomodel_id": "BIOMD0000000575",
+          "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575"
+        },
+        {
           "biomodel_id": "BIOMD0000000580",
           "name": "Sonntag2012 - mTOR model - IRS dependent regulation of AMPK by insulin",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000580"
+        },
+        {
+          "biomodel_id": "BIOMD0000000581",
+          "name": "DallePezze2012 - TSC-independent mTORC2 regulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000581"
         },
         {
           "biomodel_id": "BIOMD0000000585",
@@ -532,13 +756,121 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000965"
         }
       ],
-      "subregions": []
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_head_of_pancreas",
+            "VH_M_head_of_pancreas"
+          ],
+          "uberon": "UBERON:0001069",
+          "label": "head of pancreas",
+          "n_models": 16,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000137",
+              "name": "Sedaghat2002_InsulinSignalling_noFeedback",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000137",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000223",
+              "name": "Borisov2009_EGF_Insulin_Crosstalk",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000223",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000341",
+              "name": "Topp2000_BetaCellMass_Diabetes",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000341",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000343",
+              "name": "Brannmark2010_InsulinSignalling_Mifamodel",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000343",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000345",
+              "name": "Koschorreck2008_InsulinClearance",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000345",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000372",
+              "name": "Tolic2000_InsulinGlucoseFeedback",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000372",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000379",
+              "name": "DallaMan2007_MealModel_GlucoseInsulinSystem",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000379",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000382",
+              "name": "Sturis1991_InsulinGlucoseModel_UltradianOscillation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000382",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000434",
+              "name": "McAuley2012 - Whole-body Cholesterol Metabolism",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000434",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000448",
+              "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000448",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000580",
+              "name": "Sonntag2012 - mTOR model - IRS dependent regulation of AMPK by insulin",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000580",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000581",
+              "name": "DallePezze2012 - TSC-independent mTORC2 regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000581",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000620",
+              "name": "Palmer2014 - Effect of IL-1\u03b2-Blocking therapies in T2DM - Disease Condition",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000620",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000621",
+              "name": "Palmer2014 - Effect of IL-1\u03b2-Blocking therapies in T2DM - Healthy Condition",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000621",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
     },
     {
       "key": "liver",
       "label": "Liver",
       "uberon": "UBERON:0002107",
-      "system": "Digestive",
+      "system": "Digestive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-female/v1.2/assets/3d-vh-f-liver.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-male/v1.2/assets/3d-vh-m-liver.glb"
@@ -551,7 +883,7 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/liver-male/v1.2/assets/3d-vh-m-liver.glb"
         ]
       },
-      "n_models": 46,
+      "n_models": 48,
       "models": [
         {
           "biomodel_id": "BIOMD0000000048",
@@ -612,6 +944,11 @@
           "biomodel_id": "BIOMD0000000268",
           "name": "Reed2008_Glutathione_Metabolism",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000268"
+        },
+        {
+          "biomodel_id": "BIOMD0000000291",
+          "name": "Nikolaev2005_AlbuminBilirubinAdsorption",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000291"
         },
         {
           "biomodel_id": "BIOMD0000000328",
@@ -677,6 +1014,11 @@
           "biomodel_id": "BIOMD0000000537",
           "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537"
+        },
+        {
+          "biomodel_id": "BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560"
         },
         {
           "biomodel_id": "BIOMD0000000568",
@@ -787,10 +1129,738 @@
       "subregions": []
     },
     {
+      "key": "lung",
+      "label": "Lung",
+      "uberon": "UBERON:0001004",
+      "system": "Respiratory System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
+        ]
+      },
+      "n_models": 43,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000109",
+          "name": "Haberichter2007_cellcycle",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000109"
+        },
+        {
+          "biomodel_id": "BIOMD0000000149",
+          "name": "Kim2007 - Crosstalk between Wnt and ERK pathways",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000149"
+        },
+        {
+          "biomodel_id": "BIOMD0000000196",
+          "name": "Srividhya2006_CellCycle",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000196"
+        },
+        {
+          "biomodel_id": "BIOMD0000000201",
+          "name": "Goldbeter2008_Somite_Segmentation_Clock_Notch_Wnt_FGF",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000201"
+        },
+        {
+          "biomodel_id": "BIOMD0000000207",
+          "name": "Romond1999_CellCycle",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000207"
+        },
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259"
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260"
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261"
+        },
+        {
+          "biomodel_id": "BIOMD0000000265",
+          "name": "Conradie2010_RPControl_CellCycle",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265"
+        },
+        {
+          "biomodel_id": "BIOMD0000000318",
+          "name": "Yao2008_Rb_E2F_Switch",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000318"
+        },
+        {
+          "biomodel_id": "BIOMD0000000338",
+          "name": "Wajima2009_BloodCoagulation_aPTTtest",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338"
+        },
+        {
+          "biomodel_id": "BIOMD0000000339",
+          "name": "Wajima2009_BloodCoagulation_PTtest",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339"
+        },
+        {
+          "biomodel_id": "BIOMD0000000340",
+          "name": "Wajima2009_BloodCoagulation_warfarin_heparin",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340"
+        },
+        {
+          "biomodel_id": "BIOMD0000000398",
+          "name": "Sivakumar2011_NeuralStemCellDifferentiation_Crosstalk",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000398"
+        },
+        {
+          "biomodel_id": "BIOMD0000000477",
+          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477"
+        },
+        {
+          "biomodel_id": "BIOMD0000000489",
+          "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489"
+        },
+        {
+          "biomodel_id": "BIOMD0000000490",
+          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490"
+        },
+        {
+          "biomodel_id": "BIOMD0000000504",
+          "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504"
+        },
+        {
+          "biomodel_id": "BIOMD0000000542",
+          "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542"
+        },
+        {
+          "biomodel_id": "BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560"
+        },
+        {
+          "biomodel_id": "BIOMD0000000575",
+          "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575"
+        },
+        {
+          "biomodel_id": "BIOMD0000000614",
+          "name": "Kamihira2000 - calcitonin fibrillation kinetics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614"
+        },
+        {
+          "biomodel_id": "BIOMD0000000648",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648"
+        },
+        {
+          "biomodel_id": "BIOMD0000000652",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652"
+        },
+        {
+          "biomodel_id": "BIOMD0000000653",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653"
+        },
+        {
+          "biomodel_id": "BIOMD0000000654",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654"
+        },
+        {
+          "biomodel_id": "BIOMD0000000655",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655"
+        },
+        {
+          "biomodel_id": "BIOMD0000000656",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656"
+        },
+        {
+          "biomodel_id": "BIOMD0000000657",
+          "name": "Araujo2016 - Positive feedback in Cdk1 signalling keeps mitotic duration short and constant",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000657"
+        },
+        {
+          "biomodel_id": "BIOMD0000000660",
+          "name": "Barr2017 - Dynamics of p21 in hTert-RPE1 cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000660"
+        },
+        {
+          "biomodel_id": "BIOMD0000000704",
+          "name": "Aguda1999 - G2 DNA damage checkpoint",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000704"
+        },
+        {
+          "biomodel_id": "BIOMD0000000710",
+          "name": "Hernandez-Vargas2012 - Innate immune system dynamics to Influenza virus",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000710"
+        },
+        {
+          "biomodel_id": "BIOMD0000000720",
+          "name": "Yan2012 - Rb-E2F pathway dynamics with miR449",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000720"
+        },
+        {
+          "biomodel_id": "BIOMD0000000723",
+          "name": "Weis2014 - Data driven Mammalian Cell Cycle Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723"
+        },
+        {
+          "biomodel_id": "BIOMD0000000730",
+          "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730"
+        },
+        {
+          "biomodel_id": "BIOMD0000000746",
+          "name": "Saad2017 - immune checkpoint and BCG in superficial bladder cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000746"
+        },
+        {
+          "biomodel_id": "BIOMD0000000818",
+          "name": "Lee2008 - ERK and PI3K signal integration by Myc",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000818"
+        },
+        {
+          "biomodel_id": "BIOMD0000000924",
+          "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000924"
+        },
+        {
+          "biomodel_id": "BIOMD0000000939",
+          "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939"
+        },
+        {
+          "biomodel_id": "BIOMD0000000940",
+          "name": "Tang2019 - Pharmacology modelling of AURKB and ZAK interaction in TNBC",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000940"
+        },
+        {
+          "biomodel_id": "BIOMD0000000941",
+          "name": "Gerard2010 - Progression of mammalian cell cycle by successive activation of various cyclin cdk complexes",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000941"
+        },
+        {
+          "biomodel_id": "BIOMD0000000954",
+          "name": "Pandey2018-reversible transition between quiescence and proliferation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000954"
+        },
+        {
+          "biomodel_id": "BIOMD0000000968",
+          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968"
+        }
+      ],
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_tertiary_bronchi_L",
+            "VH_F_tertiary_bronchi_R",
+            "VH_M_tertiary_bronchi_L",
+            "VH_M_tertiary_bronchi_R"
+          ],
+          "uberon": "UBERON:0002184",
+          "label": "Segmental bronchus",
+          "n_models": 8,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000265",
+              "name": "Conradie2010_RPControl_CellCycle",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000504",
+              "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000542",
+              "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000614",
+              "name": "Kamihira2000 - calcitonin fibrillation kinetics",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000723",
+              "name": "Weis2014 - Data driven Mammalian Cell Cycle Model",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000730",
+              "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000939",
+              "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "thymus",
+      "label": "Thymus",
+      "uberon": "UBERON:0002370",
+      "system": "Hematopoietic System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-female/v1.3/assets/3d-vh-f-thymus.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-female/v1.3/assets/3d-vh-f-thymus.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
+        ]
+      },
+      "n_models": 43,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000149",
+          "name": "Kim2007 - Crosstalk between Wnt and ERK pathways",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000149"
+        },
+        {
+          "biomodel_id": "BIOMD0000000175",
+          "name": "Birtwistle2007_ErbB_Signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000175"
+        },
+        {
+          "biomodel_id": "BIOMD0000000220",
+          "name": "Albeck2008_extrinsic_apoptosis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220"
+        },
+        {
+          "biomodel_id": "BIOMD0000000251",
+          "name": "Nakakuki2010_CellFateDecision_Core",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000251"
+        },
+        {
+          "biomodel_id": "BIOMD0000000255",
+          "name": "Chen2009 - ErbB Signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000255"
+        },
+        {
+          "biomodel_id": "BIOMD0000000335",
+          "name": "Hockin2002_BloodCoagulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000335"
+        },
+        {
+          "biomodel_id": "BIOMD0000000338",
+          "name": "Wajima2009_BloodCoagulation_aPTTtest",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338"
+        },
+        {
+          "biomodel_id": "BIOMD0000000339",
+          "name": "Wajima2009_BloodCoagulation_PTtest",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339"
+        },
+        {
+          "biomodel_id": "BIOMD0000000340",
+          "name": "Wajima2009_BloodCoagulation_warfarin_heparin",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340"
+        },
+        {
+          "biomodel_id": "BIOMD0000000358",
+          "name": "Stortelder1997 - Thrombin Generation Amidolytic Activity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000358"
+        },
+        {
+          "biomodel_id": "BIOMD0000000359",
+          "name": "Panteleev2002_TFPImechanism_schmema3",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000359"
+        },
+        {
+          "biomodel_id": "BIOMD0000000360",
+          "name": "Panteleev2002_TFPImechanism_schmema2",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000360"
+        },
+        {
+          "biomodel_id": "BIOMD0000000361",
+          "name": "Panteleev2002_TFPImechanism_schmema1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000361"
+        },
+        {
+          "biomodel_id": "BIOMD0000000362",
+          "name": "Butenas2004_BloodCoagulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000362"
+        },
+        {
+          "biomodel_id": "BIOMD0000000366",
+          "name": "Orfao2008_ThrombinGeneration_AmidolyticActivity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000366"
+        },
+        {
+          "biomodel_id": "BIOMD0000000446",
+          "name": "Erguler2013 - Unfolded protein stress response",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000446"
+        },
+        {
+          "biomodel_id": "BIOMD0000000452",
+          "name": "Bidkhori2012 - normal EGFR signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000452"
+        },
+        {
+          "biomodel_id": "BIOMD0000000453",
+          "name": "Bidkhori2012 - EGFR signalling in NSCLC",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000453"
+        },
+        {
+          "biomodel_id": "BIOMD0000000462",
+          "name": "Proctor2012 - Role of Amyloid-beta dimers in aggregation formation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000462"
+        },
+        {
+          "biomodel_id": "BIOMD0000000466",
+          "name": "Koo2013 - Shear stress induced eNOS expression - Model 3",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000466"
+        },
+        {
+          "biomodel_id": "BIOMD0000000468",
+          "name": "Koo2013 - Integrated shear stress induced NO production model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000468"
+        },
+        {
+          "biomodel_id": "BIOMD0000000498",
+          "name": "Mitchell2013 - Liver Iron Metabolism",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000498"
+        },
+        {
+          "biomodel_id": "BIOMD0000000528",
+          "name": "Fribourg2014 - Dynamics of viral antagonism and innate immune response (H1N1 influenza A virus - Cal/09)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000528"
+        },
+        {
+          "biomodel_id": "BIOMD0000000529",
+          "name": "Fribourg2014 - Dynamics of viral antagonism and innate immune response (H1N1 influenza A virus - NC/99)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000529"
+        },
+        {
+          "biomodel_id": "BIOMD0000000557",
+          "name": "Reiterer2013 - pseudophosphatase STYX role in ERK signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000557"
+        },
+        {
+          "biomodel_id": "BIOMD0000000596",
+          "name": "Philipson2015 - Innate immune response modulated by NLRX1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000596"
+        },
+        {
+          "biomodel_id": "BIOMD0000000648",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648"
+        },
+        {
+          "biomodel_id": "BIOMD0000000652",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652"
+        },
+        {
+          "biomodel_id": "BIOMD0000000653",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653"
+        },
+        {
+          "biomodel_id": "BIOMD0000000654",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654"
+        },
+        {
+          "biomodel_id": "BIOMD0000000655",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655"
+        },
+        {
+          "biomodel_id": "BIOMD0000000656",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656"
+        },
+        {
+          "biomodel_id": "BIOMD0000000666",
+          "name": "Pappalardo2016 - PI3K/AKT and MAPK Signaling Pathways in Melanoma Cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000666"
+        },
+        {
+          "biomodel_id": "BIOMD0000000703",
+          "name": "Diedrichs2018 - A data-entrained computational model for testing the regulatory logic of the vertebrate unfolded protein response",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000703"
+        },
+        {
+          "biomodel_id": "BIOMD0000000704",
+          "name": "Aguda1999 - G2 DNA damage checkpoint",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000704"
+        },
+        {
+          "biomodel_id": "BIOMD0000000724",
+          "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724"
+        },
+        {
+          "biomodel_id": "BIOMD0000000731",
+          "name": "Robertson-Tessi M 2012 A model of tumor Immune interaction",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000731"
+        },
+        {
+          "biomodel_id": "BIOMD0000000746",
+          "name": "Saad2017 - immune checkpoint and BCG in superficial bladder cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000746"
+        },
+        {
+          "biomodel_id": "BIOMD0000000883",
+          "name": "Giani2019 - Computational modeling to predict MAP3K8 effects as mediator of resistance to vemurafenib in thyroid cancer stem cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000883"
+        },
+        {
+          "biomodel_id": "BIOMD0000000939",
+          "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939"
+        },
+        {
+          "biomodel_id": "BIOMD0000000943",
+          "name": "Hat2016 - Reponse of p53 System to irradiation in cell fate decision making",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000943"
+        },
+        {
+          "biomodel_id": "BIOMD0000000951",
+          "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000951"
+        },
+        {
+          "biomodel_id": "BIOMD0000000968",
+          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "spleen",
+      "label": "Spleen",
+      "uberon": "UBERON:0002106",
+      "system": "Hematopoietic System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-female/v1.3/assets/3d-vh-f-spleen.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-female/v1.3/assets/3d-vh-f-spleen.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
+        ]
+      },
+      "n_models": 34,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259"
+        },
+        {
+          "biomodel_id": "BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260"
+        },
+        {
+          "biomodel_id": "BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261"
+        },
+        {
+          "biomodel_id": "BIOMD0000000303",
+          "name": "Liu2011_Complement_System",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000303"
+        },
+        {
+          "biomodel_id": "BIOMD0000000313",
+          "name": "Raia2010 - IL13 Signalling MedB1",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000313"
+        },
+        {
+          "biomodel_id": "BIOMD0000000314",
+          "name": "Raia2011 - IL13 L1236",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000314"
+        },
+        {
+          "biomodel_id": "BIOMD0000000446",
+          "name": "Erguler2013 - Unfolded protein stress response",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000446"
+        },
+        {
+          "biomodel_id": "BIOMD0000000477",
+          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477"
+        },
+        {
+          "biomodel_id": "BIOMD0000000489",
+          "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489"
+        },
+        {
+          "biomodel_id": "BIOMD0000000534",
+          "name": "Dwivedi2014 - Healthy Volunteer IL6 Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534"
+        },
+        {
+          "biomodel_id": "BIOMD0000000535",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6 Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000535"
+        },
+        {
+          "biomodel_id": "BIOMD0000000536",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - sgp130 activity",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000536"
+        },
+        {
+          "biomodel_id": "BIOMD0000000537",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537"
+        },
+        {
+          "biomodel_id": "BIOMD0000000543",
+          "name": "Qi2013 - IL-6 and IFN crosstalk model (non-competitive)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000543"
+        },
+        {
+          "biomodel_id": "BIOMD0000000544",
+          "name": "Qi2013 - IL-6 and IFN crosstalk model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000544"
+        },
+        {
+          "biomodel_id": "BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560"
+        },
+        {
+          "biomodel_id": "BIOMD0000000599",
+          "name": "Coggins2014 - CXCL12 dependent recruitment of beta arrestin",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000599"
+        },
+        {
+          "biomodel_id": "BIOMD0000000648",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648"
+        },
+        {
+          "biomodel_id": "BIOMD0000000652",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652"
+        },
+        {
+          "biomodel_id": "BIOMD0000000653",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653"
+        },
+        {
+          "biomodel_id": "BIOMD0000000654",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654"
+        },
+        {
+          "biomodel_id": "BIOMD0000000655",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655"
+        },
+        {
+          "biomodel_id": "BIOMD0000000656",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656"
+        },
+        {
+          "biomodel_id": "BIOMD0000000666",
+          "name": "Pappalardo2016 - PI3K/AKT and MAPK Signaling Pathways in Melanoma Cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000666"
+        },
+        {
+          "biomodel_id": "BIOMD0000000667",
+          "name": "Hornberg2005 - MAPKsignalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000667"
+        },
+        {
+          "biomodel_id": "BIOMD0000000703",
+          "name": "Diedrichs2018 - A data-entrained computational model for testing the regulatory logic of the vertebrate unfolded protein response",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000703"
+        },
+        {
+          "biomodel_id": "BIOMD0000000734",
+          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734"
+        },
+        {
+          "biomodel_id": "BIOMD0000000741",
+          "name": "Eftimie2018 - Cancer and Immune biomarkers",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000741"
+        },
+        {
+          "biomodel_id": "BIOMD0000000746",
+          "name": "Saad2017 - immune checkpoint and BCG in superficial bladder cancer",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000746"
+        },
+        {
+          "biomodel_id": "BIOMD0000000761",
+          "name": "Cappuccio2006 - Cancer immunotherapy by interleukin-21",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000761"
+        },
+        {
+          "biomodel_id": "BIOMD0000000792",
+          "name": "Hu2019 - Modeling Pancreatic Cancer Dynamics with Immunotherapy",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000792"
+        },
+        {
+          "biomodel_id": "BIOMD0000000819",
+          "name": "Nazari2018 - IL6 mediated stem cell driven tumor growth and targeted treatment",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000819"
+        },
+        {
+          "biomodel_id": "BIOMD0000000883",
+          "name": "Giani2019 - Computational modeling to predict MAP3K8 effects as mediator of resistance to vemurafenib in thyroid cancer stem cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000883"
+        },
+        {
+          "biomodel_id": "BIOMD0000000968",
+          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968"
+        }
+      ],
+      "subregions": []
+    },
+    {
       "key": "brain",
       "label": "Brain",
       "uberon": "UBERON:0000955",
-      "system": "Nervous",
+      "system": "Nervous System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-female/v1.4/assets/3d-allen-f-brain.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb"
@@ -1005,7 +2075,7 @@
       "key": "intestine",
       "label": "Intestine",
       "uberon": "UBERON:0000059",
-      "system": "Digestive",
+      "system": "Digestive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/large-intestine-female/v1.3/assets/3d-sbu-f-large-intestine.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/large-intestine-male/v1.3/assets/3d-sbu-m-large-intestine.glb"
@@ -1020,8 +2090,13 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/small-intestine-male/v1.2/assets/3d-vh-m-small-intestine.glb"
         ]
       },
-      "n_models": 18,
+      "n_models": 28,
       "models": [
+        {
+          "biomodel_id": "BIOMD0000000220",
+          "name": "Albeck2008_extrinsic_apoptosis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220"
+        },
         {
           "biomodel_id": "BIOMD0000000259",
           "name": "Tiago2010_FeMetabolism_FeDeficient",
@@ -1036,6 +2111,11 @@
           "biomodel_id": "BIOMD0000000261",
           "name": "Tiago2010_FeMetabolism_FeLoaded",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261"
+        },
+        {
+          "biomodel_id": "BIOMD0000000293",
+          "name": "Proctor2010 - UCHL1 Protein Aggregation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293"
         },
         {
           "biomodel_id": "BIOMD0000000320",
@@ -1063,6 +2143,26 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490"
         },
         {
+          "biomodel_id": "BIOMD0000000523",
+          "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523"
+        },
+        {
+          "biomodel_id": "BIOMD0000000524",
+          "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524"
+        },
+        {
+          "biomodel_id": "BIOMD0000000525",
+          "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525"
+        },
+        {
+          "biomodel_id": "BIOMD0000000526",
+          "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526"
+        },
+        {
           "biomodel_id": "BIOMD0000000534",
           "name": "Dwivedi2014 - Healthy Volunteer IL6 Model",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534"
@@ -1078,6 +2178,16 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537"
         },
         {
+          "biomodel_id": "BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560"
+        },
+        {
+          "biomodel_id": "BIOMD0000000575",
+          "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575"
+        },
+        {
           "biomodel_id": "BIOMD0000000583",
           "name": "Leber2015 - Mucosal immunity and gut microbiome interaction during C. difficile infection",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000583"
@@ -1088,9 +2198,19 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000613"
         },
         {
+          "biomodel_id": "BIOMD0000000724",
+          "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724"
+        },
+        {
           "biomodel_id": "BIOMD0000000895",
           "name": "Schokker2013 - A mathematical model representing cellular immune development and response to Salmonella of chicken intestinal tissue",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000895"
+        },
+        {
+          "biomodel_id": "BIOMD0000000968",
+          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968"
         },
         {
           "biomodel_id": "BIOMD0000001027",
@@ -1121,12 +2241,72 @@
           ],
           "uberon": "UBERON:0001153",
           "label": "caecum",
-          "n_models": 1,
+          "n_models": 11,
           "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
             {
               "biomodel_id": "BIOMD0000000527",
               "name": "Kaiser2014 - Salmonella persistence after ciprofloxacin treatment",
               "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000527",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
               "via": "anatomy"
             }
           ]
@@ -1138,23 +2318,801 @@
           ],
           "uberon": "UBERON:0001157",
           "label": "transverse colon",
-          "n_models": 1,
+          "n_models": 11,
           "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
             {
               "biomodel_id": "BIOMD0000000895",
               "name": "Schokker2013 - A mathematical model representing cellular immune development and response to Salmonella of chicken intestinal tissue",
               "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000895",
               "via": "cell_type"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_ascending_colon",
+            "VH_M_ascending_colon"
+          ],
+          "uberon": "UBERON:0001156",
+          "label": "ascending colon",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_descending_colon",
+            "VH_M_descending_colon"
+          ],
+          "uberon": "UBERON:0001158",
+          "label": "descending colon",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_hepatic_flexure_of_colon",
+            "VH_M_hepatic_flexure_of_colon"
+          ],
+          "uberon": "UBERON:0022277",
+          "label": "hepatic flexure of colon",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_ileocecal_valve",
+            "VH_M_ileocecal_valve"
+          ],
+          "uberon": "UBERON:0000569",
+          "label": "ileocecal valve",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_rectum",
+            "VH_M_rectum"
+          ],
+          "uberon": "UBERON:0001052",
+          "label": "rectum",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_sigmoid_colon",
+            "VH_M_sigmoid_colon"
+          ],
+          "uberon": "UBERON:0001159",
+          "label": "sigmoid colon",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_splenic_flexure_of_colon",
+            "VH_M_splenic_flexure_of_colon"
+          ],
+          "uberon": "UBERON:0022276",
+          "label": "splenic flexure of colon",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_vermiform_appendix",
+            "VH_M_vermiform_appendix"
+          ],
+          "uberon": "UBERON:0001154",
+          "label": "vermiform appendix",
+          "n_models": 10,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000220",
+              "name": "Albeck2008_extrinsic_apoptosis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000220",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000293",
+              "name": "Proctor2010 - UCHL1 Protein Aggregation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000293",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000523",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000523",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000524",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000524",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000525",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, CD95 HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000525",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000526",
+              "name": "Kallenberger2014 - CD95L induced apoptosis initiated by caspase-8, wild-type HeLa cells (cis/trans-cis/trans variant)",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000526",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000575",
+              "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
             }
           ]
         }
       ]
     },
     {
+      "key": "placenta-full-term",
+      "label": "Placenta Full Term",
+      "uberon": "UBERON:0001987",
+      "system": "Reproductive System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/placenta-full-term-female/v1.1/assets/3d-vh-f-placenta-full-term.glb",
+        "male": null
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/placenta-full-term-female/v1.1/assets/3d-vh-f-placenta-full-term.glb"
+        ],
+        "male": []
+      },
+      "n_models": 26,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000019",
+          "name": "Schoeberl2002 - EGF MAPK",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000019"
+        },
+        {
+          "biomodel_id": "BIOMD0000000161",
+          "name": "Eungdamrong2007_Ras_Activation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000161"
+        },
+        {
+          "biomodel_id": "BIOMD0000000175",
+          "name": "Birtwistle2007_ErbB_Signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000175"
+        },
+        {
+          "biomodel_id": "BIOMD0000000203",
+          "name": "Chickarmane2006 - Stem cell switch reversible",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000203"
+        },
+        {
+          "biomodel_id": "BIOMD0000000204",
+          "name": "Chickarmane2006 - Stem cell switch irreversible",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000204"
+        },
+        {
+          "biomodel_id": "BIOMD0000000209",
+          "name": "Chickarmane2008 - Stem cell lineage determination",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000209"
+        },
+        {
+          "biomodel_id": "BIOMD0000000210",
+          "name": "Chickarmane2008 - Stem cell lineage - NANOG GATA-6 switch",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000210"
+        },
+        {
+          "biomodel_id": "BIOMD0000000223",
+          "name": "Borisov2009_EGF_Insulin_Crosstalk",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000223"
+        },
+        {
+          "biomodel_id": "BIOMD0000000255",
+          "name": "Chen2009 - ErbB Signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000255"
+        },
+        {
+          "biomodel_id": "BIOMD0000000399",
+          "name": "Jenkinson2011_EGF_MAPK",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000399"
+        },
+        {
+          "biomodel_id": "BIOMD0000000452",
+          "name": "Bidkhori2012 - normal EGFR signalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000452"
+        },
+        {
+          "biomodel_id": "BIOMD0000000453",
+          "name": "Bidkhori2012 - EGFR signalling in NSCLC",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000453"
+        },
+        {
+          "biomodel_id": "BIOMD0000000462",
+          "name": "Proctor2012 - Role of Amyloid-beta dimers in aggregation formation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000462"
+        },
+        {
+          "biomodel_id": "BIOMD0000000477",
+          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477"
+        },
+        {
+          "biomodel_id": "BIOMD0000000594",
+          "name": "Capuani2015 - Binding of Cbl and Gbr2 to EGFR (Multisite Phosphorylation Model - MPM)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000594"
+        },
+        {
+          "biomodel_id": "BIOMD0000000595",
+          "name": "Capuani2015 - Binding of Cbl and Grb2 to EGFR (Early Activation Model - EAM)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000595"
+        },
+        {
+          "biomodel_id": "BIOMD0000000629",
+          "name": "Haffez2017 - RAR interaction with synthetic analogues",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000629"
+        },
+        {
+          "biomodel_id": "BIOMD0000000648",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648"
+        },
+        {
+          "biomodel_id": "BIOMD0000000652",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652"
+        },
+        {
+          "biomodel_id": "BIOMD0000000653",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653"
+        },
+        {
+          "biomodel_id": "BIOMD0000000654",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654"
+        },
+        {
+          "biomodel_id": "BIOMD0000000655",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655"
+        },
+        {
+          "biomodel_id": "BIOMD0000000656",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656"
+        },
+        {
+          "biomodel_id": "BIOMD0000000667",
+          "name": "Hornberg2005 - MAPKsignalling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000667"
+        },
+        {
+          "biomodel_id": "BIOMD0000000724",
+          "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724"
+        },
+        {
+          "biomodel_id": "BIOMD0000000883",
+          "name": "Giani2019 - Computational modeling to predict MAP3K8 effects as mediator of resistance to vemurafenib in thyroid cancer stem cells",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000883"
+        }
+      ],
+      "subregions": []
+    },
+    {
       "key": "heart",
       "label": "Heart",
       "uberon": "UBERON:0000948",
-      "system": "Cardiovascular",
+      "system": "Cardiovascular System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-female/v1.3/assets/3d-vh-f-heart.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-male/v1.3/assets/3d-vh-m-heart.glb"
@@ -1167,12 +3125,17 @@
           "https://cdn.humanatlas.io/digital-objects/ref-organ/heart-male/v1.3/assets/3d-vh-m-heart.glb"
         ]
       },
-      "n_models": 10,
+      "n_models": 15,
       "models": [
         {
           "biomodel_id": "BIOMD0000000060",
           "name": "Keizer1996_Ryanodine_receptor_adaptation",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000060"
+        },
+        {
+          "biomodel_id": "BIOMD0000000120",
+          "name": "Chan2004_TCell_receptor_activation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000120"
         },
         {
           "biomodel_id": "BIOMD0000000126",
@@ -1193,6 +3156,26 @@
           "biomodel_id": "BIOMD0000000261",
           "name": "Tiago2010_FeMetabolism_FeLoaded",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261"
+        },
+        {
+          "biomodel_id": "BIOMD0000000477",
+          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477"
+        },
+        {
+          "biomodel_id": "BIOMD0000000489",
+          "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489"
+        },
+        {
+          "biomodel_id": "BIOMD0000000724",
+          "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724"
+        },
+        {
+          "biomodel_id": "BIOMD0000000968",
+          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968"
         },
         {
           "biomodel_id": "BIOMD0000001027",
@@ -1220,13 +3203,708 @@
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001100"
         }
       ],
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_right_ventricle",
+            "VH_M_heart_right_ventricle"
+          ],
+          "uberon": "UBERON:0002080",
+          "label": "heart right ventricle",
+          "n_models": 6,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000120",
+              "name": "Chan2004_TCell_receptor_activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000120",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000477",
+              "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000489",
+              "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_interventricular_septum",
+            "VH_M_interventricular_septum"
+          ],
+          "uberon": "UBERON:0002094",
+          "label": "interventricular septum",
+          "n_models": 5,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000120",
+              "name": "Chan2004_TCell_receptor_activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000120",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000477",
+              "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000489",
+              "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_cardiac_atrium",
+            "VH_M_left_cardiac_atrium"
+          ],
+          "uberon": "UBERON:0002079",
+          "label": "left cardiac atrium",
+          "n_models": 5,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000120",
+              "name": "Chan2004_TCell_receptor_activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000120",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000477",
+              "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000489",
+              "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_right_cardiac_atrium",
+            "VH_M_right_cardiac_atrium"
+          ],
+          "uberon": "UBERON:0002078",
+          "label": "right cardiac atrium",
+          "n_models": 5,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000120",
+              "name": "Chan2004_TCell_receptor_activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000120",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000477",
+              "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000489",
+              "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000724",
+              "name": "Theinmozhi2018 - Mechanism of PD1 inhibiting TCR signaling in Tumor immune regulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000724",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_ventricle",
+            "VH_M_heart_left_ventricle"
+          ],
+          "uberon": "UBERON:0002084",
+          "label": "heart left ventricle",
+          "n_models": 4,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000477",
+              "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000489",
+              "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000968",
+              "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_aorta",
+            "VH_M_aorta"
+          ],
+          "uberon": "UBERON:0000947",
+          "label": "aorta",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_aortic_arch",
+            "VH_M_aortic_arch"
+          ],
+          "uberon": "UBERON:0001508",
+          "label": "arch of aorta",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_ascending_aorta",
+            "VH_M_ascending_aorta"
+          ],
+          "uberon": "UBERON:0001496",
+          "label": "ascending aorta",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_brachiocephalic_artery_a",
+            "VH_F_brachiocephalic_artery_b",
+            "VH_M_brachiocephalic_artery",
+            "VH_M_brachiocephalic_artery_a",
+            "VH_M_brachiocephalic_artery_b"
+          ],
+          "uberon": "UBERON:0001529",
+          "label": "brachiocephalic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_circumflex_artery"
+          ],
+          "uberon": "UBERON:0035422",
+          "label": "circumflex branch of left coronary artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_descending_aorta",
+            "VH_F_descending_aorta_a",
+            "VH_F_descending_aorta_b",
+            "VH_M_descending_aorta",
+            "VH_M_descending_aorta_a",
+            "VH_M_descending_aorta_b"
+          ],
+          "uberon": "UBERON:0001514",
+          "label": "descending aorta",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_common_carotid_artery",
+            "VH_F_left_common_carotid_artery_a",
+            "VH_F_left_common_carotid_artery_b",
+            "VH_M_left_common_carotid_artery",
+            "VH_M_left_common_carotid_artery_a",
+            "VH_M_left_common_carotid_artery_b"
+          ],
+          "uberon": "UBERON:0001536",
+          "label": "left common carotid artery plus branches",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_coronary_artery",
+            "VH_M_left_coronary_artery"
+          ],
+          "uberon": "UBERON:0001626",
+          "label": "left coronary artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_pulmonary_artery_L",
+            "VH_F_pulmonary_artery_R",
+            "VH_M_pulmonary_artery_L",
+            "VH_M_pulmonary_artery_R"
+          ],
+          "uberon": "UBERON:0001652",
+          "label": "left pulmonary artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_subclavian_artery",
+            "VH_F_left_subclavian_artery_a",
+            "VH_F_left_subclavian_artery_b",
+            "VH_M_left_subclavian_artery",
+            "VH_M_left_subclavian_artery_a",
+            "VH_M_left_subclavian_artery_b"
+          ],
+          "uberon": "UBERON:0001584",
+          "label": "left subclavian artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_pulmonary_artery",
+            "VH_M_pulmonary_artery"
+          ],
+          "uberon": "UBERON:0002012",
+          "label": "pulmonary artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_pulmonary_trunk",
+            "VH_M_pulmonary_trunk"
+          ],
+          "uberon": "UBERON:0002333",
+          "label": "pulmonary trunk",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_right_coronary_artery",
+            "VH_M_right_coronary_artery"
+          ],
+          "uberon": "UBERON:0001625",
+          "label": "right coronary artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_pulmonary_artery_L",
+            "VH_F_pulmonary_artery_R",
+            "VH_M_pulmonary_artery_L",
+            "VH_M_pulmonary_artery_R"
+          ],
+          "uberon": "UBERON:0001651",
+          "label": "right pulmonary artery",
+          "n_models": 1,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "spinal-cord",
+      "label": "Spinal Cord",
+      "uberon": "UBERON:0002240",
+      "system": "Nervous System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-female/v1.1/assets/3d-vh-f-spinal-cord.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-female/v1.1/assets/3d-vh-f-spinal-cord.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
+        ]
+      },
+      "n_models": 9,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000149",
+          "name": "Kim2007 - Crosstalk between Wnt and ERK pathways",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000149"
+        },
+        {
+          "biomodel_id": "BIOMD0000000477",
+          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477"
+        },
+        {
+          "biomodel_id": "BIOMD0000000648",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648"
+        },
+        {
+          "biomodel_id": "BIOMD0000000652",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652"
+        },
+        {
+          "biomodel_id": "BIOMD0000000653",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653"
+        },
+        {
+          "biomodel_id": "BIOMD0000000654",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654"
+        },
+        {
+          "biomodel_id": "BIOMD0000000655",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655"
+        },
+        {
+          "biomodel_id": "BIOMD0000000656",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656"
+        },
+        {
+          "biomodel_id": "BIOMD0000000873",
+          "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "trachea",
+      "label": "Trachea",
+      "uberon": "UBERON:0003126",
+      "system": "Respiratory System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-female/v1.1/assets/3d-vh-f-trachea.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-female/v1.1/assets/3d-vh-f-trachea.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
+        ]
+      },
+      "n_models": 8,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000265",
+          "name": "Conradie2010_RPControl_CellCycle",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265"
+        },
+        {
+          "biomodel_id": "BIOMD0000000504",
+          "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504"
+        },
+        {
+          "biomodel_id": "BIOMD0000000542",
+          "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542"
+        },
+        {
+          "biomodel_id": "BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560"
+        },
+        {
+          "biomodel_id": "BIOMD0000000614",
+          "name": "Kamihira2000 - calcitonin fibrillation kinetics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614"
+        },
+        {
+          "biomodel_id": "BIOMD0000000723",
+          "name": "Weis2014 - Data driven Mammalian Cell Cycle Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723"
+        },
+        {
+          "biomodel_id": "BIOMD0000000730",
+          "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730"
+        },
+        {
+          "biomodel_id": "BIOMD0000000939",
+          "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939"
+        }
+      ],
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_carina",
+            "VH_M_carina"
+          ],
+          "uberon": "UBERON:0006679",
+          "label": "carina of trachea",
+          "n_models": 2,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000504",
+              "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_tracheal_cartilage",
+            "VH_M_tracheal_cartilage"
+          ],
+          "uberon": "UBERON:0003604",
+          "label": "trachea cartilage",
+          "n_models": 2,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000504",
+              "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "main-bronchus",
+      "label": "Main Bronchus",
+      "uberon": "UBERON:0002182",
+      "system": "Respiratory System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-female/v1.1/assets/3d-vh-f-main-bronchus.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-female/v1.1/assets/3d-vh-f-main-bronchus.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
+        ]
+      },
+      "n_models": 7,
+      "models": [
+        {
+          "biomodel_id": "BIOMD0000000265",
+          "name": "Conradie2010_RPControl_CellCycle",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265"
+        },
+        {
+          "biomodel_id": "BIOMD0000000504",
+          "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504"
+        },
+        {
+          "biomodel_id": "BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560"
+        },
+        {
+          "biomodel_id": "BIOMD0000000614",
+          "name": "Kamihira2000 - calcitonin fibrillation kinetics",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614"
+        },
+        {
+          "biomodel_id": "BIOMD0000000723",
+          "name": "Weis2014 - Data driven Mammalian Cell Cycle Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723"
+        },
+        {
+          "biomodel_id": "BIOMD0000000730",
+          "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730"
+        },
+        {
+          "biomodel_id": "BIOMD0000000939",
+          "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939"
+        }
+      ],
       "subregions": []
     },
     {
       "key": "adipose",
       "label": "Adipose",
       "uberon": "UBERON:0014455",
-      "system": "Connective",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-female/v1.0/assets/3d-vh-f-adipose.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/adipose-male/v1.0/assets/3d-vh-m-adipose.glb"
@@ -1275,62 +3953,10 @@
       "subregions": []
     },
     {
-      "key": "lung",
-      "label": "Lung",
-      "uberon": "UBERON:0001004",
-      "system": "Respiratory",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
-        ]
-      },
-      "n_models": 6,
-      "models": [
-        {
-          "biomodel_id": "BIOMD0000000259",
-          "name": "Tiago2010_FeMetabolism_FeDeficient",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259"
-        },
-        {
-          "biomodel_id": "BIOMD0000000260",
-          "name": "Tiago2010_FeMetabolism_FeAdequate",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260"
-        },
-        {
-          "biomodel_id": "BIOMD0000000261",
-          "name": "Tiago2010_FeMetabolism_FeLoaded",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261"
-        },
-        {
-          "biomodel_id": "BIOMD0000000490",
-          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490"
-        },
-        {
-          "biomodel_id": "BIOMD0000000710",
-          "name": "Hernandez-Vargas2012 - Innate immune system dynamics to Influenza virus",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000710"
-        },
-        {
-          "biomodel_id": "BIOMD0000000924",
-          "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000924"
-        }
-      ],
-      "subregions": []
-    },
-    {
       "key": "kidney",
       "label": "Kidney",
       "uberon": "UBERON:0004538",
-      "system": "Urinary",
+      "system": "Excretory System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-female-left/v1.3/assets/3d-vh-f-kidney-l.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/kidney-male-left/v1.3/assets/3d-vh-m-kidney-l.glb"
@@ -1427,7 +4053,7 @@
       "key": "skin",
       "label": "Skin",
       "uberon": "UBERON:0002097",
-      "system": "Integumentary",
+      "system": "Integumental System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
@@ -1471,57 +4097,10 @@
       "subregions": []
     },
     {
-      "key": "spleen",
-      "label": "Spleen",
-      "uberon": "UBERON:0002106",
-      "system": "Lymphatic / immune",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-female/v1.3/assets/3d-vh-f-spleen.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-female/v1.3/assets/3d-vh-f-spleen.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/spleen-male/v1.3/assets/3d-vh-m-spleen.glb"
-        ]
-      },
-      "n_models": 5,
-      "models": [
-        {
-          "biomodel_id": "BIOMD0000000259",
-          "name": "Tiago2010_FeMetabolism_FeDeficient",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259"
-        },
-        {
-          "biomodel_id": "BIOMD0000000260",
-          "name": "Tiago2010_FeMetabolism_FeAdequate",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260"
-        },
-        {
-          "biomodel_id": "BIOMD0000000261",
-          "name": "Tiago2010_FeMetabolism_FeLoaded",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261"
-        },
-        {
-          "biomodel_id": "BIOMD0000000734",
-          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734"
-        },
-        {
-          "biomodel_id": "BIOMD0000000761",
-          "name": "Cappuccio2006 - Cancer immunotherapy by interleukin-21",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000761"
-        }
-      ],
-      "subregions": []
-    },
-    {
       "key": "ovary-female-left",
       "label": "Ovary Female Left",
       "uberon": "UBERON:0002119",
-      "system": "Reproductive",
+      "system": "Reproductive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-left/v1.3/assets/3d-vh-f-ovary-l.glb",
         "male": null
@@ -1561,7 +4140,7 @@
       "key": "lymph-node",
       "label": "Lymph Node",
       "uberon": "UBERON:0002509",
-      "system": "Lymphatic / immune",
+      "system": "Lymphoid System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-female/v1.4/assets/3d-nih-f-lymph-node.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lymph-node-male/v1.4/assets/3d-nih-m-lymph-node.glb"
@@ -1593,6 +4172,202 @@
         }
       ],
       "subregions": [
+        {
+          "node_names": [
+            "Yao_efferent_lymph_node"
+          ],
+          "uberon": "UBERON:0010397",
+          "label": "efferent lymphatic vessel",
+          "n_models": 12,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000335",
+              "name": "Hockin2002_BloodCoagulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000335",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000338",
+              "name": "Wajima2009_BloodCoagulation_aPTTtest",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000339",
+              "name": "Wajima2009_BloodCoagulation_PTtest",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000340",
+              "name": "Wajima2009_BloodCoagulation_warfarin_heparin",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000359",
+              "name": "Panteleev2002_TFPImechanism_schmema3",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000359",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000360",
+              "name": "Panteleev2002_TFPImechanism_schmema2",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000360",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000361",
+              "name": "Panteleev2002_TFPImechanism_schmema1",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000361",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000362",
+              "name": "Butenas2004_BloodCoagulation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000362",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000466",
+              "name": "Koo2013 - Shear stress induced eNOS expression - Model 3",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000466",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000467",
+              "name": "Koo2013 - Shear stress induced NO production - Model 4",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000467",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000468",
+              "name": "Koo2013 - Integrated shear stress induced NO production model",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000468",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000951",
+              "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000951",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "Yao_medulla_of_lymph_node"
+          ],
+          "uberon": "UBERON:0002007",
+          "label": "medulla of lymph node",
+          "n_models": 8,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000466",
+              "name": "Koo2013 - Shear stress induced eNOS expression - Model 3",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000466",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000467",
+              "name": "Koo2013 - Shear stress induced NO production - Model 4",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000467",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000468",
+              "name": "Koo2013 - Integrated shear stress induced NO production model",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000468",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000477",
+              "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000489",
+              "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000599",
+              "name": "Coggins2014 - CXCL12 dependent recruitment of beta arrestin",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000599",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000612",
+              "name": "Proctor2016 - Circadian rhythm of PTH and the dynamics of signaling molecules on bone remodeling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000612",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000613",
+              "name": "Peterson2010 - Integrated calcium homeostasis and bone remodelling",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000613",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "Yao_afferent_lymphatic_vessel"
+          ],
+          "uberon": "UBERON:0010396",
+          "label": "afferent lymphatic vessel",
+          "n_models": 3,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000466",
+              "name": "Koo2013 - Shear stress induced eNOS expression - Model 3",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000466",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000467",
+              "name": "Koo2013 - Shear stress induced NO production - Model 4",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000467",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000468",
+              "name": "Koo2013 - Integrated shear stress induced NO production model",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000468",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "Yao_capsule_of_lymph_node"
+          ],
+          "uberon": "UBERON:0002194",
+          "label": "capsule of lymph node",
+          "n_models": 3,
+          "models": [
+            {
+              "biomodel_id": "BIOMD0000000466",
+              "name": "Koo2013 - Shear stress induced eNOS expression - Model 3",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000466",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000467",
+              "name": "Koo2013 - Shear stress induced NO production - Model 4",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000467",
+              "via": "anatomy"
+            },
+            {
+              "biomodel_id": "BIOMD0000000468",
+              "name": "Koo2013 - Integrated shear stress induced NO production model",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000468",
+              "via": "anatomy"
+            }
+          ]
+        },
         {
           "node_names": [
             "Yao_follicles"
@@ -1627,7 +4402,7 @@
       "key": "urinary-bladder",
       "label": "Urinary Bladder",
       "uberon": "UBERON:0001255",
-      "system": "Urinary",
+      "system": "Excretory System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-female/v1.2/assets/3d-vh-f-urinary-bladder.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/urinary-bladder-male/v1.2/assets/3d-vh-m-urinary-bladder.glb"
@@ -1659,7 +4434,7 @@
       "key": "epiploic-appendage-of-transverse-colon",
       "label": "Epiploic Appendage Of Transverse Colon",
       "uberon": "fma15046",
-      "system": "Digestive",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-female/v1.0/assets/3d-vh-f-epiploic-appendage-of-transverse-colon.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/epiploic-appendage-of-transverse-colon-male/v1.0/assets/3d-vh-m-epiploic-appendage-of-transverse-colon.glb"
@@ -1680,7 +4455,7 @@
       "key": "eye-female-left",
       "label": "Eye Female Left",
       "uberon": "UBERON:0004548",
-      "system": "Nervous",
+      "system": "Entire Sense Organ System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb",
         "male": null
@@ -1699,7 +4474,7 @@
       "key": "eye-female-right",
       "label": "Eye Female Right",
       "uberon": "UBERON:0004549",
-      "system": "Nervous",
+      "system": "Entire Sense Organ System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb",
         "male": null
@@ -1718,7 +4493,7 @@
       "key": "eye-male-left",
       "label": "Eye Male Left",
       "uberon": "UBERON:0004548",
-      "system": "Nervous",
+      "system": "Entire Sense Organ System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
@@ -1737,7 +4512,7 @@
       "key": "eye-male-right",
       "label": "Eye Male Right",
       "uberon": "UBERON:0004549",
-      "system": "Nervous",
+      "system": "Entire Sense Organ System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
@@ -1756,7 +4531,7 @@
       "key": "fallopian-tube-female-left",
       "label": "Fallopian Tube Female Left",
       "uberon": "UBERON:0001303",
-      "system": "Reproductive",
+      "system": "Reproductive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/fallopian-tube-female-left/v1.2/assets/3d-vh-f-fallopian-tube-l.glb",
         "male": null
@@ -1775,7 +4550,7 @@
       "key": "fallopian-tube-female-right",
       "label": "Fallopian Tube Female Right",
       "uberon": "UBERON:0001302",
-      "system": "Reproductive",
+      "system": "Reproductive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/fallopian-tube-female-right/v1.2/assets/3d-vh-f-fallopian-tube-r.glb",
         "male": null
@@ -1794,7 +4569,7 @@
       "key": "intervertebral-disk",
       "label": "Intervertebral Disk",
       "uberon": "UBERON:0001066",
-      "system": "Musculoskeletal",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-female/v1.0/assets/3d-vh-f-intervertebral-disk.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-male/v1.0/assets/3d-vh-m-intervertebral-disk.glb"
@@ -1815,7 +4590,7 @@
       "key": "knee-female-left",
       "label": "Knee Female Left",
       "uberon": "fma24978",
-      "system": "Musculoskeletal",
+      "system": "Anatomical Structure",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-left/v1.3/assets/3d-vh-f-knee-l.glb",
         "male": null
@@ -1834,7 +4609,7 @@
       "key": "knee-female-right",
       "label": "Knee Female Right",
       "uberon": "fma24977",
-      "system": "Musculoskeletal",
+      "system": "Anatomical Structure",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-right/v1.3/assets/3d-vh-f-knee-r.glb",
         "male": null
@@ -1853,7 +4628,7 @@
       "key": "knee-male-left",
       "label": "Knee Male Left",
       "uberon": "fma24978",
-      "system": "Musculoskeletal",
+      "system": "Anatomical Structure",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-left/v1.2/assets/3d-vh-m-knee-l.glb"
@@ -1872,7 +4647,7 @@
       "key": "knee-male-right",
       "label": "Knee Male Right",
       "uberon": "fma24977",
-      "system": "Musculoskeletal",
+      "system": "Anatomical Structure",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-right/v1.2/assets/3d-vh-m-knee-r.glb"
@@ -1891,7 +4666,7 @@
       "key": "larynx",
       "label": "Larynx",
       "uberon": "UBERON:0001737",
-      "system": "Respiratory",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-female/v1.1/assets/3d-vh-f-larynx.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/larynx-male/v1.1/assets/3d-vh-m-larynx.glb"
@@ -1909,31 +4684,10 @@
       "subregions": []
     },
     {
-      "key": "main-bronchus",
-      "label": "Main Bronchus",
-      "uberon": "UBERON:0002182",
-      "system": "Respiratory",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-female/v1.1/assets/3d-vh-f-main-bronchus.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-female/v1.1/assets/3d-vh-f-main-bronchus.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/main-bronchus-male/v1.1/assets/3d-vh-m-main-bronchus.glb"
-        ]
-      },
-      "n_models": 0,
-      "models": [],
-      "subregions": []
-    },
-    {
       "key": "mammary-gland-female-left",
       "label": "Mammary Gland Female Left",
       "uberon": "fma57991",
-      "system": "Reproductive",
+      "system": "Integumental System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mammary-gland-female-left/v1.1/assets/3d-vh-f-mammary-gland-l.glb",
         "male": null
@@ -1952,7 +4706,7 @@
       "key": "mammary-gland-female-right",
       "label": "Mammary Gland Female Right",
       "uberon": "fma57987",
-      "system": "Reproductive",
+      "system": "Integumental System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mammary-gland-female-right/v1.1/assets/3d-vh-f-mammary-gland-r.glb",
         "male": null
@@ -1971,7 +4725,7 @@
       "key": "manubrium",
       "label": "Manubrium",
       "uberon": "UBERON:2001553",
-      "system": "Musculoskeletal",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/manubrium-female/v1.0/assets/3d-vh-f-manubrium.glb",
         "male": null
@@ -1990,7 +4744,7 @@
       "key": "mouth",
       "label": "Mouth",
       "uberon": "UBERON:0000165",
-      "system": "Digestive",
+      "system": "Digestive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-female/v1.0/assets/3d-vh-f-mouth.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/mouth-male/v1.0/assets/3d-vh-m-mouth.glb"
@@ -2011,7 +4765,7 @@
       "key": "omentum",
       "label": "Omentum",
       "uberon": "UBERON:0003688",
-      "system": "Digestive",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-female/v1.0/assets/3d-vh-f-omentum.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/omentum-male/v1.0/assets/3d-vh-m-omentum.glb"
@@ -2032,7 +4786,7 @@
       "key": "ovary-female-right",
       "label": "Ovary Female Right",
       "uberon": "UBERON:0002118",
-      "system": "Reproductive",
+      "system": "Reproductive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb",
         "male": null
@@ -2051,7 +4805,7 @@
       "key": "palatine-tonsil-female-left",
       "label": "Palatine Tonsil Female Left",
       "uberon": "fma54974",
-      "system": "Lymphatic / immune",
+      "system": "Digestive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-female-left/v1.2/assets/3d-vh-f-palatine-tonsil-l.glb",
         "male": null
@@ -2070,7 +4824,7 @@
       "key": "palatine-tonsil-female-right",
       "label": "Palatine Tonsil Female Right",
       "uberon": "fma54973",
-      "system": "Lymphatic / immune",
+      "system": "Digestive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-female-right/v1.2/assets/3d-vh-f-palatine-tonsil-r.glb",
         "male": null
@@ -2089,7 +4843,7 @@
       "key": "palatine-tonsil-male-left",
       "label": "Palatine Tonsil Male Left",
       "uberon": "fma54974",
-      "system": "Lymphatic / immune",
+      "system": "Digestive System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-left/v1.2/assets/3d-vh-m-palatine-tonsil-l.glb"
@@ -2108,7 +4862,7 @@
       "key": "palatine-tonsil-male-right",
       "label": "Palatine Tonsil Male Right",
       "uberon": "fma54973",
-      "system": "Lymphatic / immune",
+      "system": "Digestive System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/palatine-tonsil-male-right/v1.2/assets/3d-vh-m-palatine-tonsil-r.glb"
@@ -2127,7 +4881,7 @@
       "key": "pelvis",
       "label": "Pelvis",
       "uberon": "UBERON:0001270",
-      "system": "Musculoskeletal",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-female/v1.3/assets/3d-vh-f-pelvis.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-male/v1.3/assets/3d-vh-m-pelvis.glb"
@@ -2145,29 +4899,10 @@
       "subregions": []
     },
     {
-      "key": "placenta-full-term",
-      "label": "Placenta Full Term",
-      "uberon": "UBERON:0001987",
-      "system": "Reproductive",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/placenta-full-term-female/v1.1/assets/3d-vh-f-placenta-full-term.glb",
-        "male": null
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/placenta-full-term-female/v1.1/assets/3d-vh-f-placenta-full-term.glb"
-        ],
-        "male": []
-      },
-      "n_models": 0,
-      "models": [],
-      "subregions": []
-    },
-    {
       "key": "prostate",
       "label": "Prostate",
       "uberon": "UBERON:0000079",
-      "system": "Reproductive",
+      "system": "Reproductive System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/prostate-male/v1.2/assets/3d-vh-m-prostate.glb"
@@ -2183,31 +4918,10 @@
       "subregions": []
     },
     {
-      "key": "spinal-cord",
-      "label": "Spinal Cord",
-      "uberon": "UBERON:0002240",
-      "system": "Nervous",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-female/v1.1/assets/3d-vh-f-spinal-cord.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-female/v1.1/assets/3d-vh-f-spinal-cord.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/spinal-cord-male/v1.1/assets/3d-vh-m-spinal-cord.glb"
-        ]
-      },
-      "n_models": 0,
-      "models": [],
-      "subregions": []
-    },
-    {
       "key": "sternum",
       "label": "Sternum",
       "uberon": "UBERON:0000975",
-      "system": "Musculoskeletal",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/sternum-female/v1.0/assets/3d-vh-f-sternum.glb",
         "male": null
@@ -2223,52 +4937,10 @@
       "subregions": []
     },
     {
-      "key": "thymus",
-      "label": "Thymus",
-      "uberon": "UBERON:0002370",
-      "system": "Lymphatic / immune",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-female/v1.3/assets/3d-vh-f-thymus.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-female/v1.3/assets/3d-vh-f-thymus.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/thymus-male/v1.3/assets/3d-vh-m-thymus.glb"
-        ]
-      },
-      "n_models": 0,
-      "models": [],
-      "subregions": []
-    },
-    {
-      "key": "trachea",
-      "label": "Trachea",
-      "uberon": "UBERON:0003126",
-      "system": "Respiratory",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-female/v1.1/assets/3d-vh-f-trachea.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-female/v1.1/assets/3d-vh-f-trachea.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/trachea-male/v1.1/assets/3d-vh-m-trachea.glb"
-        ]
-      },
-      "n_models": 0,
-      "models": [],
-      "subregions": []
-    },
-    {
       "key": "ureter-female-left",
       "label": "Ureter Female Left",
       "uberon": "UBERON:0001223",
-      "system": "Urinary",
+      "system": "Excretory System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-female-left/v1.2/assets/3d-vh-f-ureter-l.glb",
         "male": null
@@ -2287,7 +4959,7 @@
       "key": "ureter-female-right",
       "label": "Ureter Female Right",
       "uberon": "UBERON:0001222",
-      "system": "Urinary",
+      "system": "Excretory System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-female-right/v1.2/assets/3d-vh-f-ureter-r.glb",
         "male": null
@@ -2306,7 +4978,7 @@
       "key": "ureter-male-left",
       "label": "Ureter Male Left",
       "uberon": "UBERON:0001223",
-      "system": "Urinary",
+      "system": "Excretory System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-left/v1.2/assets/3d-vh-m-ureter-l.glb"
@@ -2325,7 +4997,7 @@
       "key": "ureter-male-right",
       "label": "Ureter Male Right",
       "uberon": "UBERON:0001222",
-      "system": "Urinary",
+      "system": "Excretory System",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/ureter-male-right/v1.2/assets/3d-vh-m-ureter-r.glb"
@@ -2344,7 +5016,7 @@
       "key": "uterus",
       "label": "Uterus",
       "uberon": "UBERON:0000995",
-      "system": "Reproductive",
+      "system": "Reproductive System",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/uterus-female/v1.2/assets/3d-vh-f-uterus.glb",
         "male": null
@@ -2361,26 +5033,28 @@
     }
   ],
   "systems": [
-    "Digestive",
-    "Cardiovascular",
-    "Respiratory",
-    "Nervous",
-    "Urinary",
-    "Reproductive",
-    "Musculoskeletal",
-    "Lymphatic / immune",
-    "Integumentary",
-    "Connective"
+    "Cardiovascular System",
+    "Digestive System",
+    "Hematopoietic System",
+    "Lymphoid System",
+    "Integumental System",
+    "Respiratory System",
+    "Excretory System",
+    "Reproductive System",
+    "Nervous System",
+    "Entire Sense Organ System",
+    "Anatomical Structure",
+    "Other"
   ],
-  "max_models": 51,
-  "max_subregion_models": 5,
+  "max_models": 52,
+  "max_subregion_models": 16,
   "summary": {
     "n_organs": 50,
-    "n_modeled": 14,
-    "n_models_total": 236,
-    "n_models_distinct": 172,
-    "n_systems": 10,
-    "n_subregions": 6,
-    "n_organs_with_subregions": 4
+    "n_modeled": 19,
+    "n_models_total": 417,
+    "n_models_distinct": 256,
+    "n_systems": 12,
+    "n_subregions": 52,
+    "n_organs_with_subregions": 9
   }
 }
