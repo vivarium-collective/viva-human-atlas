@@ -19,8 +19,8 @@ question: |
 
 study_card:
   goal: "Build datasets/biomodel_hra_map.json: one entry per curated BioModel with molecular ids, PubMed/DOI link, organism, and HRA organ/FTU/cell-type mapping (anatomy crosswalked from paper MeSH + BTO, cell types from CL), plus HRApop measured cell-type populations for the models that resolve to an HRApop organ — exposed as a reusable Vivarium Step + a downloadable workspace dataset."
-  mechanism: "BiomodelHraMapStep.update -> biomodel_hra.build_or_load(datasets/biomodel_hra_map.json): cache-or-load (network-free load of the committed DB, or a live rebuild if absent). Each per-model entry is built by build_entry: fetch_sbml + extract_identifiers (SBML MIRIAM CVTerms -> CHEBI/UniProt/KEGG/GO/Uberon/CL/FMA/BTO) unioned with BioPAX ids; PubMed MeSH headings; anatomy crosswalked to Uberon/CL via the BTO->Uberon and MeSH-label->Uberon/CL SSSOM crosswalks; map_to_hra binds the enriched Uberon set to HRA organs/FTUs; HRApop measured cell-type populations joined at organ granularity. summarize_map reports coverage."
-  expected_result: "A 1,096-model JSON array where near-total molecular coverage (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%) coexists with sparser but real HRA-anatomy coverage (Uberon 20%, cell types 29%, organs 16%, FTUs 11%), and 112 models (10%) carry HRApop measured cell-type populations — molecular annotation is dense because it comes from the models' own curated SBML, while HRA anatomy is recall-limited because most models annotate biochemistry, not anatomy."
+  mechanism: "BiomodelHraMapStep.update -> biomodel_hra.build_or_load(datasets/biomodel_hra_map.json): cache-or-load (network-free load of the committed DB, or a live rebuild if absent). Each per-model entry is built by build_entry: fetch_sbml + extract_identifiers (SBML MIRIAM CVTerms -> CHEBI/UniProt/KEGG/GO/Uberon/CL/FMA/BTO) unioned with BioPAX ids; organism resolved from each model's NCBITaxon taxonomy (static map + EBI ENA fallback); HGNC + Ensembl gene ids crosswalked from the model's UniProt proteins (rest.uniprot.org); PubMed MeSH headings; anatomy crosswalked to Uberon/CL via the BTO->Uberon and MeSH-label->Uberon/CL SSSOM crosswalks, PLUS an ASCT+B gene->Uberon lever (a new AsctbTablesStep harvests all HRA ASCT+B tables (27 organs) into datasets/asctb_tables.json, yielding a 1,103-gene HGNC->Uberon index; each model's HGNC genes add those Uberons); map_to_hra binds the enriched Uberon set to HRA organs/FTUs; HRApop measured cell-type populations joined at organ granularity. summarize_map reports coverage."
+  expected_result: "A 1,096-model JSON array where near-total molecular coverage (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%) coexists with sparser but real HRA-anatomy coverage (Uberon 29%, cell types 33%, organs 24%, FTUs 15%), and 112 models (10%) carry HRApop measured cell-type populations — molecular annotation is dense because it comes from the models' own curated SBML, while HRA anatomy, though narrowed by the new organism/gene-id and ASCT+B gene->Uberon levers, stays recall-limited because most models annotate biochemistry, not anatomy."
   main_expert_question: "Is the paper-MeSH -> Uberon/CL crosswalk (which contributes anatomy to models whose SBML carries no Uberon at all) a defensible way to raise HRA-anatomy recall, or should HRA mapping be restricted to anatomy the model itself annotates (SBML MIRIAM Uberon/BTO), even at much lower recall?"
 
 biological_summary: |
@@ -33,13 +33,23 @@ biological_summary: |
   its paper carry. This study harvests the full curated corpus (1,096 models)
   into one reusable JSON DB. Molecular identifiers come straight out of each
   model's SBML MIRIAM annotations (unioned with its BioPAX export): GO reaches
-  967 models (88%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%). HRA
-  anatomy is reconstructed from three complementary sources — direct SBML
-  Uberon/CL, a BTO->Uberon crosswalk over the model's own tissue annotations,
-  and (the biggest lever) the MeSH headings PubMed assigns each model's paper,
-  crosswalked to Uberon/CL through an SSSOM mapping. That reconstruction tags
-  215 models (20%) with >=1 Uberon term, 322 (29%) with a cell type, 180 (16%)
-  with an HRA organ, and 116 (11%) with a functional tissue unit. Finally, for
+  967 models (88%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%). Each
+  model also gets an organism (684 models, 62%, resolved from its NCBITaxon
+  taxonomy via a static map + EBI ENA fallback) and gene ids crosswalked from
+  its UniProt proteins through rest.uniprot.org — HGNC for 302 models (28%),
+  Ensembl for 360 (33%). HRA anatomy is reconstructed from four complementary
+  sources — direct SBML Uberon/CL, a BTO->Uberon crosswalk over the model's own
+  tissue annotations, the MeSH headings PubMed assigns each model's paper
+  (crosswalked to Uberon/CL through an SSSOM mapping), and a new ASCT+B
+  gene->Uberon lever: a AsctbTablesStep harvested all HRA ASCT+B tables (27
+  organs) into datasets/asctb_tables.json, yielding a 1,103-gene HGNC->Uberon
+  index, so each model's HGNC genes add the Uberons those genes are recorded in
+  and get re-mapped through map_to_hra. That gene lever is what lifted anatomy
+  coverage over the paper-MeSH-only baseline: the reconstruction now tags 323
+  models (29%) with >=1 Uberon term, 363 (33%) with a cell type, 264 (24%)
+  with an HRA organ, and 163 (15%) with a functional tissue unit — so HRA
+  anatomy is no longer recall-limited only by paper MeSH; a model's own genes
+  are now a second, model-intrinsic anatomy lever. Finally, for
   the 112 models (10%) that resolve to an organ HRApop measures, the DB carries
   HRApop's measured cell-type populations (Bueckle 2026) at organ granularity.
   The result is a single downloadable workspace resource (a Vivarium Step loads
@@ -49,7 +59,7 @@ biological_summary: |
 
 readouts:
   - "n_models (1,096 curated BioModels harvested into the DB)"
-  - "coverage.{go,mesh,uniprot,chebi,kegg,cell_types,organs,functional_tissue_units,uberon,hra_pop_cell_types}.{count,mean,max} (per-annotation corpus coverage)"
+  - "coverage.{go,mesh,uniprot,chebi,kegg,organism,hgnc,ensembl,cell_types,organs,functional_tissue_units,uberon,hra_pop_cell_types}.{count,mean,max} (per-annotation corpus coverage)"
   - "n_with_molecular / n_with_uberon / n_with_hrapop (headline coverage counts)"
   - "datasets/biomodel_hra_map.json (the downloadable per-model DB itself, registered as a workspace dataset)"
 
@@ -70,21 +80,29 @@ report:
     downloadable workspace dataset. Molecular annotation is dense because it
     comes from the models' own curated SBML: GO 967/1,096 (88%), MeSH
     915 (83%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%), and 978
-    models (89%) carry at least one molecular id. HRA anatomy — reconstructed
-    from SBML Uberon/CL + BTO->Uberon + paper-MeSH->Uberon/CL crosswalks —
-    is sparser but real: 215 models (20%) carry >=1 Uberon term, 322 (29%) a
-    cell type, 180 (16%) an HRA organ, 116 (11%) a functional tissue unit.
+    models (89%) carry at least one molecular id. The DB also resolves an
+    organism for 684 models (62%) and gene ids crosswalked from UniProt —
+    HGNC 302 (28%), Ensembl 360 (33%). HRA anatomy — reconstructed from
+    SBML Uberon/CL + BTO->Uberon + paper-MeSH->Uberon/CL crosswalks + a new
+    ASCT+B gene->Uberon lever — is sparser but real, and the gene lever
+    narrowed the gap: 323 models (29%) carry >=1 Uberon term, 363 (33%) a
+    cell type, 264 (24%) an HRA organ, 163 (15%) a functional tissue unit.
     112 models (10%) additionally carry HRApop measured cell-type populations
     at organ granularity. The molecular-vs-anatomy coverage gap is the
     finding: BioModels curation annotates biochemistry densely and anatomy
     barely, so HRA mapping depends on reconstructing anatomical context from
-    the paper (MeSH), not just the model.
+    the paper (MeSH) and, now, from the models' own genes (ASCT+B
+    gene->Uberon), not just from anatomy the model annotates directly.
   caveat: |
-    HRA-anatomy coverage (Uberon 20%) is recall-limited and leans on the
-    paper-MeSH -> Uberon/CL crosswalk to reach models whose SBML carries no
-    anatomy at all — a paper's MeSH headings describe the study, not
-    necessarily the exact tissue the model represents, so a MeSH-derived
-    Uberon is a weaker anatomical claim than a model-annotated one. HRApop
+    HRA-anatomy coverage (Uberon 29%) is recall-limited and leans on
+    reconstruction rather than model-annotated anatomy: the paper-MeSH ->
+    Uberon/CL crosswalk reaches models whose SBML carries no anatomy at all
+    (a paper's MeSH headings describe the study, not necessarily the exact
+    tissue the model represents), and the new ASCT+B gene->Uberon lever adds
+    Uberons from the anatomical structures a model's HGNC genes are recorded
+    in — a gene-derived Uberon (like a MeSH-derived one) is a weaker
+    anatomical claim than an Uberon the model itself annotates, though it is
+    model-intrinsic where MeSH is paper-level. HRApop
     populations are joined at ORGAN granularity (the DB aggregates HRApop's
     anatomical-structure-level counts to the organ), not per-subregion, so a
     model tagged to an organ inherits that organ's whole-organ composition.
@@ -102,7 +120,7 @@ baseline:
 embed_visualizations:
   - name: "Harvesting BioModels into the HRA"
     url: "/reports/figures/biomodel-hra-map/summary.html"
-    description: "1,096 curated BioModels mapped to the HRA. Left: how many models carry each annotation (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%, KEGG 29%, cell types 29%, Uberon 20%, organs 16%, FTUs 11%, HRApop 10%). Right: per-model term-count distributions for organs, FTUs, cell types, Uberon, paper MeSH, and GO. Molecular annotation (blue) is dense; HRA anatomy (amber) is recall-limited but real."
+    description: "1,096 curated BioModels mapped to the HRA. Left: how many models carry each annotation (GO 88%, MeSH 83%, UniProt 46%, CHEBI 44%, Ensembl 33%, KEGG 29%, HGNC 28%, cell types 33%, Uberon 29%, organs 24%, FTUs 15%, HRApop 10%; organism 62%). Right: per-model term-count distributions for organs, FTUs, cell types, Uberon, paper MeSH, and GO. Molecular annotation (blue) is dense; HRA anatomy (amber) is recall-limited but real, lifted by the ASCT+B gene->Uberon lever."
 
 runs:
   - name: baseline
@@ -131,44 +149,52 @@ findings:
       molecular coverage and recall-limited-but-real HRA-anatomy coverage.
       Molecular (from the models' own SBML/BioPAX): GO 967 (88%), UniProt
       507 (46%), CHEBI 480 (44%), KEGG 322 (29%); 978 models (89%) carry
-      >=1 molecular id. HRA anatomy (reconstructed via SBML Uberon/CL +
-      BTO->Uberon + paper-MeSH->Uberon/CL crosswalks): Uberon 215 (20%),
-      cell types 322 (29%), organs 180 (16%), FTUs 116 (11%). HRApop
-      measured cell-type populations attach to 112 models (10%).
+      >=1 molecular id. The DB also resolves organism for 684 models (62%)
+      and gene ids from UniProt — HGNC 302 (28%), Ensembl 360 (33%). HRA
+      anatomy (reconstructed via SBML Uberon/CL + BTO->Uberon +
+      paper-MeSH->Uberon/CL crosswalks + a new ASCT+B gene->Uberon lever):
+      Uberon 323 (29%), cell types 363 (33%), organs 264 (24%), FTUs 163
+      (15%) — the gene lever lifting each over the paper-MeSH-only baseline
+      (Uberon 215, organs 180, cell types 322, FTUs 116). HRApop measured
+      cell-type populations attach to 112 models (10%).
     evidence:
-      summary: "n_models=1096. coverage counts (models with >=1 term): go=967, mesh=915, uniprot=507, chebi=480, kegg=322, cell_types=322, organs=180, functional_tissue_units=116, uberon=215, hra_pop_cell_types=112. n_with_molecular=978, n_with_uberon=215, n_with_hrapop=112."
+      summary: "n_models=1096. coverage counts (models with >=1 term): go=967, mesh=915, uniprot=507, chebi=480, kegg=322, organism=684, hgnc=302, ensembl=360, cell_types=363, organs=264, functional_tissue_units=163, uberon=323, hra_pop_cell_types=112. n_with_molecular=978, n_with_uberon=323, n_with_hrapop=112. Gene lever (ASCT+B gene->Uberon) lifted uberon 215->323, organs 180->264, cell_types 322->363, ftus 116->163."
   - id: F-02
     tier: interpretation
     mechanism_origin: observed
     claim_scope: mechanism
     statement: |
-      The molecular-vs-anatomy coverage gap (89% molecular vs 20% Uberon)
+      The molecular-vs-anatomy coverage gap (89% molecular vs 29% Uberon)
       reflects BioModels curation practice: models are annotated for
       biochemistry (species -> CHEBI/UniProt/KEGG, reactions -> GO), not for
       anatomy, so HRA mapping depends on reconstructing anatomical context
-      from outside the model — the paper's PubMed MeSH headings are the
-      single biggest anatomy lever (MeSH reaches 915 models, 83%, vs 20% for
-      any Uberon), crosswalked to Uberon/CL.
+      from outside the model — the paper's PubMed MeSH headings (reaching
+      915 models, 83%) and, newly, the model's own genes via the ASCT+B
+      gene->Uberon crosswalk are the two anatomy levers. The gene lever
+      narrowed the gap (Uberon 20% -> 29%), but anatomy still trails the
+      dense molecular annotation because most models carry no anatomy in
+      their own SBML.
     evidence:
-      summary: "MeSH coverage (915/1,096, 83%, from PubMed) dwarfs direct/derived Uberon coverage (215/1,096, 20%): most models carry no anatomy in their own SBML, and the Uberon they do get is dominated by the MeSH->Uberon and BTO->Uberon crosswalks rather than direct SBML Uberon annotations."
+      summary: "MeSH coverage (915/1,096, 83%, from PubMed) still dwarfs direct/derived Uberon coverage (323/1,096, 29%): most models carry no anatomy in their own SBML, and the Uberon they do get is dominated by the MeSH->Uberon, BTO->Uberon and new ASCT+B gene->Uberon crosswalks rather than direct SBML Uberon annotations. The gene lever raised Uberon from 215 (20%) to 323 (29%)."
 
 conclusion_verdicts:
   regression_compatibility:
     basis: "The baseline biomodel-hra-map composite (BiomodelHraMapStep -> build_or_load) loads the committed datasets/biomodel_hra_map.json network-free and emits n_models=1096 with a non-empty coverage summary; the same core (viva_human_atlas.biomodel_hra) backs the scripts/build_biomodel_hra_map.py CLI, so Step and CLI cannot diverge."
   biological_validation:
-    basis: "Molecular ids are read directly from each model's curated SBML MIRIAM annotations (union with BioPAX), so molecular coverage is as authoritative as BioModels curation; HRA anatomy is reconstructed via documented BTO->Uberon and MeSH-label->Uberon/CL SSSOM crosswalks, which is transparent and traceable per model but weaker than a model-annotated Uberon (hence passing-with-caveats, not passed-clean)."
+    basis: "Molecular ids are read directly from each model's curated SBML MIRIAM annotations (union with BioPAX), so molecular coverage is as authoritative as BioModels curation; HRA anatomy is reconstructed via documented BTO->Uberon, MeSH-label->Uberon/CL SSSOM, and ASCT+B gene->Uberon crosswalks, which are transparent and traceable per model but weaker than a model-annotated Uberon (hence passing-with-caveats, not passed-clean). The gene lever is model-intrinsic (from the model's own UniProt-derived HGNC genes) where MeSH is paper-level."
   explanatory_gain:
-    basis: "F-01/F-02 answer the question quantitatively — the whole corpus harvests into one reusable, downloadable DB, and the coverage profile (dense molecular, sparse-but-real anatomy, MeSH as the dominant anatomy lever) tells downstream studies exactly where HRA linkage is strong and where it depends on paper-level reconstruction."
+    basis: "F-01/F-02 answer the question quantitatively — the whole corpus harvests into one reusable, downloadable DB, and the coverage profile (dense molecular, sparse-but-real anatomy narrowed by the new organism/gene-id and ASCT+B gene->Uberon levers, MeSH plus genes as the anatomy levers) tells downstream studies exactly where HRA linkage is strong and where it depends on paper- or gene-level reconstruction."
 
 limitations:
-  - "HRA-anatomy coverage (Uberon 215/1,096, 20%) is recall-limited and leans on the paper-MeSH -> Uberon/CL crosswalk to reach models whose SBML annotates no anatomy — a MeSH-derived Uberon describes the paper's subject, not necessarily the exact tissue the model represents."
+  - "HRA-anatomy coverage (Uberon 323/1,096, 29%) is recall-limited and leans on reconstruction — the paper-MeSH -> Uberon/CL crosswalk (paper subject, not necessarily the exact tissue the model represents) and the new ASCT+B gene->Uberon lever (Uberons from the anatomical structures a model's HGNC genes are recorded in) — rather than anatomy the model annotates directly; both are weaker than a model-annotated Uberon, though the gene lever is model-intrinsic."
   - "HRApop cell-type populations are joined at ORGAN granularity (HRApop's anatomical-structure-level counts aggregated to the organ), not per-subregion, so a model inherits its organ's whole-organ composition rather than a subregion-specific one."
   - "The LLM literature-extraction stage was not run for the committed DB (no ANTHROPIC_API_KEY), so no per-model `literature` blocks are present; the DB's coverage stands on SBML/BioPAX molecular ids + MeSH/BTO anatomy alone."
 
 discovery_implications:
   resolved_uncertainties:
     - "The full curated BioModels corpus (1,096 models) can be harvested into a single reusable JSON DB linking each model to the HRA, and served both as a Vivarium Step (cache-or-load, network-free) and a downloadable workspace dataset."
-    - "Corpus-wide coverage is now measured: molecular annotation is dense (89% carry >=1 molecular id) while HRA anatomy is recall-limited but real (20% Uberon, 29% cell types), with paper MeSH (83%) the dominant anatomy lever."
+    - "Corpus-wide coverage is now measured: molecular annotation is dense (89% carry >=1 molecular id) while HRA anatomy is recall-limited but real (29% Uberon, 33% cell types), with paper MeSH (83%) and, newly, the model's own genes (ASCT+B gene->Uberon) the two anatomy levers."
+    - "A new ASCT+B gene->Uberon lever (a AsctbTablesStep harvesting all 27 HRA ASCT+B organ tables into a 1,103-gene HGNC->Uberon index) makes the models' own genes a second, model-intrinsic anatomy lever beyond paper MeSH — lifting Uberon 215->323, organs 180->264, cell types 322->363, FTUs 116->163. The DB also now resolves organism (684, 62%) and gene ids (HGNC 302, 28%; Ensembl 360, 33%)."
   remaining_uncertainties:
     - "Can HRApop cell-type populations be joined at SUBREGION (anatomical-structure) granularity rather than aggregated to the organ, so a model attaches to the specific organ subregion its cell types/FTUs imply — the driver for placing models at subregions in the Atlas Browser?"
     - "Would running the LLM literature-extraction stage materially raise HRA-anatomy recall beyond the MeSH/BTO crosswalks, or does it mostly duplicate what MeSH already captures?"
