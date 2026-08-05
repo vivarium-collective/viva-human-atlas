@@ -37,19 +37,20 @@ const els = {
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
-// Viridis colormap (perceptually-uniform, high chroma variation) so distinct
-// model counts read as distinct colors — dark purple (few) -> teal -> green ->
-// yellow (many) — far more separable than a single-hue green ramp. n==0 (no
-// model) is a neutral grey, off the ramp entirely.
-const VIRIDIS = [
-  [68, 1, 84], [71, 44, 122], [59, 81, 139], [44, 113, 142], [33, 144, 141],
-  [39, 173, 129], [92, 200, 99], [170, 220, 50], [253, 231, 37],
+// ColorBrewer YlGnBu (9-class sequential) — a perceptually-ordered
+// light-yellow (few) -> green -> teal -> dark-blue (many) ramp, the standard
+// sequential scheme for a single magnitude. Distinct in hue from the warm
+// subregion ramp, and n==0 (no model) is a neutral grey, off the ramp entirely.
+// https://colorbrewer2.org/#type=sequential&scheme=YlGnBu
+const YLGNBU = [
+  [255, 255, 217], [237, 248, 177], [199, 233, 180], [127, 205, 187],
+  [65, 182, 196], [29, 145, 192], [34, 94, 168], [37, 52, 148], [8, 29, 88],
 ];
-function viridis(t) {
+function ylGnBu(t) {
   t = Math.max(0, Math.min(1, t));
-  const x = t * (VIRIDIS.length - 1);
+  const x = t * (YLGNBU.length - 1);
   const i = Math.floor(x), f = x - i;
-  const a = VIRIDIS[i], b = VIRIDIS[Math.min(i + 1, VIRIDIS.length - 1)];
+  const a = YLGNBU[i], b = YLGNBU[Math.min(i + 1, YLGNBU.length - 1)];
   return new THREE.Color(
     (a[0] + (b[0] - a[0]) * f) / 255,
     (a[1] + (b[1] - a[1]) * f) / 255,
@@ -57,11 +58,11 @@ function viridis(t) {
   );
 }
 // Log scale so the low-count majority (1..9) still spreads across the ramp
-// instead of bunching at one end while pancreas (36) dominates.
+// instead of bunching at one end while blood (51) dominates.
 function countColor(n, max) {
   if (!n) return new THREE.Color(NOMODEL);
   const t = max > 1 ? Math.log1p(n) / Math.log1p(max) : 1;
-  return viridis(t);
+  return ylGnBu(t);
 }
 const cssColor = (n, max) => "#" + countColor(n, max).getHexString();
 
