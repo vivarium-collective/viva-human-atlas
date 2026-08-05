@@ -151,12 +151,21 @@ async function main() {
     const s = o.sex || (/-male/.test(o.key) ? "male" : /-female/.test(o.key) ? "female" : "both");
     return s === "both" || s === sex;
   }
+  // Organs kept OUT of the default composed view because they occlude the
+  // organs inside them — the whole-body skin, and the placenta. They stay in the
+  // menu (clickable to toggle on) and are included by the "All" button; they're
+  // just not in the landing / "All modeled" set.
+  const OCCLUDING = new Set(["skin", "placenta-full-term"]);
+  // Bumped on every sex switch; in-flight GLB loads started under an old value
+  // are discarded when they resolve so a stale sex's body can't enter the scene.
+  let loadGen = 0;
   // Recomputed for the current sex: keys of the organs the menu/landing use.
   let allKeys = [], modeledKeys = [];
   function recomputeKeys() {
     const vis = atlas.organs.filter(visibleForSex);
-    allKeys = vis.map((o) => o.key);
-    modeledKeys = vis.filter((o) => o.n_models > 0).map((o) => o.key);
+    allKeys = vis.map((o) => o.key);                 // "All" — includes occluding
+    modeledKeys = vis.filter((o) => o.n_models > 0 && !OCCLUDING.has(o.key))
+      .map((o) => o.key);                             // landing / "All modeled"
   }
   recomputeKeys();
   // distinct BioModels represented by a set of organ keys (union of ids)
@@ -302,7 +311,11 @@ async function main() {
       urls = u ? [u] : [];
     }
     if (!urls.length) return Promise.reject(new Error(`${key}: no GLB asset`));
+    const gen = loadGen;   // the sex-generation this load belongs to
     const p = Promise.all(urls.map(loadGLB)).then((scenes) => {
+      // A sex switch happened while these GLBs were loading — discard them so
+      // the previous sex's body can't be added to the scene after the switch.
+      if (gen !== loadGen) { loading.delete(key); return null; }
       const group = new THREE.Group();
       for (const s of scenes) group.add(s);
       group.traverse((node) => {
@@ -500,6 +513,7 @@ async function main() {
   function switchSex(next) {
     if (next === sex || (next !== "female" && next !== "male")) return;
     sex = next;
+    loadGen++;   // invalidate any in-flight loads from the previous sex
     explodeAnim = null; explodedKey = null;
     for (const [, g] of groups) { if (g.parent === scene) scene.remove(g); }
     groups.clear();
