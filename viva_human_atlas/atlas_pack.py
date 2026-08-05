@@ -75,8 +75,79 @@ def biomodels_url(biomodel_id: str) -> str:
 
 
 def organ_system(key: str) -> str:
-    """The anatomical system an organ key belongs to (``"Other"`` if unmapped)."""
+    """The anatomical system an organ key belongs to (``"Other"`` if unmapped).
+    Legacy curated fallback for organs the HRA anatomical-systems partonomy
+    doesn't cover (see ``load_anatomical_systems``)."""
     return ORGAN_SYSTEMS.get(key, "Other")
+
+
+DEFAULT_ASCTB_TABLES = Path(__file__).resolve().parents[1] / "datasets" / "asctb_tables.json"
+
+
+def _norm_label(s) -> str:
+    return " ".join((s or "").lower().replace("-", " ").split())
+
+
+_SEX_SIDE = {"female", "male", "left", "right"}
+
+
+def _system_for(key: str, uberon, systems_map: dict | None) -> str:
+    """The HRA anatomical system for a GLB organ: match by AS Uberon, then by
+    organ label, then by the label with sex/side words stripped (so
+    `eye-female-left` -> `eye`). Genuinely unmatched organs fall to "Other" so
+    grouping stays purely HRA (no mixed curated/HRA names)."""
+    sm = systems_map or {}
+    if not sm:
+        # No HRA systems data supplied (e.g. unit tests / degraded build): keep
+        # the legacy curated organ->system fallback.
+        return organ_system(key)
+    if uberon and sm.get(uberon):
+        return sm[uberon]
+    label = _norm_label(_label(key))
+    if sm.get("label:" + label):
+        return sm["label:" + label]
+    base = " ".join(w for w in label.split() if w not in _SEX_SIDE)
+    if base and sm.get("label:" + base):
+        return sm["label:" + base]
+    return "Other"
+
+
+def load_anatomical_systems(path=None) -> tuple[dict, list]:
+    """Group organs by the HRA **anatomical systems** partonomy (rather than a
+    hand-curated organ->system map). Reads the harvested ASCT+B
+    `anatomical-systems` table: each row's `anatomical_structures` chain is
+    [anatomical system, SYSTEM, ...organ]; element [1] is the system and every
+    deeper node belongs to it. Returns `(uberon_to_system, system_order)` where
+    system labels are title-cased HRA names (e.g. "Cardiovascular System")."""
+    p = Path(path) if path else DEFAULT_ASCTB_TABLES
+    if not p.exists():
+        return {}, []
+    try:
+        tables = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}, []
+    # keyed by both the AS Uberon and a normalized `label:<name>` (the GLB organs
+    # often use a different-granularity Uberon than the partonomy, so a name
+    # fallback recovers pancreas/kidney/lung/etc.).
+    systems_map: dict[str, str] = {}
+    order: list[str] = []
+    for row in tables.get("anatomical-systems") or []:
+        chain = row.get("anatomical_structures") or []
+        if len(chain) < 2:
+            continue
+        system = (chain[1].get("label") or "").strip().title()
+        if not system:
+            continue
+        if system not in order:
+            order.append(system)
+        for node in chain[2:]:
+            u = node.get("id")
+            if u:
+                systems_map.setdefault(u, system)
+            lab = _norm_label(node.get("label"))
+            if lab:
+                systems_map.setdefault("label:" + lab, system)
+    return systems_map, order
 
 
 def _label(key: str) -> str:
@@ -115,7 +186,9 @@ def _glbs_by_sex(asset_urls: list[str]) -> dict:
 
 
 def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
-                         subregions: dict | None = None) -> dict:
+                         subregions: dict | None = None,
+                         systems_map: dict | None = None,
+                         systems_order: list | None = None) -> dict:
     """Build the atlas manifest from a catalog `{biomodel_dos, organ_index,
     organ_to_models}`.
 
@@ -185,7 +258,7 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
             "key": key,
             "label": _label(key),
             "uberon": uberon,
-            "system": organ_system(key),
+            "system": _system_for(key, uberon, systems_map),
             "glb": _glb_by_sex(entry.get("asset_urls") or []),
             "glbs": _glbs_by_sex(entry.get("asset_urls") or []),
             "n_models": len(models),
@@ -198,7 +271,11 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
     max_subregion_models = max(
         (s["n_models"] for o in organs for s in o["subregions"]), default=0)
     present = {o["system"] for o in organs}
-    systems = [s for s in SYSTEM_ORDER if s in present]
+    # Group by the HRA anatomical-systems partonomy order when supplied, else the
+    # legacy curated SYSTEM_ORDER; "Other" last.
+    order = list(systems_order or SYSTEM_ORDER) + ["Other"]
+    systems = [s for s in order if s in present]
+    systems += [s for s in present if s not in systems]  # any stragglers, stable
     return {
         "organs": organs,
         "systems": systems,
@@ -300,7 +377,9 @@ def build_and_write_atlas(*, db_path=None, catalog_path, out_dir,
     crosswalk = load_crosswalk(crosswalk_path)
     catalog, subs, stats = build_atlas_from_hra_map(
         db, organ_index, hrapop_as, crosswalk, **place_kw)
-    manifest = build_atlas_manifest(catalog, subregions=subs)
+    systems_map, systems_order = load_anatomical_systems()
+    manifest = build_atlas_manifest(catalog, subregions=subs,
+                                    systems_map=systems_map, systems_order=systems_order)
     write_atlas_pack(out_dir, manifest=manifest,
                      coverage={"coverage": [], "summary": {}},
                      overview_glb_url=overview_glb_url)

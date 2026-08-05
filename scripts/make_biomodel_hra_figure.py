@@ -44,6 +44,8 @@ CATS = [
     ("MeSH (from paper)", "mol", lambda e: len(e["ontology_ids"]["mesh"])),
     ("CHEBI", "mol", lambda e: len(e["molecular_ids"]["chebi"])),
     ("UniProt", "mol", lambda e: len(e["molecular_ids"]["uniprot"])),
+    ("HGNC (gene)", "mol", lambda e: len(e["molecular_ids"].get("hgnc") or [])),
+    ("Ensembl (gene)", "mol", lambda e: len(e["molecular_ids"].get("ensembl") or [])),
     ("KEGG", "mol", lambda e: len(e["molecular_ids"]["kegg"])),
     ("GO", "mol", lambda e: len(e["molecular_ids"]["go"])),
 ]
@@ -60,19 +62,19 @@ fig.patch.set_facecolor("white")
 fig.text(0.045, 0.955, "Harvesting BioModels into the Human Reference Atlas",
          fontsize=26, fontweight="bold", color=INK, va="top")
 fig.text(0.045, 0.918,
-         "1,096 curated BioModels → molecular identifiers, publication links, organism, and HRA "
-         "organ / FTU / cell-type mapping\n(anatomy crosswalked from paper MeSH + BTO), with 112 models "
-         "linked to HRApop measured cell-type populations.",
+         "1,096 curated BioModels → molecular identifiers (incl. HGNC / Ensembl genes), organism, "
+         "publication links, and HRA organ / FTU / cell-type mapping\n(anatomy crosswalked from paper "
+         "MeSH + BTO + ASCT+B gene→Uberon), with HRApop measured cell-type populations.",
          fontsize=12.5, color=MUTED, va="top", linespacing=1.5)
 
 # hero stat tiles
-n_mol = sum(1 for e in d if any(e["molecular_ids"].values()))
 n_ube = data["Uberon (anatomy)"]["cov"]
-n_pop = data["HRApop cell types"]["cov"]
+n_gene = data["HGNC (gene)"]["cov"]
+n_org = sum(1 for e in d if e.get("organism"))
 heroes = [(f"{N:,}", "models harvested", INK),
-          (str(n_mol), f"with molecular ids ({round(100*n_mol/N)}%)", MOL),
+          (str(n_gene), f"with gene ids ({round(100*n_gene/N)}%)", MOL),
           (str(n_ube), f"mapped to Uberon ({round(100*n_ube/N)}%)", ANA),
-          (str(n_pop), f"linked to HRApop ({round(100*n_pop/N)}%)", ACCENT)]
+          (str(n_org), f"with organism ({round(100*n_org/N)}%)", ACCENT)]
 x0, w, gap = 0.045, 0.212, 0.023
 for i, (num, lab, col) in enumerate(heroes):
     x = x0 + i * (w + gap)
@@ -112,7 +114,7 @@ ax_cov.set_axisbelow(True)
 
 # ---- Small-multiple distributions (how many terms per model) ----
 panel_cats = ["Organs", "Functional tissue units", "Cell types", "Uberon (anatomy)",
-              "MeSH (from paper)", "GO"]
+              "MeSH (from paper)", "HGNC (gene)"]
 for ax, label in zip(hist_axes, panel_cats):
     dat = data[label]; nz = dat["nz"]; fam_col = ANA if dat["fam"] == "ana" else MOL
     cap = int(np.percentile(nz, 97)) if len(nz) else 1

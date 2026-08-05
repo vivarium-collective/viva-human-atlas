@@ -16,3 +16,4 @@ studies/*/viz/report_card/
 
 studies/*/sims/
 studies/*/runs.db
+.cache/

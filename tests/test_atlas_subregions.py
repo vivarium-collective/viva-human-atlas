@@ -167,7 +167,7 @@ def test_end_to_end_build_from_committed_datasets(tmp_path):
         db_path=str(REPO / "datasets" / "biomodel_hra_map.json"),
         catalog_path=str(CATALOG), out_dir=tmp_path)
     atlas = json.loads((tmp_path / "atlas.json").read_text())
-    assert atlas["summary"]["n_models_distinct"] == 172
+    assert atlas["summary"]["n_models_distinct"] == 256
     assert atlas["summary"]["n_subregions"] >= 3
     kidney = next(o for o in atlas["organs"] if o["key"] == "kidney")
     assert len(kidney["glbs"]["female"]) == 4                      # both kidneys + pelvises
@@ -180,6 +180,6 @@ def test_atlas_browser_step_writes_pack_and_emits_summary(tmp_path):
     step = AtlasBrowserStep(config={"out_dir": str(tmp_path)}, core=core)
     out = step.update({})
     assert (tmp_path / "atlas.json").exists()
-    assert out["summary"]["n_models_distinct"] == 172
+    assert out["summary"]["n_models_distinct"] == 256
     assert out["placement_stats"]["n_subregion_models"] >= 9
     assert out["out_dir"] == str(tmp_path)

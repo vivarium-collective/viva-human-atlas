@@ -140,7 +140,7 @@ def test_step_summary_matches_committed_corpus_db():
     out = step.update({})
     assert out["n_models"] == 1096
     assert out["summary"]["n_with_molecular"] == 978
-    assert out["summary"]["n_with_uberon"] == 215
+    assert out["summary"]["n_with_uberon"] == 323
     assert out["summary"]["n_with_hrapop"] == 112
 
 
