@@ -70,3 +70,25 @@ def test_glb_urls_split_by_sex():
     pancreas = m["organs"][0]
     assert pancreas["glb"]["female"].endswith("3d-vh-f-pancreas.glb")
     assert pancreas["glb"]["male"].endswith("3d-vh-m-pancreas.glb")
+
+
+def test_organ_sex_classification():
+    from viva_human_atlas.atlas_pack import organ_sex
+    # biologically female (plain key) + key-suffixed female
+    assert organ_sex("placenta-full-term") == "female"
+    assert organ_sex("uterus") == "female"
+    assert organ_sex("ovary-female-left") == "female"
+    # male
+    assert organ_sex("prostate") == "male"
+    assert organ_sex("eye-male-left") == "male"
+    # unisex — must NOT be classed female just because only a female GLB ships
+    assert organ_sex("manubrium") == "both"
+    assert organ_sex("sternum") == "both"
+    assert organ_sex("heart") == "both"
+
+
+def test_manifest_carries_sex_field():
+    by = {o["key"]: o for o in _manifest()["organs"]}
+    assert by["placenta-full-term"]["sex"] == "female"
+    assert by["prostate"]["sex"] == "male"
+    assert by["heart"]["sex"] == "both"
