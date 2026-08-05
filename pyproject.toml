@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "HRA / Whole Person Physiome modeling workspace (process-bigraph)"
 requires-python = ">=3.12"
 dependencies = [
-    "process-bigraph>=1.7.1",
+    "process-bigraph>=1.8.3",
     "bigraph-schema",
     "requests>=2.31",
     "pyyaml>=6.0",
