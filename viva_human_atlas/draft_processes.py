@@ -9,10 +9,7 @@ them by address and supplies only the store wiring.
 """
 from __future__ import annotations
 
-try:
-    from viva_superpowers.draft_process import DraftProcess, draft_process
-except ModuleNotFoundError:  # pragma: no cover - pre-rename fallback
-    from pbg_superpowers.draft_process import DraftProcess, draft_process
+from process_bigraph import DraftProcess, draft_process
 
 
 @draft_process(
