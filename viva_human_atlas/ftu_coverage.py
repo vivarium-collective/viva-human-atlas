@@ -8,7 +8,7 @@ model's cell-population parameters; the RUI -> CTpop -> model
 parameterization Peter Hunter / SPARC-heart describe).
 
 `HRA_FTUS` is a curated list of Human Reference Atlas functional tissue
-units, each `{ftu, organ, cell_types: [{cl, label}], synonyms: [...]}`.
+units, each `{ftu, organ, uberon, cell_types: [{cl, label}], synonyms: [...]}`.
 `build_ftu_model_coverage` matches the committed BioModels corpus catalog's
 `biomodel_do.name` against each FTU's `synonyms` (case-insensitive substring
 match) to answer, at name-matching granularity, which FTUs any curated model
@@ -27,15 +27,17 @@ from viva_human_atlas.coverage import load_corpus_catalog
 
 _DEFAULT_CATALOG_PATH = "datasets/biomodel_corpus_catalog.json"
 
-# Curated HRA functional tissue units. `cell_types` are the FTU's
-# characteristic Cell-Ontology-keyed cell types (candidate CTpop
-# parameterization targets, see `ctpop_parameter_stub`); `synonyms` are the
-# lowercase substrings `build_ftu_model_coverage` matches against each
-# catalog biomodel's `name`.
+# Curated HRA functional tissue units. `uberon` is the FTU's Uberon
+# anatomical-structure CURIE (used by `hra_mapping.map_to_hra`);
+# `cell_types` are the FTU's characteristic Cell-Ontology-keyed cell types
+# (candidate CTpop parameterization targets, see `ctpop_parameter_stub`);
+# `synonyms` are the lowercase substrings `build_ftu_model_coverage`
+# matches against each catalog biomodel's `name`.
 HRA_FTUS = [
     {
         "ftu": "pancreatic islet of Langerhans",
         "organ": "pancreas",
+        "uberon": "UBERON:0000006",
         "cell_types": [
             {"cl": "CL:0000169", "label": "type B pancreatic cell (beta cell)"},
             {"cl": "CL:0000171", "label": "pancreatic A cell (alpha cell)"},
@@ -48,6 +50,7 @@ HRA_FTUS = [
     {
         "ftu": "kidney renal corpuscle / glomerulus",
         "organ": "kidney",
+        "uberon": "UBERON:0001229",
         "cell_types": [
             {"cl": "CL:0000653", "label": "podocyte"},
         ],
@@ -56,12 +59,14 @@ HRA_FTUS = [
     {
         "ftu": "kidney nephron",
         "organ": "kidney",
+        "uberon": "UBERON:0001285",
         "cell_types": [],
         "synonyms": ["nephron", "tubule"],
     },
     {
         "ftu": "liver lobule",
         "organ": "liver",
+        "uberon": "UBERON:0004647",
         "cell_types": [
             {"cl": "CL:0000182", "label": "hepatocyte"},
         ],
@@ -70,6 +75,7 @@ HRA_FTUS = [
     {
         "ftu": "lung alveolus",
         "organ": "lung",
+        "uberon": "UBERON:0002299",
         "cell_types": [
             {"cl": "CL:0002062", "label": "type I pneumocyte (AT1)"},
             {"cl": "CL:0002063", "label": "type II pneumocyte (AT2)"},
@@ -79,12 +85,14 @@ HRA_FTUS = [
     {
         "ftu": "large-intestine crypt of Lieberkuhn",
         "organ": "large intestine",
+        "uberon": "UBERON:0001984",
         "cell_types": [],
         "synonyms": ["crypt", "colon crypt"],
     },
     {
         "ftu": "small-intestine crypt-villus axis",
         "organ": "small intestine",
+        "uberon": "UBERON:0001213",
         "cell_types": [],
         "synonyms": ["villus", "enterocyte"],
     },
@@ -93,6 +101,7 @@ HRA_FTUS = [
     {
         "ftu": "cardiac muscle / myocardium unit",
         "organ": "heart",
+        "uberon": "UBERON:0002349",
         "cell_types": [
             {"cl": "CL:0000746", "label": "cardiac muscle cell (cardiomyocyte)"},
         ],
@@ -101,18 +110,21 @@ HRA_FTUS = [
     {
         "ftu": "ovarian follicle",
         "organ": "ovary",
+        "uberon": "UBERON:0001305",
         "cell_types": [],
         "synonyms": ["follicle", "oocyte"],
     },
     {
         "ftu": "skin epidermis unit",
         "organ": "skin",
+        "uberon": "UBERON:0001003",
         "cell_types": [],
         "synonyms": ["epidermis", "keratinocyte"],
     },
     {
         "ftu": "lymph node follicle",
         "organ": "lymph node",
+        "uberon": "UBERON:0010748",
         "cell_types": [],
         "synonyms": ["lymphoid follicle", "germinal center", "germinal centre"],
     },
