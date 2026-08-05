@@ -9,4 +9,5 @@ from viva_human_atlas.composites import ftu_coverage_composite  # noqa: F401
 from viva_human_atlas.composites import ctpop_islet_composite  # noqa: F401
 from viva_human_atlas.composites import vasculature_network_composite  # noqa: F401
 from viva_human_atlas.composites import biomodel_hra_map_composite  # noqa: F401
+from viva_human_atlas.composites import atlas_browser_composite  # noqa: F401
 from viva_human_atlas.composites import organ_vasculature_scaffold  # noqa: F401
