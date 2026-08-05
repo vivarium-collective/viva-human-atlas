@@ -73,7 +73,7 @@ embed_visualizations:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.biomodel_do_composite.glucose-biomodel-do
+    step: local:viva_human_atlas.biomodel_do.BiomodelDOCatalogStep
     params:
       query: "glucose regulation"
       max_results: 25

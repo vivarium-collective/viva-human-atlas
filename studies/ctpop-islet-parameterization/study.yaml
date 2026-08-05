@@ -103,7 +103,7 @@ report:
 
 baseline:
   - name: baseline
-    composite: viva_human_atlas.composites.ctpop_islet_composite.ctpop-islet-parameterization
+    step: local:viva_human_atlas.ctpop_islet.CtpopIsletParameterizationStep
     params:
       model_id: "BIOMD0000000341"
       t_end: 4000.0
