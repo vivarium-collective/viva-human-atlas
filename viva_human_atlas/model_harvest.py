@@ -3,7 +3,10 @@ source into the single `datasets/model_hra_map.json`. A plain rerun harvests onl
 newly-posted models; a source rebuild never touches another source's rows."""
 from __future__ import annotations
 
+from collections import Counter
 from typing import Callable, Optional, Sequence
+
+from process_bigraph import Step
 
 from viva_human_atlas import biomodel_hra as bh
 from viva_human_atlas import physionet
@@ -66,3 +69,39 @@ def harvest(sources: Optional[Sequence[str]] = None, *, out=DEFAULT_DB_PATH,
 
     bh.write_db(db, out)
     return {"per_source": per_source, "total": len(db)}
+
+
+# --------------------------------------------------------------------------- #
+# Vivarium Step                                                               #
+# --------------------------------------------------------------------------- #
+class ModelHarvestStep(Step):
+    """Cache-or-harvest the unified model DB across all sources and emit path,
+    model count, per-source counts, and a coverage summary."""
+
+    description = ("Load (cache-or-harvest) the unified BioModels+PhysioNet -> HRA "
+                   "model DB and emit its path, total count, per-source counts, and "
+                   "coverage summary. Reproducible: run this study to refresh the DB.")
+
+    config_schema = {
+        "db_path": "string", "sources": "list", "query": "string", "limit": "integer",
+        "no_llm": "boolean", "force": "boolean", "build_if_missing": "boolean",
+        "analysis_out_dir": "string",
+    }
+
+    def inputs(self):
+        return {}
+
+    def outputs(self):
+        return {"db_path": "string", "n_models": "integer", "per_source": "tree", "summary": "tree"}
+
+    def update(self, inputs):
+        db_path = self.config.get("db_path") or str(DEFAULT_DB_PATH)
+        if self.config.get("build_if_missing", False) or self.config.get("force", False):
+            harvest(self.config.get("sources") or None, out=db_path,
+                    query=self.config.get("query"), limit=self.config.get("limit"),
+                    no_llm=bool(self.config.get("no_llm", True)),
+                    force=bool(self.config.get("force", False)))
+        entries = bh.load_map(db_path)
+        per_source = dict(Counter(e.get("repository", "unknown") for e in entries))
+        return {"db_path": str(db_path), "n_models": len(entries),
+                "per_source": per_source, "summary": bh.summarize_map(entries)}
