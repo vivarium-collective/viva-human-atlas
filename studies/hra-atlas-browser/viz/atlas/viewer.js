@@ -36,7 +36,7 @@ const els = {
   bpTitle: document.getElementById("bp-title"),
   bpSub: document.getElementById("bp-sub"),
   bpList: document.getElementById("biomodels-list"),
-  sourceFilter: document.querySelector("[data-source-filter]"),
+  sourceChips: document.getElementById("source-chips"),
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
@@ -47,6 +47,82 @@ const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
   { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
 ));
+
+// --- model sources (general-purpose) ---------------------------------------
+// Every `repository` present in the atlas becomes a toggleable source. All are
+// active by default, so the model lists are COMBINED across sources unless the
+// user narrows them. Nothing here is hardcoded to biomodels/physionet — a new
+// source in the data appears as a chip automatically. Defined at module scope
+// so both the top-level renderers and the ones inside main() can share it.
+const ACTIVE_SOURCES = new Set();     // repositories currently shown
+let ALL_SOURCES = [];                 // every repository present, sorted
+const SOURCE_LABELS = { biomodels: "BioModels", physionet: "PhysioNet" };
+const SOURCE_DOTS = { biomodels: "#4c92ff", physionet: "#ff8a4c" };
+const FALLBACK_DOTS = ["#4c92ff", "#ff8a4c", "#7bd88f", "#e0a0ff", "#ffd166", "#5ad1c9"];
+const sourceLabel = (r) => SOURCE_LABELS[r] || (r ? r[0].toUpperCase() + r.slice(1) : "Other");
+function sourceColor(r) {
+  if (SOURCE_DOTS[r]) return SOURCE_DOTS[r];
+  const i = Math.max(0, ALL_SOURCES.indexOf(r));
+  return FALLBACK_DOTS[i % FALLBACK_DOTS.length];
+}
+function initSources(atlas) {
+  const seen = new Set();
+  for (const o of atlas.organs) {
+    for (const m of o.models || []) if (m.repository) seen.add(m.repository);
+    for (const s of o.subregions || []) for (const m of s.models || []) if (m.repository) seen.add(m.repository);
+  }
+  ALL_SOURCES = [...seen].sort();
+  ACTIVE_SOURCES.clear();
+  ALL_SOURCES.forEach((r) => ACTIVE_SOURCES.add(r));
+}
+// Keep only models whose source is active (all active => list unchanged).
+const filterBySource = (models) => (models || []).filter((m) => ACTIVE_SOURCES.has(m.repository));
+// Per-source occurrence counts for a model list: {repository: n}.
+function sourceCounts(models) {
+  const c = {};
+  for (const m of models || []) c[m.repository] = (c[m.repository] || 0) + 1;
+  return c;
+}
+// Human-readable per-source breakdown, e.g. "78 BioModels · 15 PhysioNet".
+function sourceBreakdown(models) {
+  const c = sourceCounts(models);
+  return ALL_SOURCES.filter((r) => c[r]).map((r) => `${c[r]} ${sourceLabel(r)}`).join(" · ");
+}
+// Distinct-per-source breakdown (dedup by source_id) for header-level totals.
+function distinctBreakdown(models) {
+  const seen = {};
+  for (const m of models || []) (seen[m.repository] ||= new Set()).add(m.source_id);
+  return ALL_SOURCES.filter((r) => seen[r] && seen[r].size)
+    .map((r) => `${seen[r].size} ${sourceLabel(r)}`).join(" · ");
+}
+// Assigned by main() to re-render whatever the panel currently shows after a
+// source toggle (so a chip click refreshes organ / subregion / search in place).
+let onSourcesChanged = () => {};
+// Render the source toggle chips (with per-source counts for THIS model set)
+// into the panel head. Clicking a chip narrows/combines the list; all-on is the
+// default and turning the last one off snaps back to all (never an empty view).
+function renderSourceChips(models) {
+  const host = els.sourceChips;
+  if (!host) return;
+  host.innerHTML = "";
+  if (ALL_SOURCES.length < 2) return;   // single source: no chooser needed
+  const c = sourceCounts(models);
+  for (const r of ALL_SOURCES) {
+    const active = ACTIVE_SOURCES.has(r);
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip" + (active ? "" : " off");
+    chip.setAttribute("aria-pressed", active ? "true" : "false");
+    chip.innerHTML = `<span class="dot" style="background:${sourceColor(r)}"></span>`
+      + `${esc(sourceLabel(r))} <span class="cnt">${c[r] || 0}</span>`;
+    chip.addEventListener("click", () => {
+      if (ACTIVE_SOURCES.has(r)) ACTIVE_SOURCES.delete(r); else ACTIVE_SOURCES.add(r);
+      if (ACTIVE_SOURCES.size === 0) ALL_SOURCES.forEach((s) => ACTIVE_SOURCES.add(s));
+      onSourcesChanged();
+    });
+    host.appendChild(chip);
+  }
+}
 
 // ColorBrewer YlGnBu (9-class sequential) — a perceptually-ordered
 // light-yellow (few) -> green -> teal -> dark-blue (many) ramp, the standard
@@ -91,9 +167,13 @@ const subregionCount = (organ, sub) => organ.n_models + (sub.n_models || 0);
 
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
-  els.bpSub.textContent = organ.n_models
-    ? `${organ.n_models} BioModel${organ.n_models > 1 ? "s" : ""} · ${organ.uberon || ""}`
+  const nTotal = organ.models.length;
+  const breakdown = sourceBreakdown(organ.models);
+  els.bpSub.textContent = nTotal
+    ? `${nTotal} model${nTotal > 1 ? "s" : ""}` + (breakdown ? ` (${breakdown})` : "")
+      + ` · ${organ.uberon || ""}`
     : `no models · ${organ.uberon || ""}`;
+  renderSourceChips(organ.models);
   els.bpList.innerHTML = "";
   if (!organ.models.length) {
     const d = document.createElement("div");
@@ -133,6 +213,7 @@ async function main() {
   setStatus("loading config…");
   const cfg = await fetch("config.json").then((r) => r.json());
   const atlas = await fetch(cfg.atlas).then((r) => r.json());
+  initSources(atlas);   // discover every repository present -> toggleable sources
   const organsByKey = new Map(atlas.organs.map((o) => [o.key, o]));
   // Per-organ subregion lookup: organ key -> Map(normalized node_name ->
   // subregion). Lets `colorMesh` decide, per GLB mesh, whether it's a modeled
@@ -207,10 +288,16 @@ async function main() {
     organsBySystem.get(o.system).push(o);
   }
   els.legendMax.textContent = String(atlas.max_models);
-  const distinctTotal = atlas.summary.n_models_distinct ?? atlas.summary.n_models_total;
+  // Combined distinct total across every source, computed from the data (union
+  // of repository:source_id), with a per-source breakdown — not a single-source
+  // summary field. General-purpose: reflects whatever sources are present.
+  const allModels = atlas.organs.flatMap((o) => o.models || []);
+  const distinctTotal = new Set(allModels.map((m) => m.repository + ":" + m.source_id)).size;
+  const headBreak = distinctBreakdown(allModels);
   const nSub = atlas.summary.n_subregions || 0;
   els.summary.textContent =
-    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct BioModels`
+    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct models`
+    + (headBreak ? ` (${headBreak})` : "")
     + (nSub ? ` · ${nSub} modeled subregion${nSub === 1 ? "" : "s"} in ${atlas.summary.n_organs_with_subregions} organ${atlas.summary.n_organs_with_subregions === 1 ? "" : "s"}` : "");
 
   // ---- scene ----
@@ -240,17 +327,13 @@ async function main() {
   const raycastMeshes = [];            // meshes across all *shown* organs
   let hovered = null;
   let modelQuery = "";                 // active model-search keyword (lowercased)
-  // Active source filter (`all` | `biomodels` | `physionet`), driven by the
-  // [data-source-filter] <select> in index.html.
-  let sourceFilter = els.sourceFilter ? els.sourceFilter.value : "all";
+  // Re-render for the CURRENT panel view, reassigned by focus / subregion /
+  // reset so a source-chip toggle refreshes exactly what's shown, in place.
+  let rerenderPanel = () => resetPanel();
+  onSourcesChanged = () => rerenderPanel();
   // ---- explode (B4) ----
   let explodeAnim = null;              // {meshes:[{mesh,from,to}], start, dur}
   let explodedKey = null;              // organ key currently in exploded state
-
-  // Models restricted to the active source filter (repository = biomodels/physionet).
-  function filterBySource(models) {
-    return sourceFilter === "all" ? models : models.filter((m) => m.repository === sourceFilter);
-  }
 
   // Models in an organ whose name or source id contains the search keyword,
   // honoring the active source filter.
@@ -419,9 +502,10 @@ async function main() {
     focused = key;
     // While a model search is active the panel stays on the search results
     // (across all shown organs), not a single organ.
-    if (modelQuery) { renderModelSearch(); return; }
+    if (modelQuery) { renderModelSearch(); rerenderPanel = () => focus(key); return; }
     const organ = organsByKey.get(key);
     if (organ) renderBioModels(organ);
+    rerenderPanel = () => focus(key);
   }
 
   // Add/remove an organ from the composed scene.
@@ -636,13 +720,15 @@ async function main() {
 
   function selectionStatus() {
     const distinct = distinctModels([...selected]);
-    return `${selected.size} organ${selected.size === 1 ? "" : "s"} shown · ${distinct} distinct BioModel${distinct === 1 ? "" : "s"} represented`;
+    return `${selected.size} organ${selected.size === 1 ? "" : "s"} shown · ${distinct} distinct model${distinct === 1 ? "" : "s"} represented`;
   }
 
   function resetPanel() {
     els.bpTitle.textContent = "Select an organ";
     els.bpSub.textContent = `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled`;
     els.bpList.innerHTML = "";
+    renderSourceChips([]);
+    rerenderPanel = () => resetPanel();
   }
 
   function _modelLink(m) {
@@ -672,9 +758,10 @@ async function main() {
     const localIds = new Set(localModels.map((m) => m.source_id));
     const regionWide = filterBySource(organ.models || []).filter((m) => !localIds.has(m.source_id));
     const total = subregionCount(organ, sub);
+    renderSourceChips([...(sub.models || []), ...(organ.models || [])]);
     els.bpTitle.textContent = sub.label || "Subregion";
     els.bpSub.textContent =
-      `${total} BioModel${total === 1 ? "" : "s"} · ${sub.n_models} localized here · ${sub.uberon || ""} · in ${organ.label}`;
+      `${total} model${total === 1 ? "" : "s"} · ${sub.n_models} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
     for (const m of localModels) els.bpList.appendChild(_modelLink(m));
     for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
@@ -694,6 +781,11 @@ async function main() {
   function renderModelSearch() {
     const q = modelQuery;
     els.bpTitle.textContent = `Models matching “${q}”`;
+    // chips reflect matches across all shown organs, regardless of active source
+    const allMatch = [...selected].flatMap((k) =>
+      (organsByKey.get(k)?.models || []).filter(
+        (m) => (m.name + " " + m.source_id).toLowerCase().includes(q)));
+    renderSourceChips(allMatch);
     els.bpList.innerHTML = "";
     const hits = [...selected]
       .map((k) => ({ organ: organsByKey.get(k), models: matchingModels(organsByKey.get(k), q) }))
@@ -720,16 +812,6 @@ async function main() {
       els.bpList.appendChild(head);
       for (const m of models) els.bpList.appendChild(_modelLink(m));
     }
-  }
-
-  // React to the source filter <select>: re-render whatever the right panel
-  // is currently showing (search results or the focused organ) with the new
-  // filter applied.
-  function onSourceFilter() {
-    sourceFilter = els.sourceFilter.value;
-    if (modelQuery) renderModelSearch();
-    else if (focused) focus(focused);
-    else resetPanel();
   }
 
   // React to the model keyword box: recolor the shown organs by match count and
@@ -834,7 +916,6 @@ async function main() {
   // + list matching models grouped by organ.
   els.modelSearch.addEventListener("input", onModelSearch);
   // Source filter (All / BioModels / PhysioNet): re-render the panel + counts.
-  els.sourceFilter?.addEventListener("change", onSourceFilter);
 
   // ---- hover + click in the 3D scene ----
   const ray = new THREE.Raycaster();
@@ -865,8 +946,10 @@ async function main() {
     if (!hovered) return;
     const sub = hovered.userData.sub;
     if (sub && !modelQuery) {
+      const organ = organsByKey.get(hovered.userData.organKey);
       focused = hovered.userData.organKey;
-      renderSubregion(sub, organsByKey.get(hovered.userData.organKey));
+      renderSubregion(sub, organ);
+      rerenderPanel = () => renderSubregion(sub, organ);
     } else {
       focus(hovered.userData.organKey);
     }

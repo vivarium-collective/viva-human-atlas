@@ -125,8 +125,18 @@
       white-space:nowrap;border:1px solid transparent;text-transform:uppercase;letter-spacing:.02em;}
     .src-biomodels{background:rgba(76,146,255,.18);color:#9dc4ff;border-color:rgba(76,146,255,.4);}
     .src-physionet{background:rgba(255,138,76,.18);color:#ffbf9d;border-color:rgba(255,138,76,.4);}
-    #source-filter{margin-top:8px;width:100%;padding:6px 9px;background:var(--bg);color:var(--text);
-      border:1px solid var(--border);border-radius:6px;font-size:12px;}
+    /* source toggle chips: one per repository present in the data, all on by
+       default (combined list); click to narrow. Per-chip count is for the
+       current organ/subregion/search. */
+    .source-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+    .source-chips .chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;font-size:11px;
+      border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);
+      cursor:pointer;user-select:none;white-space:nowrap;}
+    .source-chips .chip:hover{border-color:var(--accent);}
+    .source-chips .chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .source-chips .chip .cnt{font-variant-numeric:tabular-nums;color:var(--text-dim);}
+    .source-chips .chip.off{opacity:.4;}
+    .source-chips .chip.off .dot{filter:grayscale(1);}
     #status{position:absolute;bottom:14px;left:calc(var(--menu-w) + 28px);z-index:20;
       color:var(--text-dim);font-size:11.5px;}
   </style>
@@ -171,12 +181,9 @@
         <div class="bp-title" id="bp-title">Select an organ</div>
         <div class="bp-sub" id="bp-sub"></div>
         <input id="model-search" type="search" placeholder="Filter models (keyword)…"
-               aria-label="Filter BioModels by keyword">
-        <select id="source-filter" data-source-filter aria-label="Filter models by source">
-          <option value="all">All sources</option>
-          <option value="biomodels">BioModels</option>
-          <option value="physionet">PhysioNet</option>
-        </select>
+               aria-label="Filter models by keyword">
+        <div id="source-chips" data-source-filter class="source-chips"
+             role="group" aria-label="Filter models by source"></div>
       </div>
       <div id="biomodels-list"></div>
     </div>
