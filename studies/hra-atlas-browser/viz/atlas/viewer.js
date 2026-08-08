@@ -693,7 +693,14 @@ async function main() {
     collapseExplode(true);
     selected.clear();
     for (const k of keys) selected.add(k);
-    focus(keys[0]);
+    // A single organ focuses it; a bulk selection shows the combined panel of
+    // every selected organ's models (grouped by organ), not just the first one.
+    if (keys.length === 1) {
+      focus(keys[0]);
+    } else {
+      focused = null;
+      if (modelQuery) renderModelSearch(); else renderSelectedModels();
+    }
     applySelection(false);
     let done = 0;
     const total = keys.length;
@@ -780,6 +787,7 @@ async function main() {
   // 3D coloring (so the panel and the lit-up organs read as one view).
   function renderModelSearch() {
     const q = modelQuery;
+    rerenderPanel = () => renderModelSearch();
     els.bpTitle.textContent = `Models matching “${q}”`;
     // chips reflect matches across all shown organs, regardless of active source
     const allMatch = [...selected].flatMap((k) =>
@@ -814,14 +822,58 @@ async function main() {
     }
   }
 
+  // Right-panel view when MANY organs are shown and none is singled out (e.g.
+  // "All modeled"): every selected organ's models, grouped by organ (combined
+  // across sources, honoring the source chips), so the panel reflects the whole
+  // left-hand selection rather than one focused organ.
+  function renderSelectedModels() {
+    rerenderPanel = () => renderSelectedModels();
+    const chipModels = [...selected].flatMap((k) => organsByKey.get(k)?.models || []);
+    renderSourceChips(chipModels);
+    const groups = [...selected]
+      .map((k) => ({ organ: organsByKey.get(k), models: filterBySource(organsByKey.get(k)?.models || []) }))
+      .filter((g) => g.organ && g.models.length)
+      .sort((a, b) => b.models.length - a.models.length);
+    const distinct = new Set(groups.flatMap((g) => g.models.map((m) => m.repository + ":" + m.source_id))).size;
+    const brk = sourceBreakdown(chipModels);
+    els.bpTitle.textContent = `${selected.size} organ${selected.size === 1 ? "" : "s"} shown`;
+    els.bpSub.textContent = groups.length
+      ? `${distinct} distinct model${distinct === 1 ? "" : "s"} across ${groups.length} organ${groups.length === 1 ? "" : "s"}`
+        + (brk ? ` · ${brk}` : "")
+      : `no models in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
+    els.bpList.innerHTML = "";
+    if (!groups.length) {
+      const d = document.createElement("div");
+      d.className = "empty";
+      d.textContent = "No models match the current source filter.";
+      els.bpList.appendChild(d);
+      return;
+    }
+    for (const { organ, models } of groups) {
+      const head = document.createElement("div");
+      head.className = "organ-group-head";
+      head.innerHTML = `<span class="sw" style="background:${cssColor(organ.n_models, maxCount)}"></span>`
+        + `${esc(organ.label)} · ${models.length}`;
+      els.bpList.appendChild(head);
+      for (const m of models) els.bpList.appendChild(_modelLink(m));
+    }
+  }
+
+  // The panel's default state, given the current selection: a single focused
+  // organ, else the aggregated all-selected view, else the empty prompt.
+  function showDefaultPanel() {
+    if (focused) focus(focused);
+    else if (selected.size) renderSelectedModels();
+    else resetPanel();
+  }
+
   // React to the model keyword box: recolor the shown organs by match count and
-  // switch the panel between per-organ view and search results.
+  // switch the panel between the default view and search results.
   function onModelSearch() {
     modelQuery = els.modelSearch.value.trim().toLowerCase();
     recolorShown();
     if (modelQuery) renderModelSearch();
-    else if (focused) focus(focused);
-    else resetPanel();
+    else showDefaultPanel();
   }
 
   // ---- left menu: organs grouped by anatomical system, collapsible ----
