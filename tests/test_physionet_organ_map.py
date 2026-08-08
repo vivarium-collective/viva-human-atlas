@@ -24,6 +24,18 @@ def test_unmapped_without_llm_is_marked():
     assert out["organs"] == []
 
 
+def test_impedance_does_not_substring_match_eda_to_skin():
+    # "eda" is a short keyword (electrodermal activity) that must NOT fire as
+    # a substring inside unrelated words like "impedance"/"bioimpedance".
+    ub = pom.keyword_uberons(["bioimpedance"], "Continuous impedance cardiography monitoring")
+    assert "UBERON:0002097" not in ub  # skin
+
+
+def test_ecg_still_maps_to_heart():
+    ub = pom.keyword_uberons(["ecg"], "MIT-BIH Arrhythmia Database")
+    assert "UBERON:0000948" in ub  # heart
+
+
 def test_llm_fallback_used_when_keywords_miss():
     proj = {"name": "Cerebral Recording Set", "keywords": ["xyzzy"], "abstract": "intracranial brain signals"}
     calls = {}

@@ -18,7 +18,7 @@
         ]
       },
       "sex": "both",
-      "n_models": 99,
+      "n_models": 93,
       "models": [
         {
           "source_id": "12-lead-ecg-viewer-matlab",
@@ -207,12 +207,6 @@
           "name": "AF Classification from a Short Single Lead ECG Recording: The PhysioNet/Computing in Cardiology Challenge 2017"
         },
         {
-          "source_id": "challenge-2020",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/challenge-2020/",
-          "name": "Classification of 12-lead ECGs: The PhysioNet/Computing in Cardiology Challenge 2020"
-        },
-        {
           "source_id": "challenge-2022",
           "repository": "physionet",
           "url": "https://physionet.org/content/challenge-2022/",
@@ -247,12 +241,6 @@
           "repository": "physionet",
           "url": "https://physionet.org/content/cpsc2021/",
           "name": "Paroxysmal Atrial Fibrillation Events Detection from Dynamic ECG Recordings: The 4th China Physiological Signal Challenge 2021"
-        },
-        {
-          "source_id": "cudb",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/cudb/",
-          "name": "Creighton University Ventricular Tachyarrhythmia Database"
         },
         {
           "source_id": "ecg-arrhythmia",
@@ -369,12 +357,6 @@
           "name": "Heart Vector Origin Point Detection and Time-Coherent Median Beat Construction"
         },
         {
-          "source_id": "heartcycle",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/heartcycle/",
-          "name": "HeartCycle: A comprehensive dataset of synchronized impedance cardiography and echocardiography for accurate hemodynamic predictions"
-        },
-        {
           "source_id": "hss",
           "repository": "physionet",
           "url": "https://physionet.org/content/hss/",
@@ -385,12 +367,6 @@
           "repository": "physionet",
           "url": "https://physionet.org/content/i-care/",
           "name": "I-CARE: International Cardiac Arrest REsearch consortium Database"
-        },
-        {
-          "source_id": "iafdb",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/iafdb/",
-          "name": "Intracardiac Atrial Fibrillation Database"
         },
         {
           "source_id": "icentia11k-continuous-ecg",
@@ -421,12 +397,6 @@
           "repository": "physionet",
           "url": "https://physionet.org/content/macecgdb/",
           "name": "Motion Artifact Contaminated ECG Database"
-        },
-        {
-          "source_id": "mhd-effect-ecg-mri",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mhd-effect-ecg-mri/",
-          "name": "Influence of the MHD effect on 12-lead and 3-lead ECGs recorded in 1T to 7T MRI scanners"
         },
         {
           "source_id": "mimic-iii-ext-ca",
@@ -571,12 +541,6 @@
           "repository": "physionet",
           "url": "https://physionet.org/content/svdb/",
           "name": "The MIT-BIH Supraventricular Arrhythmia Database"
-        },
-        {
-          "source_id": "symile-mimic",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/symile-mimic/",
-          "name": "Symile-MIMIC: a multimodal clinical dataset of chest X-rays, electrocardiograms, and blood labs from MIMIC-IV"
         },
         {
           "source_id": "szdb",
@@ -1136,7 +1100,7 @@
         ]
       },
       "sex": "both",
-      "n_models": 60,
+      "n_models": 61,
       "models": [
         {
           "source_id": "BIOMD0000000259",
@@ -1421,6 +1385,12 @@
           "name": "Multilevel Monitoring of Activity and Sleep in Healthy people"
         },
         {
+          "source_id": "motion-artifact",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/motion-artifact/",
+          "name": "Motion Artifact Contaminated fNIRS and EEG Data"
+        },
+        {
           "source_id": "mssvepdb",
           "repository": "physionet",
           "url": "https://physionet.org/content/mssvepdb/",
@@ -1553,1004 +1523,6 @@
               "repository": "biomodels",
               "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000844",
               "name": "Viertel2019 - A Computational model of the mammalian external tufted cell",
-              "via": "anatomy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "key": "lung",
-      "label": "Lung",
-      "uberon": "UBERON:0001004",
-      "system": "Respiratory System",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
-        ]
-      },
-      "sex": "both",
-      "n_models": 57,
-      "models": [
-        {
-          "source_id": "BIOMD0000000109",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000109",
-          "name": "Haberichter2007_cellcycle"
-        },
-        {
-          "source_id": "BIOMD0000000149",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000149",
-          "name": "Kim2007 - Crosstalk between Wnt and ERK pathways"
-        },
-        {
-          "source_id": "BIOMD0000000196",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000196",
-          "name": "Srividhya2006_CellCycle"
-        },
-        {
-          "source_id": "BIOMD0000000201",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000201",
-          "name": "Goldbeter2008_Somite_Segmentation_Clock_Notch_Wnt_FGF"
-        },
-        {
-          "source_id": "BIOMD0000000207",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000207",
-          "name": "Romond1999_CellCycle"
-        },
-        {
-          "source_id": "BIOMD0000000259",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
-          "name": "Tiago2010_FeMetabolism_FeDeficient"
-        },
-        {
-          "source_id": "BIOMD0000000260",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
-          "name": "Tiago2010_FeMetabolism_FeAdequate"
-        },
-        {
-          "source_id": "BIOMD0000000261",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
-          "name": "Tiago2010_FeMetabolism_FeLoaded"
-        },
-        {
-          "source_id": "BIOMD0000000265",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265",
-          "name": "Conradie2010_RPControl_CellCycle"
-        },
-        {
-          "source_id": "BIOMD0000000318",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000318",
-          "name": "Yao2008_Rb_E2F_Switch"
-        },
-        {
-          "source_id": "BIOMD0000000338",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338",
-          "name": "Wajima2009_BloodCoagulation_aPTTtest"
-        },
-        {
-          "source_id": "BIOMD0000000339",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339",
-          "name": "Wajima2009_BloodCoagulation_PTtest"
-        },
-        {
-          "source_id": "BIOMD0000000340",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340",
-          "name": "Wajima2009_BloodCoagulation_warfarin_heparin"
-        },
-        {
-          "source_id": "BIOMD0000000398",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000398",
-          "name": "Sivakumar2011_NeuralStemCellDifferentiation_Crosstalk"
-        },
-        {
-          "source_id": "BIOMD0000000477",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
-          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis"
-        },
-        {
-          "source_id": "BIOMD0000000489",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
-          "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation"
-        },
-        {
-          "source_id": "BIOMD0000000490",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
-          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors"
-        },
-        {
-          "source_id": "BIOMD0000000504",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
-          "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release"
-        },
-        {
-          "source_id": "BIOMD0000000542",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542",
-          "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology"
-        },
-        {
-          "source_id": "BIOMD0000000560",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
-          "name": "Hui2016 - Age-related changes in articular cartilage"
-        },
-        {
-          "source_id": "BIOMD0000000575",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
-          "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease"
-        },
-        {
-          "source_id": "BIOMD0000000614",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614",
-          "name": "Kamihira2000 - calcitonin fibrillation kinetics"
-        },
-        {
-          "source_id": "BIOMD0000000648",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648",
-          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)"
-        },
-        {
-          "source_id": "BIOMD0000000652",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652",
-          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)"
-        },
-        {
-          "source_id": "BIOMD0000000653",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653",
-          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)"
-        },
-        {
-          "source_id": "BIOMD0000000654",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654",
-          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)"
-        },
-        {
-          "source_id": "BIOMD0000000655",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655",
-          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)"
-        },
-        {
-          "source_id": "BIOMD0000000656",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656",
-          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)"
-        },
-        {
-          "source_id": "BIOMD0000000657",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000657",
-          "name": "Araujo2016 - Positive feedback in Cdk1 signalling keeps mitotic duration short and constant"
-        },
-        {
-          "source_id": "BIOMD0000000660",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000660",
-          "name": "Barr2017 - Dynamics of p21 in hTert-RPE1 cells"
-        },
-        {
-          "source_id": "BIOMD0000000704",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000704",
-          "name": "Aguda1999 - G2 DNA damage checkpoint"
-        },
-        {
-          "source_id": "BIOMD0000000710",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000710",
-          "name": "Hernandez-Vargas2012 - Innate immune system dynamics to Influenza virus"
-        },
-        {
-          "source_id": "BIOMD0000000720",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000720",
-          "name": "Yan2012 - Rb-E2F pathway dynamics with miR449"
-        },
-        {
-          "source_id": "BIOMD0000000723",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723",
-          "name": "Weis2014 - Data driven Mammalian Cell Cycle Model"
-        },
-        {
-          "source_id": "BIOMD0000000730",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730",
-          "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model"
-        },
-        {
-          "source_id": "BIOMD0000000746",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000746",
-          "name": "Saad2017 - immune checkpoint and BCG in superficial bladder cancer"
-        },
-        {
-          "source_id": "BIOMD0000000818",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000818",
-          "name": "Lee2008 - ERK and PI3K signal integration by Myc"
-        },
-        {
-          "source_id": "BIOMD0000000924",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000924",
-          "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection"
-        },
-        {
-          "source_id": "BIOMD0000000939",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939",
-          "name": "Iwamoto2010 - Cell cycle reponse to DNA damage"
-        },
-        {
-          "source_id": "BIOMD0000000940",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000940",
-          "name": "Tang2019 - Pharmacology modelling of AURKB and ZAK interaction in TNBC"
-        },
-        {
-          "source_id": "BIOMD0000000941",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000941",
-          "name": "Gerard2010 - Progression of mammalian cell cycle by successive activation of various cyclin cdk complexes"
-        },
-        {
-          "source_id": "BIOMD0000000954",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000954",
-          "name": "Pandey2018-reversible transition between quiescence and proliferation"
-        },
-        {
-          "source_id": "BIOMD0000000968",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
-          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling"
-        },
-        {
-          "source_id": "actes-cycloergometer-exercise",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/actes-cycloergometer-exercise/",
-          "name": "Cardiorespiratory measurement from graded cycloergometer exercise testing"
-        },
-        {
-          "source_id": "cardioresp-response-orthostat",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/cardioresp-response-orthostat/",
-          "name": "Two-tiered response of cardiorespiratory-cerebrovascular networks to orthostatic challenge"
-        },
-        {
-          "source_id": "chest-x-ray-segmentation",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/chest-x-ray-segmentation/",
-          "name": "Chest X-ray Dataset with Lung Segmentation"
-        },
-        {
-          "source_id": "heart-lung-segmentations-data",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/heart-lung-segmentations-data/",
-          "name": "Heart and lung segmentations for MIMIC-CXR/MIMIC-CXR-JPG and Montgomery County TB databases"
-        },
-        {
-          "source_id": "lunguage",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/lunguage/",
-          "name": "Lunguage: A Benchmark for Structured and Sequential Chest X-ray Interpretation"
-        },
-        {
-          "source_id": "mimic-cxr-pe-severity",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-cxr-pe-severity/",
-          "name": "Pulmonary Edema Severity Grades Based on MIMIC-CXR"
-        },
-        {
-          "source_id": "mimic-iii-ext-ppg",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-iii-ext-ppg/",
-          "name": "MIMIC-III-Ext-PPG: A  PPG Benchmark Dataset for Cardiorespiratory Analysis"
-        },
-        {
-          "source_id": "mimic-iv-ext-pe",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-iv-ext-pe/",
-          "name": "MIMIC-IV-Ext-PE: Pulmonary Embolism Labels for CT Pulmonary Angiography Radiology Reports"
-        },
-        {
-          "source_id": "picsdb",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/picsdb/",
-          "name": "Preterm Infant Cardio-Respiratory Signals Database"
-        },
-        {
-          "source_id": "respiratory-dataset",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/respiratory-dataset/",
-          "name": "Respiratory dataset from PEEP study with expiratory occlusion"
-        },
-        {
-          "source_id": "respiratory-heartrate-dataset",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/respiratory-heartrate-dataset/",
-          "name": "Respiratory and heart rate monitoring dataset from aeration study"
-        },
-        {
-          "source_id": "respiratory-oximetry-apnoea",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/respiratory-oximetry-apnoea/",
-          "name": "Respiratory and Pulse Oximetry Waveforms from Healthy Adults During Simulated Apnoea Events"
-        },
-        {
-          "source_id": "simulated-obstructive-disease",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/simulated-obstructive-disease/",
-          "name": "Simulated Obstructive Disease Respiratory Pressure and Flow"
-        },
-        {
-          "source_id": "temporal-respiratory-support",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/temporal-respiratory-support/",
-          "name": "A Temporal Dataset for Respiratory Support in Critically Ill Patients"
-        }
-      ],
-      "subregions": [
-        {
-          "node_names": [
-            "VH_F_tertiary_bronchi_L",
-            "VH_F_tertiary_bronchi_R",
-            "VH_M_tertiary_bronchi_L",
-            "VH_M_tertiary_bronchi_R"
-          ],
-          "uberon": "UBERON:0002184",
-          "label": "Segmental bronchus",
-          "n_models": 8,
-          "models": [
-            {
-              "source_id": "BIOMD0000000265",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265",
-              "name": "Conradie2010_RPControl_CellCycle",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000504",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
-              "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000542",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542",
-              "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000560",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
-              "name": "Hui2016 - Age-related changes in articular cartilage",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000614",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614",
-              "name": "Kamihira2000 - calcitonin fibrillation kinetics",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000723",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723",
-              "name": "Weis2014 - Data driven Mammalian Cell Cycle Model",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000730",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730",
-              "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model",
-              "via": "anatomy"
-            },
-            {
-              "source_id": "BIOMD0000000939",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939",
-              "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
-              "via": "anatomy"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "key": "blood",
-      "label": "Blood",
-      "uberon": "UBERON:0004537",
-      "system": "Cardiovascular System",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
-        ]
-      },
-      "sex": "both",
-      "n_models": 55,
-      "models": [
-        {
-          "source_id": "BIOMD0000000259",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
-          "name": "Tiago2010_FeMetabolism_FeDeficient"
-        },
-        {
-          "source_id": "BIOMD0000000260",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
-          "name": "Tiago2010_FeMetabolism_FeAdequate"
-        },
-        {
-          "source_id": "BIOMD0000000261",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
-          "name": "Tiago2010_FeMetabolism_FeLoaded"
-        },
-        {
-          "source_id": "BIOMD0000000268",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000268",
-          "name": "Reed2008_Glutathione_Metabolism"
-        },
-        {
-          "source_id": "BIOMD0000000276",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000276",
-          "name": "Shrestha2010_HypoCalcemia_PTHresponse"
-        },
-        {
-          "source_id": "BIOMD0000000277",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000277",
-          "name": "Shrestha2010_HyperCalcemia_PTHresponse"
-        },
-        {
-          "source_id": "BIOMD0000000282",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000282",
-          "name": "Chance1952_Catalase_Mechanism"
-        },
-        {
-          "source_id": "BIOMD0000000332",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000332",
-          "name": "Bungay2006_Plasma"
-        },
-        {
-          "source_id": "BIOMD0000000335",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000335",
-          "name": "Hockin2002_BloodCoagulation"
-        },
-        {
-          "source_id": "BIOMD0000000336",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000336",
-          "name": "Jones1994_BloodCoagulation"
-        },
-        {
-          "source_id": "BIOMD0000000338",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338",
-          "name": "Wajima2009_BloodCoagulation_aPTTtest"
-        },
-        {
-          "source_id": "BIOMD0000000339",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339",
-          "name": "Wajima2009_BloodCoagulation_PTtest"
-        },
-        {
-          "source_id": "BIOMD0000000340",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340",
-          "name": "Wajima2009_BloodCoagulation_warfarin_heparin"
-        },
-        {
-          "source_id": "BIOMD0000000345",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000345",
-          "name": "Koschorreck2008_InsulinClearance"
-        },
-        {
-          "source_id": "BIOMD0000000362",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000362",
-          "name": "Butenas2004_BloodCoagulation"
-        },
-        {
-          "source_id": "BIOMD0000000365",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000365",
-          "name": "Hockin1999_BloodCoagulation_VaInactivation"
-        },
-        {
-          "source_id": "BIOMD0000000428",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000428",
-          "name": "Achcar2012 - Glycolysis in bloodstream form T. brucei"
-        },
-        {
-          "source_id": "BIOMD0000000434",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000434",
-          "name": "McAuley2012 - Whole-body Cholesterol Metabolism"
-        },
-        {
-          "source_id": "BIOMD0000000450",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000450",
-          "name": "Reyes-Palomares2012 -  a combined model hepatic polyamine and sulfur aminoacid metabolism - version2"
-        },
-        {
-          "source_id": "BIOMD0000000490",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
-          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors"
-        },
-        {
-          "source_id": "BIOMD0000000494",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000494",
-          "name": "Roblitz2013 - Menstrual Cycle following GnRH analogue administration"
-        },
-        {
-          "source_id": "BIOMD0000000512",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000512",
-          "name": "Benson2014 - FAAH inhibitors for the treatment of osteoarthritic pain"
-        },
-        {
-          "source_id": "BIOMD0000000521",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000521",
-          "name": "Ribba2012 - Low-grade gliomas, tumour growth inhibition model"
-        },
-        {
-          "source_id": "BIOMD0000000534",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534",
-          "name": "Dwivedi2014 - Healthy Volunteer IL6 Model"
-        },
-        {
-          "source_id": "BIOMD0000000535",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000535",
-          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6 Antibody"
-        },
-        {
-          "source_id": "BIOMD0000000536",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000536",
-          "name": "Dwivedi2014 - Crohns IL6 Disease model - sgp130 activity"
-        },
-        {
-          "source_id": "BIOMD0000000537",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537",
-          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody"
-        },
-        {
-          "source_id": "BIOMD0000000551",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000551",
-          "name": "Das2010 - Effect of a gamma-secretase inhibitor on Amyloid-beta dynamics"
-        },
-        {
-          "source_id": "BIOMD0000000611",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000611",
-          "name": "Nayak2015 - Blood Coagulation Network - Predicting the Effects of Various Therapies on Biomarkers"
-        },
-        {
-          "source_id": "BIOMD0000000672",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000672",
-          "name": "Brown1997 - Plasma Melatonin Levels"
-        },
-        {
-          "source_id": "BIOMD0000000674",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000674",
-          "name": "Reyes-Palomares2012 - a combined model hepatic polyamine and sulfur aminoacid metabolism - version1"
-        },
-        {
-          "source_id": "BIOMD0000000734",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734",
-          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)"
-        },
-        {
-          "source_id": "BIOMD0000000739",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000739",
-          "name": "Bravo2012 - Modelling blood coagulation factor Va inactivation by APC"
-        },
-        {
-          "source_id": "BIOMD0000000740",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000740",
-          "name": "Panteleev2010 - Blood Coagulation: Full Model"
-        },
-        {
-          "source_id": "BIOMD0000000747",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000747",
-          "name": "Nagashima2002 - Simulating blood coagulation inhibitory effects"
-        },
-        {
-          "source_id": "BIOMD0000000755",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000755",
-          "name": "Hansen2019 - Nine species reduced model of blood coagulation"
-        },
-        {
-          "source_id": "BIOMD0000000788",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000788",
-          "name": "Schropp2019 - Target-Mediated Drug Disposition Model for Bispecific Antibodies"
-        },
-        {
-          "source_id": "BIOMD0000000873",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-          "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage"
-        },
-        {
-          "source_id": "BIOMD0000000925",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000925",
-          "name": "Dunster2016 - Nondimensional Coagulation Model"
-        },
-        {
-          "source_id": "BIOMD0000000951",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000951",
-          "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH"
-        },
-        {
-          "source_id": "BIOMD0000001011",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001011",
-          "name": "Leon-Triana2020 - CAR T-cell therapy in B-cell acute lymphoblastic leukaemia"
-        },
-        {
-          "source_id": "BIOMD0000001012",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001012",
-          "name": "Leon-Triana2020 - CAR T-cell therapy in B-cell acute lymphoblastic leukaemia with contribution from immature B cells"
-        },
-        {
-          "source_id": "BIOMD0000001016",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001016",
-          "name": "Bakshi2020 - Truncated minimal model of alternative pathway of complement system"
-        },
-        {
-          "source_id": "BIOMD0000001017",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001017",
-          "name": "Bakshi2020 - Minimal model of alternative pathway of complement system"
-        },
-        {
-          "source_id": "BIOMD0000001018",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001018",
-          "name": "Bakshi2020 - Properdin model of alternative pathway of complement system"
-        },
-        {
-          "source_id": "BIOMD0000001024",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001024",
-          "name": "Chaudhury2020 - Lotka-Volterra mathematical model of CAR-T cell and tumour kinetics"
-        },
-        {
-          "source_id": "BIOMD0000001025",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001025",
-          "name": "Chaudhury2020 - EC50 expansion and killing mathematical model of CAR-T cell and tumour kinetics"
-        },
-        {
-          "source_id": "BIOMD0000001026",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001026",
-          "name": "Kurlovics2021 - Metformin partitioning between plasma and RBC with independent Kin and Kout coefficients"
-        },
-        {
-          "source_id": "BIOMD0000001028",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
-          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose"
-        },
-        {
-          "source_id": "BIOMD0000001029",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
-          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval"
-        },
-        {
-          "source_id": "BIOMD0000001040",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001040",
-          "name": "Kurlovics2021 - Metformin partitioning from plasma to RBC,  single coefficient"
-        },
-        {
-          "source_id": "BIOMD0000001069",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001069",
-          "name": "Alam2019 - Machine learning approach of automatic identification and counting of blood cells"
-        },
-        {
-          "source_id": "bp-graphene-bioimpedance",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/bp-graphene-bioimpedance/",
-          "name": "Continuous Cuffless Monitoring of Arterial Blood Pressure via Graphene Bioimpedance Tattoos"
-        },
-        {
-          "source_id": "glucose-management-mimic",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/glucose-management-mimic/",
-          "name": "Curated Data for Describing Blood Glucose Management in the Intensive Care Unit"
-        },
-        {
-          "source_id": "symile-mimic",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/symile-mimic/",
-          "name": "Symile-MIMIC: a multimodal clinical dataset of chest X-rays, electrocardiograms, and blood labs from MIMIC-IV"
-        }
-      ],
-      "subregions": [
-        {
-          "node_names": [
-            "VH_F_common_hepatic_artery",
-            "VH_M_common_hepatic_artery"
-          ],
-          "uberon": "UBERON:0005436",
-          "label": "common hepatic artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_inferior_mesenteric_artery",
-            "VH_M_inferior_mesenteric_artery"
-          ],
-          "uberon": "UBERON:0001183",
-          "label": "inferior mesenteric artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_left_renal_artery",
-            "VH_M_left_renal_artery"
-          ],
-          "uberon": "UBERON:0001186",
-          "label": "left renal artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_middle_colic_artery",
-            "VH_M_middle_colic_artery"
-          ],
-          "uberon": "UBERON:0001196",
-          "label": "middle colic artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_opthalmic_artery_L",
-            "VH_F_opthalmic_artery_R",
-            "VH_M_opthalmic_artery_L",
-            "VH_M_opthalmic_artery_R"
-          ],
-          "uberon": "UBERON:0001619",
-          "label": "ophthalmic artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_renal_artery",
-            "VH_M_renal_artery"
-          ],
-          "uberon": "UBERON:0001184",
-          "label": "renal artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_right_renal_artery",
-            "VH_M_right_renal_artery"
-          ],
-          "uberon": "UBERON:0001185",
-          "label": "right renal artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_sigmoid_artery",
-            "VH_F_sigmoid_artery_a",
-            "VH_F_sigmoid_artery_b",
-            "VH_F_sigmoid_artery_c",
-            "VH_M_sigmoid_artery",
-            "VH_M_sigmoid_artery_a",
-            "VH_M_sigmoid_artery_b",
-            "VH_M_sigmoid_artery_c"
-          ],
-          "uberon": "UBERON:0035180",
-          "label": "sigmoid artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_splenic_artery",
-            "VH_M_splenic_artery"
-          ],
-          "uberon": "UBERON:0001194",
-          "label": "splenic artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_inferior_mesenteric_vein",
-            "VH_F_superior_mesenteric_artery",
-            "VH_M_superior_mesenteric_artery",
-            "VH_M_superior_mesenteric_vein"
-          ],
-          "uberon": "UBERON:0001182",
-          "label": "superior mesenteric artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
-              "via": "anatomy"
-            }
-          ]
-        },
-        {
-          "node_names": [
-            "VH_F_superior_rectal_artery",
-            "VH_F_superior_rectal_vein",
-            "VH_M_superior_rectal_vein"
-          ],
-          "uberon": "UBERON:0035040",
-          "label": "superior rectal artery",
-          "n_models": 1,
-          "models": [
-            {
-              "source_id": "BIOMD0000000873",
-              "repository": "biomodels",
-              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
-              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
               "via": "anatomy"
             }
           ]
@@ -3035,6 +2007,968 @@
       ]
     },
     {
+      "key": "blood",
+      "label": "Blood",
+      "uberon": "UBERON:0004537",
+      "system": "Cardiovascular System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-female/v1.3/assets/3d-vh-f-blood-vasculature.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/blood-vasculature-male/v1.3/assets/3d-vh-m-blood-vasculature.glb"
+        ]
+      },
+      "sex": "both",
+      "n_models": 53,
+      "models": [
+        {
+          "source_id": "BIOMD0000000259",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient"
+        },
+        {
+          "source_id": "BIOMD0000000260",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate"
+        },
+        {
+          "source_id": "BIOMD0000000261",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded"
+        },
+        {
+          "source_id": "BIOMD0000000268",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000268",
+          "name": "Reed2008_Glutathione_Metabolism"
+        },
+        {
+          "source_id": "BIOMD0000000276",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000276",
+          "name": "Shrestha2010_HypoCalcemia_PTHresponse"
+        },
+        {
+          "source_id": "BIOMD0000000277",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000277",
+          "name": "Shrestha2010_HyperCalcemia_PTHresponse"
+        },
+        {
+          "source_id": "BIOMD0000000282",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000282",
+          "name": "Chance1952_Catalase_Mechanism"
+        },
+        {
+          "source_id": "BIOMD0000000332",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000332",
+          "name": "Bungay2006_Plasma"
+        },
+        {
+          "source_id": "BIOMD0000000335",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000335",
+          "name": "Hockin2002_BloodCoagulation"
+        },
+        {
+          "source_id": "BIOMD0000000336",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000336",
+          "name": "Jones1994_BloodCoagulation"
+        },
+        {
+          "source_id": "BIOMD0000000338",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338",
+          "name": "Wajima2009_BloodCoagulation_aPTTtest"
+        },
+        {
+          "source_id": "BIOMD0000000339",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339",
+          "name": "Wajima2009_BloodCoagulation_PTtest"
+        },
+        {
+          "source_id": "BIOMD0000000340",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340",
+          "name": "Wajima2009_BloodCoagulation_warfarin_heparin"
+        },
+        {
+          "source_id": "BIOMD0000000345",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000345",
+          "name": "Koschorreck2008_InsulinClearance"
+        },
+        {
+          "source_id": "BIOMD0000000362",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000362",
+          "name": "Butenas2004_BloodCoagulation"
+        },
+        {
+          "source_id": "BIOMD0000000365",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000365",
+          "name": "Hockin1999_BloodCoagulation_VaInactivation"
+        },
+        {
+          "source_id": "BIOMD0000000428",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000428",
+          "name": "Achcar2012 - Glycolysis in bloodstream form T. brucei"
+        },
+        {
+          "source_id": "BIOMD0000000434",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000434",
+          "name": "McAuley2012 - Whole-body Cholesterol Metabolism"
+        },
+        {
+          "source_id": "BIOMD0000000450",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000450",
+          "name": "Reyes-Palomares2012 -  a combined model hepatic polyamine and sulfur aminoacid metabolism - version2"
+        },
+        {
+          "source_id": "BIOMD0000000490",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
+          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors"
+        },
+        {
+          "source_id": "BIOMD0000000494",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000494",
+          "name": "Roblitz2013 - Menstrual Cycle following GnRH analogue administration"
+        },
+        {
+          "source_id": "BIOMD0000000512",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000512",
+          "name": "Benson2014 - FAAH inhibitors for the treatment of osteoarthritic pain"
+        },
+        {
+          "source_id": "BIOMD0000000521",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000521",
+          "name": "Ribba2012 - Low-grade gliomas, tumour growth inhibition model"
+        },
+        {
+          "source_id": "BIOMD0000000534",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000534",
+          "name": "Dwivedi2014 - Healthy Volunteer IL6 Model"
+        },
+        {
+          "source_id": "BIOMD0000000535",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000535",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6 Antibody"
+        },
+        {
+          "source_id": "BIOMD0000000536",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000536",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - sgp130 activity"
+        },
+        {
+          "source_id": "BIOMD0000000537",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000537",
+          "name": "Dwivedi2014 - Crohns IL6 Disease model - Anti-IL6R Antibody"
+        },
+        {
+          "source_id": "BIOMD0000000551",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000551",
+          "name": "Das2010 - Effect of a gamma-secretase inhibitor on Amyloid-beta dynamics"
+        },
+        {
+          "source_id": "BIOMD0000000611",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000611",
+          "name": "Nayak2015 - Blood Coagulation Network - Predicting the Effects of Various Therapies on Biomarkers"
+        },
+        {
+          "source_id": "BIOMD0000000672",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000672",
+          "name": "Brown1997 - Plasma Melatonin Levels"
+        },
+        {
+          "source_id": "BIOMD0000000674",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000674",
+          "name": "Reyes-Palomares2012 - a combined model hepatic polyamine and sulfur aminoacid metabolism - version1"
+        },
+        {
+          "source_id": "BIOMD0000000734",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000734",
+          "name": "Mouse Iron Distribution - Rich and Deficient iron diets (tracer)"
+        },
+        {
+          "source_id": "BIOMD0000000739",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000739",
+          "name": "Bravo2012 - Modelling blood coagulation factor Va inactivation by APC"
+        },
+        {
+          "source_id": "BIOMD0000000740",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000740",
+          "name": "Panteleev2010 - Blood Coagulation: Full Model"
+        },
+        {
+          "source_id": "BIOMD0000000747",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000747",
+          "name": "Nagashima2002 - Simulating blood coagulation inhibitory effects"
+        },
+        {
+          "source_id": "BIOMD0000000755",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000755",
+          "name": "Hansen2019 - Nine species reduced model of blood coagulation"
+        },
+        {
+          "source_id": "BIOMD0000000788",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000788",
+          "name": "Schropp2019 - Target-Mediated Drug Disposition Model for Bispecific Antibodies"
+        },
+        {
+          "source_id": "BIOMD0000000873",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+          "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage"
+        },
+        {
+          "source_id": "BIOMD0000000925",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000925",
+          "name": "Dunster2016 - Nondimensional Coagulation Model"
+        },
+        {
+          "source_id": "BIOMD0000000951",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000951",
+          "name": "Mitrophanov2015 - Simulating extended Hockin Blood Coagulation Model under varied pH"
+        },
+        {
+          "source_id": "BIOMD0000001011",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001011",
+          "name": "Leon-Triana2020 - CAR T-cell therapy in B-cell acute lymphoblastic leukaemia"
+        },
+        {
+          "source_id": "BIOMD0000001012",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001012",
+          "name": "Leon-Triana2020 - CAR T-cell therapy in B-cell acute lymphoblastic leukaemia with contribution from immature B cells"
+        },
+        {
+          "source_id": "BIOMD0000001016",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001016",
+          "name": "Bakshi2020 - Truncated minimal model of alternative pathway of complement system"
+        },
+        {
+          "source_id": "BIOMD0000001017",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001017",
+          "name": "Bakshi2020 - Minimal model of alternative pathway of complement system"
+        },
+        {
+          "source_id": "BIOMD0000001018",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001018",
+          "name": "Bakshi2020 - Properdin model of alternative pathway of complement system"
+        },
+        {
+          "source_id": "BIOMD0000001024",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001024",
+          "name": "Chaudhury2020 - Lotka-Volterra mathematical model of CAR-T cell and tumour kinetics"
+        },
+        {
+          "source_id": "BIOMD0000001025",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001025",
+          "name": "Chaudhury2020 - EC50 expansion and killing mathematical model of CAR-T cell and tumour kinetics"
+        },
+        {
+          "source_id": "BIOMD0000001026",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001026",
+          "name": "Kurlovics2021 - Metformin partitioning between plasma and RBC with independent Kin and Kout coefficients"
+        },
+        {
+          "source_id": "BIOMD0000001028",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001028",
+          "name": "Zake2021 - PBPK model of metformin in humans, single PO dose"
+        },
+        {
+          "source_id": "BIOMD0000001029",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001029",
+          "name": "Zake2021 - PBPK model of metformin in humans, eight PO administrations with 12h interval"
+        },
+        {
+          "source_id": "BIOMD0000001040",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001040",
+          "name": "Kurlovics2021 - Metformin partitioning from plasma to RBC,  single coefficient"
+        },
+        {
+          "source_id": "BIOMD0000001069",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001069",
+          "name": "Alam2019 - Machine learning approach of automatic identification and counting of blood cells"
+        },
+        {
+          "source_id": "glucose-management-mimic",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/glucose-management-mimic/",
+          "name": "Curated Data for Describing Blood Glucose Management in the Intensive Care Unit"
+        }
+      ],
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_common_hepatic_artery",
+            "VH_M_common_hepatic_artery"
+          ],
+          "uberon": "UBERON:0005436",
+          "label": "common hepatic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_inferior_mesenteric_artery",
+            "VH_M_inferior_mesenteric_artery"
+          ],
+          "uberon": "UBERON:0001183",
+          "label": "inferior mesenteric artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_left_renal_artery",
+            "VH_M_left_renal_artery"
+          ],
+          "uberon": "UBERON:0001186",
+          "label": "left renal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_middle_colic_artery",
+            "VH_M_middle_colic_artery"
+          ],
+          "uberon": "UBERON:0001196",
+          "label": "middle colic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_opthalmic_artery_L",
+            "VH_F_opthalmic_artery_R",
+            "VH_M_opthalmic_artery_L",
+            "VH_M_opthalmic_artery_R"
+          ],
+          "uberon": "UBERON:0001619",
+          "label": "ophthalmic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_renal_artery",
+            "VH_M_renal_artery"
+          ],
+          "uberon": "UBERON:0001184",
+          "label": "renal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_right_renal_artery",
+            "VH_M_right_renal_artery"
+          ],
+          "uberon": "UBERON:0001185",
+          "label": "right renal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_sigmoid_artery",
+            "VH_F_sigmoid_artery_a",
+            "VH_F_sigmoid_artery_b",
+            "VH_F_sigmoid_artery_c",
+            "VH_M_sigmoid_artery",
+            "VH_M_sigmoid_artery_a",
+            "VH_M_sigmoid_artery_b",
+            "VH_M_sigmoid_artery_c"
+          ],
+          "uberon": "UBERON:0035180",
+          "label": "sigmoid artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_splenic_artery",
+            "VH_M_splenic_artery"
+          ],
+          "uberon": "UBERON:0001194",
+          "label": "splenic artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_inferior_mesenteric_vein",
+            "VH_F_superior_mesenteric_artery",
+            "VH_M_superior_mesenteric_artery",
+            "VH_M_superior_mesenteric_vein"
+          ],
+          "uberon": "UBERON:0001182",
+          "label": "superior mesenteric artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        },
+        {
+          "node_names": [
+            "VH_F_superior_rectal_artery",
+            "VH_F_superior_rectal_vein",
+            "VH_M_superior_rectal_vein"
+          ],
+          "uberon": "UBERON:0035040",
+          "label": "superior rectal artery",
+          "n_models": 1,
+          "models": [
+            {
+              "source_id": "BIOMD0000000873",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
+              "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lung",
+      "label": "Lung",
+      "uberon": "UBERON:0001004",
+      "system": "Respiratory System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-female/v1.4/assets/3d-vh-f-lung.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/lung-male/v1.4/assets/3d-vh-m-lung.glb"
+        ]
+      },
+      "sex": "both",
+      "n_models": 53,
+      "models": [
+        {
+          "source_id": "BIOMD0000000109",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000109",
+          "name": "Haberichter2007_cellcycle"
+        },
+        {
+          "source_id": "BIOMD0000000149",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000149",
+          "name": "Kim2007 - Crosstalk between Wnt and ERK pathways"
+        },
+        {
+          "source_id": "BIOMD0000000196",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000196",
+          "name": "Srividhya2006_CellCycle"
+        },
+        {
+          "source_id": "BIOMD0000000201",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000201",
+          "name": "Goldbeter2008_Somite_Segmentation_Clock_Notch_Wnt_FGF"
+        },
+        {
+          "source_id": "BIOMD0000000207",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000207",
+          "name": "Romond1999_CellCycle"
+        },
+        {
+          "source_id": "BIOMD0000000259",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000259",
+          "name": "Tiago2010_FeMetabolism_FeDeficient"
+        },
+        {
+          "source_id": "BIOMD0000000260",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000260",
+          "name": "Tiago2010_FeMetabolism_FeAdequate"
+        },
+        {
+          "source_id": "BIOMD0000000261",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000261",
+          "name": "Tiago2010_FeMetabolism_FeLoaded"
+        },
+        {
+          "source_id": "BIOMD0000000265",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265",
+          "name": "Conradie2010_RPControl_CellCycle"
+        },
+        {
+          "source_id": "BIOMD0000000318",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000318",
+          "name": "Yao2008_Rb_E2F_Switch"
+        },
+        {
+          "source_id": "BIOMD0000000338",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000338",
+          "name": "Wajima2009_BloodCoagulation_aPTTtest"
+        },
+        {
+          "source_id": "BIOMD0000000339",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000339",
+          "name": "Wajima2009_BloodCoagulation_PTtest"
+        },
+        {
+          "source_id": "BIOMD0000000340",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000340",
+          "name": "Wajima2009_BloodCoagulation_warfarin_heparin"
+        },
+        {
+          "source_id": "BIOMD0000000398",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000398",
+          "name": "Sivakumar2011_NeuralStemCellDifferentiation_Crosstalk"
+        },
+        {
+          "source_id": "BIOMD0000000477",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000477",
+          "name": "Mol2013 - Immune Signal Transduction in Leishmaniasis"
+        },
+        {
+          "source_id": "BIOMD0000000489",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000489",
+          "name": "Sharp2013 - Lipopolysaccharide induced NFkB activation"
+        },
+        {
+          "source_id": "BIOMD0000000490",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000490",
+          "name": "Demin2013 - PKPD behaviour - 5-Lipoxygenase inhibitors"
+        },
+        {
+          "source_id": "BIOMD0000000504",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
+          "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release"
+        },
+        {
+          "source_id": "BIOMD0000000542",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542",
+          "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology"
+        },
+        {
+          "source_id": "BIOMD0000000560",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+          "name": "Hui2016 - Age-related changes in articular cartilage"
+        },
+        {
+          "source_id": "BIOMD0000000575",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000575",
+          "name": "Sass2009 - Approach to an \u03b1-synuclein-based BST model of Parkinson's disease"
+        },
+        {
+          "source_id": "BIOMD0000000614",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614",
+          "name": "Kamihira2000 - calcitonin fibrillation kinetics"
+        },
+        {
+          "source_id": "BIOMD0000000648",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000648",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (normal)"
+        },
+        {
+          "source_id": "BIOMD0000000652",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000652",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PI3K mutated)"
+        },
+        {
+          "source_id": "BIOMD0000000653",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000653",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (bRaf mutated)"
+        },
+        {
+          "source_id": "BIOMD0000000654",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000654",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (Ras mutated)"
+        },
+        {
+          "source_id": "BIOMD0000000655",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000655",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (PTEN mutation)"
+        },
+        {
+          "source_id": "BIOMD0000000656",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000656",
+          "name": "Padala2017- ERK, PI3K/Akt and Wnt signalling network (EGFR overexpression)"
+        },
+        {
+          "source_id": "BIOMD0000000657",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000657",
+          "name": "Araujo2016 - Positive feedback in Cdk1 signalling keeps mitotic duration short and constant"
+        },
+        {
+          "source_id": "BIOMD0000000660",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000660",
+          "name": "Barr2017 - Dynamics of p21 in hTert-RPE1 cells"
+        },
+        {
+          "source_id": "BIOMD0000000704",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000704",
+          "name": "Aguda1999 - G2 DNA damage checkpoint"
+        },
+        {
+          "source_id": "BIOMD0000000710",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000710",
+          "name": "Hernandez-Vargas2012 - Innate immune system dynamics to Influenza virus"
+        },
+        {
+          "source_id": "BIOMD0000000720",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000720",
+          "name": "Yan2012 - Rb-E2F pathway dynamics with miR449"
+        },
+        {
+          "source_id": "BIOMD0000000723",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723",
+          "name": "Weis2014 - Data driven Mammalian Cell Cycle Model"
+        },
+        {
+          "source_id": "BIOMD0000000730",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730",
+          "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model"
+        },
+        {
+          "source_id": "BIOMD0000000746",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000746",
+          "name": "Saad2017 - immune checkpoint and BCG in superficial bladder cancer"
+        },
+        {
+          "source_id": "BIOMD0000000818",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000818",
+          "name": "Lee2008 - ERK and PI3K signal integration by Myc"
+        },
+        {
+          "source_id": "BIOMD0000000924",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000924",
+          "name": "Smith2011 - Three Stage Innate Immune Response to a Pneumococcal Lung Infection"
+        },
+        {
+          "source_id": "BIOMD0000000939",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939",
+          "name": "Iwamoto2010 - Cell cycle reponse to DNA damage"
+        },
+        {
+          "source_id": "BIOMD0000000940",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000940",
+          "name": "Tang2019 - Pharmacology modelling of AURKB and ZAK interaction in TNBC"
+        },
+        {
+          "source_id": "BIOMD0000000941",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000941",
+          "name": "Gerard2010 - Progression of mammalian cell cycle by successive activation of various cyclin cdk complexes"
+        },
+        {
+          "source_id": "BIOMD0000000954",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000954",
+          "name": "Pandey2018-reversible transition between quiescence and proliferation"
+        },
+        {
+          "source_id": "BIOMD0000000968",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000968",
+          "name": "Palmer2008 - Negative Feedback in IL-7 mediated Jak-Stat signaling"
+        },
+        {
+          "source_id": "chest-x-ray-segmentation",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/chest-x-ray-segmentation/",
+          "name": "Chest X-ray Dataset with Lung Segmentation"
+        },
+        {
+          "source_id": "heart-lung-segmentations-data",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/heart-lung-segmentations-data/",
+          "name": "Heart and lung segmentations for MIMIC-CXR/MIMIC-CXR-JPG and Montgomery County TB databases"
+        },
+        {
+          "source_id": "mimic-cxr-pe-severity",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/mimic-cxr-pe-severity/",
+          "name": "Pulmonary Edema Severity Grades Based on MIMIC-CXR"
+        },
+        {
+          "source_id": "mimic-iv-ext-pe",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/mimic-iv-ext-pe/",
+          "name": "MIMIC-IV-Ext-PE: Pulmonary Embolism Labels for CT Pulmonary Angiography Radiology Reports"
+        },
+        {
+          "source_id": "picsdb",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/picsdb/",
+          "name": "Preterm Infant Cardio-Respiratory Signals Database"
+        },
+        {
+          "source_id": "respiratory-dataset",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/respiratory-dataset/",
+          "name": "Respiratory dataset from PEEP study with expiratory occlusion"
+        },
+        {
+          "source_id": "respiratory-heartrate-dataset",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/respiratory-heartrate-dataset/",
+          "name": "Respiratory and heart rate monitoring dataset from aeration study"
+        },
+        {
+          "source_id": "respiratory-oximetry-apnoea",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/respiratory-oximetry-apnoea/",
+          "name": "Respiratory and Pulse Oximetry Waveforms from Healthy Adults During Simulated Apnoea Events"
+        },
+        {
+          "source_id": "simulated-obstructive-disease",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/simulated-obstructive-disease/",
+          "name": "Simulated Obstructive Disease Respiratory Pressure and Flow"
+        },
+        {
+          "source_id": "temporal-respiratory-support",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/temporal-respiratory-support/",
+          "name": "A Temporal Dataset for Respiratory Support in Critically Ill Patients"
+        }
+      ],
+      "subregions": [
+        {
+          "node_names": [
+            "VH_F_tertiary_bronchi_L",
+            "VH_F_tertiary_bronchi_R",
+            "VH_M_tertiary_bronchi_L",
+            "VH_M_tertiary_bronchi_R"
+          ],
+          "uberon": "UBERON:0002184",
+          "label": "Segmental bronchus",
+          "n_models": 8,
+          "models": [
+            {
+              "source_id": "BIOMD0000000265",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000265",
+              "name": "Conradie2010_RPControl_CellCycle",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000504",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000504",
+              "name": "Proctor2013 - Cartilage breakdown, interventions to reduce collagen release",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000542",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000542",
+              "name": "Yuraszeck2010 - Vulnerabilities in the Tau Network in Tau Pathophysiology",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000560",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000560",
+              "name": "Hui2016 - Age-related changes in articular cartilage",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000614",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000614",
+              "name": "Kamihira2000 - calcitonin fibrillation kinetics",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000723",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000723",
+              "name": "Weis2014 - Data driven Mammalian Cell Cycle Model",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000730",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000730",
+              "name": "Gerard2009 - An Integrated Mammalian Cell Cycle Model",
+              "via": "anatomy"
+            },
+            {
+              "source_id": "BIOMD0000000939",
+              "repository": "biomodels",
+              "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000939",
+              "name": "Iwamoto2010 - Cell cycle reponse to DNA damage",
+              "via": "anatomy"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "key": "liver",
       "label": "Liver",
       "uberon": "UBERON:0002107",
@@ -3052,7 +2986,7 @@
         ]
       },
       "sex": "both",
-      "n_models": 49,
+      "n_models": 48,
       "models": [
         {
           "source_id": "BIOMD0000000048",
@@ -3341,12 +3275,6 @@
           "repository": "biomodels",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000001102",
           "name": "Burbano2023 - HGFsignaling_in_FattyLiverDisease"
-        },
-        {
-          "source_id": "icehg-ds",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/icehg-ds/",
-          "name": "Induced Cesarean EHG DataSet (ICEHG DS): An open dataset with electrohysterogram records of pregnancies ending in induced and cesarean section delivery"
         }
       ],
       "subregions": []
@@ -5055,101 +4983,6 @@
       "subregions": []
     },
     {
-      "key": "skin",
-      "label": "Skin",
-      "uberon": "UBERON:0002097",
-      "system": "Integumental System",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb",
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb"
-        ],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
-        ]
-      },
-      "sex": "both",
-      "n_models": 12,
-      "models": [
-        {
-          "source_id": "BIOMD0000000448",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000448",
-          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)"
-        },
-        {
-          "source_id": "BIOMD0000000449",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000449",
-          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)"
-        },
-        {
-          "source_id": "BIOMD0000000659",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000659",
-          "name": "Cursons2015 - Regulation of ERK-MAPK signaling in human epidermis"
-        },
-        {
-          "source_id": "BIOMD0000000695",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000695",
-          "name": "FelixGarza2017 - Blue Light Treatment of Psoriasis (simplified)"
-        },
-        {
-          "source_id": "BIOMD0000000722",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000722",
-          "name": "Bianchi2015 -Model for lymphangiogenesis in normal and diabetic wounds"
-        },
-        {
-          "source_id": "bigideaslab-step-hr-smartwatch",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/bigideaslab-step-hr-smartwatch/",
-          "name": "BigIdeasLab_STEP: Heart rate measurements captured by smartwatches for differing skin tones"
-        },
-        {
-          "source_id": "bp-graphene-bioimpedance",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/bp-graphene-bioimpedance/",
-          "name": "Continuous Cuffless Monitoring of Arterial Blood Pressure via Graphene Bioimpedance Tattoos"
-        },
-        {
-          "source_id": "ecg-spider-clip",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/ecg-spider-clip/",
-          "name": "Electrocardiogram, skin conductance and respiration from spider-fearful individuals watching spider video clips"
-        },
-        {
-          "source_id": "eda-rest-sedation",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eda-rest-sedation/",
-          "name": "Pulse Amplitudes from electrodermal activity collected from healthy volunteer subjects at rest and under controlled sedation"
-        },
-        {
-          "source_id": "encode-skin-color",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/encode-skin-color/",
-          "name": "ENCoDE, mEasuring skiN Color to correct pulse Oximetry DisparitiEs: skin tone and clinical data from a prospective trial on acute care patients."
-        },
-        {
-          "source_id": "entity-bert",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/entity-bert/",
-          "name": "EntityBERT: BERT-based Models Pretrained on MIMIC-III with or without Entity-centric Masking Strategy for the Clinical Domain"
-        },
-        {
-          "source_id": "heartcycle",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/heartcycle/",
-          "name": "HeartCycle: A comprehensive dataset of synchronized impedance cardiography and echocardiography for accurate hemodynamic predictions"
-        }
-      ],
-      "subregions": []
-    },
-    {
       "key": "spinal-cord",
       "label": "Spinal Cord",
       "uberon": "UBERON:0002240",
@@ -5222,6 +5055,77 @@
           "repository": "biomodels",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000873",
           "name": "Soni2018 - IL6 induced M2 Phenotype in Leishmania major infected macrophage"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "skin",
+      "label": "Skin",
+      "uberon": "UBERON:0002097",
+      "system": "Integumental System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb",
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-female/v1.5/assets/3d-vh-f-skin.glb"
+        ],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.4/assets/3d-vh-m-skin.glb"
+        ]
+      },
+      "sex": "both",
+      "n_models": 8,
+      "models": [
+        {
+          "source_id": "BIOMD0000000448",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000448",
+          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (normal condition)"
+        },
+        {
+          "source_id": "BIOMD0000000449",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000449",
+          "name": "Br\u00e4nnmark2013 - Insulin signalling in human adipocytes (diabetic condition)"
+        },
+        {
+          "source_id": "BIOMD0000000659",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000659",
+          "name": "Cursons2015 - Regulation of ERK-MAPK signaling in human epidermis"
+        },
+        {
+          "source_id": "BIOMD0000000695",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000695",
+          "name": "FelixGarza2017 - Blue Light Treatment of Psoriasis (simplified)"
+        },
+        {
+          "source_id": "BIOMD0000000722",
+          "repository": "biomodels",
+          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000722",
+          "name": "Bianchi2015 -Model for lymphangiogenesis in normal and diabetic wounds"
+        },
+        {
+          "source_id": "bigideaslab-step-hr-smartwatch",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/bigideaslab-step-hr-smartwatch/",
+          "name": "BigIdeasLab_STEP: Heart rate measurements captured by smartwatches for differing skin tones"
+        },
+        {
+          "source_id": "ecg-spider-clip",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/ecg-spider-clip/",
+          "name": "Electrocardiogram, skin conductance and respiration from spider-fearful individuals watching spider video clips"
+        },
+        {
+          "source_id": "encode-skin-color",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/encode-skin-color/",
+          "name": "ENCoDE, mEasuring skiN Color to correct pulse Oximetry DisparitiEs: skin tone and clinical data from a prospective trial on acute care patients."
         }
       ],
       "subregions": []
@@ -5349,258 +5253,6 @@
       ]
     },
     {
-      "key": "eye-female-left",
-      "label": "Eye Female Left",
-      "uberon": "UBERON:0004548",
-      "system": "Entire Sense Organ System",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb",
-        "male": null
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb"
-        ],
-        "male": []
-      },
-      "sex": "female",
-      "n_models": 7,
-      "models": [
-        {
-          "source_id": "eeg-eye-gaze-data",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
-          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
-        },
-        {
-          "source_id": "eeg-eye-gaze-for-fls-tasks",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
-          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
-        },
-        {
-          "source_id": "egd-cxr",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/egd-cxr/",
-          "name": "Eye Gaze Data for Chest X-rays"
-        },
-        {
-          "source_id": "eye-tracking-ecg",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eye-tracking-ecg/",
-          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
-        },
-        {
-          "source_id": "mbrset",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mbrset/",
-          "name": "mBRSET, a Mobile Brazilian Retinal Dataset"
-        },
-        {
-          "source_id": "mimic-eye-multimodal-datasets",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
-          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
-        },
-        {
-          "source_id": "reflacx-xray-localization",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/reflacx-xray-localization/",
-          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
-        }
-      ],
-      "subregions": []
-    },
-    {
-      "key": "eye-female-right",
-      "label": "Eye Female Right",
-      "uberon": "UBERON:0004549",
-      "system": "Entire Sense Organ System",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb",
-        "male": null
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb"
-        ],
-        "male": []
-      },
-      "sex": "female",
-      "n_models": 7,
-      "models": [
-        {
-          "source_id": "eeg-eye-gaze-data",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
-          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
-        },
-        {
-          "source_id": "eeg-eye-gaze-for-fls-tasks",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
-          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
-        },
-        {
-          "source_id": "egd-cxr",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/egd-cxr/",
-          "name": "Eye Gaze Data for Chest X-rays"
-        },
-        {
-          "source_id": "eye-tracking-ecg",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eye-tracking-ecg/",
-          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
-        },
-        {
-          "source_id": "mbrset",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mbrset/",
-          "name": "mBRSET, a Mobile Brazilian Retinal Dataset"
-        },
-        {
-          "source_id": "mimic-eye-multimodal-datasets",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
-          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
-        },
-        {
-          "source_id": "reflacx-xray-localization",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/reflacx-xray-localization/",
-          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
-        }
-      ],
-      "subregions": []
-    },
-    {
-      "key": "eye-male-left",
-      "label": "Eye Male Left",
-      "uberon": "UBERON:0004548",
-      "system": "Entire Sense Organ System",
-      "glb": {
-        "female": null,
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
-      },
-      "glbs": {
-        "female": [],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
-        ]
-      },
-      "sex": "male",
-      "n_models": 7,
-      "models": [
-        {
-          "source_id": "eeg-eye-gaze-data",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
-          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
-        },
-        {
-          "source_id": "eeg-eye-gaze-for-fls-tasks",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
-          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
-        },
-        {
-          "source_id": "egd-cxr",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/egd-cxr/",
-          "name": "Eye Gaze Data for Chest X-rays"
-        },
-        {
-          "source_id": "eye-tracking-ecg",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eye-tracking-ecg/",
-          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
-        },
-        {
-          "source_id": "mbrset",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mbrset/",
-          "name": "mBRSET, a Mobile Brazilian Retinal Dataset"
-        },
-        {
-          "source_id": "mimic-eye-multimodal-datasets",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
-          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
-        },
-        {
-          "source_id": "reflacx-xray-localization",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/reflacx-xray-localization/",
-          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
-        }
-      ],
-      "subregions": []
-    },
-    {
-      "key": "eye-male-right",
-      "label": "Eye Male Right",
-      "uberon": "UBERON:0004549",
-      "system": "Entire Sense Organ System",
-      "glb": {
-        "female": null,
-        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
-      },
-      "glbs": {
-        "female": [],
-        "male": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
-        ]
-      },
-      "sex": "male",
-      "n_models": 7,
-      "models": [
-        {
-          "source_id": "eeg-eye-gaze-data",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
-          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
-        },
-        {
-          "source_id": "eeg-eye-gaze-for-fls-tasks",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
-          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
-        },
-        {
-          "source_id": "egd-cxr",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/egd-cxr/",
-          "name": "Eye Gaze Data for Chest X-rays"
-        },
-        {
-          "source_id": "eye-tracking-ecg",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/eye-tracking-ecg/",
-          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
-        },
-        {
-          "source_id": "mbrset",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mbrset/",
-          "name": "mBRSET, a Mobile Brazilian Retinal Dataset"
-        },
-        {
-          "source_id": "mimic-eye-multimodal-datasets",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
-          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
-        },
-        {
-          "source_id": "reflacx-xray-localization",
-          "repository": "physionet",
-          "url": "https://physionet.org/content/reflacx-xray-localization/",
-          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
-        }
-      ],
-      "subregions": []
-    },
-    {
       "key": "main-bronchus",
       "label": "Main Bronchus",
       "uberon": "UBERON:0002182",
@@ -5720,6 +5372,234 @@
           "repository": "biomodels",
           "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000423",
           "name": "Nyman2012_InsulinSignalling"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "eye-female-left",
+      "label": "Eye Female Left",
+      "uberon": "UBERON:0004548",
+      "system": "Entire Sense Organ System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb",
+        "male": null
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-left/v1.3/assets/3d-vh-f-eye-l.glb"
+        ],
+        "male": []
+      },
+      "sex": "female",
+      "n_models": 6,
+      "models": [
+        {
+          "source_id": "eeg-eye-gaze-data",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
+          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
+        },
+        {
+          "source_id": "eeg-eye-gaze-for-fls-tasks",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
+          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
+        },
+        {
+          "source_id": "egd-cxr",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/egd-cxr/",
+          "name": "Eye Gaze Data for Chest X-rays"
+        },
+        {
+          "source_id": "eye-tracking-ecg",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eye-tracking-ecg/",
+          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
+        },
+        {
+          "source_id": "mimic-eye-multimodal-datasets",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
+          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
+        },
+        {
+          "source_id": "reflacx-xray-localization",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/reflacx-xray-localization/",
+          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "eye-female-right",
+      "label": "Eye Female Right",
+      "uberon": "UBERON:0004549",
+      "system": "Entire Sense Organ System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb",
+        "male": null
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-female-right/v1.3/assets/3d-vh-f-eye-r.glb"
+        ],
+        "male": []
+      },
+      "sex": "female",
+      "n_models": 6,
+      "models": [
+        {
+          "source_id": "eeg-eye-gaze-data",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
+          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
+        },
+        {
+          "source_id": "eeg-eye-gaze-for-fls-tasks",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
+          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
+        },
+        {
+          "source_id": "egd-cxr",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/egd-cxr/",
+          "name": "Eye Gaze Data for Chest X-rays"
+        },
+        {
+          "source_id": "eye-tracking-ecg",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eye-tracking-ecg/",
+          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
+        },
+        {
+          "source_id": "mimic-eye-multimodal-datasets",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
+          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
+        },
+        {
+          "source_id": "reflacx-xray-localization",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/reflacx-xray-localization/",
+          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "eye-male-left",
+      "label": "Eye Male Left",
+      "uberon": "UBERON:0004548",
+      "system": "Entire Sense Organ System",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
+      },
+      "glbs": {
+        "female": [],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-left/v1.3/assets/3d-vh-m-eye-l.glb"
+        ]
+      },
+      "sex": "male",
+      "n_models": 6,
+      "models": [
+        {
+          "source_id": "eeg-eye-gaze-data",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
+          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
+        },
+        {
+          "source_id": "eeg-eye-gaze-for-fls-tasks",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
+          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
+        },
+        {
+          "source_id": "egd-cxr",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/egd-cxr/",
+          "name": "Eye Gaze Data for Chest X-rays"
+        },
+        {
+          "source_id": "eye-tracking-ecg",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eye-tracking-ecg/",
+          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
+        },
+        {
+          "source_id": "mimic-eye-multimodal-datasets",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
+          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
+        },
+        {
+          "source_id": "reflacx-xray-localization",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/reflacx-xray-localization/",
+          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
+        }
+      ],
+      "subregions": []
+    },
+    {
+      "key": "eye-male-right",
+      "label": "Eye Male Right",
+      "uberon": "UBERON:0004549",
+      "system": "Entire Sense Organ System",
+      "glb": {
+        "female": null,
+        "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
+      },
+      "glbs": {
+        "female": [],
+        "male": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/eye-male-right/v1.3/assets/3d-vh-m-eye-r.glb"
+        ]
+      },
+      "sex": "male",
+      "n_models": 6,
+      "models": [
+        {
+          "source_id": "eeg-eye-gaze-data",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-data/",
+          "name": "Electroencephalogram and eye-gaze datasets for robot-assisted surgery performance evaluation"
+        },
+        {
+          "source_id": "eeg-eye-gaze-for-fls-tasks",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eeg-eye-gaze-for-fls-tasks/",
+          "name": "Integration of Electroencephalogram and Eye-Gaze Datasets for Performance Evaluation in Fundamentals of Laparoscopic Surgery (FLS) Tasks"
+        },
+        {
+          "source_id": "egd-cxr",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/egd-cxr/",
+          "name": "Eye Gaze Data for Chest X-rays"
+        },
+        {
+          "source_id": "eye-tracking-ecg",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/eye-tracking-ecg/",
+          "name": "Eye Tracking Dataset for the 12-Lead Electrocardiogram Interpretation of Medical Practitioners and Students"
+        },
+        {
+          "source_id": "mimic-eye-multimodal-datasets",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/mimic-eye-multimodal-datasets/",
+          "name": "MIMIC-Eye: Integrating MIMIC Datasets with REFLACX and Eye Gaze for Multimodal Deep Learning Applications"
+        },
+        {
+          "source_id": "reflacx-xray-localization",
+          "repository": "physionet",
+          "url": "https://physionet.org/content/reflacx-xray-localization/",
+          "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays"
         }
       ],
       "subregions": []
@@ -6774,13 +6654,13 @@
     "Anatomical Structure",
     "Other"
   ],
-  "max_models": 99,
+  "max_models": 93,
   "max_subregion_models": 16,
   "summary": {
     "n_organs": 50,
     "n_modeled": 23,
-    "n_models_total": 590,
-    "n_models_distinct": 393,
+    "n_models_total": 570,
+    "n_models_distinct": 380,
     "n_systems": 12,
     "n_subregions": 52,
     "n_organs_with_subregions": 9

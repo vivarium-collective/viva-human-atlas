@@ -142237,28 +142237,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/2qs3-kh43",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -142267,9 +142248,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0001004"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -142281,7 +142260,7 @@
       "year": 2022,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -142559,9 +142538,9 @@
     "repository": "physionet",
     "source_id": "annotation-dataset-sdoh",
     "name": "Annotation dataset of social determinants of health from MIMIC-III Clinical Care Database",
-    "paper_url": "https://doi.org/10.13026/p8zc-cs44",
+    "paper_url": "https://doi.org/10.13026/6149-mb25",
     "paper_pmid": null,
-    "paper_doi": "10.13026/p8zc-cs44",
+    "paper_doi": "10.13026/6149-mb25",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -142583,7 +142562,7 @@
     "gene_symbols": [],
     "provenance": {
       "abstract": "Social determinants of health (SDoH) have an important impact on patient\noutcomes but are incompletely collected from the electronic health records\n(EHR). This study researched the ability of large language models to extract\nSDoH from free text in EHRs, where they are most commonly documented, and\nexplored the role of synthetic clinical text for improving the extraction of\nthese scarcely documented, yet extremely valuable, clinical data. We developed\nannotation guidelines for sentence-level annotation of SDoH that are not\nreliably available as structured data in the EHR: employment, housing,\ntransportation, parental status, relationship, and social support. Sentences\nwere labeled for both the presence of an SDoH mention and the presence of an\nadverse SDoH mention. After finalizing the annotation guidelines, two\nannotators manually annotated a separate corpus, which cannot be released due\nto PHI. A total of 300/800 (37.5%) of these notes underwent dual annotation.\nBefore adjudication, dually-annotated notes had a Krippendorf's alpha\nagreement of 0.86 and Cohen's Kappa of 0.86 for any SDoH mention categories.\nFor adverse SDoH mentions, notes had a Krippendorf's alpha agreement of 0.76\nand Cohen's Kappa of 0.76. As an external validation, 200 notes from MIMIC-III\nwritten by physicians, social workers, and nurses were manually annotated by a\nsingle annotator. Here, we release this manually annotated corpus of 200 MIMC-\nIII notes.",
-      "year": 2024,
+      "year": 2023,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -142828,9 +142807,9 @@
     "repository": "physionet",
     "source_id": "asclepius-r",
     "name": "Asclepius-R : Clinical Large Language Model Built On MIMIC-III Discharge Summaries",
-    "paper_url": "https://doi.org/10.13026/s5rz-1j65",
+    "paper_url": "https://doi.org/10.13026/1wf7-pm14",
     "paper_pmid": null,
-    "paper_doi": "10.13026/s5rz-1j65",
+    "paper_doi": "10.13026/1wf7-pm14",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -143346,9 +143325,9 @@
     "repository": "physionet",
     "source_id": "bionlp-workshop-2023-task-1a",
     "name": "BioNLP Workshop 2023 Shared Task 1A: Problem List Summarization",
-    "paper_url": "https://doi.org/10.13026/s8wk-ja78",
+    "paper_url": "https://doi.org/10.13026/mg5c-x807",
     "paper_pmid": null,
-    "paper_doi": "10.13026/s8wk-ja78",
+    "paper_doi": "10.13026/mg5c-x807",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -143458,22 +143437,8 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/ce62-pc98",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "blood",
-        "uberon": "UBERON:0004537"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -143483,9 +143448,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0002097"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -143497,7 +143460,7 @@
       "year": 2022,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -143542,9 +143505,9 @@
     "repository": "physionet",
     "source_id": "brain-wearable-monitoring",
     "name": "Regulation of Brain Cognitive States through Auditory, Gustatory, and Olfactory Stimulation with Wearable Monitoring",
-    "paper_url": "https://doi.org/10.13026/5yxs-9t42",
+    "paper_url": "https://doi.org/10.13026/jr6f-wc85",
     "paper_pmid": null,
-    "paper_doi": "10.13026/5yxs-9t42",
+    "paper_doi": "10.13026/jr6f-wc85",
     "taxonomy": [],
     "organs": [
       {
@@ -143799,9 +143762,9 @@
     "repository": "physionet",
     "source_id": "butppg",
     "name": "Brno University of Technology Smartphone PPG Database (BUT PPG)",
-    "paper_url": "https://doi.org/10.13026/tn53-8153",
+    "paper_url": "https://doi.org/10.13026/gxwp-p940",
     "paper_pmid": null,
-    "paper_doi": "10.13026/tn53-8153",
+    "paper_doi": "10.13026/gxwp-p940",
     "taxonomy": [],
     "organs": [
       {
@@ -144080,9 +144043,9 @@
     "repository": "physionet",
     "source_id": "cardiac-implantable-device-cxr",
     "name": "Dataset for Segmentation and Classification of Cardiac Implantable Electronic Devices in Chest X-Rays",
-    "paper_url": "https://doi.org/10.13026/jwdf-q907",
+    "paper_url": "https://doi.org/10.13026/swv0-cd11",
     "paper_pmid": null,
-    "paper_doi": "10.13026/jwdf-q907",
+    "paper_doi": "10.13026/swv0-cd11",
     "taxonomy": [],
     "organs": [
       {
@@ -144137,28 +144100,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/ehkk-8y70",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -144167,9 +144111,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0001004"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -144181,7 +144123,7 @@
       "year": 2021,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -144454,9 +144396,9 @@
     "repository": "physionet",
     "source_id": "cerebral-vasoreg-diabetes",
     "name": "Cerebral Vasoregulation in Diabetes",
-    "paper_url": "https://doi.org/10.13026/c8ax-aq77",
+    "paper_url": "https://doi.org/10.13026/m40k-4758",
     "paper_pmid": null,
-    "paper_doi": "10.13026/c8ax-aq77",
+    "paper_doi": "10.13026/m40k-4758",
     "taxonomy": [],
     "organs": [
       {
@@ -144502,7 +144444,7 @@
     },
     "gene_symbols": [],
     "provenance": {
-      "abstract": "This observational study evaluated the effects of type 2 diabetes on cerebral\nvasoregulation and functional outcomes, measured by blood flow responses to\nhypocapnia and hypercapnia, Valsalva maneuver, head-up tilt, and sit-to-stand\ntest. This dataset contains 37 diabetic participants and 49 controls (aged  55\nto 75 years) with continuous measurements of cerebral blood flow using\ntranscranial Doppler and MRI, heart rate, blood pressure, and respiratory\nparameters, balance, walking, laboratory and retinopathy measures.",
+      "abstract": "This observational study evaluated the effects of type 2 diabetes on cerebral vasoregulation and functional outcomes, measured by blood flow responses to hypocapnia and hypercapnia, Valsalva maneuver, head-up tilt, and sit-to-stand test. This dataset contains 37 diabetic participants and 49 controls (aged  55 to 75 years) with continuous measurements of cerebral blood flow using transcranial Doppler and MRI, heart rate, blood pressure, and respiratory parameters, balance, walking, laboratory and retinopathy measures.",
       "year": 2020,
       "access": "unknown",
       "keywords": [],
@@ -144515,9 +144457,9 @@
     "repository": "physionet",
     "source_id": "cgmacros",
     "name": "CGMacros: a scientific dataset for personalized nutrition and diet monitoring",
-    "paper_url": "https://doi.org/10.13026/3z8q-x658",
+    "paper_url": "https://doi.org/10.13026/8mak-rs10",
     "paper_pmid": null,
-    "paper_doi": "10.13026/3z8q-x658",
+    "paper_doi": "10.13026/8mak-rs10",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -144949,24 +144891,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/dvyd-kd57",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -144975,9 +144902,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000948"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -144989,7 +144914,7 @@
       "year": 2022,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -145291,9 +145216,9 @@
     "repository": "physionet",
     "source_id": "chest-x-ray-segmentation",
     "name": "Chest X-ray Dataset with Lung Segmentation",
-    "paper_url": "https://doi.org/10.13026/9cy4-f535",
+    "paper_url": "https://doi.org/10.13026/pa5n-mc06",
     "paper_pmid": null,
-    "paper_doi": "10.13026/9cy4-f535",
+    "paper_doi": "10.13026/pa5n-mc06",
     "taxonomy": [],
     "organs": [
       {
@@ -145384,9 +145309,9 @@
     "repository": "physionet",
     "source_id": "chexmask-cxr-segmentation-data",
     "name": "CheXmask Database: a large-scale dataset of anatomical segmentation masks for chest x-ray images",
-    "paper_url": "https://doi.org/10.13026/pgag-by42",
+    "paper_url": "https://doi.org/10.13026/6eky-y831",
     "paper_pmid": null,
-    "paper_doi": "10.13026/pgag-by42",
+    "paper_doi": "10.13026/6eky-y831",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -145408,7 +145333,7 @@
     "gene_symbols": [],
     "provenance": {
       "abstract": "The CheXmask Database presents a comprehensive, uniformly annotated collection\nof chest radiographs, constructed from five public databases: ChestX-ray8,\nChexpert, MIMIC-CXR-JPG, Padchest and VinDr-CXR. The database aggregates\n657,566 anatomical segmentation masks derived from images which have been\nprocessed using the HybridGNet model to ensure consistent, high-quality\nsegmentation. To confirm the quality of the segmentations, we include in this\ndatabase individual Reverse Classification Accuracy (RCA) scores for each of\nthe segmentation masks. This dataset is intended to catalyze further\ninnovation and refinement in the field of semantic chest X-ray analysis,\noffering a significant resource for researchers in the medical imaging domain.",
-      "year": 2024,
+      "year": 2025,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -145759,9 +145684,9 @@
     "repository": "physionet",
     "source_id": "corpus-fungal-infections",
     "name": "CHIFIR: Cytology and Histopathology Invasive Fungal Infection Reports",
-    "paper_url": "https://doi.org/10.13026/m1rk-ns13",
+    "paper_url": "https://doi.org/10.13026/ssk0-1x59",
     "paper_pmid": null,
-    "paper_doi": "10.13026/m1rk-ns13",
+    "paper_doi": "10.13026/ssk0-1x59",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -145783,7 +145708,7 @@
     "gene_symbols": [],
     "provenance": {
       "abstract": "Surveillance of invasive fungal infection (IFI) in clinical settings is a\nlaborious process requiring a detailed review of patient medical history. One\nof the key sources of clinical information is cytology and histopathology\nreports: pathologist-produced free-text reports outlining the macroscopic and\nmicroscopic structure of a specimen. The data was generated to facilitate the\ndevelopment of an automated tool for the detection of IFI. The Cytology and\nHistopathology Invasive Fungal Infection Reports (CHIFIR) corpus contains 283\nde-identified reports annotated by infectious diseases physicians for\nterminology relevant to the IFI diagnosis. These include IFI-specific concepts\nand certainty cues, as well as relations between them. We release the\nannotation schema and the original reports along with the corresponding\nannotation files. We anticipate the CHIFIR corpus to be useful in the\ndevelopment and validation of named entity recognition and relation extraction\nmethods with a focus on clinical data. Such methods can be instrumental in\nprocessing other types of clinical documentation (radiology reports, clinical\nnotes, nursing notes) with various downstream tasks in mind.",
-      "year": 2024,
+      "year": 2023,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -145831,9 +145756,9 @@
     "repository": "physionet",
     "source_id": "covid-data-shared-learning",
     "name": "COVID Data for Shared Learning (CDSL): A comprehensive, multimodal COVID-19 dataset from HM Hospitales",
-    "paper_url": "https://doi.org/10.13026/1176-6c44",
+    "paper_url": "https://doi.org/10.13026/85z8-jq92",
     "paper_pmid": null,
-    "paper_doi": "10.13026/1176-6c44",
+    "paper_doi": "10.13026/85z8-jq92",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -145867,9 +145792,9 @@
     "repository": "physionet",
     "source_id": "covidentify",
     "name": "CovIdentify Dataset",
-    "paper_url": "https://doi.org/10.13026/fxah-ha58",
+    "paper_url": "https://doi.org/10.13026/ncq1-vp79",
     "paper_pmid": null,
-    "paper_doi": "10.13026/fxah-ha58",
+    "paper_doi": "10.13026/ncq1-vp79",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -145939,9 +145864,9 @@
     "repository": "physionet",
     "source_id": "cps-dataset-sleep",
     "name": "Comprehensive Polysomnography (CPS) Dataset: A Resource for Sleep-Related Arousal Research",
-    "paper_url": "https://doi.org/10.13026/sxs0-h317",
+    "paper_url": "https://doi.org/10.13026/1949-4b29",
     "paper_pmid": null,
-    "paper_doi": "10.13026/sxs0-h317",
+    "paper_doi": "10.13026/1949-4b29",
     "taxonomy": [],
     "organs": [
       {
@@ -146147,24 +146072,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/c2x59m",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -146173,9 +146083,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000948"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -146187,7 +146095,7 @@
       "year": 1992,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -146628,9 +146536,9 @@
     "repository": "physionet",
     "source_id": "dfci-cancer-outcomes-ehr",
     "name": "Shareable Artificial Intelligence to Extract Cancer Outcomes from Electronic Health Records for Precision Oncology Research",
-    "paper_url": "https://doi.org/10.13026/mjv2-8h15",
+    "paper_url": "https://doi.org/10.13026/h2nj-p344",
     "paper_pmid": null,
-    "paper_doi": "10.13026/mjv2-8h15",
+    "paper_doi": "10.13026/h2nj-p344",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -146700,9 +146608,9 @@
     "repository": "physionet",
     "source_id": "discharge-me",
     "name": "Discharge Me: BioNLP ACL'24 Shared Task on Streamlining Discharge Documentation",
-    "paper_url": "https://doi.org/10.13026/0zf5-fx50",
+    "paper_url": "https://doi.org/10.13026/27pt-1259",
     "paper_pmid": null,
-    "paper_doi": "10.13026/0zf5-fx50",
+    "paper_doi": "10.13026/27pt-1259",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -147699,18 +147607,8 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/r9p1-bk90",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -147720,9 +147618,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0002097"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -147734,7 +147630,7 @@
       "year": 2021,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -148170,9 +148066,9 @@
     "repository": "physionet",
     "source_id": "ehr-notes-qa-llms",
     "name": "EHRNoteQA: An LLM Benchmark for Real-World Clinical Practice Using Discharge Summaries",
-    "paper_url": "https://doi.org/10.13026/mjgm-x360",
+    "paper_url": "https://doi.org/10.13026/acga-ht95",
     "paper_pmid": null,
-    "paper_doi": "10.13026/mjgm-x360",
+    "paper_doi": "10.13026/acga-ht95",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -148206,9 +148102,9 @@
     "repository": "physionet",
     "source_id": "ehrcon-consistency-of-notes",
     "name": "EHRCon: Dataset for Checking Consistency between Unstructured Notes and Structured Tables in Electronic Health Records",
-    "paper_url": "https://doi.org/10.13026/x1ea-np24",
+    "paper_url": "https://doi.org/10.13026/2nb5-nf74",
     "paper_pmid": null,
-    "paper_doi": "10.13026/x1ea-np24",
+    "paper_doi": "10.13026/2nb5-nf74",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -148229,8 +148125,8 @@
     },
     "gene_symbols": [],
     "provenance": {
-      "abstract": "Electronic Health Records (EHRs) are integral for storing comprehensive\npatient medical records, combining structured data (e.g., medications) with\ndetailed clinical notes (e.g., physician notes). These elements are essential\nfor straightforward data retrieval and provide deep, contextual insights into\npatient care. However, they often suffer from discrepancies due to unintuitive\nEHR system designs and human errors, posing serious risks to patient safety.\nTo address this, we developed EHRCon, a new dataset and task specifically\ndesigned to ensure data consistency between structured tables and unstructured\nnotes in EHRs. EHRCon was crafted in collaboration with healthcare\nprofessionals using the MIMIC-III EHR dataset, and includes manual annotations\nof 4,101 entities across 105 clinical notes checked against database entries\nfor consistency. EHRCon has two versions, one using the original MIMIC-III\nschema, and another using the OMOP CDM schema, in order to increase its\napplicability and generalizability.",
-      "year": 2025,
+      "abstract": "Electronic Health Records (EHRs) are integral for storing comprehensive\npatient medical records, combining structured data (e.g., medications) with\ndetailed clinical notes (e.g., physician notes). These elements are essential\nfor straightforward data retrieval and provide deep, contextual insights into\npatient care. However, they often suffer from discrepancies due to unintuitive\nEHR system designs and human errors, posing serious risks to patient safety.\nTo address this, we developed EHRCon, a new dataset and task specifically\ndesigned to ensure data consistency between structured tables and unstructured\nnotes in EHRs. EHRCon was crafted in collaboration with healthcare\nprofessionals using the MIMIC-III EHR dataset, and includes manual annotations\nof 3,943 entities across 105 clinical notes checked against database entries\nfor consistency. EHRCon has two versions, one using the original MIMIC-III\nschema, and another using the OMOP CDM schema, in order to increase its\napplicability and generalizability.",
+      "year": 2024,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -148494,9 +148390,9 @@
     "repository": "physionet",
     "source_id": "encode-skin-color",
     "name": "ENCoDE, mEasuring skiN Color to correct pulse Oximetry DisparitiEs: skin tone and clinical data from a prospective trial on acute care patients.",
-    "paper_url": "https://doi.org/10.13026/mcgk-1s42",
+    "paper_url": "https://doi.org/10.13026/33g5-v628",
     "paper_pmid": null,
-    "paper_doi": "10.13026/mcgk-1s42",
+    "paper_doi": "10.13026/33g5-v628",
     "taxonomy": [],
     "organs": [
       {
@@ -148582,18 +148478,8 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/e7kt-q579",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -148603,9 +148489,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0002097"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -148617,7 +148501,7 @@
       "year": 2022,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -149071,9 +148955,9 @@
     "repository": "physionet",
     "source_id": "ffa-ir-medical-report",
     "name": "FFA-IR: Towards an Explainable and Reliable Medical Report Generation Benchmark",
-    "paper_url": "https://doi.org/10.13026/f7w3-gm74",
+    "paper_url": "https://doi.org/10.13026/ccbh-z832",
     "paper_pmid": null,
-    "paper_doi": "10.13026/f7w3-gm74",
+    "paper_doi": "10.13026/ccbh-z832",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -149094,8 +148978,8 @@
     },
     "gene_symbols": [],
     "provenance": {
-      "abstract": "Automatic medical report generation (MRG) towards describing life-threatening\nlesions from given medical images, such as Chest X-ray and Fundus Fluorescein\nAngiography (FFA), has been a long-standing research topic in machine learning\nand automatic medical diagnosis fields. However, existing MRG benchmarks only\nprovide medical images and free-text reports without explainable annotations\nand reliable evaluation tools, hindering the current research advances from\ntwo aspects: First, existing methods can only predict reports without accurate\nexplanation, undermining the trustworthiness of the diagnostic methods;\nSecond, the comparison between predicted reports from MRG methods is\nunreliable based on the natural language generation (NLG) metrics.\n\nTo address these issues, we propose an explainable and reliable MRG benchmark\nbased on FFA Images and Reports (FFA-IR). Specifically, our FFA-IR dataset is\nfeatured from the following aspects: 1) Large-scale medical dataset. FFA-IR\ncollects 766 reports along with 47,247 FFA images from clinical practice. 2)\nExplainable annotation. FFA-IR annotates 46 categories of lesions with a total\nof 12,166 regions. 3) Bilingual reports. FFA-IR provides both English and\nChinese reports for each case. We hope that our FFA-IR can significantly\nadvance research from both vision-and-language and medicine fields and improve\nthe conventional retinal disease diagnosis procedure.",
-      "year": 2025,
+      "abstract": "Automatic medical report generation (MRG) towards describing life-threatening\nlesions from given medical images, such as Chest X-ray and Fundus Fluorescein\nAngiography (FFA), has been a long-standing research topic in machine learning\nand automatic medical diagnosis fields. However, existing MRG benchmarks only\nprovide medical images and free-text reports without explainable annotations\nand reliable evaluation tools, hindering the current research advances from\ntwo aspects: First, existing methods can only predict reports without accurate\nexplanation, undermining the trustworthiness of the diagnostic methods;\nSecond, the comparison between predicted reports from MRG methods is\nunreliable based on the natural language generation (NLG) metrics.\n\nTo address these issues, we propose an explainable and reliable MRG benchmark\nbased on FFA Images and Reports (FFA-IR). Specifically, our FFA-IR dataset is\nfeatured from the following aspects: 1) Large-scale medical dataset. FFA-IR\ncollects 10,790 reports along with 1,048,584 FFA images from clinical\npractice. 2) Explainable annotation. FFA-IR annotates 46 categories of lesions\nwith a total of 12,166 regions. 3) Bilingual reports. FFA-IR provides both\nEnglish and Chinese reports for each case. We hope that our FFA-IR can\nsignificantly advance research from both vision-and-language and medicine\nfields and improve the conventional retinal disease diagnosis procedure.",
+      "year": 2021,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -149323,9 +149207,9 @@
     "repository": "physionet",
     "source_id": "generated-codes-low-resource",
     "name": "MIMIC-IV-Ext-GPT-3_5-Generated-Discharge-Summaries-for-Low-Resource-Codes",
-    "paper_url": "https://doi.org/10.13026/bnc2-1a81",
+    "paper_url": "https://doi.org/10.13026/09ng-2614",
     "paper_pmid": null,
-    "paper_doi": "10.13026/bnc2-1a81",
+    "paper_doi": "10.13026/09ng-2614",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -149568,9 +149452,9 @@
     "repository": "physionet",
     "source_id": "haim-multimodal",
     "name": "Code for generating the HAIM multimodal dataset of MIMIC-IV clinical data and x-rays",
-    "paper_url": "https://doi.org/10.13026/e5hj-1229",
+    "paper_url": "https://doi.org/10.13026/3f8d-qe93",
     "paper_pmid": null,
-    "paper_doi": "10.13026/e5hj-1229",
+    "paper_doi": "10.13026/3f8d-qe93",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -149604,9 +149488,9 @@
     "repository": "physionet",
     "source_id": "hand-kinematics-semg",
     "name": "A database of hand kinematics, high-density sEMG of forearm and wrist for motion intent recognition",
-    "paper_url": "https://doi.org/10.13026/ns35-g888",
+    "paper_url": "https://doi.org/10.13026/ch3e-c195",
     "paper_pmid": null,
-    "paper_doi": "10.13026/ns35-g888",
+    "paper_doi": "10.13026/ch3e-c195",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -149945,32 +149829,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/z865-eb23",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -149979,10 +149840,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000948",
-        "UBERON:0002097"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -149994,7 +149852,7 @@
       "year": 2025,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -150226,9 +150084,9 @@
     "repository": "physionet",
     "source_id": "hss",
     "name": "Logistic Regression-HSMM-based Heart Sound Segmentation",
-    "paper_url": "https://doi.org/10.13026/vnt9-kf93",
+    "paper_url": "https://doi.org/10.13026/9jqc-rv39",
     "paper_pmid": null,
-    "paper_doi": "10.13026/vnt9-kf93",
+    "paper_doi": "10.13026/9jqc-rv39",
     "taxonomy": [],
     "organs": [
       {
@@ -150279,9 +150137,9 @@
     "repository": "physionet",
     "source_id": "i-care",
     "name": "I-CARE: International Cardiac Arrest REsearch consortium Database",
-    "paper_url": "https://doi.org/10.13026/m33r-bj81",
+    "paper_url": "https://doi.org/10.13026/sd64-2856",
     "paper_pmid": null,
-    "paper_doi": "10.13026/m33r-bj81",
+    "paper_doi": "10.13026/sd64-2856",
     "taxonomy": [],
     "organs": [
       {
@@ -150336,24 +150194,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/c23s33",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -150362,9 +150205,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000948"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -150376,7 +150217,7 @@
       "year": 2003,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -150385,28 +150226,13 @@
     "repository": "physionet",
     "source_id": "icehg-ds",
     "name": "Induced Cesarean EHG DataSet (ICEHG DS): An open dataset with electrohysterogram records of pregnancies ending in induced and cesarean section delivery",
-    "paper_url": "https://doi.org/10.13026/rfts-nv79",
+    "paper_url": "https://doi.org/10.13026/vrvd-mf28",
     "paper_pmid": null,
-    "paper_doi": "10.13026/rfts-nv79",
+    "paper_doi": "10.13026/vrvd-mf28",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -150415,9 +150241,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0002107"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -150429,7 +150253,7 @@
       "year": 2023,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -150527,9 +150351,9 @@
     "repository": "physionet",
     "source_id": "image-embeddings-mimic-cxr",
     "name": "Generalized Image Embeddings for the MIMIC Chest X-Ray dataset",
-    "paper_url": "https://doi.org/10.13026/pxc2-vx69",
+    "paper_url": "https://doi.org/10.13026/t3kp-ve72",
     "paper_pmid": null,
-    "paper_doi": "10.13026/pxc2-vx69",
+    "paper_doi": "10.13026/t3kp-ve72",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -150940,9 +150764,9 @@
     "repository": "physionet",
     "source_id": "kinecal",
     "name": "KINECAL",
-    "paper_url": "https://doi.org/10.13026/8bsb-ch59",
+    "paper_url": "https://doi.org/10.13026/ky1q-3h26",
     "paper_pmid": null,
-    "paper_doi": "10.13026/8bsb-ch59",
+    "paper_doi": "10.13026/ky1q-3h26",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -150964,7 +150788,7 @@
     "gene_symbols": [],
     "provenance": {
       "abstract": "The field of human action recognition has made great strides in recent years,\nmuch helped by the availability of a wide variety of datasets that use Kinect\nto record human movement. Conversely, progress towards using Kinect in\nclinical practice has been hampered by the lack of appropriate data. In\nparticular, datasets that contain clinically significant movements and\nappropriate metadata. This paper proposes a dataset to address this issue,\nnamely KINECAL. It contains the recordings of 90 individuals carrying out 11\nmovements, commonly used in the clinical assessment of balance. The dataset\ncontains relevant metadata, including clinical labelling, falls history and\npostural sway metrics. In addition, the recordings were made in both the lab\nand in informal settings.",
-      "year": 2023,
+      "year": 2022,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -151173,9 +150997,9 @@
     "repository": "physionet",
     "source_id": "leipzig-heart-center-ecg",
     "name": "Leipzig Heart Center ECG-Database: Arrhythmias in Children and Patients with Congenital Heart Disease",
-    "paper_url": "https://doi.org/10.13026/7a4j-vn37",
+    "paper_url": "https://doi.org/10.13026/2ha4-km43",
     "paper_pmid": null,
-    "paper_doi": "10.13026/7a4j-vn37",
+    "paper_doi": "10.13026/2ha4-km43",
     "taxonomy": [],
     "organs": [
       {
@@ -151525,28 +151349,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/pk42-4v91",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -151555,9 +151360,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0001004"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151569,7 +151372,7 @@
       "year": 2026,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -151631,9 +151434,9 @@
     "repository": "physionet",
     "source_id": "maternal-ultrasound-nutrition",
     "name": "Maternal fat ultrasound measurement and nutritional assessment during pregnancy: A dataset centered in gestational outcomes",
-    "paper_url": "https://doi.org/10.13026/zedg-p783",
+    "paper_url": "https://doi.org/10.13026/hfks-3d71",
     "paper_pmid": null,
-    "paper_doi": "10.13026/zedg-p783",
+    "paper_doi": "10.13026/hfks-3d71",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -151707,16 +151510,7 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/qxpd-1y65",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "eye-male-right",
-        "uberon": "UBERON:0004549"
-      }
-    ],
+    "organs": [],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -151727,10 +151521,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0004548",
-        "UBERON:0004549"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151742,7 +151533,7 @@
       "year": 2024,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -151823,9 +151614,9 @@
     "repository": "physionet",
     "source_id": "me-llama",
     "name": "Me-LLaMA: Foundation Large Language Models for Medical Applications",
-    "paper_url": "https://doi.org/10.13026/wwfd-2t39",
+    "paper_url": "https://doi.org/10.13026/5158-hm11",
     "paper_pmid": null,
-    "paper_doi": "10.13026/wwfd-2t39",
+    "paper_doi": "10.13026/5158-hm11",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -151859,9 +151650,9 @@
     "repository": "physionet",
     "source_id": "med-palm2-mimic-cxr",
     "name": "Application of Med-PaLM 2 in the refinement of MIMIC-CXR labels",
-    "paper_url": "https://doi.org/10.13026/7wmp-jx90",
+    "paper_url": "https://doi.org/10.13026/a8e5-yx97",
     "paper_pmid": null,
-    "paper_doi": "10.13026/7wmp-jx90",
+    "paper_doi": "10.13026/a8e5-yx97",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152003,9 +151794,9 @@
     "repository": "physionet",
     "source_id": "medical-diff-vqa",
     "name": "Medical-Diff-VQA: A Large-Scale Medical Dataset for Difference Visual Question Answering on Chest X-Ray Images",
-    "paper_url": "https://doi.org/10.13026/e6dd-cn74",
+    "paper_url": "https://doi.org/10.13026/hbsg-tk87",
     "paper_pmid": null,
-    "paper_doi": "10.13026/e6dd-cn74",
+    "paper_doi": "10.13026/hbsg-tk87",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152111,9 +151902,9 @@
     "repository": "physionet",
     "source_id": "mednli-bionlp19",
     "name": "MedNLI for Shared Task at ACL BioNLP 2019",
-    "paper_url": "https://doi.org/10.13026/9pk3-y617",
+    "paper_url": "https://doi.org/10.13026/gtv4-g455",
     "paper_pmid": null,
-    "paper_doi": "10.13026/9pk3-y617",
+    "paper_doi": "10.13026/gtv4-g455",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152134,8 +151925,8 @@
     },
     "gene_symbols": [],
     "provenance": {
-      "abstract": "Natural language inference (NLI) is the task of determining whether a given\nhypothesis can be inferred from a given premise. Also known as Recognizing\nTextual Entailment (RTE), this task has enjoyed popularity among researchers\nfor a long time. However, almost all datasets for this task focused on open\ndomain data such as as news texts, blogs, and so on. To address this gap, the\n[MedNLI](http://doi.org/10.13026/C2RS98) dataset was created or language\ninference in the medical domain. MedNLI was a derived dataset with data\nsourced from [MIMIC-III](http://doi.org/10.13026/C2XW26) v1.4. In order to\nstimulate research for this problem, the\n[MEDIQA](https://aclweb.org/aclwiki/BioNLP_Workshop#MEDIQA_2019) shared task\nhas been organized at BioNLP 2019. The dataset provided herein is a test set\nof 405 premise hypothesis pairs for the NLI challenge at the MEDIQA shared\ntask. Participants of the shared task are expected to use the MedNLI data for\ndevelopment of their models and this dataset will be used as an unseen dataset\nfor scoring each participant submission.",
-      "year": 2020,
+      "abstract": "Natural Language Inference (NLI) is the task of determining whether a given hypothesis can be inferred from a given premise. Also known as Recognizing Textual Entailment (RTE), this task has enjoyed popularity among researchers for some time. However, almost all datasets for this task focused on open domain data such as as news texts, blogs, and so on. To address this gap, the MedNLI dataset was created for language inference in the medical domain. MedNLI is a derived dataset with data sourced from MIMIC-III v1.4. In order to stimulate research for this problem, a shared task on Medical Inference and Question Answering (MEDIQA) was organized at the workshop for biomedical natural language processing (BioNLP) 2019. The dataset provided herein is a test set of 405 premise hypothesis pairs for the NLI challenge in the MEDIQA shared task. Participants of the shared task are expected to use the MedNLI data for development of their models and this dataset was used as an unseen dataset for scoring each participant submission.",
+      "year": 2019,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -152255,9 +152046,9 @@
     "repository": "physionet",
     "source_id": "mental-fnirs",
     "name": "Mental workload during n-back task captured by TransCranial Doppler (TCD) sonography and functional Near-Infrared Spectroscopy (fNIRS) monitoring",
-    "paper_url": "https://doi.org/10.13026/zfb2-1g43",
+    "paper_url": "https://doi.org/10.13026/m32v-hy93",
     "paper_pmid": null,
-    "paper_doi": "10.13026/zfb2-1g43",
+    "paper_doi": "10.13026/m32v-hy93",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152331,24 +152122,9 @@
     "paper_pmid": null,
     "paper_doi": "10.13026/7fxy-3653",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -152357,9 +152133,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000948"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -152371,7 +152145,7 @@
       "year": 2021,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -152416,9 +152190,9 @@
     "repository": "physionet",
     "source_id": "mietic",
     "name": "MIMIC-IV-Ext Triage Instruction Corpus",
-    "paper_url": "https://doi.org/10.13026/q1nc-2e47",
+    "paper_url": "https://doi.org/10.13026/nf30-0z23",
     "paper_pmid": null,
-    "paper_doi": "10.13026/q1nc-2e47",
+    "paper_doi": "10.13026/nf30-0z23",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152653,9 +152427,9 @@
     "repository": "physionet",
     "source_id": "mimic-eicu-fiddle-feature",
     "name": "MIMIC-III and eICU-CRD: Feature Representation by FIDDLE Preprocessing",
-    "paper_url": "https://doi.org/10.13026/zwds-nn76",
+    "paper_url": "https://doi.org/10.13026/2qtg-k467",
     "paper_pmid": null,
-    "paper_doi": "10.13026/zwds-nn76",
+    "paper_doi": "10.13026/2qtg-k467",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152881,9 +152655,9 @@
     "repository": "physionet",
     "source_id": "mimic-ii",
     "name": "MIMIC-II Clinical Database",
-    "paper_url": "https://doi.org/10.13026/qeq9-tw98",
+    "paper_url": "https://doi.org/10.13026/fxn0-mk84",
     "paper_pmid": null,
-    "paper_doi": "10.13026/qeq9-tw98",
+    "paper_doi": "10.13026/fxn0-mk84",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -152917,9 +152691,9 @@
     "repository": "physionet",
     "source_id": "mimic-iii-clinical-action",
     "name": "CLIP: A Dataset for Extracting Action Items for Physicians from Hospital Discharge Notes",
-    "paper_url": "https://doi.org/10.13026/6kfs-9v69",
+    "paper_url": "https://doi.org/10.13026/kw00-z903",
     "paper_pmid": null,
-    "paper_doi": "10.13026/6kfs-9v69",
+    "paper_doi": "10.13026/kw00-z903",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -153050,31 +152824,15 @@
       {
         "label": "heart",
         "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
       }
     ],
     "functional_tissue_units": [
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
       {
         "label": "cardiac muscle / myocardium unit",
         "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
       {
         "label": "cardiac muscle cell (cardiomyocyte)",
         "cl": "CL:0000746"
@@ -153089,8 +152847,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000948",
-        "UBERON:0001004"
+        "UBERON:0000948"
       ],
       "cl": [],
       "mesh": [],
@@ -153703,9 +153460,9 @@
     "repository": "physionet",
     "source_id": "mimic-iv-ext-cardiac-disease",
     "name": "MIMIC-IV-Ext Cardiac Disease",
-    "paper_url": "https://doi.org/10.13026/khgm-hc33",
+    "paper_url": "https://doi.org/10.13026/6dnk-7r25",
     "paper_pmid": null,
-    "paper_doi": "10.13026/khgm-hc33",
+    "paper_doi": "10.13026/6dnk-7r25",
     "taxonomy": [],
     "organs": [
       {
@@ -153900,9 +153657,9 @@
     "repository": "physionet",
     "source_id": "mimic-iv-ext-direct",
     "name": "MIMIC-IV-Ext-DiReCT",
-    "paper_url": "https://doi.org/10.13026/yf96-kc87",
+    "paper_url": "https://doi.org/10.13026/2kfz-4798",
     "paper_pmid": null,
-    "paper_doi": "10.13026/yf96-kc87",
+    "paper_doi": "10.13026/2kfz-4798",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -154805,6 +154562,49 @@
     }
   },
   {
+    "identifier": "https://physionet.org/content/motion-artifact/",
+    "repository": "physionet",
+    "source_id": "motion-artifact",
+    "name": "Motion Artifact Contaminated fNIRS and EEG Data",
+    "paper_url": "https://doi.org/10.13026/c2988p",
+    "paper_pmid": null,
+    "paper_doi": "10.13026/c2988p",
+    "taxonomy": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
+    "functional_tissue_units": [],
+    "cell_types": [],
+    "molecular_ids": {
+      "chebi": [],
+      "uniprot": [],
+      "kegg": [],
+      "go": [],
+      "reactome": []
+    },
+    "ontology_ids": {
+      "uberon": [
+        "UBERON:0000955"
+      ],
+      "cl": [],
+      "mesh": [],
+      "fma": [],
+      "bto": []
+    },
+    "gene_symbols": [],
+    "provenance": {
+      "abstract": "This data collection, contributed to PhysioBank by Kevin Sweeney and colleagues at the National University of Ireland in Maynooth, contains examples of functional near-infrared spectroscopy (fNIRS) and electroencephalogram (EEG) recordings that have been created for evaluating artifact removal methods.",
+      "year": 2014,
+      "access": "unknown",
+      "keywords": [],
+      "mapping_method": "keyword",
+      "errors": []
+    }
+  },
+  {
     "identifier": "https://physionet.org/content/mouse-stroke-cylinder-rearing/",
     "repository": "physionet",
     "source_id": "mouse-stroke-cylinder-rearing",
@@ -154881,9 +154681,9 @@
     "repository": "physionet",
     "source_id": "ms-cxr",
     "name": "MS-CXR: Making the Most of Text Semantics to Improve Biomedical Vision-Language Processing",
-    "paper_url": "https://doi.org/10.13026/ms5s-2a34",
+    "paper_url": "https://doi.org/10.13026/9g2z-jg61",
     "paper_pmid": null,
-    "paper_doi": "10.13026/ms5s-2a34",
+    "paper_doi": "10.13026/9g2z-jg61",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -155115,9 +154915,9 @@
     "repository": "physionet",
     "source_id": "multimodal-nback-music",
     "name": "A Multimodal Dataset for Investigating Working Memory in Presence of Music",
-    "paper_url": "https://doi.org/10.13026/6vh4-dk68",
+    "paper_url": "https://doi.org/10.13026/gr11-3d06",
     "paper_pmid": null,
-    "paper_doi": "10.13026/6vh4-dk68",
+    "paper_doi": "10.13026/gr11-3d06",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -155295,9 +155095,9 @@
     "repository": "physionet",
     "source_id": "music-sudden-cardiac-death",
     "name": "MUSIC (Sudden Cardiac Death in Chronic Heart Failure)",
-    "paper_url": "https://doi.org/10.13026/z3m7-rf58",
+    "paper_url": "https://doi.org/10.13026/cec2-9w70",
     "paper_pmid": null,
-    "paper_doi": "10.13026/z3m7-rf58",
+    "paper_doi": "10.13026/cec2-9w70",
     "taxonomy": [],
     "organs": [
       {
@@ -155335,8 +155135,8 @@
     },
     "gene_symbols": [],
     "provenance": {
-      "abstract": "The MUSIC (MUerte Subita en Insuficiencia Cardiaca) study is a prospective,\nmulticentre, longitudinal study designed to assess risk predictors of cardiac\nmortality and sudden cardiac death (SCD) in ambulatory patients with chronic\nheart failure (CHF).\n\nThe study population consisted of 992 patients with CHF consecutively enrolled\nfrom the specialized HF clinics of eight University Spanish Hospitals between\nApril 2003 and December 2004, and followed up for a median of 44 months (until\nNovember 2008).  All patients had a 3-lead resting electrocardiogram (ECG),  a\n24 h, 2-(4%) or 3-lead (96%) Holter ECG, chest X-ray, echocardiography, and\nblood laboratory parameters performed at enrolment.\n\nPrimary outcomes were cardiac death, either sudden cardiac death (SCD) or pump\nfailure death (PFD) at the end of the follow-up period.",
-      "year": 2025,
+      "abstract": "The MUSIC (MUerte Subita en Insuficiencia Cardiaca) study is a prospective,\nmulticentre, longitudinal study designed to assess risk predictors of cardiac\nmortality and sudden cardiac death (SCD) in ambulatory patients with chronic\nheart failure (CHF).\n\nThe study population consisted of 992 patients with CHF consecutively enrolled\nfrom the specialized HF clinics of eight University Spanish Hospitals between\nApril 2003 and December 2004, and followed up for a median of 44 months (until\nNovember 2008).  All patients had a 12-lead electrocardiogram (ECG),  a 24 h,\n2-(4%) or 3-lead (96%) Holter ECG, chest X-ray, echocardiography, and blood\nlaboratory parameters performed at enrolment.\n\nPrimary outcomes were cardiac death, either sudden cardiac death (SCD) or pump\nfailure death (PFD) at the end of the follow-up period.",
+      "year": 2024,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "keyword",
@@ -156078,9 +155878,9 @@
     "repository": "physionet",
     "source_id": "nwicu-northwestern-icu",
     "name": "Northwestern ICU (NWICU) database",
-    "paper_url": "https://doi.org/10.13026/s84w-1829",
+    "paper_url": "https://doi.org/10.13026/4je9-db46",
     "paper_pmid": null,
-    "paper_doi": "10.13026/s84w-1829",
+    "paper_doi": "10.13026/4je9-db46",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -156186,9 +155986,9 @@
     "repository": "physionet",
     "source_id": "openox-repo",
     "name": "OpenOximetry Repository",
-    "paper_url": "https://doi.org/10.13026/e821-1858",
+    "paper_url": "https://doi.org/10.13026/yq6c-z215",
     "paper_pmid": null,
-    "paper_doi": "10.13026/e821-1858",
+    "paper_doi": "10.13026/yq6c-z215",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -157194,9 +156994,9 @@
     "repository": "physionet",
     "source_id": "q-pain",
     "name": "Q-Pain: A Question Answering Dataset to Measure Social Bias in Pain Management",
-    "paper_url": "https://doi.org/10.13026/2tdv-hj07",
+    "paper_url": "https://doi.org/10.13026/61xq-mj56",
     "paper_pmid": null,
-    "paper_doi": "10.13026/2tdv-hj07",
+    "paper_doi": "10.13026/61xq-mj56",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -157302,9 +157102,9 @@
     "repository": "physionet",
     "source_id": "r-deco",
     "name": "R-DECO: An open-source Matlab based graphical user interface for the detection and correction of R-peaks",
-    "paper_url": "https://doi.org/10.13026/gxxm-xw77",
+    "paper_url": "https://doi.org/10.13026/x6j7-sp58",
     "paper_pmid": null,
-    "paper_doi": "10.13026/gxxm-xw77",
+    "paper_doi": "10.13026/x6j7-sp58",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -157410,9 +157210,9 @@
     "repository": "physionet",
     "source_id": "rad-eval-x",
     "name": "Radiology Report Generation Models Evaluation  Dataset For Chest X-rays (RadEvalX)",
-    "paper_url": "https://doi.org/10.13026/tp88-q278",
+    "paper_url": "https://doi.org/10.13026/72dp-f846",
     "paper_pmid": null,
-    "paper_doi": "10.13026/tp88-q278",
+    "paper_doi": "10.13026/72dp-f846",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -157554,9 +157354,9 @@
     "repository": "physionet",
     "source_id": "radialog-instruct-dataset",
     "name": "RaDialog Instruct Dataset",
-    "paper_url": "https://doi.org/10.13026/zecj-bh52",
+    "paper_url": "https://doi.org/10.13026/pxb3-eh70",
     "paper_pmid": null,
-    "paper_doi": "10.13026/zecj-bh52",
+    "paper_doi": "10.13026/pxb3-eh70",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -157770,9 +157570,9 @@
     "repository": "physionet",
     "source_id": "reflacx-xray-localization",
     "name": "REFLACX: Reports and eye-tracking data for localization of abnormalities in chest x-rays",
-    "paper_url": "https://doi.org/10.13026/qhft-e228",
+    "paper_url": "https://doi.org/10.13026/e0dj-8498",
     "paper_pmid": null,
-    "paper_doi": "10.13026/qhft-e228",
+    "paper_doi": "10.13026/e0dj-8498",
     "taxonomy": [],
     "organs": [
       {
@@ -158254,9 +158054,9 @@
     "repository": "physionet",
     "source_id": "scg-rhc-wearable-database",
     "name": "SCG-RHC: Wearable Seismocardiogram Signal and Right Heart Catheter Database",
-    "paper_url": "https://doi.org/10.13026/133d-pk11",
+    "paper_url": "https://doi.org/10.13026/0mb3-4c08",
     "paper_pmid": null,
-    "paper_doi": "10.13026/133d-pk11",
+    "paper_doi": "10.13026/0mb3-4c08",
     "taxonomy": [],
     "organs": [
       {
@@ -158307,9 +158107,9 @@
     "repository": "physionet",
     "source_id": "scientisst-move-biosignals",
     "name": "ScientISST MOVE: Annotated Wearable Multimodal Biosignals recorded during Everyday Life Activities in Naturalistic Environments",
-    "paper_url": "https://doi.org/10.13026/hyxq-r919",
+    "paper_url": "https://doi.org/10.13026/0ppk-ha30",
     "paper_pmid": null,
-    "paper_doi": "10.13026/hyxq-r919",
+    "paper_doi": "10.13026/0ppk-ha30",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -158540,9 +158340,9 @@
     "repository": "physionet",
     "source_id": "semg",
     "name": "Surface electromyographic signals collected during long-lasting ground walking of young able-bodied subjects",
-    "paper_url": "https://doi.org/10.13026/bwvb-ht51",
+    "paper_url": "https://doi.org/10.13026/9q7v-6016",
     "paper_pmid": null,
-    "paper_doi": "10.13026/bwvb-ht51",
+    "paper_doi": "10.13026/9q7v-6016",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -158564,7 +158364,7 @@
     "gene_symbols": [],
     "provenance": {
       "abstract": "The present dataset is composed of long-lasting (around 5 minutes) surface\nelectromyographic (sEMG) signals recorded from 2011 and 2018 during ground\nwalking of 31 young (20 years < age < 30 years) able-bodied subjects in the\nMovement Analysis Lab, Universita Politecnica delle Marche, Ancona, Italy.\nUnderweight, overweight, and obese people (body mass index, BMI < 18.5 Kg/m2\nand BMI > 25 Kg/m2) and subjects affected by any pathological condition, joint\npain, or undergone orthopedic surgery are not included in the present dataset.\nsEMG signals are acquired from the following ten different leg muscles (five\nper leg): gastrocnemius lateralis (GL), tibialis anterior (TA), rectus femoris\n(RF), hamstrings (Ham), and vastus lateralis (VL). Synchronized footswitch and\nelectrogoniometric data are provided in order to allow users to achieve a\nspatial/temporal characterization of the sEMG signals. Data have been acquired\nin subjects walking barefoot on level ground for around 5 min at their natural\nspeed and pace, following an eight-shaped path which includes rectilinear\nsegments and curves. The considerable length of the signals makes this dataset\nvery suitable for those studies where the numerosity of the data is essential,\nsuch as machine/deep learning approaches, studies for analyzing and\nquantifying the variability of muscle recruitment during physiological\nwalking, and creation of reference dataset in the characterization of\npathological conditions.",
-      "year": 2022,
+      "year": 2024,
       "access": "unknown",
       "keywords": [],
       "mapping_method": "unmapped",
@@ -159680,32 +159480,13 @@
     "repository": "physionet",
     "source_id": "symile-mimic",
     "name": "Symile-MIMIC: a multimodal clinical dataset of chest X-rays, electrocardiograms, and blood labs from MIMIC-IV",
-    "paper_url": "https://doi.org/10.13026/3vvj-s428",
+    "paper_url": "https://doi.org/10.13026/762h-qf80",
     "paper_pmid": null,
-    "paper_doi": "10.13026/3vvj-s428",
+    "paper_doi": "10.13026/762h-qf80",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "blood",
-        "uberon": "UBERON:0004537"
-      },
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -159714,9 +159495,7 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000948"
-      ],
+      "uberon": [],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -159728,7 +159507,7 @@
       "year": 2025,
       "access": "unknown",
       "keywords": [],
-      "mapping_method": "keyword",
+      "mapping_method": "unmapped",
       "errors": []
     }
   },
@@ -159898,9 +159677,9 @@
     "repository": "physionet",
     "source_id": "tame-pain",
     "name": "TAME Pain: Trustworthy AssessMEnt of Pain from Speech and Audio for the Empowerment of Patients",
-    "paper_url": "https://doi.org/10.13026/wp85-ea58",
+    "paper_url": "https://doi.org/10.13026/20e2-1g10",
     "paper_pmid": null,
-    "paper_doi": "10.13026/wp85-ea58",
+    "paper_doi": "10.13026/20e2-1g10",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -160063,9 +159842,9 @@
     "repository": "physionet",
     "source_id": "therlid",
     "name": "TherLid: A Thermometry Linked Dataset",
-    "paper_url": "https://doi.org/10.13026/eskc-3e36",
+    "paper_url": "https://doi.org/10.13026/tkww-8b64",
     "paper_pmid": null,
-    "paper_doi": "10.13026/eskc-3e36",
+    "paper_doi": "10.13026/tkww-8b64",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],
@@ -161083,9 +160862,9 @@
     "repository": "physionet",
     "source_id": "wctecgdb",
     "name": "Wilson Central Terminal ECG Database",
-    "paper_url": "https://doi.org/10.13026/2mz7-3v18",
+    "paper_url": "https://doi.org/10.13026/f73z-an96",
     "paper_pmid": null,
-    "paper_doi": "10.13026/2mz7-3v18",
+    "paper_doi": "10.13026/f73z-an96",
     "taxonomy": [],
     "organs": [
       {
@@ -161297,9 +161076,9 @@
     "repository": "physionet",
     "source_id": "wfdb-python",
     "name": "Waveform Database Software Package (WFDB) for Python",
-    "paper_url": "https://doi.org/10.13026/egpf-2788",
+    "paper_url": "https://doi.org/10.13026/g35g-c061",
     "paper_pmid": null,
-    "paper_doi": "10.13026/egpf-2788",
+    "paper_doi": "10.13026/g35g-c061",
     "taxonomy": [],
     "organs": [],
     "functional_tissue_units": [],

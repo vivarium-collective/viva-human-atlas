@@ -4,7 +4,7 @@ fallback for the unmapped tail. UBERON ids are bound to HRA organs via the same
 `hra_mapping.map_to_hra` the BioModels path uses."""
 from __future__ import annotations
 
-from typing import Optional
+import re
 
 from viva_human_atlas.hra_mapping import map_to_hra
 
@@ -42,7 +42,11 @@ def keyword_uberons(keywords, title: str) -> list[str]:
     hay = " ".join([*(keywords or []), title or ""]).lower()
     out: list[str] = []
     for kw, ubs in KEYWORD_TO_ORGAN.items():
-        if kw in hay:
+        # Word-boundary match, not substring: a plain `kw in hay` check lets
+        # short keys like "eda"/"eog"/"ppg" fire inside unrelated words (e.g.
+        # "eda" inside "impedance"), spuriously mapping unrelated projects to
+        # that keyword's organ.
+        if re.search(r"\b" + re.escape(kw) + r"\b", hay):
             out.extend(ubs)
     # stable de-dup
     return list(dict.fromkeys(out))
