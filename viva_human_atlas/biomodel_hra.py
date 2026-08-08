@@ -147,6 +147,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         "identifier": _IRI.format(biomodel_id),
         "repository": "biomodels",
         "biomodel_id": biomodel_id,
+        "source_id": biomodel_id,
         "name": meta.get("name"),
         "paper_url": paper_url,
         "paper_pmid": pmid,
@@ -184,34 +185,34 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
 
 
 def upsert_db(db: dict, entry: dict) -> None:
-    db[entry["biomodel_id"]] = entry
+    db[entry["identifier"]] = entry
 
 
 def load_db(path) -> dict:
-    """Internal representation is always a `{biomodel_id: entry}` dict, but
-    the on-disk file is a JSON array (see `write_db`); a legacy id-keyed
-    object is still accepted so resuming an old-format DB keeps working."""
+    """Internal representation is always `{identifier: entry}`; the on-disk
+    file is a JSON array (see `write_db`). Legacy `biomodel_id`-keyed
+    lists/objects are re-keyed on `identifier` so old-format DBs keep
+    resuming."""
     p = Path(path)
     if not p.exists():
         return {}
     data = json.loads(p.read_text(encoding="utf-8"))
-    if isinstance(data, list):
-        return {e["biomodel_id"]: e for e in data}
-    return data
+    entries = data if isinstance(data, list) else list(data.values())
+    return {e["identifier"]: e for e in entries}
 
 
 def write_db(db: dict, path) -> None:
     p = Path(path); p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(p.suffix + ".tmp")
-    ordered = sorted(db.values(), key=lambda e: e.get("biomodel_id", ""))
+    ordered = sorted(db.values(), key=lambda e: e.get("identifier", ""))
     tmp.write_text(json.dumps(ordered, indent=2), encoding="utf-8")
     os.replace(tmp, p)
 
 
-def should_process(db: dict, bid: str, force: bool) -> bool:
+def should_process(db: dict, key: str, force: bool) -> bool:
     if force:
         return True
-    entry = db.get(bid)
+    entry = db.get(key)
     if entry is None:
         return True
     return bool(entry.get("provenance", {}).get("errors"))  # reprocess if it errored
@@ -252,7 +253,8 @@ def build_map(*, ids: Optional[Sequence[str]] = None, out=DEFAULT_DB_PATH,
     organ_index = build_organ_index()
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
     for i, bid in enumerate(ids, 1):
-        if not should_process(db, bid, force):
+        identifier = _IRI.format(bid)
+        if not should_process(db, identifier, force):
             continue
         try:
             upsert_db(db, build_entry(bid, organ_index, cache_dir=str(cache_dir),
@@ -282,7 +284,7 @@ def load_map(path=DEFAULT_DB_PATH) -> List[dict]:
         return []
     data = json.loads(p.read_text(encoding="utf-8"))
     entries = list(data.values()) if isinstance(data, dict) else data
-    return sorted(entries, key=lambda e: e.get("biomodel_id", ""))
+    return sorted(entries, key=lambda e: e.get("identifier", ""))
 
 
 # Coverage categories, matching scripts/make_biomodel_hra_figure.py. Each maps
