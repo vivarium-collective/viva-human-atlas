@@ -95,8 +95,16 @@ function distinctBreakdown(models) {
   return ALL_SOURCES.filter((r) => seen[r] && seen[r].size)
     .map((r) => `${seen[r].size} ${sourceLabel(r)}`).join(" · ");
 }
-// Assigned by main() to re-render whatever the panel currently shows after a
-// source toggle (so a chip click refreshes organ / subregion / search in place).
+// Model counts restricted to the active source chips. With all sources active
+// (the default) these equal the organ's/subregion's full totals, so default
+// coloring is unchanged; narrowing the chips shrinks the counts that drive the
+// 3D coloring, the menu counts, and the color ramp.
+const activeCount = (organ) => filterBySource(organ && organ.models).length;
+const activeSubCount = (organ, sub) =>
+  activeCount(organ) + filterBySource(sub && sub.models).length;
+
+// Assigned by main() to re-render whatever the panel currently shows AND recolor
+// the 3D scene + menu after a source toggle (so a chip click drives everything).
 let onSourcesChanged = () => {};
 // Render the source toggle chips (with per-source counts for THIS model set)
 // into the panel head. Clicking a chip narrows/combines the list; all-on is the
@@ -330,7 +338,9 @@ async function main() {
   // Re-render for the CURRENT panel view, reassigned by focus / subregion /
   // reset so a source-chip toggle refreshes exactly what's shown, in place.
   let rerenderPanel = () => resetPanel();
-  onSourcesChanged = () => rerenderPanel();
+  // A source-chip toggle drives the whole view: re-render the panel, recolor the
+  // 3D scene (organs filtered out dim / go grey), and update the menu counts.
+  onSourcesChanged = () => { rerenderPanel(); recolorShown(); refreshMenuCounts(); };
   // ---- explode (B4) ----
   let explodeAnim = null;              // {meshes:[{mesh,from,to}], start, dur}
   let explodedKey = null;              // organ key currently in exploded state
@@ -347,13 +357,35 @@ async function main() {
   // (so the selected organs light up where the keyword is represented), and
   // organs with no match dim out.
   function organColorSpec(organ) {
-    if (!modelQuery) return { color: countColor(organ.n_models, maxCount), opacity: 1 };
+    if (!modelQuery) {
+      const n = activeCount(organ);
+      // Organ has models but the active source chips exclude them all -> dim it
+      // out (reads as "filtered away"); a genuinely model-less organ keeps its
+      // normal grey at full opacity.
+      if (!n) return { color: new THREE.Color(NOMODEL), opacity: organ.n_models ? 0.18 : 1 };
+      return { color: countColor(n, maxCount), opacity: 1 };
+    }
     const n = matchingModels(organ, modelQuery).length;
     if (!n) return { color: new THREE.Color(NOMODEL), opacity: 0.18 };
     const maxMatch = searchMaxMatch || 1;
     return { color: countColor(n, maxMatch), opacity: 1 };
   }
   let searchMaxMatch = 0;
+  // Update the left menu rows' swatch + count to the active-source counts, in
+  // place (no rebuild, so scroll/collapse state survives a source-chip toggle).
+  function refreshMenuCounts() {
+    for (const [key, row] of rows) {
+      const o = organsByKey.get(key);
+      if (!o) continue;
+      const n = activeCount(o);
+      const sw = row.querySelector(".sw");
+      const ct = row.querySelector(".ct");
+      if (sw) sw.style.background = cssColor(n, maxCount);
+      if (ct) ct.textContent = n || "";
+      row.classList.toggle("zero", !n);
+    }
+  }
+
   // Recolor every currently-shown organ group per organColorSpec.
   function recolorShown() {
     searchMaxMatch = 0;
@@ -390,12 +422,17 @@ async function main() {
     node.userData.sub = sub;
     // Same YlGnBu ramp for both; a subregion uses its COMBINED count (organ +
     // localized), so it reads as a darker shade than the rest of the organ.
-    const count = sub ? subregionCount(organ, sub) : organ.n_models;
+    // Counts honor the active source chips, so narrowing the sources recolors
+    // the atlas; an organ whose models are all filtered out dims to read as
+    // excluded (rather than pretending it's a genuine no-model grey).
+    const organActive = activeCount(organ);
+    const count = sub ? activeSubCount(organ, sub) : organActive;
     const col = countColor(count, maxCount);
+    const dim = organActive === 0 && organ.n_models > 0;
     if (node.material && !node.material.isLineBasicMaterial) {
       node.material.color.copy(col);
-      node.material.transparent = false;
-      node.material.opacity = 1;
+      node.material.transparent = dim;
+      node.material.opacity = dim ? 0.18 : 1;
     }
   }
   // Recolor every mesh of a shown organ to its base (subregion-or-organ) colors.
@@ -910,15 +947,16 @@ async function main() {
       });
 
       for (const o of organs) {
+        const nActive = activeCount(o);
         const row = document.createElement("div");
-        row.className = "organ-row" + (o.n_models ? "" : " zero");
+        row.className = "organ-row" + (nActive ? "" : " zero");
         row.dataset.key = o.key;
         row.dataset.label = o.label.toLowerCase();
         row.innerHTML =
           `<span class="chk">✓</span>` +
-          `<span class="sw" style="background:${cssColor(o.n_models, maxCount)}"></span>` +
+          `<span class="sw" style="background:${cssColor(nActive, maxCount)}"></span>` +
           `<span class="nm" title="${o.label}">${o.label}</span>` +
-          `<span class="ct">${o.n_models || ""}</span>` +
+          `<span class="ct">${nActive || ""}</span>` +
           `<span class="only" role="button">only</span>` +
           `<span class="explode" role="button" title="Isolate and explode this organ">explode</span>`;
         row.addEventListener("click", (e) => {
