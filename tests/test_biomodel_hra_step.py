@@ -166,11 +166,14 @@ def test_workspace_registers_downloadable_dataset():
 
 
 def test_cli_delegates_to_shared_core():
-    """The slimmed CLI imports the shared-core symbols it delegates to."""
+    """The slimmed CLI imports the shared multi-source harvest it delegates to
+    (scripts/harvest_models.py is the general CLI; this one pins --source
+    biomodels)."""
     import importlib.util
+
+    from viva_human_atlas import model_harvest
     spec = importlib.util.spec_from_file_location(
         "bhm_cli", REPO_ROOT / "scripts" / "build_biomodel_hra_map.py")
     cli = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cli)
-    assert cli.build_map is bhm.build_map
-    assert cli.resolve_ids is bhm.resolve_ids
+    assert cli.harvest is model_harvest.harvest
