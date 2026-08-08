@@ -111,6 +111,7 @@ studies:
   - annotation-organ-matching
   - annotation-recall-gain
   - biomodel-hra-map
+  - model-harvest
 
 inputs:
   references:
