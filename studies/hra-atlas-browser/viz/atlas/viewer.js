@@ -40,6 +40,14 @@ const els = {
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
+// Escape untrusted text before it is interpolated into an innerHTML template
+// literal. Model `name` (PhysioNet titles come from external DataCite
+// metadata), `source_id`, and `repository` all flow into innerHTML below and
+// must never be trusted as markup.
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+));
+
 // ColorBrewer YlGnBu (9-class sequential) — a perceptually-ordered
 // light-yellow (few) -> green -> teal -> dark-blue (many) ramp, the standard
 // sequential scheme for a single magnitude. Distinct in hue from the warm
@@ -115,8 +123,8 @@ function renderBioModels(organ) {
       : "";
     // source badge: which repository (BioModels vs PhysioNet) this model
     // came from — distinct from the provenance badge above.
-    const srcBadge = `<span class="src-badge src-${m.repository}">${m.repository}</span>`;
-    a.innerHTML = `<div>${m.name} ${srcBadge} ${badge}</div><div class="mid">${m.source_id}</div>`;
+    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
+    a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
     els.bpList.appendChild(a);
   }
 }
@@ -651,8 +659,8 @@ async function main() {
     }
     // source badge: which repository (BioModels vs PhysioNet) this model
     // came from — distinct from the provenance badge above.
-    const srcBadge = `<span class="src-badge src-${m.repository}">${m.repository}</span>`;
-    a.innerHTML = `<div>${m.name || m.source_id} ${srcBadge} ${badge}</div><div class="mid">${m.source_id}</div>`;
+    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
+    a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
     return a;
   }
 
