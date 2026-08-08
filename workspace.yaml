@@ -7,7 +7,7 @@ visualizations: []
 simulations: []
 datasets:
   - name: biomodel-hra-map
-    path: datasets/biomodel_hra_map.json
+    path: datasets/model_hra_map.json
     sha256: 653fa14a4fb7c6685579c16ba4fcde5cbb32d30bc6f7f06891edad837cdafc33
     claims:
       - 1096 curated BioModels harvested and mapped to the Human Reference Atlas

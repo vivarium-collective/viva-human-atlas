@@ -17,7 +17,7 @@ import viva_human_atlas.biomodel_hra as bhm
 from viva_human_atlas.core import build_core
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-COMMITTED_DB = REPO_ROOT / "datasets" / "biomodel_hra_map.json"
+COMMITTED_DB = REPO_ROOT / "datasets" / "model_hra_map.json"
 
 
 def _entry(bid, *, chebi=(), uberon=(), cell_types=(), mesh=(), organs=(), ftus=(), hra_pop=None):
@@ -113,7 +113,7 @@ def test_step_writes_per_run_analysis_copy_when_dir_injected(tmp_path):
         "db_path": str(db), "build_if_missing": False,
         "analysis_out_dir": str(out)}, core=core)
     step.update({})
-    artifact = out / "biomodel_hra_map.json"
+    artifact = out / "model_hra_map.json"
     assert artifact.exists()
     assert json.loads(artifact.read_text())  # non-empty DB array
 
@@ -162,7 +162,7 @@ def test_workspace_registers_downloadable_dataset():
     ws = yaml.safe_load((REPO_ROOT / "workspace.yaml").read_text(encoding="utf-8"))
     ds = [d for d in (ws.get("datasets") or []) if d.get("name") == "biomodel-hra-map"]
     assert ds, "biomodel-hra-map dataset not registered in workspace.yaml"
-    assert ds[0]["path"] == "datasets/biomodel_hra_map.json"
+    assert ds[0]["path"] == "datasets/model_hra_map.json"
 
 
 def test_cli_delegates_to_shared_core():

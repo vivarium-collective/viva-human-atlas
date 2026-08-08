@@ -46,7 +46,7 @@ composite; also launchable from the Analyses tab.
     rather than direct Uberon links. (See `studies/annotation-organ-matching`
     and `studies/annotation-recall-gain`.)
   - **BioModels→HRA corpus map:** the whole curated corpus (**1,096 models**)
-    harvested into one reusable JSON DB (`datasets/biomodel_hra_map.json`), each
+    harvested into one reusable JSON DB (`datasets/model_hra_map.json`), each
     model with molecular ids (CHEBI/UniProt/KEGG/GO/Reactome), publication link,
     organism, and HRA organ/FTU/cell-type mapping (anatomy crosswalked from paper
     **MeSH** + BTO), with 112 models carrying **HRApop** measured cell-type

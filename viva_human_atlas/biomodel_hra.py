@@ -12,7 +12,7 @@ entries (sorted by biomodel id); a legacy id-keyed object is still accepted on
 read so an old-format file keeps resuming.
 
 `BiomodelHraMapStep` is cache-or-load: it loads the committed
-`datasets/biomodel_hra_map.json` if present (the normal, network-free path) and
+`datasets/model_hra_map.json` if present (the normal, network-free path) and
 only runs the live extraction when the cache is missing and building is
 enabled. It emits the DB path + model count + coverage summary (not the whole
 2.7 MB DB), the summary matching the committed figure
@@ -39,7 +39,7 @@ from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers, fetc
 from viva_human_atlas.anatomy_crosswalk import crosswalk_anatomy, crosswalk_mesh_labels
 
 _REPO = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = _REPO / "datasets" / "biomodel_hra_map.json"
+DEFAULT_DB_PATH = _REPO / "datasets" / "model_hra_map.json"
 DEFAULT_CACHE_DIR = _REPO / ".cache" / "biomodel_hra_map"
 DEFAULT_LLM_MODEL = "claude-haiku-4-5-20251001"
 
@@ -357,7 +357,7 @@ class BiomodelHraMapStep(Step):
     """Step: make the BioModels->HRA map DB available (cache-or-load).
 
     Normal path is network-free: it loads the committed
-    `datasets/biomodel_hra_map.json` and emits the DB path, model count, and a
+    `datasets/model_hra_map.json` and emits the DB path, model count, and a
     coverage summary (not the whole DB). If the cache is missing and
     `build_if_missing` is set, it runs the live extraction first (slow,
     network) -- otherwise it emits an empty summary.
@@ -422,7 +422,7 @@ class BiomodelHraMapStep(Step):
         try:
             out = Path(out_dir)
             out.mkdir(parents=True, exist_ok=True)
-            (out / "biomodel_hra_map.json").write_text(
+            (out / "model_hra_map.json").write_text(
                 json.dumps(list(entries), indent=2), encoding="utf-8")
         except Exception:  # noqa: BLE001
             pass
@@ -441,7 +441,7 @@ BiomodelHraMapStep.contract = {
     },
     "assumptions": [
         "Normal operation is cache-or-load: the committed "
-        "datasets/biomodel_hra_map.json is loaded network-free. A live "
+        "datasets/model_hra_map.json is loaded network-free. A live "
         "rebuild only happens if the cache is absent and build_if_missing is "
         "set, and is slow (fetches every curated BioModel).",
     ],

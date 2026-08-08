@@ -382,7 +382,7 @@ def build_and_write_atlas(*, db_path=None, catalog_path, out_dir,
     """Offline end-to-end: build the Atlas Browser pack from the BioModels->HRA
     map DB (Phase 1) with organ-subregion placement, and write it to `out_dir`.
 
-    `db_path` -> the biomodel_hra_map.json (organ->models + cell types/FTUs);
+    `db_path` -> the model_hra_map.json (organ->models + cell types/FTUs);
     `catalog_path` -> the committed corpus catalog (the 50 GLB `organ_index`);
     `hrapop_csv`/`crosswalk_path` default to the committed datasets. `place_kw`
     tunes `atlas_subregions.place_models` (enrichment, top_k, cross_organ_max).

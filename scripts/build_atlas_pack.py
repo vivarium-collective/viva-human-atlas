@@ -23,7 +23,7 @@ if str(REPO_ROOT) not in sys.path:
 from viva_human_atlas.atlas_pack import build_and_write_atlas  # noqa: E402
 
 CATALOG_PATH = REPO_ROOT / "datasets" / "biomodel_corpus_catalog.json"
-DB_PATH = REPO_ROOT / "datasets" / "biomodel_hra_map.json"
+DB_PATH = REPO_ROOT / "datasets" / "model_hra_map.json"
 OUT_DIR = REPO_ROOT / "studies" / "hra-atlas-browser" / "viz" / "atlas"
 
 

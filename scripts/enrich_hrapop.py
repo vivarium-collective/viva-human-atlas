@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Enrich the biomodel-HRA DB with HRApop cell-type populations (organ-level).
 
-Post-hoc pass over `datasets/biomodel_hra_map.json`: adds an `hra_pop` field to
+Post-hoc pass over `datasets/model_hra_map.json`: adds an `hra_pop` field to
 each model whose organ(s) HRApop covers — the measured cell-type composition of
 that organ (CL cell types + percentage/count) from HRApop. No re-run of the
 extractor needed. See viva_human_atlas/hra_pop.py.
@@ -41,7 +41,7 @@ def enrich(db_path: str, hrapop_csv=None, top=None) -> tuple[int, int]:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Enrich the biomodel-HRA DB with HRApop cell populations.")
-    ap.add_argument("--db", default=str(REPO / "datasets" / "biomodel_hra_map.json"))
+    ap.add_argument("--db", default=str(REPO / "datasets" / "model_hra_map.json"))
     ap.add_argument("--hrapop-csv", default=None)
     ap.add_argument("--top", type=int, default=None, help="cap cell types per organ (default: all)")
     a = ap.parse_args(argv)

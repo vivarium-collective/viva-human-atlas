@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Enrich datasets/biomodel_hra_map.json in place: organism + gene ids
+"""Enrich datasets/model_hra_map.json in place: organism + gene ids
 (HGNC/Ensembl) + gene->Uberon anatomy (via the harvested ASCT+B tables).
 
 Reuses the existing DB (SBML/BioPAX/MeSH already extracted); only makes the new
@@ -21,7 +21,7 @@ from viva_human_atlas.asctb_tables import build_gene_uberon_index  # noqa: E402
 from viva_human_atlas.biomodel_do import build_organ_index  # noqa: E402
 from viva_human_atlas.enrich import enrich_map  # noqa: E402
 
-DB = REPO / "datasets" / "biomodel_hra_map.json"
+DB = REPO / "datasets" / "model_hra_map.json"
 ASCTB = REPO / "datasets" / "asctb_tables.json"
 CACHE = REPO / ".cache" / "enrich"
 

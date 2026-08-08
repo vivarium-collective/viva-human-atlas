@@ -164,7 +164,7 @@ def test_glbs_field_carries_all_same_sex_assets():
 
 def test_end_to_end_build_from_committed_datasets(tmp_path):
     result = build_and_write_atlas(
-        db_path=str(REPO / "datasets" / "biomodel_hra_map.json"),
+        db_path=str(REPO / "datasets" / "model_hra_map.json"),
         catalog_path=str(CATALOG), out_dir=tmp_path)
     atlas = json.loads((tmp_path / "atlas.json").read_text())
     assert atlas["summary"]["n_models_distinct"] == 256
