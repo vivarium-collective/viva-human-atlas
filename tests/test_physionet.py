@@ -33,6 +33,24 @@ def test_resolve_projects_parses_datacite(monkeypatch):
     assert p["doi"] == "10.13026/c2f305"
 
 
+def test_resolve_projects_dedups_duplicate_doi_records(monkeypatch):
+    # DataCite emits ~2x DOI records per project: a versioned DOI and the
+    # "latest" DOI, both resolving to the same slug. resolve_projects should
+    # collapse these to a single entry per project (first-seen wins).
+    versioned = DATACITE_PAGE["data"][0]
+    latest = {"attributes": {**versioned["attributes"],
+                             "url": "https://physionet.org/content/mitdb/"}}
+    page = {"data": [versioned, latest], "links": {}}
+
+    class R:
+        status_code = 200
+        def raise_for_status(self): pass
+        def json(self): return page
+    projects = physionet.resolve_projects(_get=lambda *a, **k: R())
+    assert len(projects) == 1
+    assert projects[0]["slug"] == "mitdb"
+
+
 def test_build_entry_shape_and_organ_mapping():
     proj = {"slug": "mitdb", "identifier": "https://physionet.org/content/mitdb/",
             "name": "MIT-BIH Arrhythmia Database", "keywords": ["ecg", "arrhythmia"],

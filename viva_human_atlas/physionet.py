@@ -59,10 +59,14 @@ def _project_from_datacite(attrs: dict) -> Optional[dict]:
 def resolve_projects(*, query: Optional[str] = None, limit: Optional[int] = None,
                      _get=requests.get) -> list[dict]:
     """Enumerate PhysioNet projects (+ metadata) from DataCite prefix 10.13026,
-    following pagination. `query` is passed to DataCite full-text; `limit` caps."""
+    following pagination. `query` is passed to DataCite full-text; `limit` caps.
+    DataCite emits ~2x DOI records per project (a versioned DOI + the "latest"
+    DOI), both resolving to the same slug -- dedup first-seen-wins by slug so
+    the result is one entry per project, before `limit` is applied."""
     params = {"query": (f"prefix:{DATACITE_PREFIX}" + (f" AND {query}" if query else "")),
               "page[size]": 250}
     projects: list[dict] = []
+    seen: set[str] = set()
     url = _DATACITE_URL
     while url:
         r = _get(url, params=params if url == _DATACITE_URL else None, timeout=60)
@@ -70,9 +74,10 @@ def resolve_projects(*, query: Optional[str] = None, limit: Optional[int] = None
         payload = r.json()
         for rec in payload.get("data", []):
             proj = _project_from_datacite(rec.get("attributes") or {})
-            if proj:
+            if proj and proj["slug"] not in seen:
+                seen.add(proj["slug"])
                 projects.append(proj)
-                if limit and len(projects) >= limit:
+                if limit is not None and len(projects) >= limit:
                     return projects[:limit]
         url = (payload.get("links") or {}).get("next")
     return projects
