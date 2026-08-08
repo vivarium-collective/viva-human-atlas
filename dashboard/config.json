@@ -1,7 +1,7 @@
 {
   "mode": "snapshot",
   "smsApiBase": "",
-  "repo": "https://github.com/vivarium-collective/viva-human-atlas",
-  "commit": "a0eae7cb7f12926931c4b9a78f3e9063de1d52f6",
-  "generated_from_ref": "main"
+  "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
+  "commit": "df73c2c01a76c73fb5b386b171bf256099f6b6ac",
+  "generated_from_ref": "feat/physionet-harvest"
 }

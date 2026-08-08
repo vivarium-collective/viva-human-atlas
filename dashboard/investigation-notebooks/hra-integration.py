@@ -73,8 +73,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
-    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--physionet-models').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--physionet-models')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -271,6 +271,28 @@ print("No recorded runs for this study; nothing to reproduce.")
 
 # === Study: biomodel-hra-map ===
 STUDY = 'biomodel-hra-map'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No recorded runs for this study; nothing to reproduce.")
+
+# ## Study: `model-harvest`
+#
+# **Question.** Can a single Step reproduce/refresh the unified HRA model DB
+# (datasets/model_hra_map.json) across every registered model source --
+# BioModels and, newly, PhysioNet -- incrementally and non-destructively, so
+# that running this study *is* the reproducibility hook for the whole DB,
+# not just a read of a static file?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set the runtime (`STEPS`) and step size (`INTERVAL`), then run. Each simulation builds the (edited) spec above and writes `runs.db`; the figures below read it. Set `RERUN = False` to skip re-simulating._
+
+# === Study: model-harvest ===
+STUDY = 'model-harvest'
 STUDY_DIR = REPO / 'studies' / STUDY
 STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
