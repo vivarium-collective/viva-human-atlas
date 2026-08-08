@@ -19,7 +19,7 @@ question: |
 study_card:
   goal: "Expose viva_human_atlas.model_harvest.ModelHarvestStep as the model-harvest study's baseline: load (or, when asked, refresh) datasets/model_hra_map.json across the biomodels + physionet source registry and report total + per-source model counts plus the corpus coverage summary, so that running this study is how the unified DB gets reproduced or incrementally refreshed."
   mechanism: "ModelHarvestStep.update -> model_harvest.harvest: for each named source (biomodels, physionet) in the SOURCES registry, list_fn enumerates candidate items (BioModels search / PhysioNet DataCite DOI enumeration under the shared 10.13026 prefix), should_process(db, identifier, force) skips anything already keyed in the DB unless --force, and entry_fn upserts a per-source entry keyed by a stable identifier (BioModels IRI, PhysioNet content URL) -- so a plain rerun only harvests newly-posted models and a source refresh never touches another source's rows. PhysioNet entries are organ-mapped by physionet_organ_map.map_project_to_organs: a curated physiology-keyword -> UBERON table first (deterministic, offline), falling back to an LLM (claude-haiku-4-5) for the unmapped tail, both bound to HRA organs through the same hra_mapping.map_to_hra the BioModels path uses. With build_if_missing: false (this study's baseline), no network calls happen at all -- the Step just loads the committed DB via biomodel_hra.load_map and reports bh.summarize_map's coverage stats, so the study is network-free by default and only reaches out when explicitly told to refresh. scripts/harvest_models.py (the reproducible-refresh CLI) calls the exact same harvest() function, so the Step and the CLI cannot diverge."
-  expected_result: "With build_if_missing: false, the baseline loads whatever is currently committed to datasets/model_hra_map.json and reports it verbatim: as of this study's authoring the committed DB predates the PhysioNet source and so is BioModels-only (1,096 models, all repository=biomodels, 0 physionet). Running the harvest for real (build_if_missing/force: true, a separate operational step, not this study's default baseline) is expected to preserve every existing BioModels row untouched and add PhysioNet rows alongside them, incrementally upserted by identifier -- the exact PhysioNet count is not yet known and will be reported per-repository (per_source.physionet) once that harvest runs, not asserted here."
+  expected_result: "With build_if_missing: false, the baseline loads whatever is currently committed to datasets/model_hra_map.json and reports it verbatim: following the PhysioNet harvest run, the committed DB now spans both sources -- 1,576 models total, 1,096 repository=biomodels + 480 repository=physionet. Every existing BioModels row was preserved untouched; PhysioNet rows were incrementally upserted by identifier alongside them, confirming the source-registry mechanism this study's baseline reports on is exactly the one that produced the committed DB."
   main_expert_question: "Is loading the committed DB network-free (build_if_missing: false) the right default baseline for a study whose whole point is reproducibility -- or should the baseline itself force a live refresh each run, at the cost of losing the network-free guarantee that keeps offline CI green?"
 
 biological_summary: |
@@ -83,15 +83,18 @@ findings:
     statement: |
       The baseline (build_if_missing: false) loads the committed
       datasets/model_hra_map.json network-free through the two-source
-      registry and reports it exactly as stored: 1,096 models, all
-      repository=biomodels (0 physionet), because the committed DB predates
-      the PhysioNet source. The corpus-coverage summary is byte-for-byte the
-      same as biomodel-hra-map's (n_with_molecular=978, n_with_uberon=323,
-      n_with_hrapop=112), confirming the ModelHarvestStep's load path is a
-      pure superset wrapper over the existing BioModels DB, not a
-      reinterpretation of it.
+      registry and reports it exactly as stored: 1,576 models -- 1,096
+      repository=biomodels + 480 repository=physionet, now that the
+      PhysioNet harvest has run against the committed DB. The BioModels-only
+      coverage stats are unchanged from biomodel-hra-map's
+      (n_with_molecular=978, n_with_hrapop=112), confirming PhysioNet rows
+      carry no molecular/HRApop annotations of their own; n_with_uberon rose
+      from 323 (BioModels alone) to 447 (323 BioModels + 124 PhysioNet,
+      offline keyword-mapped), showing the ModelHarvestStep's load path is a
+      pure superset wrapper over the existing BioModels DB plus the
+      newly-upserted PhysioNet rows, not a reinterpretation of either.
     evidence:
-      summary: "n_models=1096, per_source={'biomodels': 1096}. summary.n_with_molecular=978, n_with_uberon=323, n_with_hrapop=112 -- identical to biomodel-hra-map's measured coverage, confirming ModelHarvestStep changes nothing about existing rows."
+      summary: "n_models=1576, per_source={'biomodels': 1096, 'physionet': 480}. summary.n_with_molecular=978, n_with_uberon=447 (323 biomodels + 124 physionet), n_with_hrapop=112 -- molecular/HRApop stats identical to biomodel-hra-map's BioModels-only measurement (PhysioNet rows carry neither); n_with_uberon rose with the newly-added PhysioNet organ-tagged rows."
   - id: F-02
     tier: interpretation
     mechanism_origin: engineered
@@ -110,14 +113,14 @@ findings:
 
 conclusion_verdicts:
   regression_compatibility:
-    basis: "The baseline ModelHarvestStep loads the committed datasets/model_hra_map.json network-free (build_if_missing: false) and emits n_models=1096 with a non-empty per_source and coverage summary; scripts/harvest_models.py (the reproducible-refresh CLI) calls the exact same model_harvest.harvest() function, so the Step and the CLI cannot diverge."
+    basis: "The baseline ModelHarvestStep loads the committed datasets/model_hra_map.json network-free (build_if_missing: false) and emits n_models=1576 (1,096 biomodels + 480 physionet) with a non-empty per_source and coverage summary; scripts/harvest_models.py (the reproducible-refresh CLI) calls the exact same model_harvest.harvest() function, so the Step and the CLI cannot diverge."
   biological_validation:
-    basis: "The BioModels-only current state is not evaluated for biological correctness here -- that was biomodel-hra-map's job, and this Step reproduces it unchanged (F-01). What this study validates is mechanism: the source registry is generic (each source only needs list_fn/entry_fn/id_of) and the identifier-keyed upsert is provably non-destructive across sources (F-02), which is the property PhysioNet integration depends on."
+    basis: "The unified BioModels+PhysioNet state is not evaluated for biological correctness here -- BioModels correctness was biomodel-hra-map's job, and this Step reproduces those rows unchanged (F-01). What this study validates is mechanism: the source registry is generic (each source only needs list_fn/entry_fn/id_of) and the identifier-keyed upsert is provably non-destructive across sources (F-02), which is the property that let the PhysioNet harvest add 480 rows without touching any of the 1,096 BioModels rows."
   explanatory_gain:
-    basis: "F-01/F-02 establish, before any PhysioNet row exists in the committed DB, exactly what will and won't change when the harvest is next run for real: BioModels rows are untouched, PhysioNet rows get added incrementally, and the coverage summary mechanism is unaffected by which sources are present -- so Task 9's harvest run has a precise, falsifiable baseline to diff against."
+    basis: "F-01/F-02 establish, now that the PhysioNet harvest has run against the committed DB, exactly what changed and what didn't: all 1,096 BioModels rows are untouched, 480 PhysioNet rows were added incrementally (124 organ-tagged via the offline keyword table), and the coverage summary mechanism correctly reflects the union of both sources -- giving a precise, falsifiable record of what the harvest run actually did."
 
 limitations:
-  - "The committed datasets/model_hra_map.json has not yet had a PhysioNet harvest run against it, so this study's real per_source.physionet count is currently 0 and is not asserted here (build_if_missing: false intentionally never fetches it) -- the actual count is deferred to the harvest run and will be reported once it happens, not fabricated in this study."
+  - "The committed PhysioNet harvest was run with --no-llm, so per_source.physionet=480 reflects only the deterministic keyword table (124 organ-tagged); the LLM-fallback tail was never exercised against the committed DB, so the eventual organ-coverage ceiling once that fallback runs is still unmeasured."
   - "build_if_missing: false means this baseline never exercises the live PhysioNet DataCite enumeration or the keyword/LLM organ-mapping fallback path at all; those are only exercised when the Step (or the CLI) is run with a refresh flag, which is a separate, explicit operation from this study's default baseline."
 
 discovery_implications:
@@ -125,13 +128,13 @@ discovery_implications:
     - "A single Step (ModelHarvestStep) can front a multi-source registry (biomodels, physionet) and load the unified DB network-free by default, with the same underlying harvest() function backing the reproducible-refresh CLI -- Step and CLI cannot diverge."
     - "The upsert mechanism is identifier-keyed per source, so it is structurally provable (not just claimed) that a PhysioNet harvest cannot overwrite or drop a BioModels row, and vice versa."
   remaining_uncertainties:
-    - "How many PhysioNet projects will actually resolve to an HRA organ once the harvest runs for real, and how much of that resolution will come from the curated keyword table vs. the LLM fallback? (Task 9.)"
+    - "How many more PhysioNet projects would resolve to an HRA organ if the LLM fallback ran against the 356 projects the keyword table left unmapped (480 - 124 organ-tagged), and how much of the eventual resolution would come from the curated keyword table vs. the LLM fallback? (fp-physionet-llm-fallback.)"
     - "Once PhysioNet rows exist, will the corpus-coverage summary (mesh/uniprot/chebi/kegg -- all BioModels-specific annotation types) need a PhysioNet-appropriate analogue, or does it stay meaningfully BioModels-only?"
   followup_study_proposals:
-    - id: fp-physionet-harvest-run
-      title: "Run the PhysioNet harvest for real and measure per-source + organ-mapping coverage"
-      motivation: "This study establishes the mechanism and the pre-harvest baseline (0 PhysioNet rows); the natural next step is to actually run the harvest (build_if_missing/force: true) and measure what PhysioNet contributes -- row count, organ coverage, and the keyword-vs-LLM split in physionet_organ_map."
+    - id: fp-physionet-llm-fallback
+      title: "Run the PhysioNet LLM organ-mapping fallback and measure the keyword-vs-LLM coverage split"
+      motivation: "The committed harvest ran with --no-llm: 480 PhysioNet rows are in the DB and 124 are organ-tagged by the deterministic keyword table alone. The natural next step is to run the LLM fallback (no_llm: false) over the remaining unmapped tail and measure what it adds -- organ coverage, and the keyword-vs-LLM split in physionet_organ_map."
       study_type: data-pipeline
-      proposed_experiment: "Run model_harvest.harvest(['physionet']) against datasets/model_hra_map.json, then report per_source.physionet, the resulting organ_to_models coverage for PhysioNet-only rows, and what fraction of organ resolutions came from KEYWORD_TO_ORGAN vs. the LLM fallback."
+      proposed_experiment: "Run model_harvest.harvest(['physionet'], no_llm=False) against datasets/model_hra_map.json, then report per_source.physionet, the resulting organ_to_models coverage for PhysioNet-only rows, and what fraction of organ resolutions came from KEYWORD_TO_ORGAN vs. the LLM fallback."
       expected_information_gain: high
       source_trigger: model-harvest
