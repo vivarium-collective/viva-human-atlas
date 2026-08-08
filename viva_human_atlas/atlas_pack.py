@@ -74,6 +74,24 @@ def biomodels_url(biomodel_id: str) -> str:
     return f"{BIOMODELS_BASE}{biomodel_id}"
 
 
+def model_url(entry: dict) -> str:
+    """Link to a model's landing page, per source. Entries missing a
+    `repository` field (legacy BioModels-only catalogs, from before the
+    multi-source DB) default to "biomodels" so old callers keep working."""
+    if entry.get("repository", "biomodels") == "biomodels":
+        return biomodels_url(entry.get("source_id") or entry.get("biomodel_id"))
+    return entry.get("identifier") or ""
+
+
+def model_ref(entry: dict) -> dict:
+    """Source-aware model reference `{source_id, repository, url, name}` for
+    an atlas manifest row -- unions BioModels + PhysioNet (and any future
+    source) into one shape."""
+    return {"source_id": entry.get("source_id") or entry.get("biomodel_id"),
+            "repository": entry.get("repository", "biomodels"),
+            "url": model_url(entry), "name": entry.get("name") or entry.get("source_id")}
+
+
 def organ_system(key: str) -> str:
     """The anatomical system an organ key belongs to (``"Other"`` if unmapped).
     Legacy curated fallback for organs the HRA anatomical-systems partonomy
@@ -219,17 +237,27 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
     that model to that organ — so the viewer can show where a link came from.
 
     If `subregions` is given as `{organ_uberon: {as_uberon: {"label",
-    "uberon", "node_names", "models": [{biomodel_id, url, via}]}}}` (from
-    `atlas_subregions.place_models`), each organ gets a `subregions` list of
-    `{node_names, uberon, label, n_models, models}` so the viewer can color and
-    hover anatomical structures individually. Organs always get a `subregions`
-    key (empty list when none resolve) — the whole-organ `models`/`n_models`
-    stay the fallback.
+    "uberon", "node_names", "models": [{source_id, repository, url, name,
+    via}]}}}` (from `atlas_subregions.place_models`), each organ gets a
+    `subregions` list of `{node_names, uberon, label, n_models, models}` so
+    the viewer can color and hover anatomical structures individually. Organs
+    always get a `subregions` key (empty list when none resolve) — the
+    whole-organ `models`/`n_models` stay the fallback.
+
+    Each model row (whole-organ or subregion) is `model_ref`-shaped:
+    `{source_id, repository, url, name}` (plus `via` for subregion rows,
+    `matched_by` when `provenance` is given) -- source-aware so BioModels and
+    PhysioNet (or any future source) render with correct links side by side.
     """
     organ_index = catalog["organ_index"]
     organ_to_models = catalog["organ_to_models"]
-    id_to_name = {d["biomodel_id"]: d.get("name") or d["biomodel_id"]
-                  for d in catalog["biomodel_dos"]}
+    # keyed by each row's own id (`biomodel_id` doubles as the generic
+    # per-source id field -- for a PhysioNet row it holds the `source_id`
+    # slug, per `build_atlas_from_hra_map`), so `model_ref` can resolve a
+    # source-aware link even though the field name predates multi-source.
+    id_to_entry = {d.get("biomodel_id") or d.get("source_id"): d
+                   for d in catalog["biomodel_dos"]}
+    id_to_name = {mid: e.get("name") or mid for mid, e in id_to_entry.items()}
     prov = provenance or {}
     subs = subregions or {}
     name_sets = {u: set(ids) for u, ids in (prov.get("name") or {}).items()}
@@ -246,9 +274,11 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
     def _subregions_for(uberon):
         out = []
         for as_ub, sub in (subs.get(uberon) or {}).items():
-            smodels = [{"biomodel_id": m["biomodel_id"],
-                        "name": id_to_name.get(m["biomodel_id"], m["biomodel_id"]),
-                        "url": m["url"], "via": m.get("via")}
+            # `sub["models"]` rows are already `model_ref`-shaped (from
+            # `atlas_subregions.place_models`); re-resolve `name` against this
+            # manifest's own id_to_name so a catalog-level name correction
+            # still wins (matches the pre-multi-source behavior).
+            smodels = [{**m, "name": id_to_name.get(m["source_id"], m.get("name"))}
                        for m in sub["models"]]
             out.append({"node_names": sub["node_names"], "uberon": sub["uberon"],
                         "label": sub["label"], "n_models": len(smodels),
@@ -266,8 +296,8 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
         all_model_ids.update(model_ids)
         models = []
         for mid in model_ids:
-            row = {"biomodel_id": mid, "name": id_to_name.get(mid, mid),
-                   "url": biomodels_url(mid)}
+            model_entry = id_to_entry.get(mid, {"biomodel_id": mid, "name": mid})
+            row = model_ref(model_entry)
             if provenance is not None:
                 row["matched_by"] = _matched_by(uberon, mid)
             models.append(row)
@@ -315,28 +345,52 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
     }
 
 
+def _entry_key(e: dict) -> str:
+    """The id an entry is keyed/counted by across the atlas, unique within a
+    repository: `source_id` (set for every entry since Task 1/4), falling
+    back to `biomodel_id` for pre-multi-source rows still missing it.
+    `source_id` doesn't collide across repositories in practice (BioModels
+    ids are `BIOMD...`, PhysioNet ids are project slugs), so this alone is a
+    safe global key; callers needing an unambiguous key can still pair it
+    with the entry's `repository`."""
+    return e.get("source_id") or e.get("biomodel_id")
+
+
 def build_atlas_from_hra_map(db_entries, organ_index, hrapop_as, crosswalk,
                              **place_kw) -> tuple[dict, dict, dict]:
-    """Assemble the atlas inputs from the BioModels->HRA map DB (Phase 1),
-    replacing the old name/annotation catalogs.
+    """Assemble the atlas inputs from the unified model->HRA map DB (mixed
+    BioModels + PhysioNet, see `_entry_key`), replacing the old
+    name/annotation catalogs.
 
-    Builds `organ_to_models` (organ Uberon -> [biomodel_id]) and the id->name
-    table straight from `db_entries`, then resolves subregion placement via
-    `atlas_subregions.place_models`. Returns `(catalog, subregions,
-    placement_stats)` ready for `build_atlas_manifest(catalog,
-    subregions=subregions)`.
+    Builds `organ_to_models` (organ Uberon -> [id]) and the id->entry table
+    straight from `db_entries` (unioned across every `repository` present),
+    then resolves subregion placement via `atlas_subregions.place_models`.
+    Returns `(catalog, subregions, placement_stats)` ready for
+    `build_atlas_manifest(catalog, subregions=subregions)`. Each
+    `catalog["biomodel_dos"]` row keeps the legacy `biomodel_id`/`name` fields
+    (still the id field's name, for BioModels-only readers of this shape) and
+    adds `source_id`/`repository`/`identifier` so `model_ref` can resolve a
+    source-aware link for both repositories -- a superset of the old
+    BioModels-only row, not a replacement.
     """
     from viva_human_atlas.atlas_subregions import place_models
 
-    id_to_name = {e["biomodel_id"]: e.get("name") or e["biomodel_id"] for e in db_entries}
+    entries_by_key = {_entry_key(e): e for e in db_entries}
     organ_to_models: dict[str, set] = {}
     for e in db_entries:
+        mid = _entry_key(e)
         for o in e.get("organs") or []:
             u = o.get("uberon")
             if u:
-                organ_to_models.setdefault(u, set()).add(e["biomodel_id"])
+                organ_to_models.setdefault(u, set()).add(mid)
     catalog = {
-        "biomodel_dos": [{"biomodel_id": mid, "name": nm} for mid, nm in sorted(id_to_name.items())],
+        "biomodel_dos": [
+            {"biomodel_id": mid, "name": e.get("name") or mid,
+             "source_id": e.get("source_id") or mid,
+             "repository": e.get("repository", "biomodels"),
+             "identifier": e.get("identifier")}
+            for mid, e in sorted(entries_by_key.items())
+        ],
         "organ_index": organ_index,
         "organ_to_models": {u: sorted(ids) for u, ids in organ_to_models.items()},
     }

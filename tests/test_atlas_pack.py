@@ -50,10 +50,11 @@ def test_pancreas_is_top_and_counts_match_organ_to_models():
 def test_every_model_row_is_well_formed_and_sorted():
     m = _manifest()
     top = m["organs"][0]
-    ids = [row["biomodel_id"] for row in top["models"]]
+    ids = [row["source_id"] for row in top["models"]]
     assert ids == sorted(ids)
     for row in top["models"]:
-        assert row["url"] == f"https://www.ebi.ac.uk/biomodels/{row['biomodel_id']}"
+        assert row["repository"] == "biomodels"
+        assert row["url"] == f"https://www.ebi.ac.uk/biomodels/{row['source_id']}"
         assert row["name"] and not row["name"].startswith("BIOMD")  # real name resolved
 
 
