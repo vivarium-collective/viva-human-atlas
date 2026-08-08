@@ -8,7 +8,7 @@ Per model, each stage (SBML / metadata / BioPAX / MeSH / HRA crosswalk /
 literature / LLM) is error-isolated -- a stage failure is recorded into
 `provenance.errors` and never aborts the entry. The literature/LLM stages are
 disk-cached via `cache_dir`. The DB is stored on disk as a JSON **array** of
-entries (sorted by biomodel id); a legacy id-keyed object is still accepted on
+entries (sorted by identifier); a legacy id-keyed object is still accepted on
 read so an old-format file keeps resuming.
 
 `BiomodelHraMapStep` is cache-or-load: it loads the committed
@@ -245,7 +245,7 @@ def build_map(*, ids: Optional[Sequence[str]] = None, out=DEFAULT_DB_PATH,
     """Run (or resume) the extraction over `ids` and write the DB to `out`.
 
     Resumable: entries already present without errors are skipped unless
-    `force`. Returns the in-memory `{biomodel_id: entry}` dict.
+    `force`. Returns the in-memory `{identifier: entry}` dict.
     """
     if ids is None:
         ids = resolve_ids(ids_file=ids_file, query=query, limit=limit)
@@ -277,7 +277,7 @@ def build_map(*, ids: Optional[Sequence[str]] = None, out=DEFAULT_DB_PATH,
 # --------------------------------------------------------------------------- #
 def load_map(path=DEFAULT_DB_PATH) -> List[dict]:
     """Return the DB as its on-disk JSON **array** of entries (sorted by
-    biomodel id), or `[]` if the file does not exist. A legacy id-keyed
+    identifier), or `[]` if the file does not exist. A legacy id-keyed
     object on disk is normalized to the array form."""
     p = Path(path)
     if not p.exists():

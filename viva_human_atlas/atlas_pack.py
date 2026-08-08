@@ -347,12 +347,12 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
 
 def _entry_key(e: dict) -> str:
     """The id an entry is keyed/counted by across the atlas, unique within a
-    repository: `source_id` (set for every entry since Task 1/4), falling
-    back to `biomodel_id` for pre-multi-source rows still missing it.
-    `source_id` doesn't collide across repositories in practice (BioModels
-    ids are `BIOMD...`, PhysioNet ids are project slugs), so this alone is a
-    safe global key; callers needing an unambiguous key can still pair it
-    with the entry's `repository`."""
+    repository: `source_id` when present, falling back to `biomodel_id`
+    (committed BioModels rows have no `source_id` field; PhysioNet rows do).
+    `source_id`/`biomodel_id` don't collide across repositories in practice
+    (BioModels ids are `BIOMD...`, PhysioNet ids are project slugs), so this
+    alone is a safe global key; callers needing an unambiguous key can still
+    pair it with the entry's `repository`."""
     return e.get("source_id") or e.get("biomodel_id")
 
 
