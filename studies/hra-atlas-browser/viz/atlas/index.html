@@ -118,6 +118,15 @@
     .prov-name{background:rgba(76,175,120,.16);color:#8fe6b0;border-color:rgba(76,175,120,.35);}
     .prov-annotation{background:rgba(120,110,220,.18);color:#b9b2f0;border-color:rgba(120,110,220,.4);}
     .prov-both{background:rgba(253,231,55,.16);color:#f0e27a;border-color:rgba(253,231,55,.35);}
+    /* source badge: which repository (BioModels vs PhysioNet) a model came
+       from — a distinct color family from the .prov provenance badges above,
+       so the two badge kinds never read as the same signal. */
+    .src-badge{font-size:9.5px;padding:1px 5px;border-radius:4px;vertical-align:middle;
+      white-space:nowrap;border:1px solid transparent;text-transform:uppercase;letter-spacing:.02em;}
+    .src-biomodels{background:rgba(76,146,255,.18);color:#9dc4ff;border-color:rgba(76,146,255,.4);}
+    .src-physionet{background:rgba(255,138,76,.18);color:#ffbf9d;border-color:rgba(255,138,76,.4);}
+    #source-filter{margin-top:8px;width:100%;padding:6px 9px;background:var(--bg);color:var(--text);
+      border:1px solid var(--border);border-radius:6px;font-size:12px;}
     #status{position:absolute;bottom:14px;left:calc(var(--menu-w) + 28px);z-index:20;
       color:var(--text-dim);font-size:11.5px;}
   </style>
@@ -163,6 +172,11 @@
         <div class="bp-sub" id="bp-sub"></div>
         <input id="model-search" type="search" placeholder="Filter models (keyword)…"
                aria-label="Filter BioModels by keyword">
+        <select id="source-filter" data-source-filter aria-label="Filter models by source">
+          <option value="all">All sources</option>
+          <option value="biomodels">BioModels</option>
+          <option value="physionet">PhysioNet</option>
+        </select>
       </div>
       <div id="biomodels-list"></div>
     </div>

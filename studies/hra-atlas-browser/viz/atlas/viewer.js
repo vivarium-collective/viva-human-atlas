@@ -36,6 +36,7 @@ const els = {
   bpTitle: document.getElementById("bp-title"),
   bpSub: document.getElementById("bp-sub"),
   bpList: document.getElementById("biomodels-list"),
+  sourceFilter: document.querySelector("[data-source-filter]"),
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
@@ -93,7 +94,15 @@ function renderBioModels(organ) {
     els.bpList.appendChild(d);
     return;
   }
-  for (const m of organ.models) {
+  const shown = filterBySource(organ.models);
+  if (!shown.length) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = "No models match the current source filter.";
+    els.bpList.appendChild(d);
+    return;
+  }
+  for (const m of shown) {
     const a = document.createElement("a");
     a.href = m.url;
     a.target = "_blank";
@@ -104,7 +113,10 @@ function renderBioModels(organ) {
       ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
           by.length === 2 ? "name+annotation" : by[0]}</span>`
       : "";
-    a.innerHTML = `<div>${m.name} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
+    // source badge: which repository (BioModels vs PhysioNet) this model
+    // came from — distinct from the provenance badge above.
+    const srcBadge = `<span class="src-badge src-${m.repository}">${m.repository}</span>`;
+    a.innerHTML = `<div>${m.name} ${srcBadge} ${badge}</div><div class="mid">${m.source_id}</div>`;
     els.bpList.appendChild(a);
   }
 }
@@ -168,12 +180,13 @@ async function main() {
       .map((o) => o.key);                             // landing / "All modeled"
   }
   recomputeKeys();
-  // distinct BioModels represented by a set of organ keys (union of ids)
+  // distinct models (source-filter aware) represented by a set of organ keys
+  // (union of ids, across both BioModels and PhysioNet)
   function distinctModels(keys) {
     const ids = new Set();
     for (const k of keys) {
       const o = organsByKey.get(k);
-      if (o) for (const m of o.models) ids.add(m.biomodel_id);
+      if (o) for (const m of filterBySource(o.models)) ids.add(m.source_id);
     }
     return ids.size;
   }
@@ -219,15 +232,24 @@ async function main() {
   const raycastMeshes = [];            // meshes across all *shown* organs
   let hovered = null;
   let modelQuery = "";                 // active model-search keyword (lowercased)
+  // Active source filter (`all` | `biomodels` | `physionet`), driven by the
+  // [data-source-filter] <select> in index.html.
+  let sourceFilter = els.sourceFilter ? els.sourceFilter.value : "all";
   // ---- explode (B4) ----
   let explodeAnim = null;              // {meshes:[{mesh,from,to}], start, dur}
   let explodedKey = null;              // organ key currently in exploded state
 
-  // Models in an organ whose name or BioModels id contains the search keyword.
+  // Models restricted to the active source filter (repository = biomodels/physionet).
+  function filterBySource(models) {
+    return sourceFilter === "all" ? models : models.filter((m) => m.repository === sourceFilter);
+  }
+
+  // Models in an organ whose name or source id contains the search keyword,
+  // honoring the active source filter.
   function matchingModels(organ, q) {
     if (!q) return [];
-    return organ.models.filter(
-      (m) => (m.name + " " + m.biomodel_id).toLowerCase().includes(q));
+    return filterBySource(organ.models).filter(
+      (m) => (m.name + " " + m.source_id).toLowerCase().includes(q));
   }
   // Color for one shown organ under the current search: no search -> the normal
   // model-count color; searching -> scaled by how many of its models MATCH
@@ -627,7 +649,10 @@ async function main() {
       badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
         m.via === "ftu" ? "FTU" : "cell type"}</span>`;
     }
-    a.innerHTML = `<div>${m.name || m.biomodel_id} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
+    // source badge: which repository (BioModels vs PhysioNet) this model
+    // came from — distinct from the provenance badge above.
+    const srcBadge = `<span class="src-badge src-${m.repository}">${m.repository}</span>`;
+    a.innerHTML = `<div>${m.name || m.source_id} ${srcBadge} ${badge}</div><div class="mid">${m.source_id}</div>`;
     return a;
   }
 
@@ -635,19 +660,22 @@ async function main() {
   // organ's whole-organ models PLUS the ones localized here — the localized
   // ones listed first and badged (FTU / cell type); the rest are region-wide.
   function renderSubregion(sub, organ) {
-    const localIds = new Set((sub.models || []).map((m) => m.biomodel_id));
-    const regionWide = (organ.models || []).filter((m) => !localIds.has(m.biomodel_id));
+    const localModels = filterBySource(sub.models || []);
+    const localIds = new Set(localModels.map((m) => m.source_id));
+    const regionWide = filterBySource(organ.models || []).filter((m) => !localIds.has(m.source_id));
     const total = subregionCount(organ, sub);
     els.bpTitle.textContent = sub.label || "Subregion";
     els.bpSub.textContent =
       `${total} BioModel${total === 1 ? "" : "s"} · ${sub.n_models} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
-    for (const m of (sub.models || [])) els.bpList.appendChild(_modelLink(m));
+    for (const m of localModels) els.bpList.appendChild(_modelLink(m));
     for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
-    if (!total) {
+    if (!localModels.length && !regionWide.length) {
       const d = document.createElement("div");
       d.className = "empty";
-      d.textContent = "No models associated with this structure.";
+      d.textContent = total
+        ? "No models match the current source filter."
+        : "No models associated with this structure.";
       els.bpList.appendChild(d);
     }
   }
@@ -663,7 +691,7 @@ async function main() {
       .map((k) => ({ organ: organsByKey.get(k), models: matchingModels(organsByKey.get(k), q) }))
       .filter((h) => h.organ && h.models.length)
       .sort((a, b) => b.models.length - a.models.length);
-    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.biomodel_id))).size;
+    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.source_id))).size;
     els.bpSub.textContent = hits.length
       ? `${nModels} model${nModels === 1 ? "" : "s"} across ${hits.length} shown organ${hits.length === 1 ? "" : "s"}`
       : `no matches in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
@@ -684,6 +712,16 @@ async function main() {
       els.bpList.appendChild(head);
       for (const m of models) els.bpList.appendChild(_modelLink(m));
     }
+  }
+
+  // React to the source filter <select>: re-render whatever the right panel
+  // is currently showing (search results or the focused organ) with the new
+  // filter applied.
+  function onSourceFilter() {
+    sourceFilter = els.sourceFilter.value;
+    if (modelQuery) renderModelSearch();
+    else if (focused) focus(focused);
+    else resetPanel();
   }
 
   // React to the model keyword box: recolor the shown organs by match count and
@@ -787,6 +825,8 @@ async function main() {
   // Model keyword search (right panel): recolor shown organs by match count
   // + list matching models grouped by organ.
   els.modelSearch.addEventListener("input", onModelSearch);
+  // Source filter (All / BioModels / PhysioNet): re-render the panel + counts.
+  els.sourceFilter?.addEventListener("change", onSourceFilter);
 
   // ---- hover + click in the 3D scene ----
   const ray = new THREE.Raycaster();
