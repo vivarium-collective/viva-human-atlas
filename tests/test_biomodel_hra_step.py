@@ -17,7 +17,7 @@ import viva_human_atlas.biomodel_hra as bhm
 from viva_human_atlas.core import build_core
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-COMMITTED_DB = REPO_ROOT / "datasets" / "biomodel_hra_map.json"
+COMMITTED_DB = REPO_ROOT / "datasets" / "model_hra_map.json"
 
 
 def _entry(bid, *, chebi=(), uberon=(), cell_types=(), mesh=(), organs=(), ftus=(), hra_pop=None):
@@ -113,7 +113,7 @@ def test_step_writes_per_run_analysis_copy_when_dir_injected(tmp_path):
         "db_path": str(db), "build_if_missing": False,
         "analysis_out_dir": str(out)}, core=core)
     step.update({})
-    artifact = out / "biomodel_hra_map.json"
+    artifact = out / "model_hra_map.json"
     assert artifact.exists()
     assert json.loads(artifact.read_text())  # non-empty DB array
 
@@ -130,17 +130,20 @@ def test_step_no_analysis_copy_without_dir(tmp_path):
 
 def test_step_summary_matches_committed_corpus_db():
     """The Step over the committed DB reports the headline coverage the study
-    report + summary figure quote (1,096 models; 978 molecular; 215 Uberon;
-    112 HRApop)."""
+    report + summary figure quote. Post physionet-harvest with the
+    word-boundary keyword-match fix (Task 9 + FINAL-REVIEW), the DB is
+    1,096 BioModels + 480 PhysioNet = 1,576 models; PhysioNet rows carry no
+    molecular/HRApop data (offline organ mapper only) but 124 resolve an
+    organ Uberon (323 BioModels + 124 PhysioNet = 447)."""
     if not COMMITTED_DB.exists():
         return  # DB not present in this checkout; nothing to assert
     core = build_core()
     step = bhm.BiomodelHraMapStep(
         config={"db_path": str(COMMITTED_DB), "build_if_missing": False}, core=core)
     out = step.update({})
-    assert out["n_models"] == 1096
+    assert out["n_models"] == 1576
     assert out["summary"]["n_with_molecular"] == 978
-    assert out["summary"]["n_with_uberon"] == 323
+    assert out["summary"]["n_with_uberon"] == 447
     assert out["summary"]["n_with_hrapop"] == 112
 
 
@@ -162,15 +165,18 @@ def test_workspace_registers_downloadable_dataset():
     ws = yaml.safe_load((REPO_ROOT / "workspace.yaml").read_text(encoding="utf-8"))
     ds = [d for d in (ws.get("datasets") or []) if d.get("name") == "biomodel-hra-map"]
     assert ds, "biomodel-hra-map dataset not registered in workspace.yaml"
-    assert ds[0]["path"] == "datasets/biomodel_hra_map.json"
+    assert ds[0]["path"] == "datasets/model_hra_map.json"
 
 
 def test_cli_delegates_to_shared_core():
-    """The slimmed CLI imports the shared-core symbols it delegates to."""
+    """The slimmed CLI imports the shared multi-source harvest it delegates to
+    (scripts/harvest_models.py is the general CLI; this one pins --source
+    biomodels)."""
     import importlib.util
+
+    from viva_human_atlas import model_harvest
     spec = importlib.util.spec_from_file_location(
         "bhm_cli", REPO_ROOT / "scripts" / "build_biomodel_hra_map.py")
     cli = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cli)
-    assert cli.build_map is bhm.build_map
-    assert cli.resolve_ids is bhm.resolve_ids
+    assert cli.harvest is model_harvest.harvest

@@ -111,6 +111,7 @@ studies:
   - annotation-organ-matching
   - annotation-recall-gain
   - biomodel-hra-map
+  - model-harvest
 
 inputs:
   references:
@@ -143,4 +144,4 @@ acceptance_criteria:
   - study: annotation-recall-gain
     behavior: "annotation_gain.compare_catalogs over the committed name-synonym and annotation catalogs shows annotation-based matching adding at least 50 models and at least 2 whole organs over name-only matching, with a union organ->models index inspectable per-organ (not just an aggregate delta)."
   - study: biomodel-hra-map
-    behavior: "The committed corpus DB (datasets/biomodel_hra_map.json) harvests all 1,096 curated BioModels, each with molecular ids + publication link + HRA organ/FTU/cell-type mapping, loads network-free via BiomodelHraMapStep (cache-or-load), and reports measured corpus coverage (89% molecular, 20% Uberon, 10% HRApop) — with the DB downloadable as a registered workspace dataset."
+    behavior: "The committed corpus DB (datasets/model_hra_map.json) harvests all 1,096 curated BioModels, each with molecular ids + publication link + HRA organ/FTU/cell-type mapping, loads network-free via BiomodelHraMapStep (cache-or-load), and reports measured corpus coverage (89% molecular, 20% Uberon, 10% HRApop) — with the DB downloadable as a registered workspace dataset."

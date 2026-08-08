@@ -8,11 +8,11 @@ Per model, each stage (SBML / metadata / BioPAX / MeSH / HRA crosswalk /
 literature / LLM) is error-isolated -- a stage failure is recorded into
 `provenance.errors` and never aborts the entry. The literature/LLM stages are
 disk-cached via `cache_dir`. The DB is stored on disk as a JSON **array** of
-entries (sorted by biomodel id); a legacy id-keyed object is still accepted on
+entries (sorted by identifier); a legacy id-keyed object is still accepted on
 read so an old-format file keeps resuming.
 
 `BiomodelHraMapStep` is cache-or-load: it loads the committed
-`datasets/biomodel_hra_map.json` if present (the normal, network-free path) and
+`datasets/model_hra_map.json` if present (the normal, network-free path) and
 only runs the live extraction when the cache is missing and building is
 enabled. It emits the DB path + model count + coverage summary (not the whole
 2.7 MB DB), the summary matching the committed figure
@@ -39,7 +39,7 @@ from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers, fetc
 from viva_human_atlas.anatomy_crosswalk import crosswalk_anatomy, crosswalk_mesh_labels
 
 _REPO = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = _REPO / "datasets" / "biomodel_hra_map.json"
+DEFAULT_DB_PATH = _REPO / "datasets" / "model_hra_map.json"
 DEFAULT_CACHE_DIR = _REPO / ".cache" / "biomodel_hra_map"
 DEFAULT_LLM_MODEL = "claude-haiku-4-5-20251001"
 
@@ -147,6 +147,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         "identifier": _IRI.format(biomodel_id),
         "repository": "biomodels",
         "biomodel_id": biomodel_id,
+        "source_id": biomodel_id,
         "name": meta.get("name"),
         "paper_url": paper_url,
         "paper_pmid": pmid,
@@ -184,34 +185,34 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
 
 
 def upsert_db(db: dict, entry: dict) -> None:
-    db[entry["biomodel_id"]] = entry
+    db[entry["identifier"]] = entry
 
 
 def load_db(path) -> dict:
-    """Internal representation is always a `{biomodel_id: entry}` dict, but
-    the on-disk file is a JSON array (see `write_db`); a legacy id-keyed
-    object is still accepted so resuming an old-format DB keeps working."""
+    """Internal representation is always `{identifier: entry}`; the on-disk
+    file is a JSON array (see `write_db`). Legacy `biomodel_id`-keyed
+    lists/objects are re-keyed on `identifier` so old-format DBs keep
+    resuming."""
     p = Path(path)
     if not p.exists():
         return {}
     data = json.loads(p.read_text(encoding="utf-8"))
-    if isinstance(data, list):
-        return {e["biomodel_id"]: e for e in data}
-    return data
+    entries = data if isinstance(data, list) else list(data.values())
+    return {e["identifier"]: e for e in entries}
 
 
 def write_db(db: dict, path) -> None:
     p = Path(path); p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_suffix(p.suffix + ".tmp")
-    ordered = sorted(db.values(), key=lambda e: e.get("biomodel_id", ""))
+    ordered = sorted(db.values(), key=lambda e: e.get("identifier", ""))
     tmp.write_text(json.dumps(ordered, indent=2), encoding="utf-8")
     os.replace(tmp, p)
 
 
-def should_process(db: dict, bid: str, force: bool) -> bool:
+def should_process(db: dict, key: str, force: bool) -> bool:
     if force:
         return True
-    entry = db.get(bid)
+    entry = db.get(key)
     if entry is None:
         return True
     return bool(entry.get("provenance", {}).get("errors"))  # reprocess if it errored
@@ -244,7 +245,7 @@ def build_map(*, ids: Optional[Sequence[str]] = None, out=DEFAULT_DB_PATH,
     """Run (or resume) the extraction over `ids` and write the DB to `out`.
 
     Resumable: entries already present without errors are skipped unless
-    `force`. Returns the in-memory `{biomodel_id: entry}` dict.
+    `force`. Returns the in-memory `{identifier: entry}` dict.
     """
     if ids is None:
         ids = resolve_ids(ids_file=ids_file, query=query, limit=limit)
@@ -252,7 +253,8 @@ def build_map(*, ids: Optional[Sequence[str]] = None, out=DEFAULT_DB_PATH,
     organ_index = build_organ_index()
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
     for i, bid in enumerate(ids, 1):
-        if not should_process(db, bid, force):
+        identifier = _IRI.format(bid)
+        if not should_process(db, identifier, force):
             continue
         try:
             upsert_db(db, build_entry(bid, organ_index, cache_dir=str(cache_dir),
@@ -275,14 +277,14 @@ def build_map(*, ids: Optional[Sequence[str]] = None, out=DEFAULT_DB_PATH,
 # --------------------------------------------------------------------------- #
 def load_map(path=DEFAULT_DB_PATH) -> List[dict]:
     """Return the DB as its on-disk JSON **array** of entries (sorted by
-    biomodel id), or `[]` if the file does not exist. A legacy id-keyed
+    identifier), or `[]` if the file does not exist. A legacy id-keyed
     object on disk is normalized to the array form."""
     p = Path(path)
     if not p.exists():
         return []
     data = json.loads(p.read_text(encoding="utf-8"))
     entries = list(data.values()) if isinstance(data, dict) else data
-    return sorted(entries, key=lambda e: e.get("biomodel_id", ""))
+    return sorted(entries, key=lambda e: e.get("identifier", ""))
 
 
 # Coverage categories, matching scripts/make_biomodel_hra_figure.py. Each maps
@@ -355,7 +357,7 @@ class BiomodelHraMapStep(Step):
     """Step: make the BioModels->HRA map DB available (cache-or-load).
 
     Normal path is network-free: it loads the committed
-    `datasets/biomodel_hra_map.json` and emits the DB path, model count, and a
+    `datasets/model_hra_map.json` and emits the DB path, model count, and a
     coverage summary (not the whole DB). If the cache is missing and
     `build_if_missing` is set, it runs the live extraction first (slow,
     network) -- otherwise it emits an empty summary.
@@ -420,7 +422,7 @@ class BiomodelHraMapStep(Step):
         try:
             out = Path(out_dir)
             out.mkdir(parents=True, exist_ok=True)
-            (out / "biomodel_hra_map.json").write_text(
+            (out / "model_hra_map.json").write_text(
                 json.dumps(list(entries), indent=2), encoding="utf-8")
         except Exception:  # noqa: BLE001
             pass
@@ -439,7 +441,7 @@ BiomodelHraMapStep.contract = {
     },
     "assumptions": [
         "Normal operation is cache-or-load: the committed "
-        "datasets/biomodel_hra_map.json is loaded network-free. A live "
+        "datasets/model_hra_map.json is loaded network-free. A live "
         "rebuild only happens if the cache is absent and build_if_missing is "
         "set, and is slow (fetches every curated BioModel).",
     ],

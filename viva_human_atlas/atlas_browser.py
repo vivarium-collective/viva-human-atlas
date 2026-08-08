@@ -10,7 +10,7 @@ back to the whole organ where no subregion resolves. It writes the atlas pack
 (atlas.json / config.json / coverage.json) alongside the committed
 index.html/viewer.js under a study's `viz/atlas/`.
 
-Offline: reads the committed biomodel_hra_map.json, the corpus catalog (for the
+Offline: reads the committed model_hra_map.json, the corpus catalog (for the
 50 GLB `organ_index`), HRApop's per-AS cell populations, and the cached ASCT+B-3D
 crosswalk. Emits the manifest summary + placement stats (not the pack itself).
 """

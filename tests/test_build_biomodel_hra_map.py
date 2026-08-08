@@ -44,9 +44,10 @@ def test_build_entry_shape():
         "journal": "JTB", "year": 2000, "title": "T", "n_species": 1,
         "text_source": "none", "has_fulltext": False, "errors": [],
     }
+    assert entry["source_id"] == "BIOMD0000000341"
     # key order matches the spec
     assert list(entry.keys()) == [
-        "identifier", "repository", "biomodel_id", "name", "paper_url",
+        "identifier", "repository", "biomodel_id", "source_id", "name", "paper_url",
         "paper_pmid", "paper_doi", "taxonomy", "organs",
         "functional_tissue_units", "cell_types", "molecular_ids",
         "ontology_ids", "provenance",
@@ -100,7 +101,7 @@ def test_db_upsert_and_atomic_write(tmp_path):
     path = tmp_path / "db.json"
     bhm.write_db(db, str(path))
     loaded = bhm.load_db(str(path))
-    assert "BIOMD1" in loaded
+    assert "x" in loaded
 
 
 def test_write_db_serializes_as_sorted_json_array(tmp_path):
@@ -117,8 +118,8 @@ def test_write_db_serializes_as_sorted_json_array(tmp_path):
 
 def test_load_db_array_round_trip(tmp_path):
     db = {
-        "BIOMD2": {"identifier": "x:2", "biomodel_id": "BIOMD2", "name": "Two"},
-        "BIOMD1": {"identifier": "x:1", "biomodel_id": "BIOMD1", "name": "One"},
+        "x:2": {"identifier": "x:2", "biomodel_id": "BIOMD2", "name": "Two"},
+        "x:1": {"identifier": "x:1", "biomodel_id": "BIOMD1", "name": "One"},
     }
     path = tmp_path / "db.json"
     bhm.write_db(db, str(path))
@@ -127,10 +128,12 @@ def test_load_db_array_round_trip(tmp_path):
 
 
 def test_load_db_accepts_legacy_id_keyed_object(tmp_path):
+    """A legacy `biomodel_id`-keyed on-disk object is re-keyed on `identifier`
+    when loaded (the DB is always identifier-keyed internally)."""
     legacy = {"BIOMD1": {"identifier": "x:1", "biomodel_id": "BIOMD1"}}
     path = tmp_path / "db.json"
     path.write_text(json.dumps(legacy), encoding="utf-8")
-    assert bhm.load_db(str(path)) == legacy
+    assert bhm.load_db(str(path)) == {"x:1": {"identifier": "x:1", "biomodel_id": "BIOMD1"}}
 
 
 def test_sbml_stage_isolated_on_error():
@@ -404,12 +407,14 @@ def test_build_map_skips_existing_id_unless_forced(tmp_path, monkeypatch):
 
     def fake_build_entry(bid, organ_index, **kw):
         calls.append(bid)
-        return {"identifier": f"x:{bid}", "biomodel_id": bid}
+        return {"identifier": bhm._IRI.format(bid), "biomodel_id": bid}
 
     monkeypatch.setattr(bhm, "build_entry", fake_build_entry)
     monkeypatch.setattr(bhm, "build_organ_index", lambda *a, **k: {})
-    # pre-seed the db with BIOMD1 already present.
-    bhm.write_db({"BIOMD1": {"identifier": "x:BIOMD1", "biomodel_id": "BIOMD1"}}, str(out))
+    # pre-seed the db with BIOMD1 already present (keyed by its identifier,
+    # as build_map's should_process check computes it via _IRI.format).
+    identifier = bhm._IRI.format("BIOMD1")
+    bhm.write_db({identifier: {"identifier": identifier, "biomodel_id": "BIOMD1"}}, str(out))
 
     bhm.build_map(ids=["BIOMD1"], out=str(out), cache_dir=str(tmp_path / "cache"), no_llm=True)
     assert calls == []  # skipped: already in db, no force
@@ -426,14 +431,15 @@ def test_build_map_resumes_errored_entry_without_force(tmp_path, monkeypatch):
 
     def fake_build_entry(bid, organ_index, **kw):
         calls.append(bid)
-        return {"identifier": f"x:{bid}", "biomodel_id": bid,
+        return {"identifier": bhm._IRI.format(bid), "biomodel_id": bid,
                 "provenance": {"errors": []}}
 
     monkeypatch.setattr(bhm, "build_entry", fake_build_entry)
     monkeypatch.setattr(bhm, "build_organ_index", lambda *a, **k: {})
     # pre-seed the db with BIOMD1 present but transiently errored (empty entry).
-    bhm.write_db({"BIOMD1": {"identifier": "x:BIOMD1", "biomodel_id": "BIOMD1",
-                             "provenance": {"errors": ["lit:boom"]}}}, str(out))
+    identifier = bhm._IRI.format("BIOMD1")
+    bhm.write_db({identifier: {"identifier": identifier, "biomodel_id": "BIOMD1",
+                               "provenance": {"errors": ["lit:boom"]}}}, str(out))
 
     bhm.build_map(ids=["BIOMD1"], out=str(out), cache_dir=str(tmp_path / "cache"), no_llm=True)
     assert calls == ["BIOMD1"]  # retried on resume even without force

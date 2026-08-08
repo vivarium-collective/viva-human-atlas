@@ -1,6 +1,6 @@
 """BioModels -> HRA map: a single summary scientific figure.
 
-Reads datasets/biomodel_hra_map.json and writes
+Reads datasets/model_hra_map.json and writes
 reports/figures/biomodel_hra_summary.png. Run:
     .venv/bin/python scripts/make_biomodel_hra_figure.py
 """
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 
 REPO = Path(__file__).resolve().parents[1]
-DB_PATH = REPO / "datasets" / "biomodel_hra_map.json"
+DB_PATH = REPO / "datasets" / "model_hra_map.json"
 OUT_PATH = REPO / "reports" / "figures" / "biomodel_hra_summary.png"
 
 mpl.rcParams.update({
@@ -142,7 +142,7 @@ fig.text(0.045, 0.045, "■", color=ANA, fontsize=13, va="center")
 fig.text(0.060, 0.045, "HRA / anatomy annotation", color=MUTED, fontsize=10.5, va="center")
 fig.text(0.235, 0.045, "■", color=MOL, fontsize=13, va="center")
 fig.text(0.250, 0.045, "molecular annotation", color=MUTED, fontsize=10.5, va="center")
-fig.text(0.975, 0.045, "source: datasets/biomodel_hra_map.json  ·  vivarium-collective/viva-human-atlas",
+fig.text(0.975, 0.045, "source: datasets/model_hra_map.json  ·  vivarium-collective/viva-human-atlas",
          color=FAINT, fontsize=9, va="center", ha="right")
 
 OUT_PATH.parent.mkdir(parents=True, exist_ok=True)

@@ -36,8 +36,6 @@ from typing import Optional
 _REPO = Path(__file__).resolve().parents[1]
 DEFAULT_CROSSWALK = _REPO / "datasets" / "hra_asctb_crosswalk.csv"
 
-BIOMODELS_BASE = "https://www.ebi.ac.uk/biomodels/"
-
 # Enrichment gate for cell-type -> subregion placement. E(cl, AS) = fraction of
 # the AS that is `cl`, divided by the fraction of the whole organ that is `cl`;
 # > 1 means `cl` is over-represented in that AS relative to the organ average.
@@ -150,9 +148,13 @@ def place_models(
 ) -> dict:
     """Resolve each model to organ subregion(s).
 
+    `db_entries` rows are keyed by `source_id` (falling back to `biomodel_id`
+    for pre-multi-source rows), so this places BioModels and PhysioNet
+    entries alike -- each model's `repository` decides its rendered link.
+
     Returns `{"subregions": {organ_uberon: {as_uberon: {"label", "uberon",
-    "node_names": [...], "models": [{biomodel_id, name, url, via}]}}},
-    "stats": {n_models_placed, n_subregion_models, n_ftu_models,
+    "node_names": [...], "models": [{source_id, repository, name, url,
+    via}]}}}, "stats": {n_models_placed, n_subregion_models, n_ftu_models,
     n_cell_type_models, n_placements}}`.
     """
     nodes_by_uberon = _nodes_by_uberon(crosswalk)
@@ -210,8 +212,10 @@ def place_models(
             sub["models"][mid] = via
         return True
 
+    id_to_entry: dict = {}
     for e in db_entries:
-        mid = e["biomodel_id"]
+        mid = e.get("source_id") or e.get("biomodel_id")
+        id_to_entry[mid] = e
         name = e.get("name") or mid
         cls = {c["cl"] for c in (e.get("cell_types") or []) if c.get("cl")}
         model_ftu_uberons = {f.get("uberon") for f in (e.get("functional_tissue_units") or []) if f.get("uberon")}
@@ -279,11 +283,16 @@ def place_models(
         if placed_ct:
             stats["n_cell_type_models"] += 1
 
-    # finalize: models dict -> sorted list of rows
+    # finalize: models dict -> sorted list of source-aware rows (BioModels and
+    # PhysioNet models can both land in a subregion -- e.g. an ECG project's
+    # curated FTU anatomy under heart -- so the link must resolve per source,
+    # not assume BioModels).
+    from viva_human_atlas.atlas_pack import model_ref
+
     for org in subregions.values():
         for sub in org.values():
             sub["models"] = [
-                {"biomodel_id": mid, "url": f"{BIOMODELS_BASE}{mid}", "via": via}
+                {**model_ref(id_to_entry.get(mid, {"biomodel_id": mid, "name": mid})), "via": via}
                 for mid, via in sorted(sub["models"].items())
             ]
             stats["n_placements"] += len(sub["models"])

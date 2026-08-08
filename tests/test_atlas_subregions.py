@@ -84,7 +84,7 @@ def test_cell_type_enrichment_places_at_cortex_with_both_side_nodes():
     assert "UBERON:0004200" not in subs                  # pyramid not enriched
     sub = subs["UBERON:0002189"]
     assert sub["node_names"] == ["VH_F_outer_cortex_of_kidney_L", "VH_F_outer_cortex_of_kidney_R"]
-    assert [m["biomodel_id"] for m in sub["models"]] == ["BIOMD1"]
+    assert [m["source_id"] for m in sub["models"]] == ["BIOMD1"]
     assert sub["models"][0]["via"] == "cell_type"
     assert out["stats"]["n_cell_type_models"] == 1
 
@@ -164,10 +164,12 @@ def test_glbs_field_carries_all_same_sex_assets():
 
 def test_end_to_end_build_from_committed_datasets(tmp_path):
     result = build_and_write_atlas(
-        db_path=str(REPO / "datasets" / "biomodel_hra_map.json"),
+        db_path=str(REPO / "datasets" / "model_hra_map.json"),
         catalog_path=str(CATALOG), out_dir=tmp_path)
     atlas = json.loads((tmp_path / "atlas.json").read_text())
-    assert atlas["summary"]["n_models_distinct"] == 256
+    # post physionet-harvest with the word-boundary keyword-match fix (organ-tagged
+    # BioModels + PhysioNet models, distinct across whole-organ + subregion placements)
+    assert atlas["summary"]["n_models_distinct"] == 380
     assert atlas["summary"]["n_subregions"] >= 3
     kidney = next(o for o in atlas["organs"] if o["key"] == "kidney")
     assert len(kidney["glbs"]["female"]) == 4                      # both kidneys + pelvises
@@ -180,6 +182,8 @@ def test_atlas_browser_step_writes_pack_and_emits_summary(tmp_path):
     step = AtlasBrowserStep(config={"out_dir": str(tmp_path)}, core=core)
     out = step.update({})
     assert (tmp_path / "atlas.json").exists()
-    assert out["summary"]["n_models_distinct"] == 256
+    # post physionet-harvest with the word-boundary keyword-match fix (organ-tagged
+    # BioModels + PhysioNet models, distinct across whole-organ + subregion placements)
+    assert out["summary"]["n_models_distinct"] == 380
     assert out["placement_stats"]["n_subregion_models"] >= 9
     assert out["out_dir"] == str(tmp_path)

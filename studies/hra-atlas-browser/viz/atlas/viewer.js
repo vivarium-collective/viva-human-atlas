@@ -36,8 +36,117 @@ const els = {
   bpTitle: document.getElementById("bp-title"),
   bpSub: document.getElementById("bp-sub"),
   bpList: document.getElementById("biomodels-list"),
+  sourceChips: document.getElementById("source-chips"),
+  organMenu: document.getElementById("organ-menu"),
+  biomodelsPanel: document.getElementById("biomodels-panel"),
+  collapseLeft: document.getElementById("collapse-left"),
+  collapseRight: document.getElementById("collapse-right"),
+  reopenLeft: document.getElementById("reopen-left"),
+  reopenRight: document.getElementById("reopen-right"),
+  resizeLeft: document.getElementById("resize-left"),
+  resizeRight: document.getElementById("resize-right"),
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
+
+// Escape untrusted text before it is interpolated into an innerHTML template
+// literal. Model `name` (PhysioNet titles come from external DataCite
+// metadata), `source_id`, and `repository` all flow into innerHTML below and
+// must never be trusted as markup.
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+));
+
+// --- model sources (general-purpose) ---------------------------------------
+// Every `repository` present in the atlas becomes a toggleable source. All are
+// active by default, so the model lists are COMBINED across sources unless the
+// user narrows them. Nothing here is hardcoded to biomodels/physionet — a new
+// source in the data appears as a chip automatically. Defined at module scope
+// so both the top-level renderers and the ones inside main() can share it.
+const ACTIVE_SOURCES = new Set();     // repositories currently shown
+let ALL_SOURCES = [];                 // every repository present, sorted
+const SOURCE_LABELS = { biomodels: "BioModels", physionet: "PhysioNet" };
+const SOURCE_DOTS = { biomodels: "#4c92ff", physionet: "#ff8a4c" };
+const FALLBACK_DOTS = ["#4c92ff", "#ff8a4c", "#7bd88f", "#e0a0ff", "#ffd166", "#5ad1c9"];
+const sourceLabel = (r) => SOURCE_LABELS[r] || (r ? r[0].toUpperCase() + r.slice(1) : "Other");
+function sourceColor(r) {
+  if (SOURCE_DOTS[r]) return SOURCE_DOTS[r];
+  const i = Math.max(0, ALL_SOURCES.indexOf(r));
+  return FALLBACK_DOTS[i % FALLBACK_DOTS.length];
+}
+function initSources(atlas) {
+  const seen = new Set();
+  for (const o of atlas.organs) {
+    for (const m of o.models || []) if (m.repository) seen.add(m.repository);
+    for (const s of o.subregions || []) for (const m of s.models || []) if (m.repository) seen.add(m.repository);
+  }
+  ALL_SOURCES = [...seen].sort();
+  ACTIVE_SOURCES.clear();
+  ALL_SOURCES.forEach((r) => ACTIVE_SOURCES.add(r));
+}
+// Keep only models whose source is active (all active => list unchanged).
+const filterBySource = (models) => (models || []).filter((m) => ACTIVE_SOURCES.has(m.repository));
+// Per-source DISTINCT counts (dedup by source_id) — the honest count when a
+// model list spans several organs (the same model placed on N organs must count
+// once, not N times). Used by the chips. Always distinct: there is deliberately
+// no occurrence-based counter, so a cross-organ view can't accidentally inflate.
+function distinctSourceCounts(models) {
+  const seen = {};
+  for (const m of models || []) (seen[m.repository] ||= new Set()).add(m.source_id);
+  const c = {};
+  for (const r in seen) c[r] = seen[r].size;
+  return c;
+}
+// Human-readable distinct-per-source breakdown, e.g. "78 BioModels · 15 PhysioNet".
+function distinctBreakdown(models) {
+  const seen = {};
+  for (const m of models || []) (seen[m.repository] ||= new Set()).add(m.source_id);
+  return ALL_SOURCES.filter((r) => seen[r] && seen[r].size)
+    .map((r) => `${seen[r].size} ${sourceLabel(r)}`).join(" · ");
+}
+// Model counts restricted to the active source chips. With all sources active
+// (the default) these equal the organ's/subregion's full totals, so default
+// coloring is unchanged; narrowing the chips shrinks the counts that drive the
+// 3D coloring, the menu counts, and the color ramp.
+// Distinct model count of a list (dedup by repository:source_id).
+const distinctCount = (models) =>
+  new Set((models || []).map((m) => m.repository + ":" + m.source_id)).size;
+const activeCount = (organ) => filterBySource(organ && organ.models).length;
+// A subregion's models are (mostly) a SUBSET of the organ's own list, not
+// additional — so its count is the DISTINCT union of organ + localized models,
+// never their sum (which would double-count and disagree with the rendered
+// rows). With all sources this equals the organ count unless the subregion
+// carries a model the organ list lacks.
+const activeSubCount = (organ, sub) =>
+  distinctCount([...filterBySource(organ && organ.models), ...filterBySource(sub && sub.models)]);
+
+// Assigned by main() to re-render whatever the panel currently shows AND recolor
+// the 3D scene + menu after a source toggle (so a chip click drives everything).
+let onSourcesChanged = () => {};
+// Render the source toggle chips (with per-source counts for THIS model set)
+// into the panel head. Clicking a chip narrows/combines the list; all-on is the
+// default and turning the last one off snaps back to all (never an empty view).
+function renderSourceChips(models) {
+  const host = els.sourceChips;
+  if (!host) return;
+  host.innerHTML = "";
+  if (ALL_SOURCES.length < 2) return;   // single source: no chooser needed
+  const c = distinctSourceCounts(models);
+  for (const r of ALL_SOURCES) {
+    const active = ACTIVE_SOURCES.has(r);
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip" + (active ? "" : " off");
+    chip.setAttribute("aria-pressed", active ? "true" : "false");
+    chip.innerHTML = `<span class="dot" style="background:${sourceColor(r)}"></span>`
+      + `${esc(sourceLabel(r))} <span class="cnt">${c[r] || 0}</span>`;
+    chip.addEventListener("click", () => {
+      if (ACTIVE_SOURCES.has(r)) ACTIVE_SOURCES.delete(r); else ACTIVE_SOURCES.add(r);
+      if (ACTIVE_SOURCES.size === 0) ALL_SOURCES.forEach((s) => ACTIVE_SOURCES.add(s));
+      onSourcesChanged();
+    });
+    host.appendChild(chip);
+  }
+}
 
 // ColorBrewer YlGnBu (9-class sequential) — a perceptually-ordered
 // light-yellow (few) -> green -> teal -> dark-blue (many) ramp, the standard
@@ -76,15 +185,21 @@ const cssColor = (n, max) => "#" + countColor(n, max).getHexString();
 // crosswalk node_names (exporters vary punctuation/case).
 const normNode = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
-// A subregion's displayed model count = the organ's whole-organ models + the
-// models specifically placed at this structure.
-const subregionCount = (organ, sub) => organ.n_models + (sub.n_models || 0);
+// A subregion's displayed model count = the DISTINCT union of the organ's
+// whole-organ models and the models placed at this structure (the structure's
+// models are largely a subset of the organ's, so this is NOT a sum).
+const subregionCount = (organ, sub) =>
+  distinctCount([...(organ.models || []), ...(sub && sub.models || [])]);
 
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
-  els.bpSub.textContent = organ.n_models
-    ? `${organ.n_models} BioModel${organ.n_models > 1 ? "s" : ""} · ${organ.uberon || ""}`
+  const nTotal = organ.models.length;
+  const breakdown = distinctBreakdown(organ.models);
+  els.bpSub.textContent = nTotal
+    ? `${nTotal} model${nTotal > 1 ? "s" : ""}` + (breakdown ? ` (${breakdown})` : "")
+      + ` · ${organ.uberon || ""}`
     : `no models · ${organ.uberon || ""}`;
+  renderSourceChips(organ.models);
   els.bpList.innerHTML = "";
   if (!organ.models.length) {
     const d = document.createElement("div");
@@ -93,7 +208,15 @@ function renderBioModels(organ) {
     els.bpList.appendChild(d);
     return;
   }
-  for (const m of organ.models) {
+  const shown = filterBySource(organ.models);
+  if (!shown.length) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = "No models match the current source filter.";
+    els.bpList.appendChild(d);
+    return;
+  }
+  for (const m of shown) {
     const a = document.createElement("a");
     a.href = m.url;
     a.target = "_blank";
@@ -104,7 +227,10 @@ function renderBioModels(organ) {
       ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
           by.length === 2 ? "name+annotation" : by[0]}</span>`
       : "";
-    a.innerHTML = `<div>${m.name} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
+    // source badge: which repository (BioModels vs PhysioNet) this model
+    // came from — distinct from the provenance badge above.
+    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
+    a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
     els.bpList.appendChild(a);
   }
 }
@@ -113,6 +239,7 @@ async function main() {
   setStatus("loading config…");
   const cfg = await fetch("config.json").then((r) => r.json());
   const atlas = await fetch(cfg.atlas).then((r) => r.json());
+  initSources(atlas);   // discover every repository present -> toggleable sources
   const organsByKey = new Map(atlas.organs.map((o) => [o.key, o]));
   // Per-organ subregion lookup: organ key -> Map(normalized node_name ->
   // subregion). Lets `colorMesh` decide, per GLB mesh, whether it's a modeled
@@ -168,12 +295,13 @@ async function main() {
       .map((o) => o.key);                             // landing / "All modeled"
   }
   recomputeKeys();
-  // distinct BioModels represented by a set of organ keys (union of ids)
+  // distinct models (source-filter aware) represented by a set of organ keys
+  // (union of ids, across both BioModels and PhysioNet)
   function distinctModels(keys) {
     const ids = new Set();
     for (const k of keys) {
       const o = organsByKey.get(k);
-      if (o) for (const m of o.models) ids.add(m.biomodel_id);
+      if (o) for (const m of filterBySource(o.models)) ids.add(m.repository + ":" + m.source_id);
     }
     return ids.size;
   }
@@ -186,10 +314,16 @@ async function main() {
     organsBySystem.get(o.system).push(o);
   }
   els.legendMax.textContent = String(atlas.max_models);
-  const distinctTotal = atlas.summary.n_models_distinct ?? atlas.summary.n_models_total;
+  // Combined distinct total across every source, computed from the data (union
+  // of repository:source_id), with a per-source breakdown — not a single-source
+  // summary field. General-purpose: reflects whatever sources are present.
+  const allModels = atlas.organs.flatMap((o) => o.models || []);
+  const distinctTotal = new Set(allModels.map((m) => m.repository + ":" + m.source_id)).size;
+  const headBreak = distinctBreakdown(allModels);
   const nSub = atlas.summary.n_subregions || 0;
   els.summary.textContent =
-    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct BioModels`
+    `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled · ${distinctTotal} distinct models`
+    + (headBreak ? ` (${headBreak})` : "")
     + (nSub ? ` · ${nSub} modeled subregion${nSub === 1 ? "" : "s"} in ${atlas.summary.n_organs_with_subregions} organ${atlas.summary.n_organs_with_subregions === 1 ? "" : "s"}` : "");
 
   // ---- scene ----
@@ -219,28 +353,59 @@ async function main() {
   const raycastMeshes = [];            // meshes across all *shown* organs
   let hovered = null;
   let modelQuery = "";                 // active model-search keyword (lowercased)
+  // Re-render for the CURRENT panel view, reassigned by focus / subregion /
+  // reset so a source-chip toggle refreshes exactly what's shown, in place.
+  let rerenderPanel = () => resetPanel();
+  // A source-chip toggle drives the whole view: re-render the panel, recolor the
+  // 3D scene (organs filtered out dim / go grey), and update the menu counts.
+  // Recolor + refresh counts BEFORE re-rendering the panel, so a chip toggle
+  // during an active search repaints swatches with the fresh match scale.
+  onSourcesChanged = () => { recolorShown(); refreshMenuCounts(); rerenderPanel(); };
   // ---- explode (B4) ----
   let explodeAnim = null;              // {meshes:[{mesh,from,to}], start, dur}
   let explodedKey = null;              // organ key currently in exploded state
 
-  // Models in an organ whose name or BioModels id contains the search keyword.
+  // Models in an organ whose name or source id contains the search keyword,
+  // honoring the active source filter.
   function matchingModels(organ, q) {
     if (!q) return [];
-    return organ.models.filter(
-      (m) => (m.name + " " + m.biomodel_id).toLowerCase().includes(q));
+    return filterBySource(organ.models).filter(
+      (m) => (m.name + " " + m.source_id).toLowerCase().includes(q));
   }
   // Color for one shown organ under the current search: no search -> the normal
   // model-count color; searching -> scaled by how many of its models MATCH
   // (so the selected organs light up where the keyword is represented), and
   // organs with no match dim out.
   function organColorSpec(organ) {
-    if (!modelQuery) return { color: countColor(organ.n_models, maxCount), opacity: 1 };
+    if (!modelQuery) {
+      const n = activeCount(organ);
+      // Organ has models but the active source chips exclude them all -> dim it
+      // out (reads as "filtered away"); a genuinely model-less organ keeps its
+      // normal grey at full opacity.
+      if (!n) return { color: new THREE.Color(NOMODEL), opacity: organ.n_models ? 0.18 : 1 };
+      return { color: countColor(n, maxCount), opacity: 1 };
+    }
     const n = matchingModels(organ, modelQuery).length;
     if (!n) return { color: new THREE.Color(NOMODEL), opacity: 0.18 };
     const maxMatch = searchMaxMatch || 1;
     return { color: countColor(n, maxMatch), opacity: 1 };
   }
   let searchMaxMatch = 0;
+  // Update the left menu rows' swatch + count to the active-source counts, in
+  // place (no rebuild, so scroll/collapse state survives a source-chip toggle).
+  function refreshMenuCounts() {
+    for (const [key, row] of rows) {
+      const o = organsByKey.get(key);
+      if (!o) continue;
+      const n = activeCount(o);
+      const sw = row.querySelector(".sw");
+      const ct = row.querySelector(".ct");
+      if (sw) sw.style.background = cssColor(n, maxCount);
+      if (ct) ct.textContent = n || "";
+      row.classList.toggle("zero", !n);
+    }
+  }
+
   // Recolor every currently-shown organ group per organColorSpec.
   function recolorShown() {
     searchMaxMatch = 0;
@@ -277,12 +442,17 @@ async function main() {
     node.userData.sub = sub;
     // Same YlGnBu ramp for both; a subregion uses its COMBINED count (organ +
     // localized), so it reads as a darker shade than the rest of the organ.
-    const count = sub ? subregionCount(organ, sub) : organ.n_models;
+    // Counts honor the active source chips, so narrowing the sources recolors
+    // the atlas; an organ whose models are all filtered out dims to read as
+    // excluded (rather than pretending it's a genuine no-model grey).
+    const organActive = activeCount(organ);
+    const count = sub ? activeSubCount(organ, sub) : organActive;
     const col = countColor(count, maxCount);
+    const dim = organActive === 0 && organ.n_models > 0;
     if (node.material && !node.material.isLineBasicMaterial) {
       node.material.color.copy(col);
-      node.material.transparent = false;
-      node.material.opacity = 1;
+      node.material.transparent = dim;
+      node.material.opacity = dim ? 0.18 : 1;
     }
   }
   // Recolor every mesh of a shown organ to its base (subregion-or-organ) colors.
@@ -389,9 +559,10 @@ async function main() {
     focused = key;
     // While a model search is active the panel stays on the search results
     // (across all shown organs), not a single organ.
-    if (modelQuery) { renderModelSearch(); return; }
+    if (modelQuery) { renderModelSearch(); rerenderPanel = () => focus(key); return; }
     const organ = organsByKey.get(key);
     if (organ) renderBioModels(organ);
+    rerenderPanel = () => focus(key);
   }
 
   // Add/remove an organ from the composed scene.
@@ -579,7 +750,14 @@ async function main() {
     collapseExplode(true);
     selected.clear();
     for (const k of keys) selected.add(k);
-    focus(keys[0]);
+    // A single organ focuses it; a bulk selection shows the combined panel of
+    // every selected organ's models (grouped by organ), not just the first one.
+    if (keys.length === 1) {
+      focus(keys[0]);
+    } else {
+      focused = null;
+      if (modelQuery) renderModelSearch(); else renderSelectedModels();
+    }
     applySelection(false);
     let done = 0;
     const total = keys.length;
@@ -606,13 +784,15 @@ async function main() {
 
   function selectionStatus() {
     const distinct = distinctModels([...selected]);
-    return `${selected.size} organ${selected.size === 1 ? "" : "s"} shown · ${distinct} distinct BioModel${distinct === 1 ? "" : "s"} represented`;
+    return `${selected.size} organ${selected.size === 1 ? "" : "s"} shown · ${distinct} distinct model${distinct === 1 ? "" : "s"} represented`;
   }
 
   function resetPanel() {
     els.bpTitle.textContent = "Select an organ";
     els.bpSub.textContent = `${atlas.summary.n_modeled}/${atlas.summary.n_organs} organs modeled`;
     els.bpList.innerHTML = "";
+    renderSourceChips([]);
+    rerenderPanel = () => resetPanel();
   }
 
   function _modelLink(m) {
@@ -627,7 +807,10 @@ async function main() {
       badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
         m.via === "ftu" ? "FTU" : "cell type"}</span>`;
     }
-    a.innerHTML = `<div>${m.name || m.biomodel_id} ${badge}</div><div class="mid">${m.biomodel_id}</div>`;
+    // source badge: which repository (BioModels vs PhysioNet) this model
+    // came from — distinct from the provenance badge above.
+    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
+    a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
     return a;
   }
 
@@ -635,19 +818,24 @@ async function main() {
   // organ's whole-organ models PLUS the ones localized here — the localized
   // ones listed first and badged (FTU / cell type); the rest are region-wide.
   function renderSubregion(sub, organ) {
-    const localIds = new Set((sub.models || []).map((m) => m.biomodel_id));
-    const regionWide = (organ.models || []).filter((m) => !localIds.has(m.biomodel_id));
-    const total = subregionCount(organ, sub);
+    const key = (m) => m.repository + ":" + m.source_id;
+    const localModels = filterBySource(sub.models || []);
+    const localIds = new Set(localModels.map(key));
+    const regionWide = filterBySource(organ.models || []).filter((m) => !localIds.has(key(m)));
+    const total = localModels.length + regionWide.length;   // == the rows rendered below
+    renderSourceChips([...(sub.models || []), ...(organ.models || [])]);
     els.bpTitle.textContent = sub.label || "Subregion";
     els.bpSub.textContent =
-      `${total} BioModel${total === 1 ? "" : "s"} · ${sub.n_models} localized here · ${sub.uberon || ""} · in ${organ.label}`;
+      `${total} model${total === 1 ? "" : "s"} · ${localModels.length} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
-    for (const m of (sub.models || [])) els.bpList.appendChild(_modelLink(m));
+    for (const m of localModels) els.bpList.appendChild(_modelLink(m));
     for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
-    if (!total) {
+    if (!localModels.length && !regionWide.length) {
       const d = document.createElement("div");
       d.className = "empty";
-      d.textContent = "No models associated with this structure.";
+      d.textContent = total
+        ? "No models match the current source filter."
+        : "No models associated with this structure.";
       els.bpList.appendChild(d);
     }
   }
@@ -657,13 +845,19 @@ async function main() {
   // 3D coloring (so the panel and the lit-up organs read as one view).
   function renderModelSearch() {
     const q = modelQuery;
+    rerenderPanel = () => renderModelSearch();
     els.bpTitle.textContent = `Models matching “${q}”`;
+    // chips reflect matches across all shown organs, regardless of active source
+    const allMatch = [...selected].flatMap((k) =>
+      (organsByKey.get(k)?.models || []).filter(
+        (m) => (m.name + " " + m.source_id).toLowerCase().includes(q)));
+    renderSourceChips(allMatch);
     els.bpList.innerHTML = "";
     const hits = [...selected]
       .map((k) => ({ organ: organsByKey.get(k), models: matchingModels(organsByKey.get(k), q) }))
       .filter((h) => h.organ && h.models.length)
       .sort((a, b) => b.models.length - a.models.length);
-    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.biomodel_id))).size;
+    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.repository + ":" + m.source_id))).size;
     els.bpSub.textContent = hits.length
       ? `${nModels} model${nModels === 1 ? "" : "s"} across ${hits.length} shown organ${hits.length === 1 ? "" : "s"}`
       : `no matches in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
@@ -686,14 +880,59 @@ async function main() {
     }
   }
 
+  // Right-panel view when MANY organs are shown and none is singled out (e.g.
+  // "All modeled"): every selected organ's models, grouped by organ (combined
+  // across sources, honoring the source chips), so the panel reflects the whole
+  // left-hand selection rather than one focused organ.
+  function renderSelectedModels() {
+    rerenderPanel = () => renderSelectedModels();
+    const chipModels = [...selected].flatMap((k) => organsByKey.get(k)?.models || []);
+    renderSourceChips(chipModels);
+    const byOrgan = [...selected]
+      .map((k) => ({ organ: organsByKey.get(k), models: filterBySource(organsByKey.get(k)?.models || []) }))
+      .filter((g) => g.organ && g.models.length)
+      .sort((a, b) => b.models.length - a.models.length);
+    const shownModels = byOrgan.flatMap((g) => g.models);   // active-source only
+    const distinct = new Set(shownModels.map((m) => m.repository + ":" + m.source_id)).size;
+    const brk = distinctBreakdown(shownModels);            // breakdown matches the total
+    els.bpTitle.textContent = `${selected.size} organ${selected.size === 1 ? "" : "s"} shown`;
+    els.bpSub.textContent = byOrgan.length
+      ? `${distinct} distinct model${distinct === 1 ? "" : "s"} across ${byOrgan.length} organ${byOrgan.length === 1 ? "" : "s"}`
+        + (brk ? ` · ${brk}` : "")
+      : `no models in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
+    els.bpList.innerHTML = "";
+    if (!byOrgan.length) {
+      const d = document.createElement("div");
+      d.className = "empty";
+      d.textContent = "No models match the current source filter.";
+      els.bpList.appendChild(d);
+      return;
+    }
+    for (const { organ, models } of byOrgan) {
+      const head = document.createElement("div");
+      head.className = "organ-group-head";
+      head.innerHTML = `<span class="sw" style="background:${cssColor(models.length, maxCount)}"></span>`
+        + `${esc(organ.label)} · ${models.length}`;
+      els.bpList.appendChild(head);
+      for (const m of models) els.bpList.appendChild(_modelLink(m));
+    }
+  }
+
+  // The panel's default state, given the current selection: a single focused
+  // organ, else the aggregated all-selected view, else the empty prompt.
+  function showDefaultPanel() {
+    if (focused) focus(focused);
+    else if (selected.size) renderSelectedModels();
+    else resetPanel();
+  }
+
   // React to the model keyword box: recolor the shown organs by match count and
-  // switch the panel between per-organ view and search results.
+  // switch the panel between the default view and search results.
   function onModelSearch() {
     modelQuery = els.modelSearch.value.trim().toLowerCase();
     recolorShown();
     if (modelQuery) renderModelSearch();
-    else if (focused) focus(focused);
-    else resetPanel();
+    else showDefaultPanel();
   }
 
   // ---- left menu: organs grouped by anatomical system, collapsible ----
@@ -730,15 +969,16 @@ async function main() {
       });
 
       for (const o of organs) {
+        const nActive = activeCount(o);
         const row = document.createElement("div");
-        row.className = "organ-row" + (o.n_models ? "" : " zero");
+        row.className = "organ-row" + (nActive ? "" : " zero");
         row.dataset.key = o.key;
         row.dataset.label = o.label.toLowerCase();
         row.innerHTML =
           `<span class="chk">✓</span>` +
-          `<span class="sw" style="background:${cssColor(o.n_models, maxCount)}"></span>` +
+          `<span class="sw" style="background:${cssColor(nActive, maxCount)}"></span>` +
           `<span class="nm" title="${o.label}">${o.label}</span>` +
-          `<span class="ct">${o.n_models || ""}</span>` +
+          `<span class="ct">${nActive || ""}</span>` +
           `<span class="only" role="button">only</span>` +
           `<span class="explode" role="button" title="Isolate and explode this organ">explode</span>`;
         row.addEventListener("click", (e) => {
@@ -817,8 +1057,10 @@ async function main() {
     if (!hovered) return;
     const sub = hovered.userData.sub;
     if (sub && !modelQuery) {
+      const organ = organsByKey.get(hovered.userData.organKey);
       focused = hovered.userData.organKey;
-      renderSubregion(sub, organsByKey.get(hovered.userData.organKey));
+      renderSubregion(sub, organ);
+      rerenderPanel = () => renderSubregion(sub, organ);
     } else {
       focus(hovered.userData.organKey);
     }
@@ -848,5 +1090,53 @@ async function main() {
   // "None" then click rows to browse one at a time, or a row's "only" button.
   selectMany(modeledKeys, "all modeled organs");
 }
+
+// Panel chrome: drag the inner edge of either side panel to resize it, and
+// collapse a panel to reveal more of the atlas (a reopen tab brings it back).
+// Pure DOM/CSS, independent of the 3D scene — the canvas is full-screen behind
+// the panels, so resizing/collapsing simply reveals more of it.
+function setupPanelChrome() {
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const collapse = (panel, tab, bodyClass, yes) => {
+    if (!panel || !tab) return;
+    panel.classList.toggle("collapsed", yes);
+    tab.classList.toggle("show", yes);
+    document.body.classList.toggle(bodyClass, yes);   // also hides that side's resizer
+  };
+  els.collapseLeft?.addEventListener("click", () => collapse(els.organMenu, els.reopenLeft, "left-collapsed", true));
+  els.reopenLeft?.addEventListener("click", () => collapse(els.organMenu, els.reopenLeft, "left-collapsed", false));
+  els.collapseRight?.addEventListener("click", () => collapse(els.biomodelsPanel, els.reopenRight, "right-collapsed", true));
+  els.reopenRight?.addEventListener("click", () => collapse(els.biomodelsPanel, els.reopenRight, "right-collapsed", false));
+
+  function drag(handle, getStart, apply) {
+    if (!handle) return;
+    handle.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      const startX = e.clientX, start = getStart();
+      try { handle.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
+      handle.classList.add("active");
+      const move = (ev) => apply(start, ev.clientX - startX);
+      const up = () => {
+        handle.classList.remove("active");
+        try { handle.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+        removeEventListener("pointermove", move);
+        removeEventListener("pointerup", up);
+      };
+      addEventListener("pointermove", move);
+      addEventListener("pointerup", up);
+    });
+  }
+  // Left menu: width grows as its right-edge handle drags right; drive --menu-w
+  // so #status and the handle position (offset by it) stay aligned.
+  drag(els.resizeLeft,
+    () => els.organMenu.getBoundingClientRect().width,
+    (start, dx) => document.documentElement.style.setProperty("--menu-w", clamp(start + dx, 220, 620) + "px"));
+  // Right panel: width grows as its left-edge handle drags left (dx negative);
+  // drive --panel-w so the panel and its handle stay in sync.
+  drag(els.resizeRight,
+    () => els.biomodelsPanel.getBoundingClientRect().width,
+    (start, dx) => document.documentElement.style.setProperty("--panel-w", clamp(start - dx, 240, 640) + "px"));
+}
+setupPanelChrome();
 
 main().catch((err) => { console.error(err); setStatus(`error: ${err?.message || err}`); });

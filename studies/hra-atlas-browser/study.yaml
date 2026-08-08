@@ -19,7 +19,7 @@ question: |
 
 study_card:
   goal: "Build the atlas manifest from the BioModels->HRA map DB (the biomodel-hra-map study's reusable JSON) and, driving UP from each model's cell types + FTUs, place models at the specific organ subregions they belong to — falling back to the whole organ where no subregion resolves — then render it as a self-contained three.js organ browser where modeled subregions are colored and hoverable individually."
-  mechanism: "AtlasBrowserStep -> atlas_pack.build_and_write_atlas: organ->models from biomodel_hra_map.json (organ Uberon -> [ids]), with organs grouped by the HRA anatomical-systems partonomy (12 systems) rather than a hand-curated map; atlas_subregions.place_models resolves subregions two ways — (1) ANATOMY: a Uberon the model itself carries (its FTU, ontology, or now gene-derived ASCT+B Uberons) that maps to a specific GLB mesh in the ASCT+B-3D crosswalk (datasets/hra_asctb_crosswalk.csv), placed under whichever organ's GLB contains that mesh; (2) cell-type ENRICHMENT: a model's cell type places it at an anatomical structure only where it is over-represented (>1.25x) vs the organ average in HRApop's per-AS cell populations (hra_pop.load_hrapop_as). Meshes are filtered to the organ by crosswalk organ_glb, and whole-organ-equivalent 'subregions' (label == organ) are skipped. build_atlas_manifest attaches per-organ `subregions` (node_names + Uberon + model list); the three.js viewer colors modeled subregions on a warm ramp over the organ's viridis base, with per-structure hover + click-to-list, and loads ALL same-sex GLBs per organ (bilateral L/R robustness so organs like kidney show both sides), plus a female/male switch and per-organ explode."
+  mechanism: "AtlasBrowserStep -> atlas_pack.build_and_write_atlas: organ->models from model_hra_map.json (organ Uberon -> [ids]), with organs grouped by the HRA anatomical-systems partonomy (12 systems) rather than a hand-curated map; atlas_subregions.place_models resolves subregions two ways — (1) ANATOMY: a Uberon the model itself carries (its FTU, ontology, or now gene-derived ASCT+B Uberons) that maps to a specific GLB mesh in the ASCT+B-3D crosswalk (datasets/hra_asctb_crosswalk.csv), placed under whichever organ's GLB contains that mesh; (2) cell-type ENRICHMENT: a model's cell type places it at an anatomical structure only where it is over-represented (>1.25x) vs the organ average in HRApop's per-AS cell populations (hra_pop.load_hrapop_as). Meshes are filtered to the organ by crosswalk organ_glb, and whole-organ-equivalent 'subregions' (label == organ) are skipped. build_atlas_manifest attaches per-organ `subregions` (node_names + Uberon + model list); the three.js viewer colors modeled subregions on a warm ramp over the organ's viridis base, with per-structure hover + click-to-list, and loads ALL same-sex GLBs per organ (bilateral L/R robustness so organs like kidney show both sides), plus a female/male switch and per-organ explode."
   expected_result: "All 50 organs selectable, grouped by the HRA anatomical-systems partonomy (12 systems); 19 modeled organs colored by count (blood 52 brightest); 9 organs additionally resolve 52 subregions — e.g. pancreas -> head of pancreas (16), intestine -> colon segments (caecum/transverse/ascending/descending/sigmoid colon, rectum, ~10 each), heart -> chambers (right ventricle 6, atria 5, interventricular septum 5) + great arteries, blood -> arterial tree, lung -> segmental bronchus (8), brain -> hippocampal formation (4) + olfactory bulb, kidney -> outer cortex (5), lymph node -> lymphatic vessels + medulla + follicle, trachea -> carina + cartilage — with the rest of every organ (and all other modeled organs, e.g. liver) falling back to the whole-organ color."
   main_expert_question: "Given HRApop's coarse anatomical-structure granularity and that most FTUs (islet, glomerulus, lobule) still have no 3D-crosswalk mesh, is anatomy-annotation (now including gene-derived ASCT+B Uberons) + enrichment-gated within-organ placement the right honest default (specific subregions; whole-organ fallback), or should we trade specificity for coverage (lower enrichment / cross-organ cell-type placement) to light up more structures?"
 
@@ -118,7 +118,7 @@ baseline:
   - name: baseline
     step: local:viva_human_atlas.atlas_browser.AtlasBrowserStep
     params:
-      db_path: "datasets/biomodel_hra_map.json"
+      db_path: "datasets/model_hra_map.json"
       enrichment: 1.25
       cross_organ_max: 0
 
@@ -148,7 +148,7 @@ findings:
       older name/annotation catalogs — a whole-atlas overview of where
       mechanistic modeling exists, each organ linking to its BioModels.
     evidence:
-      summary: "50 organs in 12 HRA anatomical systems, 19 modeled (256 distinct / 417 total), max_models=52 (blood); 31 organs greyed. Source: biomodel_hra_map.json organ->models. Newly modeled via gene-derived anatomy: thymus (43), placenta (26), spinal cord (9), trachea (8), main bronchus (7)."
+      summary: "50 organs in 12 HRA anatomical systems, 19 modeled (256 distinct / 417 total), max_models=52 (blood); 31 organs greyed. Source: model_hra_map.json organ->models. Newly modeled via gene-derived anatomy: thymus (43), placenta (26), spinal cord (9), trachea (8), main bronchus (7)."
   - id: F-02
     tier: measurement
     mechanism_origin: engineered
