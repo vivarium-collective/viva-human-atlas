@@ -9,7 +9,7 @@
     :root {
       --bg:#0e1116; --panel:#161b22; --text:#d6dde3; --text-dim:#8a96a3;
       --border:#2a313c; --nomodel:#5a616b; --accent:#4caf78;
-      --menu-w:320px;
+      --menu-w:320px; --panel-w:300px;
     }
     *{box-sizing:border-box;}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--text);
@@ -38,7 +38,7 @@
     /* ---- left organ menu ---- */
     #organ-menu{top:52px;left:12px;bottom:12px;width:var(--menu-w);
       display:flex;flex-direction:column;overflow:hidden;}
-    #organ-search{margin:10px 10px 6px;padding:6px 9px;background:var(--bg);color:var(--text);
+    #organ-search{margin:10px 40px 6px 10px;padding:6px 9px;background:var(--bg);color:var(--text);
       border:1px solid var(--border);border-radius:6px;font-size:12px;}
     #organ-search::placeholder{color:var(--text-dim);}
     #menu-controls{display:flex;align-items:center;gap:6px;padding:0 10px 8px;
@@ -95,10 +95,10 @@
       border:1px solid rgba(255,255,255,.15);}
 
     /* ---- right BioModels panel ---- */
-    #biomodels-panel{top:52px;right:12px;width:300px;max-height:calc(100% - 76px);
+    #biomodels-panel{top:52px;right:12px;width:var(--panel-w);max-height:calc(100% - 76px);
       display:flex;flex-direction:column;overflow:hidden;}
     #biomodels-panel .bp-head{padding:10px 14px;border-bottom:1px solid var(--border);}
-    #biomodels-panel .bp-title{font-weight:600;font-size:13px;}
+    #biomodels-panel .bp-title{font-weight:600;font-size:13px;padding-right:26px;}
     #biomodels-panel .bp-sub{color:var(--text-dim);font-size:11.5px;margin-top:2px;}
     #model-search{margin-top:8px;width:100%;padding:6px 9px;background:var(--bg);color:var(--text);
       border:1px solid var(--border);border-radius:6px;font-size:12px;}
@@ -137,6 +137,28 @@
     .source-chips .chip .cnt{font-variant-numeric:tabular-nums;color:var(--text-dim);}
     .source-chips .chip.off{opacity:.4;}
     .source-chips .chip.off .dot{filter:grayscale(1);}
+    /* ---- resizable / collapsible side panels ---- */
+    .resizer{position:absolute;top:52px;bottom:12px;width:11px;z-index:15;cursor:col-resize;
+      touch-action:none;display:flex;align-items:center;justify-content:center;}
+    .resizer::after{content:"";width:3px;height:34px;border-radius:2px;background:var(--border);
+      transition:background .12s,height .12s;}
+    .resizer:hover::after,.resizer.active::after{background:var(--accent);height:64px;}
+    #resize-left{left:calc(var(--menu-w) + 12px);}
+    #resize-right{right:calc(var(--panel-w) + 12px);}
+    body.left-collapsed #resize-left{display:none;}
+    body.right-collapsed #resize-right{display:none;}
+    .collapse-btn{position:absolute;top:8px;right:8px;z-index:8;width:24px;height:22px;padding:0;
+      display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text-dim);
+      border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:15px;line-height:1;}
+    .collapse-btn:hover{border-color:var(--accent);color:var(--text);}
+    #organ-menu.collapsed,#biomodels-panel.collapsed{display:none;}
+    .reopen-tab{position:absolute;top:60px;z-index:19;display:none;align-items:center;gap:6px;
+      background:var(--panel);color:var(--text);border:1px solid var(--border);padding:8px 12px;
+      cursor:pointer;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.5);}
+    .reopen-tab:hover{border-color:var(--accent);}
+    #reopen-left{left:0;border-left:none;border-radius:0 8px 8px 0;}
+    #reopen-right{right:0;border-right:none;border-radius:8px 0 0 8px;}
+    .reopen-tab.show{display:inline-flex;}
     #status{position:absolute;bottom:14px;left:calc(var(--menu-w) + 28px);z-index:20;
       color:var(--text-dim);font-size:11.5px;}
   </style>
@@ -159,6 +181,7 @@
     </header>
 
     <aside id="organ-menu" class="card">
+      <button id="collapse-left" class="collapse-btn" type="button" title="Collapse organ panel" aria-label="Collapse organ panel">‹</button>
       <input id="organ-search" type="search" placeholder="Filter organs…" aria-label="Filter organs">
       <div id="menu-controls">
         <button id="btn-all-modeled" type="button" title="Show all organs that have >=1 model">All modeled</button>
@@ -176,6 +199,7 @@
     </aside>
 
     <div id="biomodels-panel" class="card">
+      <button id="collapse-right" class="collapse-btn" type="button" title="Collapse models panel" aria-label="Collapse models panel">›</button>
       <div class="bp-head">
         <div class="bp-title" id="bp-title">Select an organ</div>
         <div class="bp-sub" id="bp-sub"></div>
@@ -186,6 +210,12 @@
       </div>
       <div id="biomodels-list"></div>
     </div>
+
+    <div id="resize-left" class="resizer" title="Drag to resize the organ panel"></div>
+    <div id="resize-right" class="resizer" title="Drag to resize the models panel"></div>
+
+    <button id="reopen-left" class="reopen-tab" type="button" title="Show organ panel">☰ Organs</button>
+    <button id="reopen-right" class="reopen-tab" type="button" title="Show models panel">☰ Models</button>
 
     <div id="status">loading…</div>
   </div>

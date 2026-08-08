@@ -37,6 +37,14 @@ const els = {
   bpSub: document.getElementById("bp-sub"),
   bpList: document.getElementById("biomodels-list"),
   sourceChips: document.getElementById("source-chips"),
+  organMenu: document.getElementById("organ-menu"),
+  biomodelsPanel: document.getElementById("biomodels-panel"),
+  collapseLeft: document.getElementById("collapse-left"),
+  collapseRight: document.getElementById("collapse-right"),
+  reopenLeft: document.getElementById("reopen-left"),
+  reopenRight: document.getElementById("reopen-right"),
+  resizeLeft: document.getElementById("resize-left"),
+  resizeRight: document.getElementById("resize-right"),
 };
 const setStatus = (t) => { if (els.status) els.status.textContent = t; };
 
@@ -1069,5 +1077,53 @@ async function main() {
   // "None" then click rows to browse one at a time, or a row's "only" button.
   selectMany(modeledKeys, "all modeled organs");
 }
+
+// Panel chrome: drag the inner edge of either side panel to resize it, and
+// collapse a panel to reveal more of the atlas (a reopen tab brings it back).
+// Pure DOM/CSS, independent of the 3D scene — the canvas is full-screen behind
+// the panels, so resizing/collapsing simply reveals more of it.
+function setupPanelChrome() {
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const collapse = (panel, tab, bodyClass, yes) => {
+    if (!panel || !tab) return;
+    panel.classList.toggle("collapsed", yes);
+    tab.classList.toggle("show", yes);
+    document.body.classList.toggle(bodyClass, yes);   // also hides that side's resizer
+  };
+  els.collapseLeft?.addEventListener("click", () => collapse(els.organMenu, els.reopenLeft, "left-collapsed", true));
+  els.reopenLeft?.addEventListener("click", () => collapse(els.organMenu, els.reopenLeft, "left-collapsed", false));
+  els.collapseRight?.addEventListener("click", () => collapse(els.biomodelsPanel, els.reopenRight, "right-collapsed", true));
+  els.reopenRight?.addEventListener("click", () => collapse(els.biomodelsPanel, els.reopenRight, "right-collapsed", false));
+
+  function drag(handle, getStart, apply) {
+    if (!handle) return;
+    handle.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      const startX = e.clientX, start = getStart();
+      try { handle.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
+      handle.classList.add("active");
+      const move = (ev) => apply(start, ev.clientX - startX);
+      const up = () => {
+        handle.classList.remove("active");
+        try { handle.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+        removeEventListener("pointermove", move);
+        removeEventListener("pointerup", up);
+      };
+      addEventListener("pointermove", move);
+      addEventListener("pointerup", up);
+    });
+  }
+  // Left menu: width grows as its right-edge handle drags right; drive --menu-w
+  // so #status and the handle position (offset by it) stay aligned.
+  drag(els.resizeLeft,
+    () => els.organMenu.getBoundingClientRect().width,
+    (start, dx) => document.documentElement.style.setProperty("--menu-w", clamp(start + dx, 220, 620) + "px"));
+  // Right panel: width grows as its left-edge handle drags left (dx negative);
+  // drive --panel-w so the panel and its handle stay in sync.
+  drag(els.resizeRight,
+    () => els.biomodelsPanel.getBoundingClientRect().width,
+    (start, dx) => document.documentElement.style.setProperty("--panel-w", clamp(start - dx, 240, 640) + "px"));
+}
+setupPanelChrome();
 
 main().catch((err) => { console.error(err); setStatus(`error: ${err?.message || err}`); });
