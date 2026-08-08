@@ -85,18 +85,18 @@ function initSources(atlas) {
 }
 // Keep only models whose source is active (all active => list unchanged).
 const filterBySource = (models) => (models || []).filter((m) => ACTIVE_SOURCES.has(m.repository));
-// Per-source occurrence counts for a model list: {repository: n}.
-function sourceCounts(models) {
+// Per-source DISTINCT counts (dedup by source_id) — the honest count when a
+// model list spans several organs (the same model placed on N organs must count
+// once, not N times). Used by the chips. Always distinct: there is deliberately
+// no occurrence-based counter, so a cross-organ view can't accidentally inflate.
+function distinctSourceCounts(models) {
+  const seen = {};
+  for (const m of models || []) (seen[m.repository] ||= new Set()).add(m.source_id);
   const c = {};
-  for (const m of models || []) c[m.repository] = (c[m.repository] || 0) + 1;
+  for (const r in seen) c[r] = seen[r].size;
   return c;
 }
-// Human-readable per-source breakdown, e.g. "78 BioModels · 15 PhysioNet".
-function sourceBreakdown(models) {
-  const c = sourceCounts(models);
-  return ALL_SOURCES.filter((r) => c[r]).map((r) => `${c[r]} ${sourceLabel(r)}`).join(" · ");
-}
-// Distinct-per-source breakdown (dedup by source_id) for header-level totals.
+// Human-readable distinct-per-source breakdown, e.g. "78 BioModels · 15 PhysioNet".
 function distinctBreakdown(models) {
   const seen = {};
   for (const m of models || []) (seen[m.repository] ||= new Set()).add(m.source_id);
@@ -107,9 +107,17 @@ function distinctBreakdown(models) {
 // (the default) these equal the organ's/subregion's full totals, so default
 // coloring is unchanged; narrowing the chips shrinks the counts that drive the
 // 3D coloring, the menu counts, and the color ramp.
+// Distinct model count of a list (dedup by repository:source_id).
+const distinctCount = (models) =>
+  new Set((models || []).map((m) => m.repository + ":" + m.source_id)).size;
 const activeCount = (organ) => filterBySource(organ && organ.models).length;
+// A subregion's models are (mostly) a SUBSET of the organ's own list, not
+// additional — so its count is the DISTINCT union of organ + localized models,
+// never their sum (which would double-count and disagree with the rendered
+// rows). With all sources this equals the organ count unless the subregion
+// carries a model the organ list lacks.
 const activeSubCount = (organ, sub) =>
-  activeCount(organ) + filterBySource(sub && sub.models).length;
+  distinctCount([...filterBySource(organ && organ.models), ...filterBySource(sub && sub.models)]);
 
 // Assigned by main() to re-render whatever the panel currently shows AND recolor
 // the 3D scene + menu after a source toggle (so a chip click drives everything).
@@ -122,7 +130,7 @@ function renderSourceChips(models) {
   if (!host) return;
   host.innerHTML = "";
   if (ALL_SOURCES.length < 2) return;   // single source: no chooser needed
-  const c = sourceCounts(models);
+  const c = distinctSourceCounts(models);
   for (const r of ALL_SOURCES) {
     const active = ACTIVE_SOURCES.has(r);
     const chip = document.createElement("button");
@@ -177,14 +185,16 @@ const cssColor = (n, max) => "#" + countColor(n, max).getHexString();
 // crosswalk node_names (exporters vary punctuation/case).
 const normNode = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
-// A subregion's displayed model count = the organ's whole-organ models + the
-// models specifically placed at this structure.
-const subregionCount = (organ, sub) => organ.n_models + (sub.n_models || 0);
+// A subregion's displayed model count = the DISTINCT union of the organ's
+// whole-organ models and the models placed at this structure (the structure's
+// models are largely a subset of the organ's, so this is NOT a sum).
+const subregionCount = (organ, sub) =>
+  distinctCount([...(organ.models || []), ...(sub && sub.models || [])]);
 
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
   const nTotal = organ.models.length;
-  const breakdown = sourceBreakdown(organ.models);
+  const breakdown = distinctBreakdown(organ.models);
   els.bpSub.textContent = nTotal
     ? `${nTotal} model${nTotal > 1 ? "s" : ""}` + (breakdown ? ` (${breakdown})` : "")
       + ` · ${organ.uberon || ""}`
@@ -291,7 +301,7 @@ async function main() {
     const ids = new Set();
     for (const k of keys) {
       const o = organsByKey.get(k);
-      if (o) for (const m of filterBySource(o.models)) ids.add(m.source_id);
+      if (o) for (const m of filterBySource(o.models)) ids.add(m.repository + ":" + m.source_id);
     }
     return ids.size;
   }
@@ -348,7 +358,9 @@ async function main() {
   let rerenderPanel = () => resetPanel();
   // A source-chip toggle drives the whole view: re-render the panel, recolor the
   // 3D scene (organs filtered out dim / go grey), and update the menu counts.
-  onSourcesChanged = () => { rerenderPanel(); recolorShown(); refreshMenuCounts(); };
+  // Recolor + refresh counts BEFORE re-rendering the panel, so a chip toggle
+  // during an active search repaints swatches with the fresh match scale.
+  onSourcesChanged = () => { recolorShown(); refreshMenuCounts(); rerenderPanel(); };
   // ---- explode (B4) ----
   let explodeAnim = null;              // {meshes:[{mesh,from,to}], start, dur}
   let explodedKey = null;              // organ key currently in exploded state
@@ -806,14 +818,15 @@ async function main() {
   // organ's whole-organ models PLUS the ones localized here — the localized
   // ones listed first and badged (FTU / cell type); the rest are region-wide.
   function renderSubregion(sub, organ) {
+    const key = (m) => m.repository + ":" + m.source_id;
     const localModels = filterBySource(sub.models || []);
-    const localIds = new Set(localModels.map((m) => m.source_id));
-    const regionWide = filterBySource(organ.models || []).filter((m) => !localIds.has(m.source_id));
-    const total = subregionCount(organ, sub);
+    const localIds = new Set(localModels.map(key));
+    const regionWide = filterBySource(organ.models || []).filter((m) => !localIds.has(key(m)));
+    const total = localModels.length + regionWide.length;   // == the rows rendered below
     renderSourceChips([...(sub.models || []), ...(organ.models || [])]);
     els.bpTitle.textContent = sub.label || "Subregion";
     els.bpSub.textContent =
-      `${total} model${total === 1 ? "" : "s"} · ${sub.n_models} localized here · ${sub.uberon || ""} · in ${organ.label}`;
+      `${total} model${total === 1 ? "" : "s"} · ${localModels.length} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
     for (const m of localModels) els.bpList.appendChild(_modelLink(m));
     for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
@@ -844,7 +857,7 @@ async function main() {
       .map((k) => ({ organ: organsByKey.get(k), models: matchingModels(organsByKey.get(k), q) }))
       .filter((h) => h.organ && h.models.length)
       .sort((a, b) => b.models.length - a.models.length);
-    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.source_id))).size;
+    const nModels = new Set(hits.flatMap((h) => h.models.map((m) => m.repository + ":" + m.source_id))).size;
     els.bpSub.textContent = hits.length
       ? `${nModels} model${nModels === 1 ? "" : "s"} across ${hits.length} shown organ${hits.length === 1 ? "" : "s"}`
       : `no matches in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
@@ -875,29 +888,30 @@ async function main() {
     rerenderPanel = () => renderSelectedModels();
     const chipModels = [...selected].flatMap((k) => organsByKey.get(k)?.models || []);
     renderSourceChips(chipModels);
-    const groups = [...selected]
+    const byOrgan = [...selected]
       .map((k) => ({ organ: organsByKey.get(k), models: filterBySource(organsByKey.get(k)?.models || []) }))
       .filter((g) => g.organ && g.models.length)
       .sort((a, b) => b.models.length - a.models.length);
-    const distinct = new Set(groups.flatMap((g) => g.models.map((m) => m.repository + ":" + m.source_id))).size;
-    const brk = sourceBreakdown(chipModels);
+    const shownModels = byOrgan.flatMap((g) => g.models);   // active-source only
+    const distinct = new Set(shownModels.map((m) => m.repository + ":" + m.source_id)).size;
+    const brk = distinctBreakdown(shownModels);            // breakdown matches the total
     els.bpTitle.textContent = `${selected.size} organ${selected.size === 1 ? "" : "s"} shown`;
-    els.bpSub.textContent = groups.length
-      ? `${distinct} distinct model${distinct === 1 ? "" : "s"} across ${groups.length} organ${groups.length === 1 ? "" : "s"}`
+    els.bpSub.textContent = byOrgan.length
+      ? `${distinct} distinct model${distinct === 1 ? "" : "s"} across ${byOrgan.length} organ${byOrgan.length === 1 ? "" : "s"}`
         + (brk ? ` · ${brk}` : "")
       : `no models in the ${selected.size} shown organ${selected.size === 1 ? "" : "s"}`;
     els.bpList.innerHTML = "";
-    if (!groups.length) {
+    if (!byOrgan.length) {
       const d = document.createElement("div");
       d.className = "empty";
       d.textContent = "No models match the current source filter.";
       els.bpList.appendChild(d);
       return;
     }
-    for (const { organ, models } of groups) {
+    for (const { organ, models } of byOrgan) {
       const head = document.createElement("div");
       head.className = "organ-group-head";
-      head.innerHTML = `<span class="sw" style="background:${cssColor(organ.n_models, maxCount)}"></span>`
+      head.innerHTML = `<span class="sw" style="background:${cssColor(models.length, maxCount)}"></span>`
         + `${esc(organ.label)} · ${models.length}`;
       els.bpList.appendChild(head);
       for (const m of models) els.bpList.appendChild(_modelLink(m));
@@ -1013,7 +1027,6 @@ async function main() {
   // Model keyword search (right panel): recolor shown organs by match count
   // + list matching models grouped by organ.
   els.modelSearch.addEventListener("input", onModelSearch);
-  // Source filter (All / BioModels / PhysioNet): re-render the panel + counts.
 
   // ---- hover + click in the 3D scene ----
   const ray = new THREE.Raycaster();
