@@ -11,7 +11,7 @@ ontology-linked outputs that can connect to the HRA's 3D reference organs.
 📊 **Read-only workbench (showcase):**
 https://vivarium-collective.github.io/viva-human-atlas/dashboard/
 
-🧭 **HRA Atlas Browser (organ selector, model-count gradient, subregion placement, BioModels links):**
+🧭 **HRA Computational Model Atlas (organ selector, model-count gradient, subregion placement, BioModels links):**
 https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/hra-atlas-browser/viz/atlas/index.html
 — pick any of the 50 GLB-backed HRA organs (or compose them with "All modeled"),
 see organs colored by associated model count (viridis), and click through to
@@ -75,7 +75,7 @@ composite; also launchable from the Analyses tab.
 | `glucose-regulation` | Query BioModels for a text term (default 'glucose regulation'), then run every matching model under COPASI and Tellurium and score their agreement (all-pairs nRMSE). |
 | `hra-3d-crosswalk` | Fetch the ASCT+B-3D models crosswalk (1,400+ anatomical structures) from the HRA CDN's `asct-b-3d-models-crosswalk.csv` digital object. |
 | `hra-anatomical-structures` | Fetch HRA anatomical-structure term occurrences from the CCF API. |
-| `hra-atlas-browser` | Regenerate the HRA Atlas Browser pack from the BioModels->HRA map DB (Phase 1), placing each model at the organ subregion(s) its cell types / FTUs resolve to — via HRApop per-AS cell populations + th… |
+| `hra-atlas-browser` | Regenerate the HRA Computational Model Atlas pack from the BioModels->HRA map DB (Phase 1), placing each model at the organ subregion(s) its cell types / FTUs resolve to — via HRApop per-AS cell populations + th… |
 | `hra-cell-types` | Fetch HRA cell-type term occurrences (Cell Ontology) from the CCF API. |
 | `hra-reference-organs` | Fetch HRA reference organs (Uberon-keyed, per-sex GLB assets) from the CCF API. |
 | `model-coverage-3d` | Cross the ASCT+B-3D crosswalk's anatomical structures with the biomodel-DO organ->models index to mark model coverage, at organ granularity. |
@@ -93,7 +93,7 @@ viva_human_atlas/
   hra_pop.py            # HRApop cell-type populations (organ + per-AS loaders)
   atlas_subregions.py   # place models at organ subregions (cell types / FTUs -> AS)
   atlas_pack.py         # Atlas Browser manifest builder + offline orchestrator
-  atlas_browser.py      # AtlasBrowserStep (regenerate the atlas pack)
+  atlas_browser.py      # ComputationalModelAtlas (regenerate the atlas pack)
   composites/           # @composite_generator entries (glucose-regulation, hra-*, biomodel-hra-map, hra-atlas-browser)
 scripts/                # build_biomodel_hra_map.py, make_biomodel_hra_figure.py, build_atlas_pack.py
 investigations/         # glucose-regulation, hra-integration, hra-3d

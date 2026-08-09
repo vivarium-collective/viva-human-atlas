@@ -38,7 +38,7 @@ lead: |
   coverage that adds over name-only matching (annotation-recall-gain: +85
   models, +4 organs, union 167/1,096 across 14 organs). The payoff of both
   matchers existing is not the index alone: it's that the resulting
-  organ->models catalogs are what feeds the HRA Atlas Browser
+  organ->models catalogs are what feeds the HRA Computational Model Atlas
   (`studies/hra-atlas-browser/viz/atlas/`), the actual interactive 3D view
   where a biomodel's organ tag becomes something a user can click on. This
   realizes the DynXR proposal's Aim 2 T2.1 (HRA dataset access) and T1.1/T2.4
@@ -54,7 +54,7 @@ executive:
     matchers — name-synonym matching over BioModels titles, and
     annotation-based matching over each model's own SBML MIRIAM/BTO
     metadata; a measured comparison of how much recall the annotation
-    matcher adds over name-only matching; and the HRA Atlas Browser
+    matcher adds over name-only matching; and the HRA Computational Model Atlas
     (`studies/hra-atlas-browser/viz/atlas/`) that renders the resulting
     organ->models index as an interactive 3D atlas a user can actually see
     biomodels attached to.
@@ -87,7 +87,7 @@ scientific_argument:
     reading each model's own SBML MIRIAM/BTO annotations instead of its
     title materially raises that recall without a heavyweight NLP
     classifier; and the resulting organ->models catalog is what feeds the
-    HRA Atlas Browser, turning "which organ is this biomodel tagged to" into
+    HRA Computational Model Atlas, turning "which organ is this biomodel tagged to" into
     something a user can see and click on in an interactive 3D atlas.
   evidence_for:
     - "hra-reference-organs: 81 organs load, 69/81 (85.2%) Uberon-keyed, 45 female / 36 male entries."

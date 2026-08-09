@@ -203,7 +203,7 @@ discovery_implications:
       title: "Place biomodels at HRA organ SUBREGIONS (not whole organs) in the Atlas Browser from this DB"
       motivation: "This DB resolves cell types + FTUs per model and joins HRApop at organ granularity; the Atlas Browser currently distributes models uniformly within an organ. Driving placement up from a model's cell types/FTUs to the specific HRApop anatomical structure would let models attach to subregions (visible on hover), falling back to the whole organ only where subregion resolution is absent."
       study_type: methodological
-      proposed_experiment: "Consume biomodel-hra-map (the Step or the cached JSON) in the HRA Atlas Browser composite; for each model, map its cell types/FTUs to the HRApop anatomical structures (AS-granular in the source CSV) they occur in, place the model at those subregions, and fall back to the whole organ where no subregion resolves."
+      proposed_experiment: "Consume biomodel-hra-map (the Step or the cached JSON) in the HRA Computational Model Atlas composite; for each model, map its cell types/FTUs to the HRApop anatomical structures (AS-granular in the source CSV) they occur in, place the model at those subregions, and fall back to the whole organ where no subregion resolves."
       expected_information_gain: high
       source_trigger: biomodel-hra-map
     - id: fp-llm-anatomy-recall

@@ -38,7 +38,7 @@ def _studies_with_atlas(ws_root) -> list:
 
 def _atlas_targets(ws_root) -> list:
     return [
-        {"study": s, "label": f"HRA Atlas Browser — {s}",
+        {"study": s, "label": f"HRA Computational Model Atlas — {s}",
          "detail": "3D organ browser colored by model count",
          "href": f"/studies/{s}/viz/atlas/index.html"}
         for s in _studies_with_atlas(ws_root)
@@ -73,10 +73,13 @@ def get_viewers(ws_root) -> list:
     return [
         {
             "id": "hra-atlas-browser",
-            "title": "HRA Atlas Browser",
+            "title": "HRA Computational Model Atlas",
             "description": "3D HRA organ browser: pick an organ, see regions colored by model count, click through to BioModels.",
+            # Matches any run whose study produced an atlas pack (viz/atlas/
+            # atlas.json) — the run's output IS this viewer's input — so the run
+            # row surfaces "open in the atlas viewer" in the Tools column.
             "kind": "launcher",
-            "requires": ["observables"],
+            "requires": ["atlas_pack"],
             "applies": lambda ws: bool(_studies_with_atlas(ws)),
             "targets": _atlas_targets,
             "launch": _atlas_launch,

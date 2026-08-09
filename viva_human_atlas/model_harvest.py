@@ -10,6 +10,7 @@ from process_bigraph import Step
 
 from viva_human_atlas import biomodel_hra as bh
 from viva_human_atlas import physionet
+from viva_human_atlas import physiome
 from viva_human_atlas.biomodel_do import build_organ_index
 
 DEFAULT_DB_PATH = bh.DEFAULT_DB_PATH
@@ -28,6 +29,13 @@ SOURCES: dict[str, dict] = {
         "entry_fn": lambda proj, oi, **k: physionet.build_entry(proj, oi, cache_dir=k.get("cache_dir"),
                                                                 no_llm=k.get("no_llm", True)),
         "id_of": lambda proj: proj["identifier"],
+    },
+    "physiome": {
+        "repository": "physiome",
+        "list_fn": lambda **k: physiome.resolve_exposures(query=k.get("query"), limit=k.get("limit")),
+        "entry_fn": lambda exp, oi, **k: physiome.build_entry(exp, oi, cache_dir=k.get("cache_dir"),
+                                                              no_llm=k.get("no_llm", True)),
+        "id_of": lambda exp: exp["identifier"],
     },
 }
 

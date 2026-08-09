@@ -1,10 +1,12 @@
-"""Build the HRA Atlas Browser manifest (atlas.json) from the committed
+"""Build the HRA Computational Model Atlas manifest (atlas.json) from the committed
 corpus catalog: one entry per GLB-backed HRA organ, its model count, and the
 BioModels list, for the organ-selector + model-count-gradient viewer."""
 from __future__ import annotations
 
 import json
 from pathlib import Path
+
+from viva_human_atlas.model_process import model_process
 
 BIOMODELS_BASE = "https://www.ebi.ac.uk/biomodels/"
 
@@ -85,11 +87,25 @@ def model_url(entry: dict) -> str:
 
 def model_ref(entry: dict) -> dict:
     """Source-aware model reference `{source_id, repository, url, name}` for
-    an atlas manifest row -- unions BioModels + PhysioNet (and any future
-    source) into one shape."""
-    return {"source_id": entry.get("source_id") or entry.get("biomodel_id"),
-            "repository": entry.get("repository", "biomodels"),
-            "url": model_url(entry), "name": entry.get("name") or entry.get("source_id")}
+    an atlas manifest row -- unions BioModels + PhysioNet + Physiome (and any
+    future source) into one shape. When the entry records how it was mapped to
+    the organ, `mapping_method` (annotation/category/keyword) + `confidence`
+    (high/medium/low) are included too, so the viewer and the JSON download
+    carry the provenance of each placement (absent for sources that don't set
+    it, e.g. legacy BioModels rows)."""
+    ref = {"source_id": entry.get("source_id") or entry.get("biomodel_id"),
+           "repository": entry.get("repository", "biomodels"),
+           "url": model_url(entry), "name": entry.get("name") or entry.get("source_id")}
+    if entry.get("mapping_method"):
+        ref["mapping_method"] = entry["mapping_method"]
+    if entry.get("confidence"):
+        ref["confidence"] = entry["confidence"]
+    if entry.get("doi"):
+        ref["doi"] = entry["doi"]
+    if entry.get("categories"):
+        ref["categories"] = entry["categories"]
+    ref["process"] = model_process(entry)
+    return ref
 
 
 def organ_system(key: str) -> str:
@@ -388,7 +404,11 @@ def build_atlas_from_hra_map(db_entries, organ_index, hrapop_as, crosswalk,
             {"biomodel_id": mid, "name": e.get("name") or mid,
              "source_id": e.get("source_id") or mid,
              "repository": e.get("repository", "biomodels"),
-             "identifier": e.get("identifier")}
+             "identifier": e.get("identifier"),
+             "mapping_method": (e.get("provenance") or {}).get("mapping_method"),
+             "confidence": (e.get("provenance") or {}).get("confidence"),
+             "doi": e.get("paper_doi"),
+             "categories": (e.get("provenance") or {}).get("categories")}
             for mid, e in sorted(entries_by_key.items())
         ],
         "organ_index": organ_index,

@@ -130,20 +130,20 @@ def test_step_no_analysis_copy_without_dir(tmp_path):
 
 def test_step_summary_matches_committed_corpus_db():
     """The Step over the committed DB reports the headline coverage the study
-    report + summary figure quote. Post physionet-harvest with the
-    word-boundary keyword-match fix (Task 9 + FINAL-REVIEW), the DB is
-    1,096 BioModels + 480 PhysioNet = 1,576 models; PhysioNet rows carry no
-    molecular/HRApop data (offline organ mapper only) but 124 resolve an
-    organ Uberon (323 BioModels + 124 PhysioNet = 447)."""
+    report + summary figure quote. Across three sources the DB is 1,096 BioModels
+    + 480 PhysioNet + 570 Physiome = 2,146 models; PhysioNet and Physiome rows
+    carry no molecular/HRApop data (offline / category-based organ mappers only)
+    but resolve an organ Uberon (323 BioModels + 124 PhysioNet + 309 Physiome =
+    756)."""
     if not COMMITTED_DB.exists():
         return  # DB not present in this checkout; nothing to assert
     core = build_core()
     step = bhm.BiomodelHraMapStep(
         config={"db_path": str(COMMITTED_DB), "build_if_missing": False}, core=core)
     out = step.update({})
-    assert out["n_models"] == 1576
+    assert out["n_models"] == 2146
     assert out["summary"]["n_with_molecular"] == 978
-    assert out["summary"]["n_with_uberon"] == 447
+    assert out["summary"]["n_with_uberon"] == 756
     assert out["summary"]["n_with_hrapop"] == 112
 
 
