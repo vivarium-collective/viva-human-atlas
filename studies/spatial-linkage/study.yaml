@@ -3,11 +3,11 @@ name: spatial-linkage
 investigation: hra-3d
 title: "Spatial Linkage — Model -> AS -> GLB Scene-Node Links"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk

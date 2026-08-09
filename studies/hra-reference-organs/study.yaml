@@ -3,11 +3,11 @@ name: hra-reference-organs
 investigation: hra-integration
 title: "HRA Reference Organs — Uberon-Keyed Organ Set"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Does the HRA CCF API's reference-organs endpoint load into a Step-driven

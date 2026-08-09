@@ -3,11 +3,11 @@ name: model-harvest
 investigation: hra-integration
 title: "Unified Model Harvest — BioModels + PhysioNet into the HRA Model DB"
 created: '2026-08-07'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Can a single Step reproduce/refresh the unified HRA model DB
@@ -51,6 +51,32 @@ readouts:
   - "per_source.{biomodels,physionet} (row count contributed by each source, from a Counter over the repository field)"
   - "summary.{n_with_molecular,n_with_uberon,n_with_hrapop,coverage} (unchanged corpus-coverage stats from biomodel_hra.summarize_map, unaffected by which sources are loaded)"
   - "db_path (the committed dataset path the Step loaded, confirming the reproducibility hook points at the real file)"
+
+report:
+  title: "Unified Model Harvest — 1,576 models (1,096 BioModels + 480 PhysioNet) into one HRA Model DB"
+  verdict: passing
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Harvest BioModels and PhysioNet into a single identifier-keyed HRA Model DB
+    through a source registry, load the committed DB network-free while
+    reporting per-source counts, and confirm the harvest is incremental and
+    non-destructive.
+  conclusion: |
+    The baseline (build_if_missing: false) loads the committed
+    datasets/model_hra_map.json network-free through the two-source registry and
+    reports it exactly: 1,576 models (1,096 BioModels + 480 PhysioNet), 978 with
+    molecular detail, 447 with an Uberon anatomy tag (323 BioModels + 124
+    PhysioNet), and the HRApop-backed subset preserved. The harvest is
+    source-registry-driven and identifier-keyed, so it is structurally
+    incremental and non-destructive: should_process skips anything already in the
+    DB, so adding a source or re-running extends the DB without rebuilding it or
+    dropping existing records.
+  caveat: |
+    Anatomy coverage is partial (447/1,576 carry an Uberon tag) — recall-limited
+    by the same name/annotation matching quantified in the coverage studies — but
+    that is a property of the sources, not a harvest defect: every model with an
+    identifier is harvested exactly once and reported.
 
 baseline:
   - name: baseline

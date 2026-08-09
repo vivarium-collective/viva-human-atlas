@@ -3,11 +3,11 @@ name: ftu-model-coverage
 investigation: hra-3d
 title: "FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units?"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Do existing BioModels model HRA functional tissue units (FTUs) -- Katy

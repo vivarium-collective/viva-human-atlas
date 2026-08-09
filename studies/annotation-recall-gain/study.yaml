@@ -3,11 +3,11 @@ name: annotation-recall-gain
 investigation: hra-integration
 title: "Annotation Recall Gain — Annotation-Matching vs Name-Only Organ Tagging"
 created: '2026-08-01'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   How much organ/model coverage does annotation-based organ matching (SBML

@@ -3,11 +3,11 @@ name: biomodel-hra-map
 investigation: hra-integration
 title: "BioModels → HRA Map — Harvesting the Curated Corpus into the Human Reference Atlas"
 created: '2026-08-04'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Can we harvest the entire curated BioModels corpus into a single, reusable
