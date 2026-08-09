@@ -2,6 +2,6 @@
   "mode": "snapshot",
   "smsApiBase": "",
   "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
-  "commit": "d41fa48cb2a4dc4c5ab4b091e4c86aa9c7bf5f6f",
+  "commit": "3b8664f81713702b9edb63fdc3f3a3524e9dfd45",
   "generated_from_ref": "feat/atlas-skeletal-bilateral"
 }
