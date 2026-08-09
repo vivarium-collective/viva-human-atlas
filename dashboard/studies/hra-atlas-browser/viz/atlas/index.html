@@ -144,6 +144,9 @@
       background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0 8px;}
     .proc-group:hover .proc-name{color:var(--accent);}
     .proc-body.collapsed{display:none;}
+    .proc-controls{display:flex;gap:12px;justify-content:flex-end;padding:2px 4px 6px;}
+    .proc-ctl{background:none;border:none;color:var(--text-dim);font-size:11px;cursor:pointer;padding:2px;}
+    .proc-ctl:hover{color:var(--accent);}
     .region-divider{margin-top:12px;padding-top:8px;border-top:1px dashed var(--border);
       font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);}
     /* source toggle chips: one per repository present in the data, all on by
@@ -209,7 +212,8 @@
       <div id="menu-controls">
         <button id="btn-all-modeled" type="button" title="Show all organs that have >=1 model">All modeled</button>
         <button id="btn-all" type="button" title="Show all 50 organs (heavier)">All</button>
-        <button id="btn-none" type="button" title="Clear selection">None</button>
+        <button id="btn-collapse-all" type="button" title="Collapse all systems">Collapse</button>
+        <button id="btn-expand-all" type="button" title="Expand all systems">Expand</button>
         <span class="count" id="sel-count"></span>
       </div>
       <div id="organ-list"></div>
