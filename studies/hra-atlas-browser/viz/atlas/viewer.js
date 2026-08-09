@@ -192,6 +192,13 @@ const normNode = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const subregionCount = (organ, sub) =>
   distinctCount([...(organ.models || []), ...(sub && sub.models || [])]);
 
+// Small badge showing how a model was mapped to the organ + how much to trust it
+// (annotation=high, category=medium, keyword=medium). Absent for sources that
+// don't record it (e.g. legacy BioModels rows).
+const confBadge = (m) => m.confidence
+  ? `<span class="conf-badge conf-${esc(m.confidence)}" title="mapped via ${esc(m.mapping_method || "?")} — ${esc(m.confidence)} confidence">${esc(m.confidence)}</span>`
+  : "";
+
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
   const nTotal = organ.models.length;
@@ -231,7 +238,7 @@ function renderBioModels(organ) {
     // source badge: which repository (BioModels vs PhysioNet) this model
     // came from — distinct from the provenance badge above.
     const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-    a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
+    a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
     els.bpList.appendChild(a);
   }
 }
@@ -811,7 +818,7 @@ async function main() {
     // source badge: which repository (BioModels vs PhysioNet) this model
     // came from — distinct from the provenance badge above.
     const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-    a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
+    a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
     return a;
   }
 
