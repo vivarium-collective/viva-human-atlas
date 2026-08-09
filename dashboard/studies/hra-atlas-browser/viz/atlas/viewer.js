@@ -1,4 +1,4 @@
-// HRA Atlas Browser — self-contained three.js multi-organ browser.
+// HRA Computational Model Atlas — self-contained three.js multi-organ browser.
 //
 // Reads config.json -> {atlas, coverage, ...}, then atlas.json (all 50
 // GLB-backed HRA organs + model counts + BioModels links). No build step; no
@@ -28,6 +28,7 @@ const els = {
   btnAll: document.getElementById("btn-all"),
   btnNone: document.getElementById("btn-none"),
   btnCenter: document.getElementById("btn-center"),
+  btnDownload: document.getElementById("btn-download"),
   sexFemale: document.getElementById("sex-female"),
   sexMale: document.getElementById("sex-male"),
   modelSearch: document.getElementById("model-search"),
@@ -64,8 +65,8 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
 // so both the top-level renderers and the ones inside main() can share it.
 const ACTIVE_SOURCES = new Set();     // repositories currently shown
 let ALL_SOURCES = [];                 // every repository present, sorted
-const SOURCE_LABELS = { biomodels: "BioModels", physionet: "PhysioNet" };
-const SOURCE_DOTS = { biomodels: "#4c92ff", physionet: "#ff8a4c" };
+const SOURCE_LABELS = { biomodels: "BioModels", physionet: "PhysioNet", physiome: "Physiome" };
+const SOURCE_DOTS = { biomodels: "#4c92ff", physionet: "#ff8a4c", physiome: "#7bd88f" };
 const FALLBACK_DOTS = ["#4c92ff", "#ff8a4c", "#7bd88f", "#e0a0ff", "#ffd166", "#5ad1c9"];
 const sourceLabel = (r) => SOURCE_LABELS[r] || (r ? r[0].toUpperCase() + r.slice(1) : "Other");
 function sourceColor(r) {
@@ -191,6 +192,71 @@ const normNode = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const subregionCount = (organ, sub) =>
   distinctCount([...(organ.models || []), ...(sub && sub.models || [])]);
 
+// Small badge showing how a model was mapped to the organ + how much to trust it
+// (annotation=high, category=medium, keyword=medium). Absent for sources that
+// don't record it (e.g. legacy BioModels rows).
+const confBadge = (m) => m.confidence
+  ? `<span class="conf-badge conf-${esc(m.confidence)}" title="mapped via ${esc(m.mapping_method || "?")} — ${esc(m.confidence)} confidence">${esc(m.confidence)}</span>`
+  : "";
+
+// One model rendered as a link row — the single shared builder for the organ
+// panel AND the subregion panel (handles both the organ `matched_by` badge and
+// the subregion `via` = FTU/cell-type placement badge).
+function modelLinkEl(m) {
+  const a = document.createElement("a");
+  a.href = m.url;
+  a.target = "_blank";
+  a.rel = "noopener";
+  const by = m.matched_by || [];
+  let badge = by.length
+    ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
+        by.length === 2 ? "name+annotation" : by[0]}</span>`
+    : "";
+  if (!badge && m.via) {
+    badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
+      m.via === "ftu" ? "FTU" : "cell type"}</span>`;
+  }
+  const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
+  a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
+  return a;
+}
+
+// Group models by physiological process -> [{process, models}], biggest first,
+// "Other" last. Realizes the anatomical structure -> process -> model unit.
+function groupByProcess(models) {
+  const groups = new Map();
+  for (const m of models || []) {
+    const p = m.process || "Other";
+    if (!groups.has(p)) groups.set(p, []);
+    groups.get(p).push(m);
+  }
+  return [...groups.entries()]
+    .map(([process, ms]) => ({ process, models: ms }))
+    .sort((a, b) => (a.process === "Other") - (b.process === "Other")
+      || b.models.length - a.models.length
+      || a.process.localeCompare(b.process));
+}
+
+// Append collapsible process groups for `models` into `container`.
+function appendProcessGroups(container, models) {
+  for (const g of groupByProcess(models)) {
+    const header = document.createElement("div");
+    header.className = "proc-group";
+    header.innerHTML = `<span class="proc-caret">▾</span>`
+      + `<span class="proc-name">${esc(g.process)}</span>`
+      + `<span class="proc-count">${g.models.length}</span>`;
+    const body = document.createElement("div");
+    body.className = "proc-body";
+    for (const m of g.models) body.appendChild(modelLinkEl(m));
+    header.addEventListener("click", () => {
+      const collapsed = body.classList.toggle("collapsed");
+      header.querySelector(".proc-caret").textContent = collapsed ? "▸" : "▾";
+    });
+    container.appendChild(header);
+    container.appendChild(body);
+  }
+}
+
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
   const nTotal = organ.models.length;
@@ -216,23 +282,9 @@ function renderBioModels(organ) {
     els.bpList.appendChild(d);
     return;
   }
-  for (const m of shown) {
-    const a = document.createElement("a");
-    a.href = m.url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    const by = m.matched_by || [];
-    // provenance badge: how this model was linked to the organ
-    const badge = by.length
-      ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
-          by.length === 2 ? "name+annotation" : by[0]}</span>`
-      : "";
-    // source badge: which repository (BioModels vs PhysioNet) this model
-    // came from — distinct from the provenance badge above.
-    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-    a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
-    els.bpList.appendChild(a);
-  }
+  // Group the organ's models by physiological process (ion transport,
+  // metabolism, …) rather than one flat list — the process is the unit.
+  appendProcessGroups(els.bpList, shown);
 }
 
 async function main() {
@@ -795,24 +847,7 @@ async function main() {
     rerenderPanel = () => resetPanel();
   }
 
-  function _modelLink(m) {
-    const a = document.createElement("a");
-    a.href = m.url; a.target = "_blank"; a.rel = "noopener";
-    const by = m.matched_by || [];
-    let badge = by.length
-      ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
-          by.length === 2 ? "name+annotation" : by[0]}</span>` : "";
-    // subregion model rows carry `via` (how the model reached this structure)
-    if (!badge && m.via) {
-      badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
-        m.via === "ftu" ? "FTU" : "cell type"}</span>`;
-    }
-    // source badge: which repository (BioModels vs PhysioNet) this model
-    // came from — distinct from the provenance badge above.
-    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-    a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
-    return a;
-  }
+  const _modelLink = modelLinkEl;   // one shared builder (handles matched_by + via)
 
   // Right-panel list for one clicked subregion: the models it carries — the
   // organ's whole-organ models PLUS the ones localized here — the localized
@@ -828,8 +863,6 @@ async function main() {
     els.bpSub.textContent =
       `${total} model${total === 1 ? "" : "s"} · ${localModels.length} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
-    for (const m of localModels) els.bpList.appendChild(_modelLink(m));
-    for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
     if (!localModels.length && !regionWide.length) {
       const d = document.createElement("div");
       d.className = "empty";
@@ -837,6 +870,17 @@ async function main() {
         ? "No models match the current source filter."
         : "No models associated with this structure.";
       els.bpList.appendChild(d);
+      return;
+    }
+    // Models localized to this structure, grouped by physiological process
+    // (structure → process → model). Region-wide models follow under a divider.
+    appendProcessGroups(els.bpList, localModels);
+    if (regionWide.length) {
+      const div = document.createElement("div");
+      div.className = "region-divider";
+      div.textContent = `Elsewhere in ${organ.label}`;
+      els.bpList.appendChild(div);
+      appendProcessGroups(els.bpList, regionWide);
     }
   }
 
@@ -1017,6 +1061,18 @@ async function main() {
   els.btnNone.addEventListener("click", clearAll);
   // Recenter the camera on whatever is currently visible.
   els.btnCenter.addEventListener("click", frameSelection);
+  // Download the full atlas metadata (all organs, subregions, model links) as JSON.
+  els.btnDownload?.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(atlas, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "hra-computational-model-atlas.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
   // Female | Male segmented toggle: rebuild the scene for the chosen sex.
   els.sexFemale?.addEventListener("click", () => switchSex("female"));
   els.sexMale?.addEventListener("click", () => switchSex("male"));

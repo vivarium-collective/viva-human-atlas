@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python hra-3d.py
 
-Figures are written to:  reports/notebooks/figures
+Figures are written to:  reports/published/dashboard/investigation-notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -67,8 +67,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--physionet-models').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--physionet-models')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--physiome-atlas').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--physiome-atlas')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
