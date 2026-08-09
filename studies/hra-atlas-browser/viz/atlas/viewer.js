@@ -30,6 +30,8 @@ const els = {
   btnExpandAll: document.getElementById("btn-expand-all"),
   btnCenter: document.getElementById("btn-center"),
   btnDownload: document.getElementById("btn-download"),
+  btnAbout: document.getElementById("btn-about"),
+  aboutMenu: document.getElementById("about-menu"),
   sexFemale: document.getElementById("sex-female"),
   sexMale: document.getElementById("sex-male"),
   modelSearch: document.getElementById("model-search"),
@@ -1018,13 +1020,22 @@ async function main() {
     rows.clear();
     groupChecks.clear();
     groupBodies.clear();
-    for (const system of systemsList) {
+    // Surface skin's system (Integumentary) FIRST and expanded, so skin is a
+    // one-click show/hide at the top of the list even while every other system
+    // starts collapsed (skin is the body's outer shell — toggling it reveals or
+    // hides everything inside).
+    const skinSystem = organsByKey.get("skin") && organsByKey.get("skin").system;
+    const orderedSystems = skinSystem
+      ? [skinSystem, ...systemsList.filter((s) => s !== skinSystem)]
+      : systemsList;
+    for (const system of orderedSystems) {
       const organs = (organsBySystem.get(system) || []).filter(visibleForSex);
       if (!organs.length) continue;   // no organs for this sex -> hide the system
       const modeled = organs.filter((o) => o.n_models > 0).length;
 
       const group = document.createElement("div");
-      group.className = "organ-group collapsed";   // systems start collapsed
+      // skin's system stays expanded; all others start collapsed
+      group.className = "organ-group" + (system === skinSystem ? "" : " collapsed");
 
       const header = document.createElement("div");
       header.className = "group-head";
@@ -1094,6 +1105,20 @@ async function main() {
     els.list.querySelectorAll(".organ-group").forEach((g) => g.classList.toggle("collapsed", collapsed));
   els.btnCollapseAll.addEventListener("click", () => setAllGroups(true));
   els.btnExpandAll.addEventListener("click", () => setAllGroups(false));
+  // About drop-down: toggle on click; close on outside-click or Escape.
+  if (els.btnAbout && els.aboutMenu) {
+    const setAbout = (open) => {
+      els.aboutMenu.hidden = !open;
+      els.btnAbout.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    els.btnAbout.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setAbout(els.aboutMenu.hidden);
+    });
+    els.aboutMenu.addEventListener("click", (e) => e.stopPropagation());
+    document.addEventListener("click", () => setAbout(false));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") setAbout(false); });
+  }
   // Recenter the camera on whatever is currently visible.
   els.btnCenter.addEventListener("click", frameSelection);
   // Download the full atlas metadata (all organs, subregions, model links) as JSON.

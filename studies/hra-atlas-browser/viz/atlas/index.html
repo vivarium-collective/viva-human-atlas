@@ -20,10 +20,24 @@
       border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:14px;}
     header h1{font-size:14px;font-weight:600;margin:0;}
     header h1 .sub{color:var(--text-dim);font-weight:400;font-size:12px;margin-left:8px;}
-    header button,header a#btn-about{background:var(--bg);color:var(--text);border:1px solid var(--border);
+    header button{background:var(--bg);color:var(--text);border:1px solid var(--border);
       border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;}
-    header a#btn-about{text-decoration:none;line-height:normal;display:inline-block;}
-    header button:hover,header a#btn-about:hover{border-color:var(--accent);}
+    header button:hover{border-color:var(--accent);}
+    /* About drop-down */
+    #about-wrap{position:relative;}
+    #about-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:40;width:320px;
+      background:var(--panel);border:1px solid var(--border);border-radius:8px;
+      box-shadow:0 8px 28px rgba(0,0,0,.45);padding:14px 15px;text-align:left;
+      font-size:12px;line-height:1.5;color:var(--text);}
+    #about-menu[hidden]{display:none;}
+    #about-menu .about-title{font-weight:600;font-size:13px;margin-bottom:7px;}
+    #about-menu .about-p{color:var(--text-dim);margin:0 0 9px;}
+    #about-menu a{color:var(--accent);text-decoration:none;}
+    #about-menu a:hover{text-decoration:underline;}
+    #about-menu .about-links{display:flex;flex-direction:column;gap:5px;
+      padding:9px 0;margin:2px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+    #about-menu .about-foot{margin-top:10px;color:var(--text-dim);}
+    #about-menu .about-foot em{color:var(--text);font-style:italic;}
     /* Female | Male segmented toggle */
     #sex-toggle{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
     #sex-toggle button{border:none;border-radius:0;padding:4px 12px;background:var(--bg);
@@ -202,7 +216,20 @@
       </div>
       <button id="btn-center" type="button" title="Center the view on the visible organs (or press F)">Center view</button>
       <button id="btn-download" type="button" title="Download the atlas metadata as JSON">Download JSON</button>
-      <a id="btn-about" href="https://vivarium-collective.github.io" target="_blank" rel="noopener" title="About the Vivarium Collective">About</a>
+      <div id="about-wrap">
+        <button id="btn-about" type="button" aria-haspopup="true" aria-expanded="false" title="About this atlas">About ▾</button>
+        <div id="about-menu" role="menu" hidden>
+          <div class="about-title">HRA Computational Model Atlas</div>
+          <p class="about-p">An anatomical index of <strong>executable computational models</strong> of the human body — 689 models across 23 organs (BioModels · Physiome · PhysioNet), placed onto the Human Reference Atlas and grouped by physiological process.</p>
+          <p class="about-p">The <a href="https://humanatlas.io" target="_blank" rel="noopener">Human Reference Atlas (HRA)</a> is a comprehensive, computable reference of the healthy adult human body at single-cell resolution, built by the HuBMAP consortium.</p>
+          <div class="about-links">
+            <a href="https://humanatlas.io" target="_blank" rel="noopener">Human Reference Atlas ↗</a>
+            <a href="https://apps.humanatlas.io/portal/" target="_blank" rel="noopener">HRA Portal ↗</a>
+            <a href="https://github.com/vivarium-collective/viva-human-atlas" target="_blank" rel="noopener">Source &amp; data on GitHub ↗</a>
+          </div>
+          <div class="about-foot">Built with <a href="https://vivarium-collective.github.io" target="_blank" rel="noopener"><em>Vivarium</em></a></div>
+        </div>
+      </div>
       <div id="summary-line">loading…</div>
     </header>
 
