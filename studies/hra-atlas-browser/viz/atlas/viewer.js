@@ -652,10 +652,7 @@ async function main() {
     if (selected.has(key)) {
       selected.delete(key);
       applySelection(false);
-      if (focused === key) {
-        const next = selected.values().next().value;
-        if (next) focus(next); else resetPanel();
-      }
+      reconcilePanel();   // keep focus if still selected, else combined/empty view
       return;
     }
     selected.add(key);
@@ -790,6 +787,20 @@ async function main() {
     }
   }
 
+  // Re-derive the right-hand panel from the CURRENT selection after a bulk
+  // add/remove: keep an explicit focus if it's still selected, focus a lone
+  // remaining organ, otherwise show the combined multi-organ overview (or the
+  // empty prompt). Never force-focus an arbitrary organ — doing that made
+  // toggling ONE system off collapse the panel onto a single organ (e.g. liver)
+  // instead of leaving the other still-selected systems' models on screen.
+  function reconcilePanel() {
+    if (focused != null && !selected.has(focused)) focused = null;
+    if (focused != null) { focus(focused); return; }
+    if (selected.size === 1) { focus(selected.values().next().value); return; }
+    if (selected.size) { if (modelQuery) renderModelSearch(); else renderSelectedModels(); return; }
+    resetPanel();
+  }
+
   // Add or remove every organ in a system, based on whether they're all
   // already selected (toggle). Loads any missing GLBs.
   function toggleSystem(system) {
@@ -799,15 +810,12 @@ async function main() {
     if (allOn) {
       for (const k of keys) selected.delete(k);
       applySelection(false);
-      if (!selected.has(focused)) {
-        const next = selected.values().next().value;
-        if (next) focus(next); else resetPanel();
-      }
+      reconcilePanel();
       setStatus(selectionStatus());
       return;
     }
     for (const k of keys) selected.add(k);
-    focus(keys[0]);
+    reconcilePanel();
     addMany(keys, system);
   }
 
