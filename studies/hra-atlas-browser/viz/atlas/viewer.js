@@ -26,7 +26,8 @@ const els = {
   search: document.getElementById("organ-search"),
   btnAllModeled: document.getElementById("btn-all-modeled"),
   btnAll: document.getElementById("btn-all"),
-  btnNone: document.getElementById("btn-none"),
+  btnCollapseAll: document.getElementById("btn-collapse-all"),
+  btnExpandAll: document.getElementById("btn-expand-all"),
   btnCenter: document.getElementById("btn-center"),
   btnDownload: document.getElementById("btn-download"),
   sexFemale: document.getElementById("sex-female"),
@@ -237,16 +238,36 @@ function groupByProcess(models) {
       || a.process.localeCompare(b.process));
 }
 
-// Append collapsible process groups for `models` into `container`.
+// Expand-all / collapse-all controls for every process group in `container`.
+function appendProcessControls(container) {
+  const bar = document.createElement("div");
+  bar.className = "proc-controls";
+  bar.innerHTML = `<button type="button" class="proc-ctl" data-act="expand">Expand all</button>`
+    + `<button type="button" class="proc-ctl" data-act="collapse">Collapse all</button>`;
+  bar.addEventListener("click", (e) => {
+    const act = e.target && e.target.dataset ? e.target.dataset.act : null;
+    if (!act) return;
+    const collapse = act === "collapse";
+    container.querySelectorAll(".proc-body").forEach((b) => b.classList.toggle("collapsed", collapse));
+    container.querySelectorAll(".proc-group .proc-caret").forEach((c) => {
+      c.textContent = collapse ? "▸" : "▾";
+    });
+  });
+  container.appendChild(bar);
+}
+
+// Append collapsible process groups for `models` into `container`. Groups start
+// COLLAPSED (the panel opens as a compact process index; click a header or use
+// the Expand-all control to drill in).
 function appendProcessGroups(container, models) {
   for (const g of groupByProcess(models)) {
     const header = document.createElement("div");
     header.className = "proc-group";
-    header.innerHTML = `<span class="proc-caret">▾</span>`
+    header.innerHTML = `<span class="proc-caret">▸</span>`
       + `<span class="proc-name">${esc(g.process)}</span>`
       + `<span class="proc-count">${g.models.length}</span>`;
     const body = document.createElement("div");
-    body.className = "proc-body";
+    body.className = "proc-body collapsed";
     for (const m of g.models) body.appendChild(modelLinkEl(m));
     header.addEventListener("click", () => {
       const collapsed = body.classList.toggle("collapsed");
@@ -284,6 +305,7 @@ function renderBioModels(organ) {
   }
   // Group the organ's models by physiological process (ion transport,
   // metabolism, …) rather than one flat list — the process is the unit.
+  appendProcessControls(els.bpList);
   appendProcessGroups(els.bpList, shown);
 }
 
@@ -559,14 +581,9 @@ async function main() {
     return p;
   }
 
-  function frameSelection() {
-    const box = new THREE.Box3();
-    let any = false;
-    for (const key of selected) {
-      const g = groups.get(key);
-      if (g && g.parent === scene) { box.expandByObject(g); any = true; }
-    }
-    if (!any) return;
+  // Point the camera to fit an arbitrary world-space bounding box.
+  function frameBox(box) {
+    if (box.isEmpty()) return;
     const size = box.getSize(new THREE.Vector3()).length() || 1;
     const center = box.getCenter(new THREE.Vector3());
     camera.position.copy(center).add(new THREE.Vector3(size * 0.7, size * 0.4, size * 0.9));
@@ -575,6 +592,16 @@ async function main() {
     camera.updateProjectionMatrix();
     controls.target.copy(center);
     controls.update();
+  }
+
+  function frameSelection() {
+    const box = new THREE.Box3();
+    let any = false;
+    for (const key of selected) {
+      const g = groups.get(key);
+      if (g && g.parent === scene) { box.expandByObject(g); any = true; }
+    }
+    if (any) frameBox(box);
   }
 
   // Sync the scene graph + raycast targets + menu highlights to `selected`.
@@ -706,6 +733,9 @@ async function main() {
     if (!meshes.length) return;
     explodeAnim = { meshes, start: performance.now(), dur: 700 };
     explodedKey = key;
+    // Zoom out to fit the exploded extent: each mesh flies out ~`dist` from the
+    // center, so the exploded object fills roughly the organ box grown by `dist`.
+    frameBox(box.clone().expandByScalar(dist));
     setStatus(`exploded ${organsByKey.get(key).label} — click “explode” again to collapse`);
   }
 
@@ -874,6 +904,7 @@ async function main() {
     }
     // Models localized to this structure, grouped by physiological process
     // (structure → process → model). Region-wide models follow under a divider.
+    appendProcessControls(els.bpList);
     appendProcessGroups(els.bpList, localModels);
     if (regionWide.length) {
       const div = document.createElement("div");
@@ -993,7 +1024,7 @@ async function main() {
       const modeled = organs.filter((o) => o.n_models > 0).length;
 
       const group = document.createElement("div");
-      group.className = "organ-group";
+      group.className = "organ-group collapsed";   // systems start collapsed
 
       const header = document.createElement("div");
       header.className = "group-head";
@@ -1058,7 +1089,11 @@ async function main() {
   });
   els.btnAllModeled.addEventListener("click", () => selectMany(modeledKeys, "all modeled organs"));
   els.btnAll.addEventListener("click", () => selectMany(allKeys, "all 50 organs"));
-  els.btnNone.addEventListener("click", clearAll);
+  // Collapse / expand every system group in the left menu at once.
+  const setAllGroups = (collapsed) =>
+    els.list.querySelectorAll(".organ-group").forEach((g) => g.classList.toggle("collapsed", collapsed));
+  els.btnCollapseAll.addEventListener("click", () => setAllGroups(true));
+  els.btnExpandAll.addEventListener("click", () => setAllGroups(false));
   // Recenter the camera on whatever is currently visible.
   els.btnCenter.addEventListener("click", frameSelection);
   // Download the full atlas metadata (all organs, subregions, model links) as JSON.

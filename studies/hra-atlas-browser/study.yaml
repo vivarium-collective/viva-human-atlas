@@ -112,7 +112,14 @@ report:
     otherwise smear many models onto whichever organ has the most anatomical
     structures.
 
-embed_visualizations: []
+embed_visualizations:
+  # Relative URL (resolves against this study's own page) so it works in the
+  # published gh-pages snapshot too — the atlas pack is a self-contained static
+  # page under this study's viz/atlas/, and the read-only workbench doesn't
+  # base-path-rewrite /studies/ URLs, so an absolute path would 404.
+  - name: "HRA Computational Model Atlas (3D viewer)"
+    url: "viz/atlas/index.html"
+    description: "Interactive 3D organ browser: pick an organ, drill into its physiological-process groups, and click through to each model (BioModels / Physiome / PhysioNet). 689 models across 23 organs."
 
 baseline:
   - name: baseline
