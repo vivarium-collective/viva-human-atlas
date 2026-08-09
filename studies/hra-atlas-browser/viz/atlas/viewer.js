@@ -199,19 +199,25 @@ const confBadge = (m) => m.confidence
   ? `<span class="conf-badge conf-${esc(m.confidence)}" title="mapped via ${esc(m.mapping_method || "?")} — ${esc(m.confidence)} confidence">${esc(m.confidence)}</span>`
   : "";
 
-// One model rendered as a link row (shared shape for the organ panel).
+// One model rendered as a link row — the single shared builder for the organ
+// panel AND the subregion panel (handles both the organ `matched_by` badge and
+// the subregion `via` = FTU/cell-type placement badge).
 function modelLinkEl(m) {
   const a = document.createElement("a");
   a.href = m.url;
   a.target = "_blank";
   a.rel = "noopener";
   const by = m.matched_by || [];
-  const badge = by.length
+  let badge = by.length
     ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
         by.length === 2 ? "name+annotation" : by[0]}</span>`
     : "";
+  if (!badge && m.via) {
+    badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
+      m.via === "ftu" ? "FTU" : "cell type"}</span>`;
+  }
   const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-  a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
+  a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
   return a;
 }
 
@@ -841,24 +847,7 @@ async function main() {
     rerenderPanel = () => resetPanel();
   }
 
-  function _modelLink(m) {
-    const a = document.createElement("a");
-    a.href = m.url; a.target = "_blank"; a.rel = "noopener";
-    const by = m.matched_by || [];
-    let badge = by.length
-      ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
-          by.length === 2 ? "name+annotation" : by[0]}</span>` : "";
-    // subregion model rows carry `via` (how the model reached this structure)
-    if (!badge && m.via) {
-      badge = `<span class="prov prov-${m.via === "ftu" ? "annotation" : "name"}">${
-        m.via === "ftu" ? "FTU" : "cell type"}</span>`;
-    }
-    // source badge: which repository (BioModels vs PhysioNet) this model
-    // came from — distinct from the provenance badge above.
-    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-    a.innerHTML = `<div>${esc(m.name || m.source_id)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
-    return a;
-  }
+  const _modelLink = modelLinkEl;   // one shared builder (handles matched_by + via)
 
   // Right-panel list for one clicked subregion: the models it carries — the
   // organ's whole-organ models PLUS the ones localized here — the localized
@@ -874,8 +863,6 @@ async function main() {
     els.bpSub.textContent =
       `${total} model${total === 1 ? "" : "s"} · ${localModels.length} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
-    for (const m of localModels) els.bpList.appendChild(_modelLink(m));
-    for (const m of regionWide) els.bpList.appendChild(_modelLink(m));
     if (!localModels.length && !regionWide.length) {
       const d = document.createElement("div");
       d.className = "empty";
@@ -883,6 +870,17 @@ async function main() {
         ? "No models match the current source filter."
         : "No models associated with this structure.";
       els.bpList.appendChild(d);
+      return;
+    }
+    // Models localized to this structure, grouped by physiological process
+    // (structure → process → model). Region-wide models follow under a divider.
+    appendProcessGroups(els.bpList, localModels);
+    if (regionWide.length) {
+      const div = document.createElement("div");
+      div.className = "region-divider";
+      div.textContent = `Elsewhere in ${organ.label}`;
+      els.bpList.appendChild(div);
+      appendProcessGroups(els.bpList, regionWide);
     }
   }
 
