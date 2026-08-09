@@ -105,7 +105,7 @@ findings:
   - id: F-02
     tier: interpretation
     mechanism_origin: design
-    claim_scope: roadmap
+    claim_scope: theoretical
     statement: |
       A blood-circulation simulation is designed on this graph (see
       docs/blood-circulation-simulation-plan.md): a BloodTransportProcess
