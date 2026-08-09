@@ -1,7 +1,7 @@
 schema_version: 4
 name: hra-atlas-browser
 investigation: hra-3d
-title: "HRA Atlas Browser — organ selector + model-count gradient + subregion placement"
+title: "HRA Computational Model Atlas — organ selector + model-count gradient + subregion placement"
 created: '2026-08-01'
 status: running
 design_status: complete
@@ -65,7 +65,7 @@ readouts:
   - "per-organ n_models + BioModels list; per-organ `subregions` (node_names, Uberon, per-structure model list with placement `via`: anatomy | cell_type)"
 
 report:
-  title: "HRA Atlas Browser — 19/50 organs modeled, 64 models resolved to 52 organ subregions"
+  title: "HRA Computational Model Atlas — 19/50 organs modeled, 64 models resolved to 52 organ subregions"
   verdict: passing-with-caveats
   confidence: high
   evidence_quality: measured

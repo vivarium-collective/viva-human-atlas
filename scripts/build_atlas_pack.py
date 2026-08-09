@@ -1,4 +1,4 @@
-"""Materialize the HRA Atlas Browser pack for the `hra-atlas-browser` study.
+"""Materialize the HRA Computational Model Atlas pack for the `hra-atlas-browser` study.
 
 Builds the atlas manifest (all 50 GLB organs + model counts + BioModels links)
 from the BioModels->HRA map DB (Phase 1), and places each model at the organ

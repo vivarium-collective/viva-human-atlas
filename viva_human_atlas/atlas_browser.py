@@ -1,4 +1,4 @@
-"""`AtlasBrowserStep` — regenerate the HRA Atlas Browser pack from the
+"""`AtlasBrowserStep` — regenerate the HRA Computational Model Atlas pack from the
 BioModels->HRA map DB (Phase 1), with organ-subregion placement.
 
 This is the "full redo" of the Atlas Browser generation as a process-bigraph
@@ -28,11 +28,11 @@ DEFAULT_OUT_DIR = _REPO / "studies" / "hra-atlas-browser" / "viz" / "atlas"
 
 
 class AtlasBrowserStep(Step):
-    """Step: build the HRA Atlas Browser pack from the biomodel-hra-map DB with
+    """Step: build the HRA Computational Model Atlas pack from the biomodel-hra-map DB with
     cell-type/FTU-driven organ-subregion placement (whole-organ fallback)."""
 
     description = (
-        "Regenerate the HRA Atlas Browser pack from the BioModels->HRA map DB: "
+        "Regenerate the HRA Computational Model Atlas pack from the BioModels->HRA map DB: "
         "place each model at the organ subregion(s) its cell types / FTUs "
         "resolve to (via HRApop per-AS cell populations + the ASCT+B-3D "
         "crosswalk), falling back to the whole organ. Writes atlas.json/"

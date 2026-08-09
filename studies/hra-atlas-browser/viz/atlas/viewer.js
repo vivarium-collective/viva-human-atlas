@@ -1,4 +1,4 @@
-// HRA Atlas Browser — self-contained three.js multi-organ browser.
+// HRA Computational Model Atlas — self-contained three.js multi-organ browser.
 //
 // Reads config.json -> {atlas, coverage, ...}, then atlas.json (all 50
 // GLB-backed HRA organs + model counts + BioModels links). No build step; no
@@ -28,6 +28,7 @@ const els = {
   btnAll: document.getElementById("btn-all"),
   btnNone: document.getElementById("btn-none"),
   btnCenter: document.getElementById("btn-center"),
+  btnDownload: document.getElementById("btn-download"),
   sexFemale: document.getElementById("sex-female"),
   sexMale: document.getElementById("sex-male"),
   modelSearch: document.getElementById("model-search"),
@@ -64,8 +65,8 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
 // so both the top-level renderers and the ones inside main() can share it.
 const ACTIVE_SOURCES = new Set();     // repositories currently shown
 let ALL_SOURCES = [];                 // every repository present, sorted
-const SOURCE_LABELS = { biomodels: "BioModels", physionet: "PhysioNet" };
-const SOURCE_DOTS = { biomodels: "#4c92ff", physionet: "#ff8a4c" };
+const SOURCE_LABELS = { biomodels: "BioModels", physionet: "PhysioNet", physiome: "Physiome" };
+const SOURCE_DOTS = { biomodels: "#4c92ff", physionet: "#ff8a4c", physiome: "#7bd88f" };
 const FALLBACK_DOTS = ["#4c92ff", "#ff8a4c", "#7bd88f", "#e0a0ff", "#ffd166", "#5ad1c9"];
 const sourceLabel = (r) => SOURCE_LABELS[r] || (r ? r[0].toUpperCase() + r.slice(1) : "Other");
 function sourceColor(r) {
@@ -1017,6 +1018,18 @@ async function main() {
   els.btnNone.addEventListener("click", clearAll);
   // Recenter the camera on whatever is currently visible.
   els.btnCenter.addEventListener("click", frameSelection);
+  // Download the full atlas metadata (all organs, subregions, model links) as JSON.
+  els.btnDownload?.addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(atlas, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "hra-computational-model-atlas.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
   // Female | Male segmented toggle: rebuild the scene for the chosen sex.
   els.sexFemale?.addEventListener("click", () => switchSex("female"));
   els.sexMale?.addEventListener("click", () => switchSex("male"));

@@ -1,4 +1,4 @@
-"""Build the HRA Atlas Browser manifest (atlas.json) from the committed
+"""Build the HRA Computational Model Atlas manifest (atlas.json) from the committed
 corpus catalog: one entry per GLB-backed HRA organ, its model count, and the
 BioModels list, for the organ-selector + model-count-gradient viewer."""
 from __future__ import annotations
