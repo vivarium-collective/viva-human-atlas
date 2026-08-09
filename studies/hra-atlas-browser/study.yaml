@@ -118,7 +118,7 @@ embed_visualizations:
   # page under this study's viz/atlas/, and the read-only workbench doesn't
   # base-path-rewrite /studies/ URLs, so an absolute path would 404.
   - name: "HRA Computational Model Atlas (3D viewer)"
-    url: "viz/atlas/index.html"
+    url: "/studies/hra-atlas-browser/viz/atlas/index.html"
     description: "Interactive 3D organ browser: pick an organ, drill into its physiological-process groups, and click through to each model (BioModels / Physiome / PhysioNet). 689 models across 23 organs."
 
 baseline:
