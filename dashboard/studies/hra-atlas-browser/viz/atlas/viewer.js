@@ -985,13 +985,19 @@ async function main() {
       els.bpList.appendChild(d);
       return;
     }
+    // Per organ, group its models by physiological process (the same unit the
+    // single-organ view uses) rather than a flat list — so the process/functional
+    // categories are visible in this multi-organ default view too, in a per-organ
+    // format (organ → process group → models). One Expand/Collapse-all controls
+    // every group across the whole panel.
+    appendProcessControls(els.bpList);
     for (const { organ, models } of byOrgan) {
       const head = document.createElement("div");
       head.className = "organ-group-head";
       head.innerHTML = `<span class="sw" style="background:${cssColor(models.length, maxCount)}"></span>`
         + `${esc(organ.label)} · ${models.length}`;
       els.bpList.appendChild(head);
-      for (const m of models) els.bpList.appendChild(_modelLink(m));
+      appendProcessGroups(els.bpList, models);
     }
   }
 

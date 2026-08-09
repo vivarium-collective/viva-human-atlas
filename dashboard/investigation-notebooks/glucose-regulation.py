@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python glucose-regulation.py
 
-Figures are written to:  reports/published/dashboard/investigation-notebooks/figures
+Figures are written to:  reports/notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -63,8 +63,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--atlas-fixes').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--atlas-fixes')
+if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
+    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))

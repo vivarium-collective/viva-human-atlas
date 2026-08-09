@@ -18,7 +18,7 @@
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
-    <span class="phase-pill phase-evaluate" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Evaluate</span>
+    <span class="phase-pill phase-decide" title="Lifecycle: Design → Build → Simulate → Evaluate → Decide">Decide</span>
     
   </h1>
   <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
@@ -698,21 +698,34 @@ newly-upserted PhysioNet rows, not a reinterpretation of either.
       
       
     <div class="narrative-field">
-      <button type="button" class="add-field-btn" data-reveal-field="report.conclusion">+ Add conclusion</button>
-      <label class="narrative-row narrative-row-wide is-hidden" data-field-editor="report.conclusion">
+      <button type="button" class="add-field-btn is-hidden" data-reveal-field="report.conclusion">+ Add conclusion</button>
+      <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated."></textarea>
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The baseline (build_if_missing: false) loads the committed
+datasets/model_hra_map.json network-free through the two-source registry and
+reports it exactly: 1,576 models (1,096 BioModels + 480 PhysioNet), 978 with
+molecular detail, 447 with an Uberon anatomy tag (323 BioModels + 124
+PhysioNet), and the HRApop-backed subset preserved. The harvest is
+source-registry-driven and identifier-keyed, so it is structurally
+incremental and non-destructive: should_process skips anything already in the
+DB, so adding a source or re-running extends the DB without rebuilding it or
+dropping existing records.
+</textarea>
       </label>
     </div>
     
       
     <div class="narrative-field">
-      <button type="button" class="add-field-btn" data-reveal-field="report.caveat">+ Add caveat</button>
-      <label class="narrative-row narrative-row-wide is-hidden" data-field-editor="report.caveat">
+      <button type="button" class="add-field-btn is-hidden" data-reveal-field="report.caveat">+ Add caveat</button>
+      <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know."></textarea>
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">Anatomy coverage is partial (447/1,576 carry an Uberon tag) — recall-limited
+by the same name/annotation matching quantified in the coverage studies — but
+that is a property of the sources, not a harvest defect: every model with an
+identifier is harvested exactly once and reported.
+</textarea>
       </label>
     </div>
     
@@ -720,13 +733,13 @@ newly-upserted PhysioNet rows, not a reinterpretation of either.
         <label class="tag-control"><span class="tag-k">confidence</span>
           <select class="narrative-input tag-select" data-narrative-path="report.confidence">
             <option value="">—</option>
-            <option value="high" >high</option>
+            <option value="high" selected>high</option>
             <option value="medium" >medium</option>
             <option value="low" >low</option>
           </select></label>
         <label class="tag-control"><span class="tag-k">evidence</span>
           <input type="text" class="narrative-input tag-input" data-narrative-path="report.evidence_quality"
-                 value="" placeholder="calibrated | literature-matched | …"></label>
+                 value="measured" placeholder="calibrated | literature-matched | …"></label>
       </div>
     </div>
 
@@ -1153,7 +1166,7 @@ newly-upserted PhysioNet rows, not a reinterpretation of either.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/atlas-skeletal-bilateral", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "3b8664f81713702b9edb63fdc3f3a3524e9dfd45", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/3b8664f81713702b9edb63fdc3f3a3524e9dfd45", "branch": "feat/atlas-skeletal-bilateral", "generated_at": "2026-08-09 15:28 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "bfefae7aed60a2a2693d8a3940ab678a37f5b443", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/bfefae7aed60a2a2693d8a3940ab678a37f5b443", "branch": "main", "generated_at": "2026-08-09 16:57 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "model-harvest";
