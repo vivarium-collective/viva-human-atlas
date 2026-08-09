@@ -199,6 +199,58 @@ const confBadge = (m) => m.confidence
   ? `<span class="conf-badge conf-${esc(m.confidence)}" title="mapped via ${esc(m.mapping_method || "?")} — ${esc(m.confidence)} confidence">${esc(m.confidence)}</span>`
   : "";
 
+// One model rendered as a link row (shared shape for the organ panel).
+function modelLinkEl(m) {
+  const a = document.createElement("a");
+  a.href = m.url;
+  a.target = "_blank";
+  a.rel = "noopener";
+  const by = m.matched_by || [];
+  const badge = by.length
+    ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
+        by.length === 2 ? "name+annotation" : by[0]}</span>`
+    : "";
+  const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
+  a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
+  return a;
+}
+
+// Group models by physiological process -> [{process, models}], biggest first,
+// "Other" last. Realizes the anatomical structure -> process -> model unit.
+function groupByProcess(models) {
+  const groups = new Map();
+  for (const m of models || []) {
+    const p = m.process || "Other";
+    if (!groups.has(p)) groups.set(p, []);
+    groups.get(p).push(m);
+  }
+  return [...groups.entries()]
+    .map(([process, ms]) => ({ process, models: ms }))
+    .sort((a, b) => (a.process === "Other") - (b.process === "Other")
+      || b.models.length - a.models.length
+      || a.process.localeCompare(b.process));
+}
+
+// Append collapsible process groups for `models` into `container`.
+function appendProcessGroups(container, models) {
+  for (const g of groupByProcess(models)) {
+    const header = document.createElement("div");
+    header.className = "proc-group";
+    header.innerHTML = `<span class="proc-caret">▾</span>`
+      + `<span class="proc-name">${esc(g.process)}</span>`
+      + `<span class="proc-count">${g.models.length}</span>`;
+    const body = document.createElement("div");
+    body.className = "proc-body";
+    for (const m of g.models) body.appendChild(modelLinkEl(m));
+    header.addEventListener("click", () => {
+      const collapsed = body.classList.toggle("collapsed");
+      header.querySelector(".proc-caret").textContent = collapsed ? "▸" : "▾";
+    });
+    container.appendChild(header);
+    container.appendChild(body);
+  }
+}
+
 function renderBioModels(organ) {
   els.bpTitle.textContent = organ.label;
   const nTotal = organ.models.length;
@@ -224,23 +276,9 @@ function renderBioModels(organ) {
     els.bpList.appendChild(d);
     return;
   }
-  for (const m of shown) {
-    const a = document.createElement("a");
-    a.href = m.url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    const by = m.matched_by || [];
-    // provenance badge: how this model was linked to the organ
-    const badge = by.length
-      ? `<span class="prov prov-${by.length === 2 ? "both" : by[0]}">${
-          by.length === 2 ? "name+annotation" : by[0]}</span>`
-      : "";
-    // source badge: which repository (BioModels vs PhysioNet) this model
-    // came from — distinct from the provenance badge above.
-    const srcBadge = `<span class="src-badge src-${esc(m.repository)}">${esc(m.repository)}</span>`;
-    a.innerHTML = `<div>${esc(m.name)} ${srcBadge} ${confBadge(m)} ${badge}</div><div class="mid">${esc(m.source_id)}</div>`;
-    els.bpList.appendChild(a);
-  }
+  // Group the organ's models by physiological process (ion transport,
+  // metabolism, …) rather than one flat list — the process is the unit.
+  appendProcessGroups(els.bpList, shown);
 }
 
 async function main() {

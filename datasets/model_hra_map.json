@@ -142213,9 +142213,9 @@
     "repository": "physiome",
     "source_id": "105",
     "name": "Poh, Corrias, Cheng, Buist, 2012",
-    "paper_url": "https://models.physiomeproject.org/e/105",
+    "paper_url": "https://doi.org/10.1371/journal.pone.0042385",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1371/journal.pone.0042385",
     "taxonomy": [],
     "organs": [
       {
@@ -146022,9 +146022,9 @@
     "repository": "physiome",
     "source_id": "4bc",
     "name": "Varela_LA_2016.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/4bc",
+    "paper_url": "https://doi.org/10.1371/journal.pcbi.1005245",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1371/journal.pcbi.1005245",
     "taxonomy": [],
     "organs": [
       {
@@ -146939,9 +146939,9 @@
     "repository": "physiome",
     "source_id": "596",
     "name": "grandi_2011_atrial_with_meta.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/596",
+    "paper_url": "https://doi.org/10.1161/circresaha.111.253955",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1161/circresaha.111.253955",
     "taxonomy": [],
     "organs": [
       {
@@ -147000,9 +147000,9 @@
     "repository": "physiome",
     "source_id": "5a0",
     "name": "O'Hara-Rudy CiPA v1.0 (2017)",
-    "paper_url": "https://models.physiomeproject.org/e/5a0",
+    "paper_url": "https://doi.org/10.3389/fphys.2017.00917",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.3389/fphys.2017.00917",
     "taxonomy": [],
     "organs": [
       {
@@ -147252,9 +147252,9 @@
     "repository": "physiome",
     "source_id": "5f0",
     "name": "C. Trovato, E. Passini, N. Nagy, et al. (2019),A computational human cardiac Purkinje electrophysiological model (sedml)",
-    "paper_url": "https://models.physiomeproject.org/e/5f0",
+    "paper_url": "https://doi.org/10.1016/j.yjmcc.2020.04.001",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1016/j.yjmcc.2020.04.001",
     "taxonomy": [],
     "organs": [
       {
@@ -147313,9 +147313,9 @@
     "repository": "physiome",
     "source_id": "5f1",
     "name": "Tomek, Jakub, et al. (2019)- A computational human ventricular electrophysiological model (endocardial)",
-    "paper_url": "https://models.physiomeproject.org/e/5f1",
+    "paper_url": "https://doi.org/10.7554/elife.48890",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.7554/elife.48890",
     "taxonomy": [],
     "organs": [
       {
@@ -147374,9 +147374,9 @@
     "repository": "physiome",
     "source_id": "5f2",
     "name": "Trovato, Passini, Nagy, et al. (2019),A computational human cardiac Purkinje electrophysiological model (sedml)",
-    "paper_url": "https://models.physiomeproject.org/e/5f2",
+    "paper_url": "https://doi.org/10.1016/j.yjmcc.2020.04.001",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1016/j.yjmcc.2020.04.001",
     "taxonomy": [],
     "organs": [
       {
@@ -147496,9 +147496,9 @@
     "repository": "physiome",
     "source_id": "632",
     "name": "koivumaki-2011-pmr.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/632",
+    "paper_url": "https://doi.org/10.1371/journal.pcbi.1001067",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1371/journal.pcbi.1001067",
     "taxonomy": [],
     "organs": [
       {
@@ -147557,9 +147557,9 @@
     "repository": "physiome",
     "source_id": "635",
     "name": "Voigt, Heijman et al. 2013 Human Atrial AP model",
-    "paper_url": "https://models.physiomeproject.org/e/635",
+    "paper_url": "https://doi.org/10.1016/j.yjmcc.2013.03.011",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1016/j.yjmcc.2013.03.011",
     "taxonomy": [],
     "organs": [
       {
@@ -147927,9 +147927,9 @@
     "repository": "physiome",
     "source_id": "70a",
     "name": "heijman-2011.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/70a",
+    "paper_url": "https://doi.org/10.1016/j.yjmcc.2011.02.007",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1016/j.yjmcc.2011.02.007",
     "taxonomy": [],
     "organs": [
       {
@@ -148032,9 +148032,9 @@
     "repository": "physiome",
     "source_id": "751",
     "name": "Weinstein_2000_AE1_Fig3.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/751",
+    "paper_url": "https://doi.org/10.1152/ajprenal.2000.279.1.f24",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1152/ajprenal.2000.279.1.f24",
     "taxonomy": [],
     "organs": [
       {
@@ -148185,9 +148185,9 @@
     "repository": "physiome",
     "source_id": "804",
     "name": "heijman-2011.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/804",
+    "paper_url": "https://doi.org/10.1016/j.yjmcc.2011.02.007",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1016/j.yjmcc.2011.02.007",
     "taxonomy": [],
     "organs": [
       {
@@ -148307,9 +148307,9 @@
     "repository": "physiome",
     "source_id": "807",
     "name": "Ni et al. 2017 Human Atrial model",
-    "paper_url": "https://models.physiomeproject.org/e/807",
+    "paper_url": "https://doi.org/10.3389/fphys.2017.00946",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.3389/fphys.2017.00946",
     "taxonomy": [],
     "organs": [
       {
@@ -148368,9 +148368,9 @@
     "repository": "physiome",
     "source_id": "808",
     "name": "sampson-2010.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/808",
+    "paper_url": "https://doi.org/10.1113/jphysiol.2010.187328",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1113/jphysiol.2010.187328",
     "taxonomy": [],
     "organs": [
       {
@@ -148675,9 +148675,9 @@
     "repository": "physiome",
     "source_id": "876",
     "name": "grandi_2011_atrial_with_meta.cellml",
-    "paper_url": "https://models.physiomeproject.org/e/876",
+    "paper_url": "https://doi.org/10.1161/circresaha.111.253955",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1161/circresaha.111.253955",
     "taxonomy": [],
     "organs": [
       {
@@ -149675,9 +149675,9 @@
     "repository": "physiome",
     "source_id": "b43",
     "name": "Tong, Choi, Kharche, Holden, Zhang, Taggart,",
-    "paper_url": "https://models.physiomeproject.org/e/b43",
+    "paper_url": "https://doi.org/10.36903/physiome.24439204",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.36903/physiome.24439204",
     "taxonomy": [],
     "organs": [
       {
@@ -149860,9 +149860,9 @@
     "repository": "physiome",
     "source_id": "c29",
     "name": "Simulation of the Effects of Extracellular Calcium Changes Leads to a Novel Computational Model of Human Ventricular Action Potential With a Revised Calcium Handling",
-    "paper_url": "https://models.physiomeproject.org/e/c29",
+    "paper_url": "https://doi.org/10.3389/fphys.2020.00314",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.3389/fphys.2020.00314",
     "taxonomy": [],
     "organs": [
       {
@@ -150201,9 +150201,9 @@
     "repository": "physiome",
     "source_id": "df",
     "name": "Davies, Mistry, Hussein, Pollard, Valentin, Swinton, Abi-Gerges, 2012",
-    "paper_url": "https://models.physiomeproject.org/e/df",
+    "paper_url": "https://doi.org/10.1152/ajpheart.00808.2011",
     "paper_pmid": null,
-    "paper_doi": null,
+    "paper_doi": "10.1152/ajpheart.00808.2011",
     "taxonomy": [],
     "organs": [
       {

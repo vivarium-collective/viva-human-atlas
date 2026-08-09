@@ -49,6 +49,30 @@ _ENTRY_RE = re.compile(
     r'href="' + re.escape(_BASE) + r'/(e/[0-9a-fA-F]+|exposure/[0-9a-fA-F]+)/'
     r'([^"/]+\.cellml)/view"[^>]*>([^<]*)</a>')
 _PAGE_STEP = 100  # PMR (Plone) batches category listings; walk b_start until dry.
+# A PMR exposure page cites its source publication as a doi.org link (often with
+# a redundant "doi:" prefix); many exposures have one, some don't.
+_DOI_RE = re.compile(r'doi\.org/(?:doi:)?(10\.\d{4,}/[^\s"\'<>]+)', re.IGNORECASE)
+
+
+def fetch_doi(exposure: dict, *, cache_dir=None, _get=requests.get) -> Optional[str]:
+    """Return the publication DOI cited on an exposure's PMR page (or None),
+    caching the result per exposure so reruns don't re-fetch. Never raises."""
+    cache = Path(cache_dir) if cache_dir else DEFAULT_CACHE_DIR
+    cache.mkdir(parents=True, exist_ok=True)
+    cached = cache / f"{exposure['slug']}.doi"
+    if cached.exists():
+        return cached.read_text(encoding="utf-8").strip() or None
+    doi = ""
+    try:
+        r = _get(exposure["identifier"], timeout=60)
+        r.raise_for_status()
+        m = _DOI_RE.search(r.text)
+        if m:
+            doi = m.group(1).rstrip(".,);>").lower()
+    except Exception:  # noqa: BLE001 — a missing page must not abort the harvest
+        doi = ""
+    cached.write_text(doi, encoding="utf-8")
+    return doi or None
 
 
 def _scrape_category(slug: str, *, _get=requests.get) -> dict:
@@ -106,21 +130,27 @@ def resolve_exposures(*, query: Optional[str] = None, limit: Optional[int] = Non
 
 
 def build_entry(exposure: dict, organ_index: dict, *, no_llm: bool = True,
-                llm_model: str = DEFAULT_LLM_MODEL, cache_dir=None, _map=None) -> dict:
+                llm_model: str = DEFAULT_LLM_MODEL, cache_dir=None, _map=None, _doi=None) -> dict:
     """Build a source-agnostic HRA model record for one PMR exposure, mapped by
-    its PMR category (no CellML download — PMR anatomy annotations are absent)."""
+    its PMR category (no CellML download — PMR anatomy annotations are absent).
+    Also enriches the record with the exposure's cited publication DOI."""
     mapper = _map or map_exposure_to_organs
     hra = mapper(exposure, organ_index, no_llm=no_llm, llm_model=llm_model, cache_dir=cache_dir)
     anat = hra.get("anatomy_ids") or {}
     mol = hra.get("molecular") or {}
+    doi_fn = _doi if _doi is not None else fetch_doi
+    try:
+        doi = doi_fn(exposure, cache_dir=cache_dir)
+    except Exception:  # noqa: BLE001 — DOI enrichment must never abort the harvest
+        doi = None
     return {
         "identifier": exposure["identifier"],
         "repository": "physiome",
         "source_id": exposure["slug"],
         "name": exposure.get("name"),
-        "paper_url": exposure["identifier"],
+        "paper_url": (f"https://doi.org/{doi}" if doi else exposure["identifier"]),
         "paper_pmid": None,
-        "paper_doi": None,
+        "paper_doi": doi,
         "taxonomy": [],
         "organs": hra["organs"],
         "functional_tissue_units": hra["functional_tissue_units"],

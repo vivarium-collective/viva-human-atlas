@@ -6,6 +6,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from viva_human_atlas.model_process import model_process
+
 BIOMODELS_BASE = "https://www.ebi.ac.uk/biomodels/"
 
 # Anatomical-system grouping for the atlas browser's collapsible menu. Curated
@@ -102,6 +104,7 @@ def model_ref(entry: dict) -> dict:
         ref["doi"] = entry["doi"]
     if entry.get("categories"):
         ref["categories"] = entry["categories"]
+    ref["process"] = model_process(entry)
     return ref
 
 

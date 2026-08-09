@@ -133,6 +133,17 @@
     .conf-high{background:rgba(76,175,120,.14);color:#8fe6b0;border-color:rgba(76,175,120,.3);}
     .conf-medium{background:rgba(253,231,55,.12);color:#e6d86a;border-color:rgba(253,231,55,.28);}
     .conf-low{background:rgba(255,138,76,.12);color:#ffbf9d;border-color:rgba(255,138,76,.28);}
+    /* physiological-process groups: anatomical structure -> process -> model */
+    .proc-group{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;
+      padding:6px 4px 4px;margin-top:6px;border-top:1px solid var(--border);}
+    .proc-group:first-child{margin-top:0;border-top:none;}
+    .proc-caret{color:var(--text-dim);font-size:10px;width:10px;flex-shrink:0;}
+    .proc-name{font-size:12px;font-weight:600;color:var(--text);flex:1;
+      text-transform:uppercase;letter-spacing:.03em;}
+    .proc-count{font-size:11px;font-variant-numeric:tabular-nums;color:var(--text-dim);
+      background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0 8px;}
+    .proc-group:hover .proc-name{color:var(--accent);}
+    .proc-body.collapsed{display:none;}
     /* source toggle chips: one per repository present in the data, all on by
        default (combined list); click to narrow. Per-chip count is for the
        current organ/subregion/search. */

@@ -105,12 +105,15 @@ def test_scrape_and_resolve_from_category_html():
 def test_build_entry_shape_category_mapped():
     exp = {"slug": "d86b21", "identifier": "https://models.physiomeproject.org/exposure/d86b21",
            "name": "substantia nigra neurons", "categories": ["electrophysiology"]}
-    e = physiome.build_entry(exp, ORGAN_INDEX, no_llm=True)
+    e = physiome.build_entry(exp, ORGAN_INDEX, no_llm=True,
+                             _doi=lambda ex, cache_dir=None: "10.1234/demo")
     assert e["repository"] == "physiome" and e["source_id"] == "d86b21"
     assert e["provenance"]["model_format"] == "CellML"
     assert e["provenance"]["mapping_method"] == "category"
     assert e["provenance"]["categories"] == ["electrophysiology"]
     assert {o["label"] for o in e["organs"]} == {"brain"}
+    assert e["paper_doi"] == "10.1234/demo"
+    assert e["paper_url"] == "https://doi.org/10.1234/demo"
 
 
 @pytest.mark.network
