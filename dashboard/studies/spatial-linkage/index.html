@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Study: annotation-organ-matching</title>
+<title>Study: spatial-linkage</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
 <!-- Inherit the workbench light/dark theme (this page loads in an iframe;
@@ -14,7 +14,7 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="annotation-organ-matching" title="annotation-organ-matching">Annotation-Based Organ Matching — SBML MIRIAM + BTO Crosswalk Provenance</span>
+    <span class="study-name" id="study-name" data-slug="spatial-linkage" title="spatial-linkage">Spatial Linkage — Model -&gt; AS -&gt; GLB Scene-Node Links</span>
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
@@ -33,7 +33,7 @@
     
 
     
-    <div id="readiness-panel" data-slug="annotation-organ-matching"></div>
+    <div id="readiness-panel" data-slug="spatial-linkage"></div>
 
     
     
@@ -55,7 +55,7 @@
             <span class="dot"></span>2&nbsp;·&nbsp;Execution<span class="step-val">ran</span>
           </span>
           
-          <span class="status-step gate-step axis-evaluation_status gate-state-passed-with-conditions set" title="Gate 3 · Evidence">
+          <span class="status-step gate-step axis-evaluation_status gate-state-passed set" title="Gate 3 · Evidence">
             <span class="dot"></span>3&nbsp;·&nbsp;Evidence
           </span>
           
@@ -63,7 +63,7 @@
             <span class="dot"></span>4&nbsp;·&nbsp;Quality
           </span>
           
-          <span class="status-step gate-step axis-gate_status gate-state-passed set" title="Gate 5 · Decision">
+          <span class="status-step gate-step axis-gate_status gate-state-passed-with-conditions set" title="Gate 5 · Decision">
             <span class="dot"></span>5&nbsp;·&nbsp;Decision
           </span>
           
@@ -97,15 +97,13 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
+        <div class="status-detail-row gate-row gate-state-passed">
           <span class="status-detail-axis">3 · Evidence</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-passed-with-conditions" title="completed run + recorded verdicts + visualization readiness gate (V4)">◆ computed: evaluated</span>
+          <span class="gate-computed-chip gate-state-passed" title="completed run + recorded verdicts">◆ computed: evaluated</span>
           
           
-          
-          <span class="gate-viz-gap-note" style="font-size:0.86em;color:#92400e">visualization gap: no figures</span>
           
         </div>
         
@@ -119,11 +117,11 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-passed">
+        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
           <span class="status-detail-axis">5 · Decision</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-passed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: passed</span>
+          <span class="gate-computed-chip gate-state-passed-with-conditions" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: needs_calibration</span>
           
           
           
@@ -156,10 +154,9 @@
 
 
 
-<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> How does a BioModels entry get tagged with an HRA Uberon organ when the
-match comes from its embedded SBML MIRIAM annotations rather than its
-name — and which biological CVTerm qualifiers / ontologies actually carry
-that organ signal?
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
+GLB scene node(s) does it correspond to — precise enough for a 3D viewer
+to color/label the right node per model?
 </p>
 
 <nav class="study-tabs" aria-label="Study sections">
@@ -185,7 +182,7 @@ that organ signal?
   </div>
   <div class="act-cluster" data-act="evidence">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed-with-conditions"></span>
+      <span class="act-gate-dot" data-gate="evidence" data-gate-state="passed"></span>
       <span class="act-label">Evidence</span>
     </div>
     <div class="act-tabs">
@@ -204,7 +201,7 @@ that organ signal?
   </div>
   <div class="act-cluster" data-act="decision">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed"></span>
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed-with-conditions"></span>
       <span class="act-label">Decision</span>
     </div>
     <div class="act-tabs">
@@ -441,10 +438,9 @@ that organ signal?
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">How does a BioModels entry get tagged with an HRA Uberon organ when the
-match comes from its embedded SBML MIRIAM annotations rather than its
-name — and which biological CVTerm qualifiers / ontologies actually carry
-that organ signal?
+           data-placeholder="+ Add the research question this study asks">For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
+GLB scene node(s) does it correspond to — precise enough for a 3D viewer
+to color/label the right node per model?
 </div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
@@ -455,18 +451,14 @@ that organ signal?
     
     <div class="overview-section">
       <div class="purpose-callout" style="background:#f8fafc;border-left:4px solid #94a3b8">
-        <strong>Summary.</strong> BioModels curators annotate SBML elements (the model itself, compartments,
-species) with MIRIAM CVTerms: a biological qualifier (e.g. &#34;is&#34;, &#34;is part
-of&#34;, &#34;occurs in&#34;) plus a resource URI naming an ontology term. Very few
-entries carry a direct Uberon/FMA anatomical term; most instead carry a
-BRENDA Tissue Ontology (BTO) term describing the cell line, tissue sample,
-or assay context the model was parameterized against. `annotation_match.py`
-extracts every such CVTerm hit, and where it&#39;s BTO, resolves it to an HRA
-Uberon organ via a curated 32-entry BTO-&gt;organ crosswalk
-(`datasets/bto_uberon_crosswalk.json`) -- this crosswalk is *the* mechanism
-that makes BTO-heavy BioModels annotation practice usable as organ
-evidence at all; without it, only the rare direct Uberon/FMA hits would
-resolve.
+        <strong>Summary.</strong> Marking an organ &#34;covered&#34; is a coarse signal; a 3D viewer needs to know
+exactly which GLB scene node to color for a given model. This study joins
+each biomodel-DO organ annotation directly to the crosswalk rows sharing
+its Uberon CURIE, producing the (model, GLB node) pairs a viewer renders
+against. Because HRA ships separate male/female reference-organ GLBs, one
+organ annotation legitimately links to two nodes (one per sex) — the join
+is deliberately Uberon-only in v1, deferring &#34;pick the single best node&#34;
+resolution to a future viewer-side step.
 
       </div>
     </div>
@@ -486,12 +478,12 @@ resolve.
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">Of the 168 CVTerm hits behind the annotation catalog&#39;s 114 organ-tagged
-models, 156 (92.9%) resolve through the curated BTO-&gt;organ crosswalk
-and only 12 (7.1%) through a direct Uberon/FMA MIRIAM match --
-BTO-via-crosswalk is the dominant, not incidental, organ-matching
-mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
-(88 and 40 of 168 hits).
+            <span class="finding-claim finding-statement">The live Uberon-only join produces 10 (model, GLB-node) links across
+5 distinct biomodels, with every model linking to exactly 2 nodes
+(one per sex) -- confirming the join mechanism is deterministic and
+reproducible from the shared organ Uberon, even though `readout` is
+still a literal placeholder string (&#34;pending time-series&#34;) for every
+link in v1.
 </span>
             
           </summary>
@@ -591,7 +583,19 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
           <div>
             <strong style="color:#1e293b">region-unexplored</strong>
             <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">How much more organ coverage would extending the 32-entry BTO-&gt;organ crosswalk unlock, given 278 corpus models carry a BTO term at all vs the 114 that currently resolve to an organ?</div>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?</div>
+          </div>
+        </div>
+        
+        
+        
+        
+        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
+          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
+          <div>
+            <strong style="color:#1e293b">region-unexplored</strong>
+            <code style="font-size:0.82em">remaining_uncertainties</code>
+            <div style="color:#475569;font-size:0.9em;margin-top:1px">Is Uberon-CURIE-only join precise enough, or does a real viewer need a single &#39;best&#39; node resolved per model?</div>
           </div>
         </div>
         
@@ -604,12 +608,12 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">Of the 168 CVTerm hits behind the annotation catalog&#39;s 114 organ-tagged
-models, 156 (92.9%) resolve through the curated BTO-&gt;organ crosswalk
-and only 12 (7.1%) through a direct Uberon/FMA MIRIAM match --
-BTO-via-crosswalk is the dominant, not incidental, organ-matching
-mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
-(88 and 40 of 168 hits).
+      <p class="conclusion-insight">The live Uberon-only join produces 10 (model, GLB-node) links across
+5 distinct biomodels, with every model linking to exactly 2 nodes
+(one per sex) -- confirming the join mechanism is deterministic and
+reproducible from the shared organ Uberon, even though `readout` is
+still a literal placeholder string (&#34;pending time-series&#34;) for every
+link in v1.
 <span class="computed-tag">computed from findings</span></p>
       
       
@@ -618,19 +622,15 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The committed annotation catalog (`datasets/biomodel_annotation_catalog.json`)
-tags 114/1,096 models (10.4%) with an HRA organ across 14 distinct
-organs. Of the 168 individual CVTerm hits behind those tags, 156 (92.9%)
-resolve via a BTO term through the curated 32-entry BTO-&gt;organ
-crosswalk, and only 12 (7.1%) resolve via a direct Uberon/FMA MIRIAM
-match -- confirming BTO is overwhelmingly the dominant anatomy signal in
-BioModels&#39; own curation practice (278 models in the corpus carry a BTO
-term at all; the crosswalk is what turns that into organ evidence). By
-biological qualifier, `BQB_OCCURS_IN` (88 hits) and `BQB_IS` (40 hits)
-dominate, with `BQB_IS_VERSION_OF` (35), `BQB_IS_PART_OF` (4), and
-`BQB_HAS_PART` (1) trailing -- curators overwhelmingly express anatomy as
-&#34;this model occurs in / is this tissue&#34; rather than compositional
-part-of relationships.
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live join produces 10 links across 5 distinct biomodels (25-result
+&#34;glucose regulation&#34; query): BIOMD0000000633 (Bulik2016 hepatic glucose
+metabolism) -&gt; VH_F_liver/VH_M_liver; MODEL2001080002 (Topp2000 b-cell
+mass/insulin/glucose), MODEL1112110004 (Silber2007 IV glucose), and
+BIOMD0000000382 (Sturis1991 ultradian oscillations) and
+BIOMD0000000372 (Tolic2000 insulin-glucose feedback) each -&gt;
+VH_F_pancreas/VH_M_pancreas. Every model links to exactly 2 nodes (one
+per sex), confirming the Uberon-only join fires correctly and is fully
+reproducible from the shared organ Uberon.
 </textarea>
       </label>
     </div>
@@ -641,12 +641,12 @@ part-of relationships.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">The BTO-&gt;organ crosswalk is a curated 32-entry mapping, not a complete
-BTO-&gt;Uberon bridge -- BTO terms outside that crosswalk contribute
-nothing, so the 92.9% BTO-hit share measures the crosswalk&#39;s reach
-within the catalog it produced, not BTO&#39;s full potential organ signal
-across the corpus. Extending the crosswalk is the most direct lever to
-raise `annotation-recall-gain`&#39;s coverage numbers further.
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">`readout` is a literal placeholder string (`&#34;pending time-series&#34;`) in
+v1 for every link — no simulation output is wired to a node yet, so
+this study demonstrates the join topology only, not a live-data 3D
+viewer. The 2-links-per-model pattern (one per sex) also means a
+viewer must still resolve &#34;which sex&#39;s GLB is currently displayed&#34; to
+color a single node, not both.
 </textarea>
       </label>
     </div>
@@ -691,19 +691,15 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="viva_human_atlas.composites.annotation_composite.annotation-organ-matching" data-model-overrides='{"catalog_path": "datasets/biomodel_annotation_catalog.json"}'>
+    <div class="cond-block" data-model-composite="" data-model-overrides='{"max_results": 25, "query": "glucose regulation"}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
-        
-        <code style="font-size:0.82em;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:3px">viva_human_atlas.composites.annotation_composite.annotation-organ-matching</code>
-        <button type="button" class="action-btn" style="font-size:0.8em"
-                onclick="_openCompositeLoom('viva_human_atlas.composites.annotation_composite.annotation-organ-matching')">🧬 explore &amp; run ↗</button>
-        
+        <span class="muted">no composite declared</span>
       </div>
       
       <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
         <input type="text" class="baseline-composite-input" data-baseline-name="baseline"
-               value="viva_human_atlas.composites.annotation_composite.annotation-organ-matching" placeholder="pkg.composites.name"
+               value="" placeholder="pkg.composites.name"
                style="flex:1;min-width:200px;font-family:monospace;font-size:0.82em;padding:3px 6px" />
         <button type="button" class="action-btn baseline-composite-set" style="font-size:0.8em"
                 data-baseline-name="baseline">Set composite</button>
@@ -767,9 +763,9 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
   <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
     <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
     <a id="data-download-all" class="btn-mini" style="display:none"
-       href="/api/study-analysis-zip?study=annotation-organ-matching">Download all (.zip)</a>
+       href="/api/study-analysis-zip?study=spatial-linkage">Download all (.zip)</a>
   </div>
-  <div id="data-files" data-study="annotation-organ-matching">
+  <div id="data-files" data-study="spatial-linkage">
     <p class="empty-message">Loading result files…</p>
   </div>
 
@@ -794,7 +790,7 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
     
     <div id="readouts-download" style="margin:0 0 16px 0"></div>
 
-    <div id="readouts-table" data-study="annotation-organ-matching">
+    <div id="readouts-table" data-study="spatial-linkage">
       <p class="empty-message">Loading readouts from the composite emit plan…</p>
     </div>
 
@@ -808,6 +804,25 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
 
     <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
 
+    
+    
+    
+    <div class="figure-card embed-viz-card">
+      <iframe src="/viva-human-atlas/dashboard/reports/figures/spatial-linkage/links-per-organ.html"
+              class="figure-media-frame figure-media-frame--embed"
+              loading="lazy" title="Model-&gt;AS links per organ"
+              onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
+              ></iframe>
+      
+      <p class="figure-desc muted">Bar chart of (model, GLB-node) link counts per organ label from the live join: 10 links / 5 models, all liver or pancreas.</p>
+      
+      <div class="figure-caption-row">
+        <span class="figure-source-chip">embed</span>
+        <span class="figure-title">Model-&gt;AS links per organ</span>
+        
+        <a href="/viva-human-atlas/dashboard/reports/figures/spatial-linkage/links-per-organ.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
+      </div>
+    </div>
     
     
 
@@ -912,7 +927,7 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline annotation-organ-matching composite (committed catalog scan) completed without error.</textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline spatial-link join composite (biomodel-DO organs x crosswalk rows on shared Uberon) completed without error.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -925,7 +940,7 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The qualifier/ontology breakdown matches expected BioModels curation practice: tissue/cell-line context (BTO) is annotated far more often than direct anatomical ontology terms (Uberon/FMA), and &#39;occurs in&#39;/&#39;is&#39; qualifiers dominate over compositional part-of relationships.</textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The join topology is verified correct (every model links to exactly 2 sex-split nodes), but `readout` is a placeholder string for every link -- no simulation result is actually linked to a node yet, so this is gated needs_calibration rather than passed.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -938,7 +953,7 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 makes the annotation-matching mechanism transparent and falsifiable: the BTO-&gt;organ crosswalk, not direct Uberon/FMA annotation, is what does 92.9% of the work, directly motivating crosswalk-extension as the next lever (see annotation-recall-gain).</textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 establishes the join mechanism works reliably (10 links/5 models, Uberon-only, fully reproducible) but carries no result data yet -- model-&gt;AS-&gt;node linkage works at the topology level only.</textarea>
         </label>
       </div>
     </div>
@@ -978,7 +993,7 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
       <h3 class="overview-label">Limitations</h3>
       <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
       <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-        <li style="margin:2px 0">The 32-entry BTO-&gt;organ crosswalk is curated, not exhaustive -- BTO terms it doesn&#39;t cover contribute zero organ signal, so the 92.9% BTO share is a lower bound on BTO&#39;s true anatomical relevance in this corpus.</li><li style="margin:2px 0">sample_provenance surfaces only the first 10 organ-tagged models for spot-checking, not a systematic precision audit of every hit.</li>
+        <li style="margin:2px 0">`readout` is a literal placeholder string (&#39;pending time-series&#39;) for every link in v1; no simulation output is wired to a node yet.</li><li style="margin:2px 0">The 2-links-per-model pattern (one per sex) means a viewer must still resolve &#39;which sex&#39;s GLB is currently displayed&#39; to color a single node, not both.</li>
       </ul>
     </div>
     
@@ -1028,13 +1043,13 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
         
         <div class="di-unc di-unc-resolved">
           <h4>✓ Resolved uncertainties</h4>
-          <ul><li>BTO-mediated matching (via the curated crosswalk), not direct Uberon/FMA MIRIAM annotation, is the dominant organ-tagging mechanism in this BioModels corpus (156 vs 12 hits).</li></ul>
+          <ul><li>Uberon-only join reliably produces exactly 2 links per model (one per sex), confirming the join mechanism is deterministic and reproducible.</li></ul>
         </div>
         
         
         <div class="di-unc di-unc-remaining">
           <h4>● Remaining uncertainties</h4>
-          <ul><li>How much more organ coverage would extending the 32-entry BTO-&gt;organ crosswalk unlock, given 278 corpus models carry a BTO term at all vs the 114 that currently resolve to an organ?</li></ul>
+          <ul><li>Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?</li><li>Is Uberon-CURIE-only join precise enough, or does a real viewer need a single &#39;best&#39; node resolved per model?</li></ul>
         </div>
         
       </div>
@@ -1057,17 +1072,17 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
           
           <div class="di-card di-fup-card">
             <div class="followup-header">
-              <strong class="followup-title">BTO-&gt;organ crosswalk extension</strong>
-              <span class="di-chip">method-upgrade</span>
-              <span class="di-chip">annotation-organ-matching</span>
-              <span class="di-chip di-gain-medium">gain: medium</span>
+              <strong class="followup-title">Result-driven spatial linkage</strong>
+              <span class="di-chip">data-pipeline</span>
+              <span class="di-chip">spatial-linkage</span>
+              <span class="di-chip di-gain-high">gain: high</span>
               
             </div>
-            <div class="di-card-why">Enumerate the distinct BTO terms present across all 278 BTO-annotated corpus models, identify which are absent from the current 32-entry crosswalk, and curate organ mappings for the highest-frequency gaps.</div>
+            <div class="di-card-why">Extract steady-state species concentrations from the committed corpus COPASI/Tellurium comparison dataset and attach them as the `readout` field on each (model, AS-node) link, replacing the placeholder &#39;pending time-series&#39; string; re-render the 3D viewer pack colored by that value.</div>
             
             <div class="followup-actions" style="margin-top:8px">
               <button class="btn-seed-followup"
-                      onclick="_seedFollowupProposal('annotation-organ-matching', "fp-bto-crosswalk-extension")">➕ Add to investigation</button>
+                      onclick="_seedFollowupProposal('spatial-linkage', "fp-result-driven-spatial-link")">➕ Add to investigation</button>
             </div>
           </div>
           
@@ -1093,7 +1108,7 @@ raise `annotation-recall-gain`&#39;s coverage numbers further.
 <script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/feat/physiome-atlas", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "09bea409d397cad2d2bace2b8d5d2d1f96178cc9", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/09bea409d397cad2d2bace2b8d5d2d1f96178cc9", "branch": "feat/physiome-atlas", "generated_at": "2026-08-09 13:15 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
-window._studyName = "annotation-organ-matching";
+window._studyName = "spatial-linkage";
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
