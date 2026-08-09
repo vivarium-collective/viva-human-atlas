@@ -98,6 +98,10 @@ def model_ref(entry: dict) -> dict:
         ref["mapping_method"] = entry["mapping_method"]
     if entry.get("confidence"):
         ref["confidence"] = entry["confidence"]
+    if entry.get("doi"):
+        ref["doi"] = entry["doi"]
+    if entry.get("categories"):
+        ref["categories"] = entry["categories"]
     return ref
 
 
@@ -399,7 +403,9 @@ def build_atlas_from_hra_map(db_entries, organ_index, hrapop_as, crosswalk,
              "repository": e.get("repository", "biomodels"),
              "identifier": e.get("identifier"),
              "mapping_method": (e.get("provenance") or {}).get("mapping_method"),
-             "confidence": (e.get("provenance") or {}).get("confidence")}
+             "confidence": (e.get("provenance") or {}).get("confidence"),
+             "doi": e.get("paper_doi"),
+             "categories": (e.get("provenance") or {}).get("categories")}
             for mid, e in sorted(entries_by_key.items())
         ],
         "organ_index": organ_index,
