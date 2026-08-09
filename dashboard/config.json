@@ -2,6 +2,6 @@
   "mode": "snapshot",
   "smsApiBase": "",
   "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
-  "commit": "09bea409d397cad2d2bace2b8d5d2d1f96178cc9",
+  "commit": "cb6ee568a7a5255bb28486225c81ba5982313bed",
   "generated_from_ref": "feat/physiome-atlas"
 }
