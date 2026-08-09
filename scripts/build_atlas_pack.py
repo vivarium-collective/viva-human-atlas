@@ -7,7 +7,7 @@ the ASCT+B-3D crosswalk), falling back to the whole organ. Writes
 atlas.json/config.json alongside the committed index.html/viewer.js under
 studies/hra-atlas-browser/viz/atlas/.
 
-Thin CLI over `atlas_pack.build_and_write_atlas` (the `AtlasBrowserStep` shares
+Thin CLI over `atlas_pack.build_and_write_atlas` (the `ComputationalModelAtlas` shares
 the same orchestrator). Offline: reads committed datasets; no network.
 Run: PYTHONUTF8=1 .venv/bin/python scripts/build_atlas_pack.py
 """

@@ -2,7 +2,7 @@
 
 Offline: `place_models` is exercised on a small synthetic DB + HRApop-AS dict +
 crosswalk; `load_hrapop_as` on a tiny CSV; the manifest wiring + the end-to-end
-`build_and_write_atlas` on the committed datasets; and `AtlasBrowserStep` via
+`build_and_write_atlas` on the committed datasets; and `ComputationalModelAtlas` via
 `build_core()` writing a pack to tmp. No network.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ from viva_human_atlas.atlas_pack import (
 )
 from viva_human_atlas.coverage import load_corpus_catalog
 from viva_human_atlas.core import build_core
-from viva_human_atlas.atlas_browser import AtlasBrowserStep
+from viva_human_atlas.atlas_browser import ComputationalModelAtlas
 
 REPO = Path(__file__).resolve().parents[1]
 CATALOG = REPO / "datasets" / "biomodel_corpus_catalog.json"
@@ -167,9 +167,9 @@ def test_end_to_end_build_from_committed_datasets(tmp_path):
         db_path=str(REPO / "datasets" / "model_hra_map.json"),
         catalog_path=str(CATALOG), out_dir=tmp_path)
     atlas = json.loads((tmp_path / "atlas.json").read_text())
-    # post physionet-harvest with the word-boundary keyword-match fix (organ-tagged
-    # BioModels + PhysioNet models, distinct across whole-organ + subregion placements)
-    assert atlas["summary"]["n_models_distinct"] == 380
+    # organ-tagged models across three sources (BioModels + PhysioNet + Physiome),
+    # distinct across whole-organ + subregion placements
+    assert atlas["summary"]["n_models_distinct"] == 689
     assert atlas["summary"]["n_subregions"] >= 3
     kidney = next(o for o in atlas["organs"] if o["key"] == "kidney")
     assert len(kidney["glbs"]["female"]) == 4                      # both kidneys + pelvises
@@ -179,11 +179,11 @@ def test_end_to_end_build_from_committed_datasets(tmp_path):
 
 def test_atlas_browser_step_writes_pack_and_emits_summary(tmp_path):
     core = build_core()
-    step = AtlasBrowserStep(config={"out_dir": str(tmp_path)}, core=core)
+    step = ComputationalModelAtlas(config={"out_dir": str(tmp_path)}, core=core)
     out = step.update({})
     assert (tmp_path / "atlas.json").exists()
-    # post physionet-harvest with the word-boundary keyword-match fix (organ-tagged
-    # BioModels + PhysioNet models, distinct across whole-organ + subregion placements)
-    assert out["summary"]["n_models_distinct"] == 380
+    # organ-tagged models across three sources (BioModels + PhysioNet + Physiome),
+    # distinct across whole-organ + subregion placements
+    assert out["summary"]["n_models_distinct"] == 689
     assert out["placement_stats"]["n_subregion_models"] >= 9
     assert out["out_dir"] == str(tmp_path)

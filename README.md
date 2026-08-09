@@ -93,7 +93,7 @@ viva_human_atlas/
   hra_pop.py            # HRApop cell-type populations (organ + per-AS loaders)
   atlas_subregions.py   # place models at organ subregions (cell types / FTUs -> AS)
   atlas_pack.py         # Atlas Browser manifest builder + offline orchestrator
-  atlas_browser.py      # AtlasBrowserStep (regenerate the atlas pack)
+  atlas_browser.py      # ComputationalModelAtlas (regenerate the atlas pack)
   composites/           # @composite_generator entries (glucose-regulation, hra-*, biomodel-hra-map, hra-atlas-browser)
 scripts/                # build_biomodel_hra_map.py, make_biomodel_hra_figure.py, build_atlas_pack.py
 investigations/         # glucose-regulation, hra-integration, hra-3d
