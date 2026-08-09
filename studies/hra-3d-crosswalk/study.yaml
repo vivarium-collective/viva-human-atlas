@@ -3,11 +3,11 @@ name: hra-3d-crosswalk
 investigation: hra-3d
 title: "HRA 3D Crosswalk — Full ASCT+B-3D Anatomical-Structure Tree"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Does the HRA CDN's ASCT+B-3D models crosswalk load into a Step-driven

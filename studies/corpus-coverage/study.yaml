@@ -3,11 +3,11 @@ name: corpus-coverage
 investigation: hra-3d
 title: "Corpus Coverage — Full 1,096-Model BioModels Catalog on HRA 3D Anatomy"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Of the HRA ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical structures

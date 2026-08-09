@@ -3,11 +3,11 @@ name: annotation-organ-matching
 investigation: hra-integration
 title: "Annotation-Based Organ Matching — SBML MIRIAM + BTO Crosswalk Provenance"
 created: '2026-08-01'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   How does a BioModels entry get tagged with an HRA Uberon organ when the

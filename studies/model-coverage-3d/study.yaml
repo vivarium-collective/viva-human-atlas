@@ -3,11 +3,11 @@ name: model-coverage-3d
 investigation: hra-3d
 title: "Model Coverage 3D — AS/Organ Coverage from BioModel-DO Annotations"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Of the HRA ASCT+B-3D crosswalk's 1,400+ anatomical structures (and ~81

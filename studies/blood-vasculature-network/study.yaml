@@ -3,11 +3,11 @@ name: blood-vasculature-network
 investigation: hra-3d
 title: "Blood Vasculature Network — VCCF transport graph to couple organ models"
 created: '2026-07-28'
-status: running
+status: complete
 design_status: complete
 implementation_status: partial
 simulation_status: ran
-phase: Design
+phase: Decide
 
 question: |
   Can the HRA/VCCF vasculature data define a whole-body blood-transport
@@ -105,7 +105,7 @@ findings:
   - id: F-02
     tier: interpretation
     mechanism_origin: design
-    claim_scope: roadmap
+    claim_scope: theoretical
     statement: |
       A blood-circulation simulation is designed on this graph (see
       docs/blood-circulation-simulation-plan.md): a BloodTransportProcess

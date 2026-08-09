@@ -3,11 +3,11 @@ name: ctpop-islet-parameterization
 investigation: hra-3d
 title: "CTpop -> Topp2000 Islet Parameterization — Beta-Cell Composition Shifts the Glucose Setpoint"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Does binding HRA CTpop islet cell-type composition to the Topp2000

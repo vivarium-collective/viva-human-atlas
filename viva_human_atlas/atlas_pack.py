@@ -125,11 +125,24 @@ def _norm_label(s) -> str:
 _SEX_SIDE = {"female", "male", "left", "right"}
 
 
+# Skeletal (musculoskeletal) GLB organs the HRA anatomical-systems partonomy
+# leaves in the catch-all "Anatomical Structure"/"Other" buckets. Grouping them
+# under an explicit "Skeletal System" is clearer than those catch-alls.
+_SKELETAL_ORGANS = {
+    "intervertebral-disk", "manubrium", "sternum", "pelvis",
+    "knee-female-left", "knee-female-right", "knee-male-left", "knee-male-right",
+}
+SKELETAL_SYSTEM = "Skeletal System"
+
+
 def _system_for(key: str, uberon, systems_map: dict | None) -> str:
-    """The HRA anatomical system for a GLB organ: match by AS Uberon, then by
-    organ label, then by the label with sex/side words stripped (so
-    `eye-female-left` -> `eye`). Genuinely unmatched organs fall to "Other" so
-    grouping stays purely HRA (no mixed curated/HRA names)."""
+    """The HRA anatomical system for a GLB organ: skeletal organs are grouped
+    under "Skeletal System"; otherwise match by AS Uberon, then by organ label,
+    then by the label with sex/side words stripped (so `eye-female-left` ->
+    `eye`). Genuinely unmatched organs fall to "Other" so grouping stays purely
+    HRA (no mixed curated/HRA names)."""
+    if key in _SKELETAL_ORGANS:
+        return SKELETAL_SYSTEM
     sm = systems_map or {}
     if not sm:
         # No HRA systems data supplied (e.g. unit tests / degraded build): keep
@@ -340,8 +353,14 @@ def build_atlas_manifest(catalog: dict, *, provenance: dict | None = None,
         (s["n_models"] for o in organs for s in o["subregions"]), default=0)
     present = {o["system"] for o in organs}
     # Group by the HRA anatomical-systems partonomy order when supplied, else the
-    # legacy curated SYSTEM_ORDER; "Other" last.
-    order = list(systems_order or SYSTEM_ORDER) + ["Other"]
+    # legacy curated SYSTEM_ORDER; "Other" last. "Skeletal System" takes the
+    # catch-all "Anatomical Structure" slot (the skeletal organs that were in it,
+    # plus skeletal organs pulled out of "Other", now group there).
+    order = [SKELETAL_SYSTEM if s == "Anatomical Structure" else s
+             for s in (systems_order or SYSTEM_ORDER)]
+    if SKELETAL_SYSTEM not in order:
+        order.append(SKELETAL_SYSTEM)
+    order += ["Other"]
     systems = [s for s in order if s in present]
     systems += [s for s in present if s not in systems]  # any stragglers, stable
     return {
@@ -399,6 +418,25 @@ def build_atlas_from_hra_map(db_entries, organ_index, hrapop_as, crosswalk,
             u = o.get("uberon")
             if u:
                 organ_to_models.setdefault(u, set()).add(mid)
+    # Bilateral symmetry: a model mapped to ONE side of a paired organ (the left
+    # ovary carries a left-specific Uberon, etc.) describes the organ, not the
+    # side — so union each L/R pair's model sets so both sides show it. Pairs are
+    # discovered from the organ index (same `-left`/`-right` stem, distinct Uberon).
+    _by_stem: dict[str, dict[str, str]] = {}
+    for _k, _v in organ_index.items():
+        _u = _v.get("uberon")
+        if not _u:
+            continue
+        for _side in ("-left", "-right"):
+            if _k.endswith(_side):
+                _by_stem.setdefault(_k[: -len(_side)], {})[_side] = _u
+    for _sides in _by_stem.values():
+        _lu, _ru = _sides.get("-left"), _sides.get("-right")
+        if _lu and _ru and _lu != _ru:
+            _both = organ_to_models.get(_lu, set()) | organ_to_models.get(_ru, set())
+            if _both:
+                organ_to_models[_lu] = set(_both)
+                organ_to_models[_ru] = set(_both)
     catalog = {
         "biomodel_dos": [
             {"biomodel_id": mid, "name": e.get("name") or mid,

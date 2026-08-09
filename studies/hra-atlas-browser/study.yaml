@@ -3,11 +3,11 @@ name: hra-atlas-browser
 investigation: hra-3d
 title: "HRA Computational Model Atlas — organ selector + model-count gradient + subregion placement"
 created: '2026-08-01'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Can we present the full HRA-3D model-coverage picture as an interactive
