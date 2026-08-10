@@ -11440,56 +11440,6 @@
       "subregions": []
     },
     {
-      "key": "ovary-female-right",
-      "label": "Ovary Female Right",
-      "uberon": "UBERON:0002118",
-      "system": "Reproductive System",
-      "glb": {
-        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb",
-        "male": null
-      },
-      "glbs": {
-        "female": [
-          "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb"
-        ],
-        "male": []
-      },
-      "sex": "female",
-      "n_models": 4,
-      "models": [
-        {
-          "source_id": "BIOMD0000000332",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000332",
-          "name": "Bungay2006_Plasma",
-          "process": "Other"
-        },
-        {
-          "source_id": "BIOMD0000000333",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000333",
-          "name": "Bungay2006_FollicularFluid",
-          "process": "Other"
-        },
-        {
-          "source_id": "BIOMD0000000334",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000334",
-          "name": "Bungay2003_Thrombin_Generation",
-          "process": "Other"
-        },
-        {
-          "source_id": "BIOMD0000000741",
-          "repository": "biomodels",
-          "url": "https://www.ebi.ac.uk/biomodels/BIOMD0000000741",
-          "name": "Eftimie2018 - Cancer and Immune biomarkers",
-          "doi": "10.1186/s12967-018-1432-8",
-          "process": "Immune"
-        }
-      ],
-      "subregions": []
-    },
-    {
       "key": "lymph-node",
       "label": "Lymph Node",
       "uberon": "UBERON:0002509",
@@ -11919,7 +11869,7 @@
       "key": "intervertebral-disk",
       "label": "Intervertebral Disk",
       "uberon": "UBERON:0001066",
-      "system": "Skeletal System",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-female/v1.0/assets/3d-vh-f-intervertebral-disk.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/intervertebral-disk-male/v1.0/assets/3d-vh-m-intervertebral-disk.glb"
@@ -11941,7 +11891,7 @@
       "key": "knee-female-left",
       "label": "Knee Female Left",
       "uberon": "fma24978",
-      "system": "Skeletal System",
+      "system": "Anatomical Structure",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-left/v1.3/assets/3d-vh-f-knee-l.glb",
         "male": null
@@ -11961,7 +11911,7 @@
       "key": "knee-female-right",
       "label": "Knee Female Right",
       "uberon": "fma24977",
-      "system": "Skeletal System",
+      "system": "Anatomical Structure",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-female-right/v1.3/assets/3d-vh-f-knee-r.glb",
         "male": null
@@ -11981,7 +11931,7 @@
       "key": "knee-male-left",
       "label": "Knee Male Left",
       "uberon": "fma24978",
-      "system": "Skeletal System",
+      "system": "Anatomical Structure",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-left/v1.2/assets/3d-vh-m-knee-l.glb"
@@ -12001,7 +11951,7 @@
       "key": "knee-male-right",
       "label": "Knee Male Right",
       "uberon": "fma24977",
-      "system": "Skeletal System",
+      "system": "Anatomical Structure",
       "glb": {
         "female": null,
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/knee-male-right/v1.2/assets/3d-vh-m-knee-r.glb"
@@ -12083,7 +12033,7 @@
       "key": "manubrium",
       "label": "Manubrium",
       "uberon": "UBERON:2001553",
-      "system": "Skeletal System",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/manubrium-female/v1.0/assets/3d-vh-f-manubrium.glb",
         "male": null
@@ -12139,6 +12089,26 @@
         ]
       },
       "sex": "both",
+      "n_models": 0,
+      "models": [],
+      "subregions": []
+    },
+    {
+      "key": "ovary-female-right",
+      "label": "Ovary Female Right",
+      "uberon": "UBERON:0002118",
+      "system": "Reproductive System",
+      "glb": {
+        "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb",
+        "male": null
+      },
+      "glbs": {
+        "female": [
+          "https://cdn.humanatlas.io/digital-objects/ref-organ/ovary-female-right/v1.3/assets/3d-vh-f-ovary-r.glb"
+        ],
+        "male": []
+      },
+      "sex": "female",
       "n_models": 0,
       "models": [],
       "subregions": []
@@ -12227,7 +12197,7 @@
       "key": "pelvis",
       "label": "Pelvis",
       "uberon": "UBERON:0001270",
-      "system": "Skeletal System",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-female/v1.3/assets/3d-vh-f-pelvis.glb",
         "male": "https://cdn.humanatlas.io/digital-objects/ref-organ/pelvis-male/v1.3/assets/3d-vh-m-pelvis.glb"
@@ -12269,7 +12239,7 @@
       "key": "sternum",
       "label": "Sternum",
       "uberon": "UBERON:0000975",
-      "system": "Skeletal System",
+      "system": "Other",
       "glb": {
         "female": "https://cdn.humanatlas.io/digital-objects/ref-organ/sternum-female/v1.0/assets/3d-vh-f-sternum.glb",
         "male": null
@@ -12397,15 +12367,15 @@
     "Reproductive System",
     "Nervous System",
     "Entire Sense Organ System",
-    "Skeletal System",
+    "Anatomical Structure",
     "Other"
   ],
   "max_models": 359,
   "max_subregion_models": 24,
   "summary": {
     "n_organs": 50,
-    "n_modeled": 24,
-    "n_models_total": 928,
+    "n_modeled": 23,
+    "n_models_total": 924,
     "n_models_distinct": 689,
     "n_systems": 12,
     "n_subregions": 52,

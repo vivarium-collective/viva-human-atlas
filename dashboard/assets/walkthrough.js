@@ -1646,13 +1646,8 @@
         // hosted 3D viewer) — it opens directly in BOTH live and read-only,
         // since it needs no local launch backend. Otherwise fall back to the
         // live Launch button / the read-only "local workbench" note.
-        // A workspace-root-absolute href (/studies/…) must carry the hosting
-        // base path in the snapshot, or it 404s to the domain root; an external
-        // (http/protocol-relative) href opens as-is. Mirrors sim-table.toolsCell.
-        var _bp = window.__BASE_PATH__ || '';
-        var _openHref = (t.href && /^https?:|^\/\//.test(t.href)) ? t.href : (_bp + (t.href || ''));
         var action = t.href
-          ? '<a class="btn-mini" href="' + _esc(_openHref) + '" target="_blank" rel="noopener">Open ↗</a>'
+          ? '<a class="btn-mini" href="' + _esc(t.href) + '" target="_blank" rel="noopener">Open</a>'
           : (_isSnapshot
           ? '<span class="muted" style="font-size:0.8em">Launch from the local workbench</span>'
           : '<button class="btn-mini" onclick="_launchViewer(\'' + _esc(v.uid) + '\',\'' + _esc(t.study) + '\')">Launch</button>');
@@ -13902,17 +13897,11 @@
         links.push('<a href="#' + sid.discovery + '">Discovery implications'
                    + (_nDisc ? ' <span class="sn-count">' + _nDisc + '</span>' : '') + '</a>');
       }
-      // Conditions sub-nav link: rendered when the Conditions section will
-      // render — i.e. a v4 ``conditions:`` block, a server-folded
-      // ``simulation_set``, or (v3-shaped) a top-level ``baseline:`` list that
-      // _renderConditionsBlock now derives from.
+      // Conditions sub-nav link: rendered when v4 ``conditions:`` exists.
       var _cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : null;
       var _nVar = (_cond && _cond.variants || []).length;
       var _nEI  = (_cond && (_cond.model_settings || _cond.expert_inputs) || []).length;
-      var _hasCond = !!_cond
-                     || (Array.isArray(s.simulation_set) && s.simulation_set.length)
-                     || (Array.isArray(s.baseline) && s.baseline.length);
-      if (_hasCond) {
+      if (_cond) {
         var _condCount = _nVar + _nEI;
         links.push('<a href="#' + sid.conditions + '">Conditions ' +
                    (_condCount ? '<span class="sn-count">' + _condCount + '</span>' : '') + '</a>');
@@ -15356,29 +15345,6 @@
           }
         });
         cond = {baseline: _derivedBaseline, variants: _derivedVariants, model_settings: []};
-      }
-      // Third fallback — v3-shaped studies that declare their setup ONLY as a
-      // top-level ``baseline:`` (+ ``variants:``) list and carry no ``conditions:``
-      // block and no server-folded ``simulation_set`` (migrate_v3_to_v4 doesn't
-      // synthesize one). Derive the conditions table straight from those lists so
-      // the "Conditions — what we set up to test it" section isn't blank by
-      // default. Handles a Step/Process baseline (no ``composite``) by using its
-      // dotted address, mirroring how the simulation_set fallback treats base_model.
-      if (!cond && Array.isArray(s.baseline) && s.baseline.length) {
-        var _b0 = s.baseline[0] || {};
-        var _bModel = _b0.composite || _b0.step || _b0.process || '';
-        var _dv = (Array.isArray(s.variants) ? s.variants : []).map(function(v) {
-          return {
-            name: v.name,
-            composite: v.composite || v.base_composite,
-            parameter_overrides: v.parameter_overrides || v.params || {},
-            description: v.description || v.notes || ''
-          };
-        });
-        if (_bModel || _dv.length) {
-          cond = {baseline: {composite: _bModel, params: _b0.params || {}},
-                  variants: _dv, model_settings: []};
-        }
       }
       if (!cond) return '';
       var baseline = cond.baseline || {};
@@ -20617,19 +20583,6 @@
     if (key === 'run') return String(row.sim_name || row.label || row.run_id || '').toLowerCase();
     if (key === 'composite') return String(row.spec_id || '').toLowerCase();
     if (key === 'status') return String(row.status || '').toLowerCase();
-    if (key === 'location') return String(row.store_path || row.db_path || '').toLowerCase();
-    if (key === 'config') {
-      var c = row.config || {};
-      return Object.keys(c).length ? JSON.stringify(c).toLowerCase() : '';
-    }
-    // Tools: sort by the matched tool's label so runs that have a tool (e.g. the
-    // atlas run → "HRA Computational Model Atlas") group together and, on the
-    // first (ascending) click, rise to the TOP; tool-less runs get a high
-    // sentinel so they sink. Clicking Tools thus surfaces the tool-linked runs.
-    if (key === 'tools') {
-      var mt = row.matched_tools || [];
-      return mt.length ? String(mt[0].label || mt[0].id || '').toLowerCase() : '\uffff';
-    }
     return '';
   }
 

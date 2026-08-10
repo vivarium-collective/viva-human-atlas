@@ -19,7 +19,7 @@
     header{position:absolute;top:0;left:0;right:0;z-index:20;background:var(--panel);
       border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:14px;}
     header h1{font-size:14px;font-weight:600;margin:0;}
-    header h1 .sub{display:block;color:var(--text-dim);font-weight:400;font-size:12px;margin-top:1px;}
+    header h1 .sub{color:var(--text-dim);font-weight:400;font-size:12px;margin-left:8px;}
     header button{background:var(--bg);color:var(--text);border:1px solid var(--border);
       border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;}
     header button:hover{border-color:var(--accent);}
@@ -163,6 +163,15 @@
     .proc-ctl:hover{color:var(--accent);}
     .region-divider{margin-top:12px;padding-top:8px;border-top:1px dashed var(--border);
       font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);}
+    /* modeled-subregion chooser rows in the focused-organ panel + back-link */
+    .sub-row{display:flex;align-items:center;justify-content:space-between;gap:8px;
+      padding:6px 14px;cursor:pointer;border-left:2px solid transparent;}
+    .sub-row:hover{background:var(--bg);border-left-color:var(--accent);}
+    .sub-name{font-size:12px;color:var(--text);}
+    .sub-count{font-size:11px;color:var(--text-dim);font-variant-numeric:tabular-nums;
+      white-space:nowrap;}
+    .sub-back{padding:6px 14px;color:var(--text-dim);font-size:11.5px;cursor:pointer;}
+    .sub-back:hover{color:var(--accent);}
     /* source toggle chips: one per repository present in the data, all on by
        default (combined list); click to narrow. Per-chip count is for the
        current organ/subregion/search. */

@@ -280,7 +280,9 @@ function appendProcessGroups(container, models) {
   }
 }
 
-function renderBioModels(organ) {
+// `onSub(sub)` (optional) is invoked when a modeled-subregion chooser row is
+// clicked — the caller (focus) uses it to switch the panel to that structure.
+function renderBioModels(organ, onSub) {
   els.bpTitle.textContent = organ.label;
   const nTotal = organ.models.length;
   const breakdown = distinctBreakdown(organ.models);
@@ -304,6 +306,31 @@ function renderBioModels(organ) {
     d.textContent = "No models match the current source filter.";
     els.bpList.appendChild(d);
     return;
+  }
+  // Modeled subregions live as tiny meshes among hundreds in the 3D scene, so
+  // reaching one by raycast-click alone is unreliable. List them as a clickable
+  // chooser at the top of the focused-organ panel — one click flips the panel to
+  // that structure's models (localized + region-wide), same as clicking its mesh.
+  const subs = (organ.subregions || []).filter(
+    (s) => (s.n_models || 0) > 0 || (s.models || []).length);
+  if (subs.length && onSub) {
+    const head = document.createElement("div");
+    head.className = "organ-group-head";
+    head.textContent = `Modeled subregions · ${subs.length}`;
+    els.bpList.appendChild(head);
+    for (const s of subs) {
+      const row = document.createElement("div");
+      row.className = "sub-row";
+      const total = subregionCount(organ, s);
+      row.innerHTML = `<span class="sub-name">${esc(s.label)}</span>`
+        + `<span class="sub-count">${s.n_models} localized · ${total} total</span>`;
+      row.addEventListener("click", () => onSub(s));
+      els.bpList.appendChild(row);
+    }
+    const div = document.createElement("div");
+    div.className = "region-divider";
+    div.textContent = `All ${esc(organ.label)} models`;
+    els.bpList.appendChild(div);
   }
   // Group the organ's models by physiological process (ion transport,
   // metabolism, …) rather than one flat list — the process is the unit.
@@ -642,7 +669,11 @@ async function main() {
     // (across all shown organs), not a single organ.
     if (modelQuery) { renderModelSearch(); rerenderPanel = () => focus(key); return; }
     const organ = organsByKey.get(key);
-    if (organ) renderBioModels(organ);
+    if (organ) renderBioModels(organ, (sub) => {
+      focused = key;
+      renderSubregion(sub, organ);
+      rerenderPanel = () => renderSubregion(sub, organ);
+    });
     rerenderPanel = () => focus(key);
   }
 
@@ -652,7 +683,10 @@ async function main() {
     if (selected.has(key)) {
       selected.delete(key);
       applySelection(false);
-      reconcilePanel();   // keep focus if still selected, else combined/empty view
+      if (focused === key) {
+        const next = selected.values().next().value;
+        if (next) focus(next); else resetPanel();
+      }
       return;
     }
     selected.add(key);
@@ -787,20 +821,6 @@ async function main() {
     }
   }
 
-  // Re-derive the right-hand panel from the CURRENT selection after a bulk
-  // add/remove: keep an explicit focus if it's still selected, focus a lone
-  // remaining organ, otherwise show the combined multi-organ overview (or the
-  // empty prompt). Never force-focus an arbitrary organ — doing that made
-  // toggling ONE system off collapse the panel onto a single organ (e.g. liver)
-  // instead of leaving the other still-selected systems' models on screen.
-  function reconcilePanel() {
-    if (focused != null && !selected.has(focused)) focused = null;
-    if (focused != null) { focus(focused); return; }
-    if (selected.size === 1) { focus(selected.values().next().value); return; }
-    if (selected.size) { if (modelQuery) renderModelSearch(); else renderSelectedModels(); return; }
-    resetPanel();
-  }
-
   // Add or remove every organ in a system, based on whether they're all
   // already selected (toggle). Loads any missing GLBs.
   function toggleSystem(system) {
@@ -810,12 +830,15 @@ async function main() {
     if (allOn) {
       for (const k of keys) selected.delete(k);
       applySelection(false);
-      reconcilePanel();
+      if (!selected.has(focused)) {
+        const next = selected.values().next().value;
+        if (next) focus(next); else resetPanel();
+      }
       setStatus(selectionStatus());
       return;
     }
     for (const k of keys) selected.add(k);
-    reconcilePanel();
+    focus(keys[0]);
     addMany(keys, system);
   }
 
@@ -903,6 +926,12 @@ async function main() {
     els.bpSub.textContent =
       `${total} model${total === 1 ? "" : "s"} · ${localModels.length} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
+    // A one-click way back to the whole-organ view (and its subregion chooser).
+    const back = document.createElement("div");
+    back.className = "sub-back";
+    back.textContent = `← all ${organ.label} models`;
+    back.addEventListener("click", () => focus(organ.key));
+    els.bpList.appendChild(back);
     if (!localModels.length && !regionWide.length) {
       const d = document.createElement("div");
       d.className = "empty";
@@ -993,19 +1022,13 @@ async function main() {
       els.bpList.appendChild(d);
       return;
     }
-    // Per organ, group its models by physiological process (the same unit the
-    // single-organ view uses) rather than a flat list — so the process/functional
-    // categories are visible in this multi-organ default view too, in a per-organ
-    // format (organ → process group → models). One Expand/Collapse-all controls
-    // every group across the whole panel.
-    appendProcessControls(els.bpList);
     for (const { organ, models } of byOrgan) {
       const head = document.createElement("div");
       head.className = "organ-group-head";
       head.innerHTML = `<span class="sw" style="background:${cssColor(models.length, maxCount)}"></span>`
         + `${esc(organ.label)} · ${models.length}`;
       els.bpList.appendChild(head);
-      appendProcessGroups(els.bpList, models);
+      for (const m of models) els.bpList.appendChild(_modelLink(m));
     }
   }
 
