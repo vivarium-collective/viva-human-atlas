@@ -280,7 +280,9 @@ function appendProcessGroups(container, models) {
   }
 }
 
-function renderBioModels(organ) {
+// `onSub(sub)` (optional) is invoked when a modeled-subregion chooser row is
+// clicked — the caller (focus) uses it to switch the panel to that structure.
+function renderBioModels(organ, onSub) {
   els.bpTitle.textContent = organ.label;
   const nTotal = organ.models.length;
   const breakdown = distinctBreakdown(organ.models);
@@ -304,6 +306,31 @@ function renderBioModels(organ) {
     d.textContent = "No models match the current source filter.";
     els.bpList.appendChild(d);
     return;
+  }
+  // Modeled subregions live as tiny meshes among hundreds in the 3D scene, so
+  // reaching one by raycast-click alone is unreliable. List them as a clickable
+  // chooser at the top of the focused-organ panel — one click flips the panel to
+  // that structure's models (localized + region-wide), same as clicking its mesh.
+  const subs = (organ.subregions || []).filter(
+    (s) => (s.n_models || 0) > 0 || (s.models || []).length);
+  if (subs.length && onSub) {
+    const head = document.createElement("div");
+    head.className = "organ-group-head";
+    head.textContent = `Modeled subregions · ${subs.length}`;
+    els.bpList.appendChild(head);
+    for (const s of subs) {
+      const row = document.createElement("div");
+      row.className = "sub-row";
+      const total = subregionCount(organ, s);
+      row.innerHTML = `<span class="sub-name">${esc(s.label)}</span>`
+        + `<span class="sub-count">${s.n_models} localized · ${total} total</span>`;
+      row.addEventListener("click", () => onSub(s));
+      els.bpList.appendChild(row);
+    }
+    const div = document.createElement("div");
+    div.className = "region-divider";
+    div.textContent = `All ${esc(organ.label)} models`;
+    els.bpList.appendChild(div);
   }
   // Group the organ's models by physiological process (ion transport,
   // metabolism, …) rather than one flat list — the process is the unit.
@@ -642,7 +669,11 @@ async function main() {
     // (across all shown organs), not a single organ.
     if (modelQuery) { renderModelSearch(); rerenderPanel = () => focus(key); return; }
     const organ = organsByKey.get(key);
-    if (organ) renderBioModels(organ);
+    if (organ) renderBioModels(organ, (sub) => {
+      focused = key;
+      renderSubregion(sub, organ);
+      rerenderPanel = () => renderSubregion(sub, organ);
+    });
     rerenderPanel = () => focus(key);
   }
 
@@ -895,6 +926,12 @@ async function main() {
     els.bpSub.textContent =
       `${total} model${total === 1 ? "" : "s"} · ${localModels.length} localized here · ${sub.uberon || ""} · in ${organ.label}`;
     els.bpList.innerHTML = "";
+    // A one-click way back to the whole-organ view (and its subregion chooser).
+    const back = document.createElement("div");
+    back.className = "sub-back";
+    back.textContent = `← all ${organ.label} models`;
+    back.addEventListener("click", () => focus(organ.key));
+    els.bpList.appendChild(back);
     if (!localModels.length && !regionWide.length) {
       const d = document.createElement("div");
       d.className = "empty";
