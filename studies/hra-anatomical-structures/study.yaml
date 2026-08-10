@@ -3,11 +3,11 @@ name: hra-anatomical-structures
 investigation: hra-integration
 title: "HRA Anatomical-Structure Term Occurrences"
 created: '2026-07-26'
-status: running
+status: complete
 design_status: complete
 implementation_status: complete
 simulation_status: ran
-phase: Evaluate
+phase: Decide
 
 question: |
   Does the HRA CCF API's ontology-term-occurences endpoint load into a
