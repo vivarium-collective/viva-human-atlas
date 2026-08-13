@@ -23,12 +23,12 @@ PYTHONPATH="$WS_ROOT${PYTHONPATH:+:$PYTHONPATH}" \
 find "$OUT" -name '*.map' -delete
 
 # Guard: refuse to ship a broken registry. viva_human_atlas.core.build_core()
-# imports pbg_biomodels (a sibling ../pbg-* path dep) plus its copasi/tellurium
+# imports viva_biomodels (a sibling ../viva-* path dep) plus its copasi/tellurium
 # backends; if THIS env lacks them, the publisher bakes an `error` + empty
 # registry into the bundle, i.e. a "None registered" snapshot with no
 # processes/composites. Publishing that would clobber a good publish — so fail
 # loudly instead. Build from an env where `from viva_human_atlas.core import
-# build_core` works (the sibling ../pbg-* repos installed).
+# build_core` works (the sibling ../viva-* repos installed).
 python - "$OUT" <<'PY'
 import sys, json, pathlib
 reg = pathlib.Path(sys.argv[1]) / "api" / "registry.json"
@@ -40,7 +40,7 @@ err, nproc = d.get("error"), len(d.get("processes") or [])
 if err or nproc == 0:
     sys.exit(
         f"REFUSING TO PUBLISH: registry did not build (error={err!r}, "
-        f"processes={nproc}). Install the sibling pbg-* deps so "
+        f"processes={nproc}). Install the sibling viva-* deps so"
         f"`from viva_human_atlas.core import build_core` works."
     )
 print(f"registry guard OK: {nproc} processes")

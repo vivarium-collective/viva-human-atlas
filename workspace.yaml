@@ -28,21 +28,21 @@ imports:
     ref: main
     mode: reference
     path: ../viva-biomodels
-    package: pbg_biomodels
+    package: viva_biomodels
     description: BioModels fetch + SED-ML parse + multi-simulator comparison
   viva-copasi:
     source: https://github.com/vivarium-collective/viva-copasi.git
     ref: main
     mode: reference
     path: ../viva-copasi
-    package: pbg_copasi
+    package: viva_copasi
     description: COPASI-backed UTC Step
   viva-tellurium:
     source: https://github.com/vivarium-collective/viva-tellurium.git
     ref: main
     mode: reference
     path: ../viva-tellurium
-    package: pbg_tellurium
+    package: viva_tellurium
     description: Tellurium / libroadrunner UTC Step
   viva-opencor:
     source: https://github.com/vivarium-collective/viva-opencor.git

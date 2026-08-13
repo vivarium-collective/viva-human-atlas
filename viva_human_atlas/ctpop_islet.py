@@ -143,7 +143,7 @@ def run_topp_with_composition(
 ) -> Dict[str, Any]:
     """Fetch the Topp2000 SBML, bind `beta_fraction` to its initial
     beta-cell mass (`beta_fraction_to_beta_mass`), run it via
-    `pbg_tellurium.TelluriumProcess`, and return the glucose/insulin/
+    `viva_tellurium.TelluriumProcess`, and return the glucose/insulin/
     beta-cell-mass trajectory.
 
     The Topp model operates on a DAYS timescale (beta-cell-mass turnover is
@@ -168,7 +168,7 @@ def run_topp_with_composition(
         b_init = beta_fraction_to_beta_mass(beta_fraction, b_ref, ref_fraction)
 
         from process_bigraph import allocate_core
-        from pbg_tellurium.processes import TelluriumProcess
+        from viva_tellurium.processes import TelluriumProcess
 
         core = allocate_core()
         proc = TelluriumProcess(
