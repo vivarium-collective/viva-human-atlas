@@ -1,7 +1,7 @@
 {
   "mode": "snapshot",
   "smsApiBase": "",
-  "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
-  "commit": "82c13a669c12e83965a87a65df840b37315896fa",
-  "generated_from_ref": "feat/physiome-atlas"
+  "repo": "https://github.com/vivarium-collective/viva-human-atlas",
+  "commit": "ee1718513146ebcc1994f3044580e663aeac6236",
+  "generated_from_ref": "fix/ci-publish-deps"
 }
