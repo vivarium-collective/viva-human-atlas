@@ -130,7 +130,32 @@ def describe_spec(spec):
     print("\nfull editable spec dict:")
     print(_json.dumps(spec, indent=2, default=str))
 
-# ## Study: `hra-3d-crosswalk`
+import base64 as _b64, pathlib as _pl
+def _render_one(address, config, runs_db, study_yaml):
+    """Generic figure renderer (no workspace render_study_viz.py):
+    resolve an ``image:<relpath>`` visualization to displayable HTML,
+    relative to the study directory."""
+    addr = str(address or '')
+    for _scheme in ('image:', 'file:', 'gif:', 'png:', 'svg:', 'jpg:', 'jpeg:'):
+        if addr.startswith(_scheme):
+            addr = addr[len(_scheme):]; break
+    _p = _pl.Path(addr)
+    if not _p.is_absolute():
+        _p = _pl.Path(study_yaml).resolve().parent / _p
+    if not _p.is_file():
+        return f'<p style="color:#b91c1c">figure not found: {address}</p>'
+    _suffix = _p.suffix.lower()
+    if _suffix == '.svg':
+        return _p.read_text(encoding='utf-8', errors='replace')
+    if _suffix in ('.png', '.jpg', '.jpeg', '.gif', '.webp'):
+        _mime = 'jpeg' if _suffix in ('.jpg', '.jpeg') else _suffix[1:]
+        _data = _b64.b64encode(_p.read_bytes()).decode('ascii')
+        return f'<img src="data:image/{_mime};base64,{_data}" style="max-width:100%"/>'
+    if _suffix in ('.html', '.htm'):
+        return _p.read_text(encoding='utf-8', errors='replace')
+    return f'<p style="color:#6b7280">unsupported figure type: {address}</p>'
+
+# ## Study: HRA 3D Crosswalk — Full ASCT+B-3D Anatomical-Structure Tree (`hra-3d-crosswalk`)
 #
 # **Question.** Does the HRA CDN's ASCT+B-3D models crosswalk load into a Step-driven
 # composite, giving the full 1,400+ anatomical-structure (AS) tree — not
@@ -151,7 +176,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `model-coverage-3d`
+# ## Study: Model Coverage 3D — AS/Organ Coverage from BioModel-DO Annotations (`model-coverage-3d`)
 #
 # **Question.** Of the HRA ASCT+B-3D crosswalk's 1,400+ anatomical structures (and ~81
 # reference organs), which are covered by a mechanistic model — and can
@@ -171,7 +196,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `spatial-linkage`
+# ## Study: Spatial Linkage — Model -> AS -> GLB Scene-Node Links (`spatial-linkage`)
 #
 # **Question.** For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
 # GLB scene node(s) does it correspond to — precise enough for a 3D viewer
@@ -191,7 +216,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `ftu-glomerulus`
+# ## Study: FTU Glomerulus — 3D Functional-Tissue-Unit Digital Object (`ftu-glomerulus`)
 #
 # **Question.** Does the HRA CDN's glomerulus 3D functional-tissue-unit (FTU) digital
 # object load into a Step-driven composite, giving a sub-organ-scale 3D
@@ -212,7 +237,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `corpus-coverage`
+# ## Study: Corpus Coverage — Full 1,096-Model BioModels Catalog on HRA 3D Anatomy (`corpus-coverage`)
 #
 # **Question.** Of the HRA ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical structures
 # (across 114 source-organ GLBs), how many are covered once every curated
@@ -221,6 +246,18 @@ print("No recorded runs for this study; nothing to reproduce.")
 # misses (e.g. kidney)?
 
 # ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `baseline` | `viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage` | 0 | catalog_path=datasets/biomodel_corpus_catalog.json |
+
+# ### Specification (process-bigraph) — load, inspect, edit
+#
+# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
+
+# **Composite `viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage`** — `spec_viva_human_atlas_composites_corpus_coverage_composite_corpus_coverage` (a plain, editable dict)
+
+# _composite spec file for `viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage` not found under `viva_human_atlas/composites/` — skipped._
 
 # ### Run
 #
@@ -234,7 +271,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `ftu-model-coverage`
+# ## Study: FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units? (`ftu-model-coverage`)
 #
 # **Question.** Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
 # Boerner's question -- and, for the FTUs that already have models, can HRA
@@ -242,6 +279,18 @@ print("No recorded runs for this study; nothing to reproduce.")
 # RUI -> CTpop -> model vision Peter Hunter and SPARC-heart describe?
 
 # ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `baseline` | `viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage` | 0 | catalog_path=datasets/biomodel_corpus_catalog.json |
+
+# ### Specification (process-bigraph) — load, inspect, edit
+#
+# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
+
+# **Composite `viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage`** — `spec_viva_human_atlas_composites_ftu_coverage_composite_ftu_model_coverage` (a plain, editable dict)
+
+# _composite spec file for `viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage` not found under `viva_human_atlas/composites/` — skipped._
 
 # ### Run
 #
@@ -255,7 +304,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `ctpop-islet-parameterization`
+# ## Study: CTpop -> Topp2000 Islet Parameterization — Beta-Cell Composition Shifts the Glucose Setpoint (`ctpop-islet-parameterization`)
 #
 # **Question.** Does binding HRA CTpop islet cell-type composition to the Topp2000
 # beta-cell-mass model (BIOMD0000000341) change the predicted glucose
@@ -277,7 +326,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `blood-vasculature-network`
+# ## Study: Blood Vasculature Network — VCCF transport graph to couple organ models (`blood-vasculature-network`)
 #
 # **Question.** Can the HRA/VCCF vasculature data define a whole-body blood-transport
 # network — a directed heart -> organ -> heart circuit through named vessels —
@@ -286,6 +335,18 @@ print("No recorded runs for this study; nothing to reproduce.")
 # v1 blood-circulation simulation over that network look like?
 
 # ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `baseline` | `viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network` | 0 | include_routes=True |
+
+# ### Specification (process-bigraph) — load, inspect, edit
+#
+# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
+
+# **Composite `viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network`** — `spec_viva_human_atlas_composites_vasculature_network_composite_blood_vasculature_network` (a plain, editable dict)
+
+# _composite spec file for `viva_human_atlas.composites.vasculature_network_composite.blood-vasculature-network` not found under `viva_human_atlas/composites/` — skipped._
 
 # ### Run
 #
@@ -299,7 +360,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: `hra-atlas-browser`
+# ## Study: HRA Computational Model Atlas — organ selector + model-count gradient + subregion placement (`hra-atlas-browser`)
 #
 # **Question.** Can we present the full HRA-3D model-coverage picture as an interactive
 # atlas — pick any of the 50 GLB-backed HRA organs, see it colored by how many
