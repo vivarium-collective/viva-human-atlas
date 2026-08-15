@@ -1,0 +1,111 @@
+schema_version: 4
+name: kidney-model-simulation
+investigation: hra-3d
+title: "Kidney model simulation — run every atlas-mapped kidney model in its compatible simulator"
+created: '2026-08-15'
+status: complete
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Decide
+
+question: |
+  Can we take the models the atlas maps to an organ — kidney — pull every one,
+  load each into its COMPATIBLE simulator (SBML BioModels under COPASI, CellML
+  Physiome models under OpenCOR), run each to a timeseries, and present all of
+  them together in one interactive dashboard that shows both the models that run
+  (with real trajectories) and the ones that don't (with the reason)?
+
+study_card:
+  goal: "Consume the atlas's organ->models output for the kidney, route each model to its compatible simulator by format, run it, normalize the heterogeneous results, and render one interactive dashboard — no silent drops."
+  mechanism: "OrganSimulationStep -> select_organ_models('kidney') pulls the 24 kidney-tagged runnable models from the BioModels/Physiome->HRA map (5 SBML BioModels, 19 CellML Physiome; PhysioNet entries are dataset references and excluded). SBML models run through viva_biomodels.run_comparison under COPASI (duration/points read from each model's own SED-ML); CellML models are resolved to their PMR .cellml URL (resolve_cellml_url) and run through viva_opencor.OpenCORUTCStep. Each run is isolated so one failure never sinks the batch; both result shapes are normalized to {time, series} and rendered as a grid of per-model cards (name, simulator, run-status badge) that expand into interactive Plotly timeseries. Failure cards show why a model didn't run."
+  expected_result: "All 24 runnable kidney models attempted; a dashboard where every model is either a live timeseries or a labeled failure. Spike yield: ~9/19 Physiome models run via OpenCOR with the single-file CellML resolver (the rest fail on multi-file/import CellML or a dead exposure page), plus the BioModels that carry SED-ML."
+  main_expert_question: "Is single-file-CellML + SED-ML-gated SBML the honest runnable subset of an organ's atlas models, or does fetching each Physiome exposure's full workspace fileset (for import-heavy CellML) materially raise the yield?"
+
+biological_summary: |
+  The atlas tells you WHICH mechanistic models describe the kidney; this study
+  RUNS them. Kidney draws 24 runnable models from two repositories with two
+  formats: 5 SBML BioModels (e.g. the Tiago iron-metabolism series) and 19
+  CellML Physiome models (the classic Eskandari/Mackenzie Na+/glucose
+  cotransporter and Na+/K+-ATPase transporter models). Each is loaded into the
+  simulator its format demands — SBML under COPASI, CellML under OpenCOR — run to
+  a timeseries, and shown in one place. The result is deliberately honest: some
+  models run and produce trajectories; others fail (a BioModel with no SED-ML to
+  say how long to run, a CellML model whose imports the single-file fetch can't
+  satisfy, an exposure page that 500s), and the dashboard names each failure
+  rather than hiding it. This turns the atlas from a static map into a runnable
+  view of an organ's models.
+
+readouts:
+  - "kidney models attempted: 24 (5 SBML->COPASI, 19 CellML->OpenCOR; PhysioNet excluded)"
+  - "per model: ran|failed, simulator, and (if ran) a normalized {time, series} timeseries"
+  - "dashboard: one interactive page, a grid of per-model cards expanding to Plotly species/state plots; failure cards show the reason"
+
+report:
+  title: "Kidney model simulation — 24 atlas models routed to COPASI/OpenCOR, run, and shown in one dashboard"
+  verdict: passing-with-caveats
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Run every runnable model the atlas maps to the kidney in its compatible
+    simulator and present all timeseries (and all failures) in one interactive
+    dashboard.
+  conclusion: |
+    OrganSimulationStep pulls the kidney's 24 runnable models, routes each by
+    format (SBML->COPASI via viva_biomodels, CellML->OpenCOR via viva_opencor),
+    runs them in isolation, normalizes the two result shapes, and writes an
+    interactive dashboard: a grid of per-model cards, each a live Plotly
+    timeseries or a labeled failure. The libOpenCOR path is spike-validated
+    (~9/19 Physiome kidney models run cleanly with the single-file CellML
+    resolver); the BioModels that carry SED-ML run under COPASI. The machinery is
+    organ-parameterized — the same Step runs any organ the atlas covers.
+  caveat: |
+    This is a LIVE run study: native COPASI + libOpenCOR engines and live PMR /
+    BioModels fetches, so it is not offline-reproducible and re-runs can differ
+    with upstream changes. The runnable subset is bounded by data, not method:
+    BioModels without SED-ML fail to load, and import-heavy CellML fails the
+    single-file resolver — fetching each Physiome exposure's full workspace
+    fileset is the named follow-up to lift the CellML yield.
+
+embed_visualizations:
+  - name: "Kidney model simulations (interactive dashboard)"
+    url: "/studies/kidney-model-simulation/viz/index.html"
+    description: "Grid of per-model cards — SBML under COPASI, CellML under OpenCOR — each expanding to an interactive Plotly timeseries; failure cards show why a model didn't run."
+
+baseline:
+  - name: baseline
+    step: local:viva_human_atlas.organ_simulation.OrganSimulationStep
+    params:
+      organ: kidney
+      end_time: 10.0
+      number_of_steps: 100
+
+runs:
+  - name: baseline
+    status: completed
+
+pipeline_gate:
+  gate_evaluator:
+    result: passed
+  prerequisites:
+    - study: hra-atlas-browser
+      relation: leads-to
+
+findings:
+  - id: F-01
+    tier: interpretation
+    mechanism_origin: engineered
+    claim_scope: mechanism
+    statement: |
+      An organ's atlas-mapped models can be run end-to-end in their compatible
+      simulators from a single Step: the kidney's 24 runnable models (5 SBML, 19
+      CellML) route to COPASI and OpenCOR respectively, run in isolation, and
+      render as one interactive dashboard where each model is a live timeseries
+      or a labeled failure.
+    evidence:
+      summary: "OrganSimulationStep(organ=kidney): 24 models selected (PhysioNet excluded), SBML via viva_biomodels.run_comparison (COPASI, SED-ML durations), CellML via resolve_cellml_url + viva_opencor.OpenCORUTCStep. Spike: 9/19 Physiome run cleanly; results normalized to {time, series} and written to studies/kidney-model-simulation/viz/index.html."
+
+limitations:
+  - "Live run study (native COPASI + libOpenCOR, PMR/BioModels network): not offline-reproducible; the committed dashboard is a snapshot of one run."
+  - "CellML yield is bounded by the single-file resolver — import-heavy Physiome models fail to load until their full workspace fileset is fetched (named follow-up)."
+  - "SBML models without SED-ML fail to load (the documented BioModels load-failure mode) and appear as failure cards."
