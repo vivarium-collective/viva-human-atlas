@@ -13,6 +13,8 @@ from pathlib import Path
 
 from process_bigraph import Step
 
+from viva_human_atlas.physiome import resolve_cellml_url
+
 _REPO = Path(__file__).resolve().parents[1]
 _DEFAULT_DB = str(_REPO / "datasets" / "model_hra_map.json")
 _SIM_BY_REPO = {"biomodels": "copasi", "physiome": "opencor", "physionet": None}
@@ -98,3 +100,67 @@ def normalize_result(simulator: str, raw: dict) -> dict:
     vals = raw.get("values") or []
     series = {c: [row[j] for row in vals] for j, c in enumerate(cols)}
     return {"time": time, "series": series}
+
+
+def _run_sbml(models, *, references=None):
+    """{key: {status, raw(numeric_result)|None, error}} via viva_biomodels."""
+    from viva_biomodels.composites.compare_simulators import run_comparison
+    ids = [m["ref"] for m in models]
+    rep = run_comparison(ids, simulators=["copasi"], references=references) if ids else {}
+    out = {}
+    for m in models:
+        r = rep.get(m["ref"]) or {}
+        raw = (r.get("engines") or {}).get("copasi") or {}
+        if r.get("error") or not raw.get("time"):
+            out[m["key"]] = {"status": "failed", "raw": None, "error": r.get("error") or "no timeseries produced"}
+        else:
+            out[m["key"]] = {"status": "ran", "raw": raw, "error": None}
+    return out
+
+
+def _run_cellml(models, *, end_time=10.0, number_of_steps=100):
+    """{key: {status, raw(opencor result)|None, error}} via OpenCOR."""
+    out = {}
+    try:
+        from process_bigraph import allocate_core
+        from viva_opencor.processes import OpenCORUTCStep
+    except Exception as exc:  # noqa: BLE001 — engine not installed
+        return {m["key"]: {"status": "failed", "raw": None,
+                           "error": f"OpenCOR unavailable: {exc}"} for m in models}
+    core = allocate_core(); core.register_link("OpenCORUTCStep", OpenCORUTCStep)
+    for m in models:
+        try:
+            url = resolve_cellml_url(m["ref"])
+            if not url:
+                out[m["key"]] = {"status": "failed", "raw": None, "error": "no .cellml resolved for exposure"}
+                continue
+            step = OpenCORUTCStep(config={"model_source": url, "end_time": end_time,
+                                          "number_of_steps": number_of_steps}, core=core)
+            out[m["key"]] = {"status": "ran", "raw": step.update({})["result"], "error": None}
+        except Exception as exc:  # noqa: BLE001 — one model never sinks the batch
+            out[m["key"]] = {"status": "failed", "raw": None, "error": str(exc)}
+    return out
+
+
+def run_organ_simulation(organ, *, end_time=10.0, number_of_steps=100, db_path=_DEFAULT_DB) -> dict:
+    models = select_organ_models(organ, db_path)
+    sbml = [m for m in models if m["simulator"] == "copasi"]
+    cellml = [m for m in models if m["simulator"] == "opencor"]
+    ran_sbml = _run_sbml(sbml)
+    ran_cellml = _run_cellml(cellml, end_time=end_time, number_of_steps=number_of_steps)
+    raw_by_key = {**ran_sbml, **ran_cellml}
+    out_models, n_ran, n_failed, by_sim = [], 0, 0, {}
+    for m in models:
+        by_sim[m["simulator"]] = by_sim.get(m["simulator"], 0) + 1
+        r = raw_by_key.get(m["key"]) or {"status": "failed", "raw": None, "error": "not run"}
+        rec = {"key": m["key"], "name": m["name"], "simulator": m["simulator"],
+               "status": r["status"], "error": r.get("error")}
+        if r["status"] == "ran":
+            norm = normalize_result(m["simulator"], r["raw"])
+            rec["time"] = norm["time"]; rec["series"] = norm["series"]; n_ran += 1
+        else:
+            rec["time"] = []; rec["series"] = {}; n_failed += 1
+        out_models.append(rec)
+    return {"organ": organ, "models": out_models,
+            "summary": {"n_models": len(models), "n_ran": n_ran,
+                        "n_failed": n_failed, "by_simulator": by_sim}}
