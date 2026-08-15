@@ -164,3 +164,53 @@ def run_organ_simulation(organ, *, end_time=10.0, number_of_steps=100, db_path=_
     return {"organ": organ, "models": out_models,
             "summary": {"n_models": len(models), "n_ran": n_ran,
                         "n_failed": n_failed, "by_simulator": by_sim}}
+
+
+_DEFAULT_OUT = str(_REPO / "studies" / "kidney-model-simulation" / "viz")
+
+
+class OrganSimulationStep(Step):
+    """Step: run every runnable model for an organ in its compatible simulator
+    and write an interactive dashboard + tidy results JSON."""
+
+    description = ("Run all of an organ's atlas-mapped models (SBML->COPASI, "
+                   "CellML->OpenCOR), collect timeseries, and write an "
+                   "interactive dashboard. Live run: native simulators + "
+                   "network fetches. Failing models are shown, not dropped.")
+
+    config_schema = {"organ": "string", "end_time": "float",
+                     "number_of_steps": "integer", "db_path": "string", "out_dir": "string"}
+
+    def inputs(self):
+        return {}
+
+    def outputs(self):
+        return {"summary": "tree", "dashboard_path": "string", "results_path": "string"}
+
+    def update(self, inputs):
+        from viva_human_atlas.viz import organ_dashboard_html
+        organ = self.config.get("organ") or "kidney"
+        result = run_organ_simulation(
+            organ,
+            end_time=float(self.config.get("end_time") or 10.0),
+            number_of_steps=int(self.config.get("number_of_steps") or 100),
+            db_path=self.config.get("db_path") or _DEFAULT_DB,
+        )
+        out_dir = Path(self.config.get("out_dir") or _DEFAULT_OUT)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "results.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+        (out_dir / "index.html").write_text(organ_dashboard_html(result), encoding="utf-8")
+        return {"summary": result["summary"],
+                "dashboard_path": str(out_dir / "index.html"),
+                "results_path": str(out_dir / "results.json")}
+
+
+OrganSimulationStep.contract = {
+    "summary": OrganSimulationStep.description,
+    "outputs": {"summary": "n_models/n_ran/n_failed/by_simulator.",
+                "dashboard_path": "Path to the written interactive dashboard HTML.",
+                "results_path": "Path to the tidy results JSON."},
+    "assumptions": ["A live run study: COPASI + libOpenCOR native engines and "
+                    "PMR/BioModels network fetches. Re-runs may differ with "
+                    "upstream changes; failing models are marked, not dropped."],
+}
