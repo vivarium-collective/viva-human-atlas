@@ -144,16 +144,41 @@ def _reason_from_issues(issues) -> str:
     return issues[0].split("|")[-1].strip()[:160]
 
 
-def _classify_cellml_failure(model_source: str) -> str:
+def _is_component_fragment_text(cellml_text: str) -> bool:
+    """True when the CellML declares `public_interface="in"` input variables but
+    has NO ODEs (`<diff>`/`<bvar>`) — a reusable model *component* (a flux
+    J=f(inputs) meant to be imported into a parent model that supplies the
+    inputs), not a standalone runnable simulation."""
+    t = cellml_text or ""
+    has_in = 'public_interface="in"' in t or "public_interface='in'" in t
+    has_ode = "<diff" in t or "<bvar" in t
+    return has_in and not has_ode
+
+
+def _classify_cellml_failure(model_source: str, *, _get=None) -> str:
     """Load the model with libOpenCOR and turn its analyser issues into a human
-    reason (see _reason_from_issues). '' if it can't be introspected."""
+    reason (see _reason_from_issues). For the undetermined-variable case, sharpen
+    it to the precise "model component" message when the CellML is an
+    interface-input / no-ODE fragment. '' if it can't be introspected."""
     try:
         import libopencor as loc
         f = loc.File(model_source)
         issues = [f.issue(i).description for i in range(f.issue_count)]
     except Exception:  # noqa: BLE001 — diagnosis is best-effort
-        return ""
-    return _reason_from_issues(issues)
+        issues = []
+    reason = _reason_from_issues(issues)
+    if reason.startswith("component/flux model"):
+        try:
+            if _get is None:
+                import requests
+                _get = requests.get
+            text = _get(model_source, timeout=20).text
+        except Exception:  # noqa: BLE001
+            text = ""
+        if _is_component_fragment_text(text):
+            return ("CellML model component — interface inputs, no ODEs; "
+                    "designed to be imported into a parent model, not run standalone")
+    return reason
 
 
 def _run_cellml(models, *, end_time=10.0, number_of_steps=100):
