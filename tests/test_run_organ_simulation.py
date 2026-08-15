@@ -38,3 +38,24 @@ def test_reason_from_issues_classifies_opencor_failures():
     assert "unit inconsistency" in _reason_from_issues(
         ["Analyser: the units in 'Ha = H*exp(...)' in component 'x' are not equivalent."])
     assert _reason_from_issues([]) == ""
+
+
+def test_is_component_fragment_text():
+    from viva_human_atlas.organ_simulation import _is_component_fragment_text
+    # interface="in" inputs + NO <diff> → a component fragment
+    assert _is_component_fragment_text(
+        '<variable name="K_int" public_interface="in" units="mM"/>'
+        '<variable name="J" public_interface="out"/>') is True
+    # has an ODE (<diff>) → a real standalone model, not a fragment
+    assert _is_component_fragment_text(
+        '<variable name="V" public_interface="in"/><math><apply><diff/></apply></math>') is False
+    # no interface-in inputs at all → not a fragment
+    assert _is_component_fragment_text('<variable name="V" initial_value="0"/>') is False
+    assert _is_component_fragment_text("") is False
+
+
+def test_classify_cellml_failure_never_crashes():
+    # A bogus source must not raise — it returns some string reason (the full
+    # fragment-sharpening integration is covered by the live regeneration).
+    from viva_human_atlas.organ_simulation import _classify_cellml_failure
+    assert isinstance(_classify_cellml_failure("nonexistent://model"), str)
