@@ -250,3 +250,32 @@ def write_study_figure(study_slug: str, name: str, html: str, ws_root: str = "."
     full_path.parent.mkdir(parents=True, exist_ok=True)
     full_path.write_text(html, encoding="utf-8")
     return str(rel_path)
+
+
+def organ_dashboard_html(result: dict, *, max_series: int = 8) -> str:
+    s = result.get("summary", {})
+    cards = []
+    for m in result.get("models", []):
+        badge = "✓ ran" if m["status"] == "ran" else "✗ failed"
+        color = "#1a7f37" if m["status"] == "ran" else "#b42318"
+        head = (f'<summary><b>{m["name"] or m["key"]}</b> '
+                f'<span style="opacity:.7">[{m["simulator"]}]</span> '
+                f'<span style="color:{color}">{badge}</span></summary>')
+        if m["status"] == "ran" and m.get("series"):
+            fig = go.Figure()
+            for name, ys in list(m["series"].items())[:max_series]:
+                fig.add_trace(go.Scatter(x=m["time"], y=ys, mode="lines", name=name))
+            fig.update_layout(margin=dict(l=40, r=10, t=10, b=30), height=320,
+                              xaxis_title="time", template="plotly_white")
+            body = fig.to_html(include_plotlyjs=False, full_html=False)
+        else:
+            body = f'<p style="color:{color}">{m.get("error") or "did not run"}</p>'
+        cards.append(f'<details style="border:1px solid #ddd;border-radius:8px;'
+                     f'margin:8px 0;padding:8px">{head}{body}</details>')
+    header = (f'<h1>{result.get("organ","organ").title()} — model simulations</h1>'
+              f'<p>{s.get("n_ran",0)}/{s.get("n_models",0)} ran, '
+              f'{s.get("n_failed",0)} failed · by simulator: {s.get("by_simulator",{})}</p>')
+    return (f'<!doctype html><html><head><meta charset="utf-8">'
+            f'<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>'
+            f'<style>body{{font-family:system-ui;margin:24px;max-width:900px}}</style>'
+            f'</head><body>{header}{"".join(cards)}</body></html>')
