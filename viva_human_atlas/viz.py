@@ -5,6 +5,7 @@ to be embedded via a study's `embed_visualizations` (see
 """
 from __future__ import annotations
 
+import html
 from pathlib import Path
 
 import plotly.graph_objects as go
@@ -258,8 +259,8 @@ def organ_dashboard_html(result: dict, *, max_series: int = 8) -> str:
     for m in result.get("models", []):
         badge = "✓ ran" if m["status"] == "ran" else "✗ failed"
         color = "#1a7f37" if m["status"] == "ran" else "#b42318"
-        head = (f'<summary><b>{m["name"] or m["key"]}</b> '
-                f'<span style="opacity:.7">[{m["simulator"]}]</span> '
+        head = (f'<summary><b>{html.escape(str(m["name"] or m["key"]))}</b> '
+                f'<span style="opacity:.7">[{html.escape(str(m["simulator"]))}]</span> '
                 f'<span style="color:{color}">{badge}</span></summary>')
         if m["status"] == "ran" and m.get("series"):
             fig = go.Figure()
@@ -269,7 +270,7 @@ def organ_dashboard_html(result: dict, *, max_series: int = 8) -> str:
                               xaxis_title="time", template="plotly_white")
             body = fig.to_html(include_plotlyjs=False, full_html=False)
         else:
-            body = f'<p style="color:{color}">{m.get("error") or "did not run"}</p>'
+            body = f'<p style="color:{color}">{html.escape(str(m.get("error") or "did not run"))}</p>'
         cards.append(f'<details style="border:1px solid #ddd;border-radius:8px;'
                      f'margin:8px 0;padding:8px">{head}{body}</details>')
     header = (f'<h1>{result.get("organ","organ").title()} — model simulations</h1>'
