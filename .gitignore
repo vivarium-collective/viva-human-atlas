@@ -17,3 +17,6 @@ studies/*/viz/report_card/
 studies/*/sims/
 studies/*/runs.db
 .cache/
+
+# kidney-model-simulation: large regenerable tidy results (dashboard index.html is the committed self-contained artifact)
+studies/kidney-model-simulation/viz/results.json
