@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Study: spatial-linkage</title>
+<title>Study: kidney-model-simulation</title>
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/style.css">
 <link rel="stylesheet" href="/viva-human-atlas/dashboard/assets/progress-track.css">
 <!-- Inherit the workbench light/dark theme (this page loads in an iframe;
@@ -14,7 +14,7 @@
 <header class="study-header">
   <div style="display:flex; align-items:baseline; gap:12px; justify-content:space-between;">
   <h1 class="study-title">
-    <span class="study-name" id="study-name" data-slug="spatial-linkage" title="spatial-linkage">Spatial Linkage — Model -&gt; AS -&gt; GLB Scene-Node Links</span>
+    <span class="study-name" id="study-name" data-slug="kidney-model-simulation" title="kidney-model-simulation">Kidney model simulation — run every atlas-mapped kidney model in its compatible simulator</span>
     
     <span class="study-kind-tag study-kind-computational" data-study-kind="computational" title="Study kind">computational</span>
     
@@ -34,7 +34,7 @@
     
 
     
-    <div id="readiness-panel" data-slug="spatial-linkage"></div>
+    <div id="readiness-panel" data-slug="kidney-model-simulation"></div>
 
     
     
@@ -64,7 +64,7 @@
             <span class="dot"></span>4&nbsp;·&nbsp;Quality
           </span>
           
-          <span class="status-step gate-step axis-gate_status gate-state-passed-with-conditions set" title="Gate 5 · Decision">
+          <span class="status-step gate-step axis-gate_status gate-state-passed set" title="Gate 5 · Decision">
             <span class="dot"></span>5&nbsp;·&nbsp;Decision
           </span>
           
@@ -118,11 +118,11 @@
           
         </div>
         
-        <div class="status-detail-row gate-row gate-state-passed-with-conditions">
+        <div class="status-detail-row gate-row gate-state-passed">
           <span class="status-detail-axis">5 · Decision</span>
           <span class="status-chip gate-state-not-assessed">not set</span>
           
-          <span class="gate-computed-chip gate-state-passed-with-conditions" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: needs_calibration</span>
+          <span class="gate-computed-chip gate-state-passed" title="spine gate evaluator (study_verdict.roll_up_verdict / pipeline_gate.gate_evaluator)">◆ computed: passed</span>
           
           
           
@@ -155,16 +155,18 @@
 
 
 
-<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
-GLB scene node(s) does it correspond to — precise enough for a 3D viewer
-to color/label the right node per model?
+<p id="study-question-headline" class="study-question-headline"><span class="q-glyph">Q</span> Can we take the models the atlas maps to an organ — kidney — pull every one,
+load each into its COMPATIBLE simulator (SBML BioModels under COPASI, CellML
+Physiome models under OpenCOR), run each to a timeseries, and present all of
+them together in one interactive dashboard that shows both the models that run
+(with real trajectories) and the ones that don&#39;t (with the reason)?
 </p>
 
 <nav class="study-tabs" aria-label="Study sections">
   
   <div class="act-cluster" data-act="study">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="study" data-gate-state="passed-with-conditions"></span>
+      <span class="act-gate-dot" data-gate="study" data-gate-state="passed"></span>
       <span class="act-label">The Study</span>
     </div>
     <div class="act-tabs">
@@ -202,7 +204,7 @@ to color/label the right node per model?
   </div>
   <div class="act-cluster" data-act="decision">
     <div class="act-header">
-      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed-with-conditions"></span>
+      <span class="act-gate-dot" data-gate="decision" data-gate-state="passed"></span>
       <span class="act-label">Decision</span>
     </div>
     <div class="act-tabs">
@@ -444,9 +446,11 @@ to color/label the right node per model?
     
     <div class="overview-section">
       <div id="question-text" class="overview-prose" data-editable="true" data-field="question"
-           data-placeholder="+ Add the research question this study asks">For each biomodel-DO organ annotation, exactly which ASCT+B-3D crosswalk
-GLB scene node(s) does it correspond to — precise enough for a 3D viewer
-to color/label the right node per model?
+           data-placeholder="+ Add the research question this study asks">Can we take the models the atlas maps to an organ — kidney — pull every one,
+load each into its COMPATIBLE simulator (SBML BioModels under COPASI, CellML
+Physiome models under OpenCOR), run each to a timeseries, and present all of
+them together in one interactive dashboard that shows both the models that run
+(with real trajectories) and the ones that don&#39;t (with the reason)?
 </div>
       <div id="hypothesis-text" class="overview-prose" data-editable="true" data-field="hypothesis"
            data-placeholder="(predicted outcome)"></div>
@@ -457,14 +461,18 @@ to color/label the right node per model?
     
     <div class="overview-section">
       <div class="purpose-callout" style="background:#f8fafc;border-left:4px solid #94a3b8">
-        <strong>Summary.</strong> Marking an organ &#34;covered&#34; is a coarse signal; a 3D viewer needs to know
-exactly which GLB scene node to color for a given model. This study joins
-each biomodel-DO organ annotation directly to the crosswalk rows sharing
-its Uberon CURIE, producing the (model, GLB node) pairs a viewer renders
-against. Because HRA ships separate male/female reference-organ GLBs, one
-organ annotation legitimately links to two nodes (one per sex) — the join
-is deliberately Uberon-only in v1, deferring &#34;pick the single best node&#34;
-resolution to a future viewer-side step.
+        <strong>Summary.</strong> The atlas tells you WHICH mechanistic models describe the kidney; this study
+RUNS them. Kidney draws 24 runnable models from two repositories with two
+formats: 5 SBML BioModels (e.g. the Tiago iron-metabolism series) and 19
+CellML Physiome models (the classic Eskandari/Mackenzie Na+/glucose
+cotransporter and Na+/K+-ATPase transporter models). Each is loaded into the
+simulator its format demands — SBML under COPASI, CellML under OpenCOR — run to
+a timeseries, and shown in one place. The result is deliberately honest: some
+models run and produce trajectories; others fail (a BioModel with no SED-ML to
+say how long to run, a CellML model whose imports the single-file fetch can&#39;t
+satisfy, an exposure page that 500s), and the dashboard names each failure
+rather than hiding it. This turns the atlas from a static map into a runnable
+view of an organ&#39;s models.
 
       </div>
     </div>
@@ -484,12 +492,11 @@ resolution to a future viewer-side step.
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">The live Uberon-only join produces 10 (model, GLB-node) links across
-5 distinct biomodels, with every model linking to exactly 2 nodes
-(one per sex) -- confirming the join mechanism is deterministic and
-reproducible from the shared organ Uberon, even though `readout` is
-still a literal placeholder string (&#34;pending time-series&#34;) for every
-link in v1.
+            <span class="finding-claim finding-statement">An organ&#39;s atlas-mapped models can be run end-to-end in their compatible
+simulators from a single Step: the kidney&#39;s 24 runnable models (5 SBML, 19
+CellML) route to COPASI and OpenCOR respectively, run in isolation, and
+render as one interactive dashboard where each model is a live timeseries
+or a labeled failure.
 </span>
             
           </summary>
@@ -581,30 +588,6 @@ link in v1.
           </div>
         </div>
         
-        
-        
-        
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
-          <div>
-            <strong style="color:#1e293b">region-unexplored</strong>
-            <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?</div>
-          </div>
-        </div>
-        
-        
-        
-        
-        <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border-top:1px solid #f1f5f9">
-          <span style="padding:1px 8px;border-radius:9999px;background:#f1f5f9;color:#475569;font-weight:600;font-size:0.72em;white-space:nowrap">low</span>
-          <div>
-            <strong style="color:#1e293b">region-unexplored</strong>
-            <code style="font-size:0.82em">remaining_uncertainties</code>
-            <div style="color:#475569;font-size:0.9em;margin-top:1px">Is Uberon-CURIE-only join precise enough, or does a real viewer need a single &#39;best&#39; node resolved per model?</div>
-          </div>
-        </div>
-        
       </div>
     </div>
     
@@ -614,12 +597,11 @@ link in v1.
     <div class="overview-section conclusion-block">
       <h2 class="overview-label">Conclusion</h2>
       
-      <p class="conclusion-insight">The live Uberon-only join produces 10 (model, GLB-node) links across
-5 distinct biomodels, with every model linking to exactly 2 nodes
-(one per sex) -- confirming the join mechanism is deterministic and
-reproducible from the shared organ Uberon, even though `readout` is
-still a literal placeholder string (&#34;pending time-series&#34;) for every
-link in v1.
+      <p class="conclusion-insight">An organ&#39;s atlas-mapped models can be run end-to-end in their compatible
+simulators from a single Step: the kidney&#39;s 24 runnable models (5 SBML, 19
+CellML) route to COPASI and OpenCOR respectively, run in isolation, and
+render as one interactive dashboard where each model is a live timeseries
+or a labeled failure.
 <span class="computed-tag">computed from findings</span></p>
       
       
@@ -628,15 +610,14 @@ link in v1.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.conclusion">
         <span class="narrative-label">Conclusion</span>
         <textarea class="narrative-input narrative-textarea" rows="3"
-                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">The live join produces 10 links across 5 distinct biomodels (25-result
-&#34;glucose regulation&#34; query): BIOMD0000000633 (Bulik2016 hepatic glucose
-metabolism) -&gt; VH_F_liver/VH_M_liver; MODEL2001080002 (Topp2000 b-cell
-mass/insulin/glucose), MODEL1112110004 (Silber2007 IV glucose), and
-BIOMD0000000382 (Sturis1991 ultradian oscillations) and
-BIOMD0000000372 (Tolic2000 insulin-glucose feedback) each -&gt;
-VH_F_pancreas/VH_M_pancreas. Every model links to exactly 2 nodes (one
-per sex), confirming the Uberon-only join fires correctly and is fully
-reproducible from the shared organ Uberon.
+                  data-narrative-path="report.conclusion" placeholder="What the runs + tests demonstrated.">OrganSimulationStep pulls the kidney&#39;s 24 runnable models, routes each by
+format (SBML-&gt;COPASI via viva_biomodels, CellML-&gt;OpenCOR via viva_opencor),
+runs them in isolation, normalizes the two result shapes, and writes an
+interactive dashboard: a grid of per-model cards, each a live Plotly
+timeseries or a labeled failure. The libOpenCOR path is spike-validated
+(~9/19 Physiome kidney models run cleanly with the single-file CellML
+resolver); the BioModels that carry SED-ML run under COPASI. The machinery is
+organ-parameterized — the same Step runs any organ the atlas covers.
 </textarea>
       </label>
     </div>
@@ -647,12 +628,12 @@ reproducible from the shared organ Uberon.
       <label class="narrative-row narrative-row-wide" data-field-editor="report.caveat">
         <span class="narrative-label">Caveat</span>
         <textarea class="narrative-input narrative-textarea" rows="2"
-                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">`readout` is a literal placeholder string (`&#34;pending time-series&#34;`) in
-v1 for every link — no simulation output is wired to a node yet, so
-this study demonstrates the join topology only, not a live-data 3D
-viewer. The 2-links-per-model pattern (one per sex) also means a
-viewer must still resolve &#34;which sex&#39;s GLB is currently displayed&#34; to
-color a single node, not both.
+                  data-narrative-path="report.caveat" placeholder="The headline limitation a reviewer needs to know.">This is a LIVE run study: native COPASI + libOpenCOR engines and live PMR /
+BioModels fetches, so it is not offline-reproducible and re-runs can differ
+with upstream changes. The runnable subset is bounded by data, not method:
+BioModels without SED-ML fail to load, and import-heavy CellML fails the
+single-file resolver — fetching each Physiome exposure&#39;s full workspace
+fileset is the named follow-up to lift the CellML yield.
 </textarea>
       </label>
     </div>
@@ -685,7 +666,7 @@ color a single node, not both.
   <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
     <h2 class="overview-label" style="margin:0">Model composition</h2>
     
-    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'spatial-linkage', 'hra-3d')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
+    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'kidney-model-simulation', 'hra-3d')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
   </div>
   
   
@@ -701,7 +682,7 @@ color a single node, not both.
   <div class="overview-section" id="model-section">
     <h3>Runnable models <span class="muted" style="font-size:0.85em;font-weight:normal">— the composite(s) this study simulates</span></h3>
     
-    <div class="cond-block" data-model-composite="" data-model-overrides='{"max_results": 25, "query": "glucose regulation"}'>
+    <div class="cond-block" data-model-composite="" data-model-overrides='{"end_time": 10.0, "number_of_steps": 100, "organ": "kidney"}'>
       <div class="cond-block-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <strong>baseline</strong>
         <span class="muted">no composite declared</span>
@@ -773,9 +754,9 @@ color a single node, not both.
   <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
     <span class="muted" style="margin-right:auto;font-weight:600">Analysis result files</span>
     <a id="data-download-all" class="btn-mini" style="display:none"
-       href="/api/study-analysis-zip?study=spatial-linkage">Download all (.zip)</a>
+       href="/api/study-analysis-zip?study=kidney-model-simulation">Download all (.zip)</a>
   </div>
-  <div id="data-files" data-study="spatial-linkage">
+  <div id="data-files" data-study="kidney-model-simulation">
     <p class="empty-message">Loading result files…</p>
   </div>
 
@@ -800,7 +781,7 @@ color a single node, not both.
     
     <div id="readouts-download" style="margin:0 0 16px 0"></div>
 
-    <div id="readouts-table" data-study="spatial-linkage">
+    <div id="readouts-table" data-study="kidney-model-simulation">
       <p class="empty-message">Loading readouts from the composite emit plan…</p>
     </div>
 
@@ -821,19 +802,19 @@ color a single node, not both.
     
     
     <div class="figure-card embed-viz-card">
-      <iframe src="/viva-human-atlas/dashboard/reports/figures/spatial-linkage/links-per-organ.html"
+      <iframe src="/viva-human-atlas/dashboard/studies/kidney-model-simulation/viz/index.html"
               class="figure-media-frame figure-media-frame--embed"
-              loading="lazy" title="Model-&gt;AS links per organ"
+              loading="lazy" title="Kidney model simulations (interactive dashboard)"
               onload="(function(f){try{var d=f.contentDocument;if(!d)return;var b=d.body,e=d.documentElement;var bStyle=b&&d.defaultView&&d.defaultView.getComputedStyle?d.defaultView.getComputedStyle(b):null;var pinnedH=0;if(bStyle&&(bStyle.overflow||'').indexOf('hidden')>=0){var hm=(bStyle.height||'').match(/^(\d+(?:\.\d+)?)px$/);if(hm)pinnedH=Math.round(parseFloat(hm[1]));}var h=pinnedH>0?pinnedH:Math.max(e?e.scrollHeight:0,b?b.scrollHeight:0);if(h>0)f.style.height=(h+24)+'px';}catch(e){}})(this)"
               ></iframe>
       
-      <p class="figure-desc muted">Bar chart of (model, GLB-node) link counts per organ label from the live join: 10 links / 5 models, all liver or pancreas.</p>
+      <p class="figure-desc muted">Grid of per-model cards — SBML under COPASI, CellML under OpenCOR — each expanding to an interactive Plotly timeseries; failure cards show why a model didn&#39;t run.</p>
       
       <div class="figure-caption-row">
         <span class="figure-source-chip">embed</span>
-        <span class="figure-title">Model-&gt;AS links per organ</span>
+        <span class="figure-title">Kidney model simulations (interactive dashboard)</span>
         
-        <a href="/viva-human-atlas/dashboard/reports/figures/spatial-linkage/links-per-organ.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
+        <a href="/viva-human-atlas/dashboard/studies/kidney-model-simulation/viz/index.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
       </div>
     </div>
     
@@ -940,7 +921,7 @@ color a single node, not both.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline spatial-link join composite (biomodel-DO organs x crosswalk rows on shared Uberon) completed without error.</textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -953,7 +934,7 @@ color a single node, not both.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The join topology is verified correct (every model links to exactly 2 sex-split nodes), but `readout` is a placeholder string for every link -- no simulation result is actually linked to a node yet, so this is gated needs_calibration rather than passed.</textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -966,7 +947,7 @@ color a single node, not both.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">F-01 establishes the join mechanism works reliably (10 links/5 models, Uberon-only, fully reproducible) but carries no result data yet -- model-&gt;AS-&gt;node linkage works at the topology level only.</textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
         </label>
       </div>
     </div>
@@ -992,7 +973,9 @@ color a single node, not both.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;hra-atlas-browser&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+      </div>
       
       
       
@@ -1006,7 +989,7 @@ color a single node, not both.
       <h3 class="overview-label">Limitations</h3>
       <p class="muted" style="margin:0 0 6px 0;font-size:0.85em">What this study explicitly does NOT validate (prevents overclaim).</p>
       <ul style="margin:0 0 0 18px;padding:0;font-size:0.93em">
-        <li style="margin:2px 0">`readout` is a literal placeholder string (&#39;pending time-series&#39;) for every link in v1; no simulation output is wired to a node yet.</li><li style="margin:2px 0">The 2-links-per-model pattern (one per sex) means a viewer must still resolve &#39;which sex&#39;s GLB is currently displayed&#39; to color a single node, not both.</li>
+        <li style="margin:2px 0">Live run study (native COPASI + libOpenCOR, PMR/BioModels network): not offline-reproducible; the committed dashboard is a snapshot of one run.</li><li style="margin:2px 0">CellML yield is bounded by the single-file resolver — import-heavy Physiome models fail to load until their full workspace fileset is fetched (named follow-up).</li><li style="margin:2px 0">SBML models without SED-ML fail to load (the documented BioModels load-failure mode) and appear as failure cards.</li>
       </ul>
     </div>
     
@@ -1046,64 +1029,6 @@ color a single node, not both.
 
     
     
-    
-    <div class="overview-section" id="discovery-implications-section" style="margin-top:18px">
-      <h3 class="overview-label">Discovery implications</h3>
-      <p class="muted" style="margin:0 0 10px 0;font-size:0.88em">Where this study's results leave the mechanism model — and what to investigate next.</p>
-
-      
-      <div class="di-uncertainties">
-        
-        <div class="di-unc di-unc-resolved">
-          <h4>✓ Resolved uncertainties</h4>
-          <ul><li>Uberon-only join reliably produces exactly 2 links per model (one per sex), confirming the join mechanism is deterministic and reproducible.</li></ul>
-        </div>
-        
-        
-        <div class="di-unc di-unc-remaining">
-          <h4>● Remaining uncertainties</h4>
-          <ul><li>Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?</li><li>Is Uberon-CURIE-only join precise enough, or does a real viewer need a single &#39;best&#39; node resolved per model?</li></ul>
-        </div>
-        
-      </div>
-      
-
-      
-
-      
-
-      
-      
-      
-      <div class="di-group">
-        <h3>Follow-up study proposals
-          <span class="muted" style="font-weight:normal;font-size:0.82em">(discovered)</span>
-          <span class="muted" style="font-weight:normal;font-size:0.85em">(1)</span></h3>
-        <p class="muted" style="margin:0 0 8px 0;font-size:0.85em">Click <strong>➕ Add to investigation</strong> to spawn a new study node in the investigation graph.</p>
-        <div class="followup-list">
-          
-          
-          <div class="di-card di-fup-card">
-            <div class="followup-header">
-              <strong class="followup-title">Result-driven spatial linkage</strong>
-              <span class="di-chip">data-pipeline</span>
-              <span class="di-chip">spatial-linkage</span>
-              <span class="di-chip di-gain-high">gain: high</span>
-              
-            </div>
-            <div class="di-card-why">Extract steady-state species concentrations from the committed corpus COPASI/Tellurium comparison dataset and attach them as the `readout` field on each (model, AS-node) link, replacing the placeholder &#39;pending time-series&#39; string; re-render the 3D viewer pack colored by that value.</div>
-            
-            <div class="followup-actions" style="margin-top:8px">
-              <button class="btn-seed-followup"
-                      onclick="_seedFollowupProposal('spatial-linkage', "fp-result-driven-spatial-link")">➕ Add to investigation</button>
-            </div>
-          </div>
-          
-        </div>
-      </div>
-      
-    </div>
-    
 
     
     
@@ -1121,7 +1046,7 @@ color a single node, not both.
 <script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "d30040594f2ed3866518e2e786b090300fd25aa3", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/d30040594f2ed3866518e2e786b090300fd25aa3", "branch": "main", "generated_at": "2026-08-15 19:17 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
-window._studyName = "spatial-linkage";
+window._studyName = "kidney-model-simulation";
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
