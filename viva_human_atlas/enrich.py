@@ -90,6 +90,7 @@ def enrich_map(entries: Sequence[dict], *, gene_index: dict,
 
 
 import json
+import os
 from pathlib import Path
 from process_bigraph import Step
 
@@ -123,7 +124,7 @@ class GeneEnrichStep(Step):
 
     def outputs(self):
         return {"db_path": "string", "n_models_enriched": "integer",
-                "n_gene_uberons_added": "integer", "summary": "tree"}
+                "n_models_with_uberon": "integer", "summary": "tree"}
 
     def update(self, inputs):
         db_path = inputs.get("db_path") or self.config.get("db_path") or _DEFAULT_DB
@@ -136,7 +137,9 @@ class GeneEnrichStep(Step):
             entries = load_map(db_path)
             enrich_map(entries, gene_index=gene_index, organ_index=build_organ_index(),
                        cache_dir=self.config.get("cache_dir") or None)
-            Path(db_path).write_text(json.dumps(list(entries), indent=2), encoding="utf-8")
+            _tmp = Path(db_path).with_suffix(".json.tmp")
+            _tmp.write_text(json.dumps(list(entries), indent=2), encoding="utf-8")
+            os.replace(_tmp, db_path)
         else:
             entries = load_map(db_path)
         n_enriched = sum(1 for e in entries if (e.get("molecular_ids") or {}).get("hgnc"))
@@ -144,7 +147,7 @@ class GeneEnrichStep(Step):
         return {
             "db_path": str(db_path),
             "n_models_enriched": n_enriched,
-            "n_gene_uberons_added": n_gene_uberon,
+            "n_models_with_uberon": n_gene_uberon,
             "summary": summarize_map(entries),
         }
 
@@ -154,7 +157,7 @@ GeneEnrichStep.contract = {
     "outputs": {
         "db_path": "Passthrough path to the (rewritten if live) DB.",
         "n_models_enriched": "Models carrying HGNC gene ids.",
-        "n_gene_uberons_added": "Models carrying (gene-derived) Uberon anatomy.",
+        "n_models_with_uberon": "Models carrying Uberon anatomy (any source).",
         "summary": "summarize_map coverage summary of the DB.",
     },
     "assumptions": [

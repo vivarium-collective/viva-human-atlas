@@ -11,5 +11,5 @@ def test_enrich_hrapop_map_adds_hra_pop(tmp_path):
     total, linked = enrich_hrapop_map(str(db))
     assert total == 1
     out = json.loads(db.read_text(encoding="utf-8"))
-    assert linked >= 0                      # linked is 0 or 1 depending on HRApop coverage
+    assert linked in (0, 1)                 # linked is 0 or 1 depending on HRApop coverage
     assert ("hra_pop" in out[0]) == (linked == 1)

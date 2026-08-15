@@ -63,10 +63,9 @@ class HRApopEnrichStep(Step):
         db_path = inputs.get("db_path") or self.config.get("db_path") or _DEFAULT_DB
         hrapop_csv = self.config.get("hrapop_csv") or None
         if self.config.get("live"):
-            _total, n_linked = enrich_hrapop_map(db_path, hrapop_csv)
-        else:
-            n_linked = sum(1 for e in load_map(db_path) if e.get("hra_pop"))
+            enrich_hrapop_map(db_path, hrapop_csv)
         entries = load_map(db_path)
+        n_linked = sum(1 for e in entries if e.get("hra_pop"))
         return {
             "db_path": str(db_path),
             "n_models_linked": n_linked,

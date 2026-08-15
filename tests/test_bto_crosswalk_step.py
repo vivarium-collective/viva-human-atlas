@@ -10,4 +10,4 @@ def test_bto_crosswalk_step_offline_loads_committed():
     out = step.update({})
     assert out["out_path"] == "datasets/bto_uberon_crosswalk.json"
     assert out["n_terms"] > 0
-    assert out["n_mapped"] >= 0
+    assert out["n_mapped"] > 0
