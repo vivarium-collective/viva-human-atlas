@@ -9,3 +9,4 @@ from viva_human_atlas.composites import corpus_coverage_composite  # noqa: F401
 from viva_human_atlas.composites import ftu_coverage_composite  # noqa: F401
 from viva_human_atlas.composites import vasculature_network_composite  # noqa: F401
 from viva_human_atlas.composites import organ_vasculature_scaffold  # noqa: F401
+from viva_human_atlas.composites import atlas_pipeline  # noqa: F401

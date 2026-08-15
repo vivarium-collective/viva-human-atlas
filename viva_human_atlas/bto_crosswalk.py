@@ -80,3 +80,67 @@ def build_bto_uberon_crosswalk(bto_terms: dict, organ_index: dict) -> dict:
             continue
         crosswalk[curie] = uberon
     return crosswalk
+
+
+import json
+from pathlib import Path
+from process_bigraph import Step
+from viva_human_atlas.biomodel_do import build_organ_index
+
+_REPO = Path(__file__).resolve().parents[1]
+_DEFAULT_BTO = str(_REPO / "datasets" / "bto_terms.json")
+_DEFAULT_OUT = str(_REPO / "datasets" / "bto_uberon_crosswalk.json")
+
+
+class BtoCrosswalkStep(Step):
+    """Step: build (or load) the BTO->Uberon crosswalk that feeds the harvest
+    crosswalk sub-stage. live=false loads the committed crosswalk; live=true
+    rebuilds it from datasets/bto_terms.json + the organ index."""
+
+    description = (
+        "Build the BTO->Uberon anatomy crosswalk (Brenda Tissue Ontology terms "
+        "mapped to Uberon via the organ index) used when harvesting each "
+        "model's annotation-derived anatomy. Emits term/mapping counts."
+    )
+
+    config_schema = {"bto_terms_path": "string", "out_path": "string", "live": "boolean"}
+
+    def inputs(self):
+        return {}
+
+    def outputs(self):
+        return {"out_path": "string", "n_terms": "integer",
+                "n_mapped": "integer", "summary": "tree"}
+
+    def update(self, inputs):
+        out_path = self.config.get("out_path") or _DEFAULT_OUT
+        if self.config.get("live"):
+            bto_terms = json.loads(Path(self.config.get("bto_terms_path") or _DEFAULT_BTO).read_text(encoding="utf-8"))
+            crosswalk = build_bto_uberon_crosswalk(bto_terms, build_organ_index())
+            Path(out_path).write_text(json.dumps(crosswalk, indent=2, sort_keys=True), encoding="utf-8")
+        else:
+            crosswalk = json.loads(Path(out_path).read_text(encoding="utf-8"))
+        n_mapped = sum(1 for v in crosswalk.values() if (v.get("uberon") if isinstance(v, dict) else v))
+        return {
+            "out_path": str(out_path),
+            "n_terms": len(crosswalk),
+            "n_mapped": n_mapped,
+            "summary": {"n_terms": len(crosswalk), "n_mapped": n_mapped},
+        }
+
+
+BtoCrosswalkStep.contract = {
+    "summary": BtoCrosswalkStep.description,
+    "outputs": {
+        "out_path": "Path to the BTO->Uberon crosswalk JSON.",
+        "n_terms": "Number of BTO terms in the crosswalk.",
+        "n_mapped": "BTO terms that resolved to >=1 Uberon.",
+        "summary": "term/mapping counts.",
+    },
+    "assumptions": [
+        "This Step is an upstream feeder to the harvest crosswalk sub-stage; it "
+        "appears in the modules tab for reuse but is not wired into the main "
+        "atlas_pipeline composite (harvest reads the committed crosswalk from "
+        "disk). live=false loads the committed crosswalk offline.",
+    ],
+}

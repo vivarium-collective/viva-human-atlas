@@ -50,13 +50,14 @@ class ComputationalModelAtlas(Step):
     }
 
     def inputs(self):
-        return {}
+        return {"db_path": "string"}
 
     def outputs(self):
         return {"summary": "tree", "placement_stats": "tree", "out_dir": "string"}
 
     def update(self, inputs):
         out_dir = self.config.get("out_dir") or str(DEFAULT_OUT_DIR)
+        db_path = inputs.get("db_path") or self.config.get("db_path") or None
         place_kw = {}
         if self.config.get("enrichment"):
             place_kw["enrichment"] = float(self.config["enrichment"])
@@ -65,7 +66,7 @@ class ComputationalModelAtlas(Step):
         if self.config.get("cross_organ_max") is not None and self.config.get("cross_organ_max") != "":
             place_kw["cross_organ_max"] = int(self.config["cross_organ_max"])
         result = build_and_write_atlas(
-            db_path=self.config.get("db_path") or None,
+            db_path=db_path,
             catalog_path=self.config.get("catalog_path") or str(DEFAULT_CATALOG),
             out_dir=out_dir,
             **place_kw,

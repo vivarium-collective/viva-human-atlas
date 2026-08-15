@@ -44,7 +44,9 @@ biological_summary: |
   study and the Atlas Browser can depend on. Running it with a refresh flag
   is the same Step actually doing the harvest: the mechanism this study
   exercises is exactly the one that produced (and will keep extending)
-  `datasets/model_hra_map.json`.
+  `datasets/model_hra_map.json`. The end-to-end, reproducible build that ties
+  this together is presented as one connected composite in the atlas-pipeline
+  study.
 
 readouts:
   - "n_models (total rows in datasets/model_hra_map.json across every registered source)"
