@@ -8,10 +8,13 @@ build/
 models/
 .superpowers/
 reports/published/
+reports/assets/
+reports/index.html
 .contracts-*.md
 studies/*/viz/report_card/
 
 .pbg/runs/
+.pbg/server/
 .pbg/composite-runs.db
 
 studies/*/sims/
