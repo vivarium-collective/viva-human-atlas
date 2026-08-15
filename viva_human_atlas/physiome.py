@@ -16,6 +16,7 @@ import re
 from html import unescape
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urljoin
 
 import requests
 
@@ -169,3 +170,23 @@ def build_entry(exposure: dict, organ_index: dict, *, no_llm: bool = True,
             "confidence": hra.get("confidence", "none"), "errors": [],
         },
     }
+
+
+def resolve_cellml_url(identifier: str, *, _get=requests.get) -> "str | None":
+    """Resolve a PMR exposure (identifier URL like .../e/<id>) to its primary
+    runnable .cellml URL. Returns None on HTTP error or no .cellml link.
+
+    Spike-validated: the exposure page links `<file>.cellml/view`; strip /view
+    and OpenCOR fetches it directly. (Multi-file/import CellML that fails to
+    load is the caller's marked failure — a workspace-archive fetch is a
+    follow-up.)"""
+    try:
+        r = _get(identifier, timeout=25)
+        r.raise_for_status()
+    except Exception:
+        return None
+    m = re.findall(r'href="([^"]+\.cellml)(?:/view)?"', r.text)
+    if not m:
+        return None
+    url = urljoin(getattr(r, "url", identifier), m[0])
+    return url[:-5] if url.endswith("/view") else url
