@@ -87,3 +87,79 @@ def enrich_map(entries: Sequence[dict], *, gene_index: dict,
         if progress and i % 25 == 0:
             progress(f"  {i}/{total}")
     return list(entries)
+
+
+import json
+from pathlib import Path
+from process_bigraph import Step
+
+from viva_human_atlas.biomodel_hra import load_map, summarize_map
+from viva_human_atlas.asctb_tables import build_gene_uberon_index
+
+_REPO = Path(__file__).resolve().parents[1]
+_DEFAULT_DB = str(_REPO / "datasets" / "model_hra_map.json")
+_DEFAULT_ASCTB = str(_REPO / "datasets" / "asctb_tables.json")
+
+
+class GeneEnrichStep(Step):
+    """Step: enrich the BioModels->HRA DB with organism + gene ids + gene->Uberon
+    anatomy (Stage B). live=false replays the committed (already-enriched) DB and
+    emits its counts; live=true re-runs enrich_map and rewrites the DB."""
+
+    description = (
+        "Enrich each model with its organism (from NCBITaxon), HGNC/Ensembl "
+        "genes (from UniProt), and gene-derived Uberon anatomy (via the ASCT+B "
+        "gene->Uberon index), re-mapped to HRA organs/FTUs/cell types. Emits "
+        "how many models carry gene ids and gene-derived anatomy."
+    )
+
+    config_schema = {
+        "db_path": "string", "asctb_path": "string",
+        "live": "boolean", "cache_dir": "string",
+    }
+
+    def inputs(self):
+        return {"db_path": "string", "asctb_path": "string"}
+
+    def outputs(self):
+        return {"db_path": "string", "n_models_enriched": "integer",
+                "n_gene_uberons_added": "integer", "summary": "tree"}
+
+    def update(self, inputs):
+        db_path = inputs.get("db_path") or self.config.get("db_path") or _DEFAULT_DB
+        asctb_path = inputs.get("asctb_path") or self.config.get("asctb_path") or _DEFAULT_ASCTB
+        if self.config.get("live"):
+            from viva_human_atlas.enrich import enrich_map
+            from viva_human_atlas.biomodel_do import build_organ_index
+            tables = json.loads(Path(asctb_path).read_text(encoding="utf-8"))
+            gene_index = build_gene_uberon_index(tables)
+            entries = load_map(db_path)
+            enrich_map(entries, gene_index=gene_index, organ_index=build_organ_index(),
+                       cache_dir=self.config.get("cache_dir") or None)
+            Path(db_path).write_text(json.dumps(list(entries), indent=2), encoding="utf-8")
+        else:
+            entries = load_map(db_path)
+        n_enriched = sum(1 for e in entries if (e.get("molecular_ids") or {}).get("hgnc"))
+        n_gene_uberon = sum(1 for e in entries if (e.get("ontology_ids") or {}).get("uberon"))
+        return {
+            "db_path": str(db_path),
+            "n_models_enriched": n_enriched,
+            "n_gene_uberons_added": n_gene_uberon,
+            "summary": summarize_map(entries),
+        }
+
+
+GeneEnrichStep.contract = {
+    "summary": GeneEnrichStep.description,
+    "outputs": {
+        "db_path": "Passthrough path to the (rewritten if live) DB.",
+        "n_models_enriched": "Models carrying HGNC gene ids.",
+        "n_gene_uberons_added": "Models carrying (gene-derived) Uberon anatomy.",
+        "summary": "summarize_map coverage summary of the DB.",
+    },
+    "assumptions": [
+        "live=false is the reproducible default: the committed DB is already "
+        "enriched, so this loads and counts it without network. live=true "
+        "makes UniProt + NCBITaxon calls (disk-cached) and rewrites the DB.",
+    ],
+}
