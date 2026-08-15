@@ -23,3 +23,18 @@ def test_run_organ_simulation_assembles_ran_and_failed(monkeypatch):
     assert by_key["B1"]["status"] == "ran" and by_key["B1"]["series"] == {"A": [1.0, 2.0]}
     assert by_key["P1"]["series"] == {"m/x": [1.0, 0.5]}
     assert by_key["P2"]["status"] == "failed" and "libOpenCOR" in by_key["P2"]["error"]
+
+
+def test_reason_from_issues_classifies_opencor_failures():
+    from viva_human_atlas.organ_simulation import _reason_from_issues
+    assert "not a runnable CellML" in _reason_from_issues(
+        ["The file is not a CellML file, a SED-ML file, or a COMBINE archive."])
+    r = _reason_from_issues([
+        "Analyser: the type of variable 'K_int' in component 'NaK' is unknown.",
+        "Analyser: the type of variable 'Na_ext' in component 'NaK' is unknown."])
+    assert "component/flux model" in r and "2 input variable" in r
+    assert "MathML" in _reason_from_issues(
+        ["w3C MathML DTD error: Syntax of value for attribute id of math is not valid."])
+    assert "unit inconsistency" in _reason_from_issues(
+        ["Analyser: the units in 'Ha = H*exp(...)' in component 'x' are not equivalent."])
+    assert _reason_from_issues([]) == ""

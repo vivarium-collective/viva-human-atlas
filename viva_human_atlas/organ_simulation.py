@@ -90,10 +90,12 @@ def normalize_result(simulator: str, raw: dict) -> dict:
     """Collapse a simulator result into {"time": [...], "series": {name: [...]}}."""
     time = list(raw.get("time") or [])
     if simulator == "opencor":
+        # State variables are the model's ODE dynamics — keep ONLY these. The
+        # `variables` map is algebraic intermediates + parameters/constants;
+        # many are constant (e.g. parameters/k0_65 == 4500) or numerically
+        # divergent (King-Altman C_sum -> 1e43), and merged in they bury the
+        # real state trajectories on a shared axis.
         series = {k: list(v) for k, v in (raw.get("state") or {}).items()}
-        for k, v in (raw.get("variables") or {}).items():
-            if v:
-                series[k] = list(v)
         return {"time": time, "series": series}
     # SBML engines: {time, columns, values} (row-per-timepoint)
     cols = list(raw.get("columns") or [])
@@ -118,6 +120,42 @@ def _run_sbml(models, *, references=None):
     return out
 
 
+def _reason_from_issues(issues) -> str:
+    """A concise, human failure reason from libOpenCOR analyser issue strings.
+
+    Distinguishes the real failure classes we see across Physiome CellML models:
+    a flux/component model with undetermined input variables (not a standalone
+    runnable ODE system), a model-level unit inconsistency, malformed MathML, or
+    a resolved file that is not a CellML model. Returns '' if indeterminate."""
+    issues = [str(x) for x in (issues or [])]
+    if not issues:
+        return ""
+    joined = " ".join(issues).lower()
+    if "not a cellml file" in joined:
+        return "resolved file is not a runnable CellML model"
+    if "type of variable" in joined and "unknown" in joined:
+        n = sum(1 for x in issues if "type of variable" in x.lower())
+        return (f"component/flux model: {n} input variable(s) undetermined "
+                "— not a standalone runnable model")
+    if "mathml" in joined or "dtd error" in joined:
+        return "malformed MathML in the model"
+    if "not equivalent" in joined or "not a valid reference to units" in joined:
+        return "model unit inconsistency (model-level error)"
+    return issues[0].split("|")[-1].strip()[:160]
+
+
+def _classify_cellml_failure(model_source: str) -> str:
+    """Load the model with libOpenCOR and turn its analyser issues into a human
+    reason (see _reason_from_issues). '' if it can't be introspected."""
+    try:
+        import libopencor as loc
+        f = loc.File(model_source)
+        issues = [f.issue(i).description for i in range(f.issue_count)]
+    except Exception:  # noqa: BLE001 — diagnosis is best-effort
+        return ""
+    return _reason_from_issues(issues)
+
+
 def _run_cellml(models, *, end_time=10.0, number_of_steps=100):
     """{key: {status, raw(opencor result)|None, error}} via OpenCOR."""
     out = {}
@@ -129,16 +167,19 @@ def _run_cellml(models, *, end_time=10.0, number_of_steps=100):
                            "error": f"OpenCOR unavailable: {exc}"} for m in models}
     core = allocate_core(); core.register_link("OpenCORUTCStep", OpenCORUTCStep)
     for m in models:
+        url = None
         try:
             url = resolve_cellml_url(m["ref"])
             if not url:
-                out[m["key"]] = {"status": "failed", "raw": None, "error": "no .cellml resolved for exposure"}
+                out[m["key"]] = {"status": "failed", "raw": None,
+                                 "error": "exposure unavailable — no .cellml model could be resolved (page error or none listed)"}
                 continue
             step = OpenCORUTCStep(config={"model_source": url, "end_time": end_time,
                                           "number_of_steps": number_of_steps}, core=core)
             out[m["key"]] = {"status": "ran", "raw": step.update({})["result"], "error": None}
         except Exception as exc:  # noqa: BLE001 — one model never sinks the batch
-            out[m["key"]] = {"status": "failed", "raw": None, "error": str(exc)}
+            reason = (_classify_cellml_failure(url) if url else "") or str(exc)
+            out[m["key"]] = {"status": "failed", "raw": None, "error": reason}
     return out
 
 
