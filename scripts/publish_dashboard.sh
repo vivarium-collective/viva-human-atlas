@@ -70,5 +70,21 @@ for pack in "$WS_ROOT"/studies/*/viz/atlas; do
   echo "copied viewer pack: studies/$slug/viz/atlas"
 done
 
+# Self-contained study dashboards written directly under studies/*/viz/ (e.g.
+# the kidney-model-simulation dashboard: studies/<slug>/viz/index.html). Same
+# reason as above — the static publisher doesn't copy arbitrary viz/ trees, so a
+# study whose embed_visualizations points at /studies/<slug>/viz/index.html would
+# 404. Copies only the TOP-LEVEL files in each viz/ (the viz/hra and viz/atlas
+# subdir packs are handled above); a no-op for studies with no top-level viz file.
+for viz in "$WS_ROOT"/studies/*/viz; do
+  [ -d "$viz" ] || continue
+  [ -n "$(find "$viz" -maxdepth 1 -type f 2>/dev/null)" ] || continue
+  slug=$(basename "$(dirname "$viz")")
+  dest="$OUT/studies/$slug/viz"
+  mkdir -p "$dest"
+  find "$viz" -maxdepth 1 -type f -exec cp {} "$dest/" \;
+  echo "copied study dashboard: studies/$slug/viz (top-level files)"
+done
+
 touch "$OUT/.nojekyll"
 echo "built read-only dashboard bundle at $OUT ($(du -sh "$OUT" | cut -f1))"
