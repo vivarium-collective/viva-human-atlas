@@ -6,6 +6,7 @@ to be embedded via a study's `embed_visualizations` (see
 from __future__ import annotations
 
 import html
+import math
 from pathlib import Path
 
 import plotly.graph_objects as go
@@ -253,7 +254,7 @@ def write_study_figure(study_slug: str, name: str, html: str, ws_root: str = "."
     return str(rel_path)
 
 
-def organ_dashboard_html(result: dict, *, max_series: int = 8) -> str:
+def organ_dashboard_html(result: dict, *, max_series: int = 12) -> str:
     s = result.get("summary", {})
     cards = []
     for m in result.get("models", []):
@@ -263,12 +264,50 @@ def organ_dashboard_html(result: dict, *, max_series: int = 8) -> str:
                 f'<span style="opacity:.7">[{html.escape(str(m["simulator"]))}]</span> '
                 f'<span style="color:{color}">{badge}</span></summary>')
         if m["status"] == "ran" and m.get("series"):
-            fig = go.Figure()
-            for name, ys in list(m["series"].items())[:max_series]:
-                fig.add_trace(go.Scatter(x=m["time"], y=ys, mode="lines", name=name))
-            fig.update_layout(margin=dict(l=40, r=10, t=10, b=30), height=320,
-                              xaxis_title="time", template="plotly_white")
-            body = fig.to_html(include_plotlyjs=False, full_html=False)
+            # Keep varying, finite series (the real dynamics); drop dead-constant
+            # ones so a flat parameter can't dominate the axis.
+            plot = []
+            for name, ys in m["series"].items():
+                fys = [y for y in ys if isinstance(y, (int, float)) and math.isfinite(y)]
+                if len(fys) < 2:
+                    continue
+                lo, hi = min(fys), max(fys)
+                if hi - lo <= 0:
+                    continue  # constant over the run — no dynamics to show
+                plot.append((name, [float(y) for y in ys]))
+                if len(plot) >= max_series:
+                    break
+            if plot:
+                fig = go.Figure()
+                raw_ys, norm_ys = [], []
+                for name, ys in plot:
+                    fig.add_trace(go.Scatter(x=m["time"], y=ys, mode="lines", name=name))
+                    raw_ys.append(ys)
+                    lo, hi = min(ys), max(ys)
+                    rng = (hi - lo) or 1.0
+                    norm_ys.append([(y - lo) / rng for y in ys])
+                # Linear / Log / Normalized view toggle (mixed-scale state vars).
+                fig.update_layout(
+                    margin=dict(l=44, r=10, t=46, b=34), height=340,
+                    xaxis_title="time", template="plotly_white",
+                    legend=dict(font=dict(size=9)),
+                    updatemenus=[dict(
+                        type="buttons", direction="right", showactive=True,
+                        x=0, xanchor="left", y=1.18, yanchor="top", pad=dict(t=2, r=2),
+                        buttons=[
+                            dict(label="Linear", method="update",
+                                 args=[{"y": raw_ys}, {"yaxis.type": "linear", "yaxis.title.text": ""}]),
+                            dict(label="Log", method="update",
+                                 args=[{"y": raw_ys}, {"yaxis.type": "log", "yaxis.title.text": ""}]),
+                            dict(label="Normalized", method="update",
+                                 args=[{"y": norm_ys}, {"yaxis.type": "linear", "yaxis.title.text": "min–max (0–1)"}]),
+                        ],
+                    )],
+                )
+                body = fig.to_html(include_plotlyjs=False, full_html=False)
+            else:
+                body = ('<p style="opacity:.7">ran, but every series is constant '
+                        'over the run (steady state — no dynamics to plot).</p>')
         else:
             body = f'<p style="color:{color}">{html.escape(str(m.get("error") or "did not run"))}</p>'
         cards.append(f'<details style="border:1px solid #ddd;border-radius:8px;'

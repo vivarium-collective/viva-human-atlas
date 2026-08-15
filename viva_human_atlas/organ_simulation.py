@@ -90,10 +90,12 @@ def normalize_result(simulator: str, raw: dict) -> dict:
     """Collapse a simulator result into {"time": [...], "series": {name: [...]}}."""
     time = list(raw.get("time") or [])
     if simulator == "opencor":
+        # State variables are the model's ODE dynamics — keep ONLY these. The
+        # `variables` map is algebraic intermediates + parameters/constants;
+        # many are constant (e.g. parameters/k0_65 == 4500) or numerically
+        # divergent (King-Altman C_sum -> 1e43), and merged in they bury the
+        # real state trajectories on a shared axis.
         series = {k: list(v) for k, v in (raw.get("state") or {}).items()}
-        for k, v in (raw.get("variables") or {}).items():
-            if v:
-                series[k] = list(v)
         return {"time": time, "series": series}
     # SBML engines: {time, columns, values} (row-per-timepoint)
     cols = list(raw.get("columns") or [])
