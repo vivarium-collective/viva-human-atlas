@@ -1,0 +1,134 @@
+schema_version: 4
+name: atlas-pipeline
+investigation: hra-3d
+title: "HRA Computational Model Atlas — the end-to-end, reproducible build pipeline"
+created: '2026-08-15'
+status: complete
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Decide
+
+question: |
+  How is the HRA Computational Model Atlas actually built — end to end, from
+  external model repositories and Human Reference Atlas services down to the
+  atlas.json the 3D viewer renders — and can that whole build be run as ONE
+  connected process-bigraph composite that reproducibly regenerates the same
+  artifact offline, with every stage visible and connectable in the modules tab?
+
+study_card:
+  goal: "Present the atlas build as a single connected Step DAG (not a pile of loose scripts), make every stage a first-class Step in the modules tab, and prove the pipeline regenerates the committed atlas.json byte-identically offline while still supporting a live re-harvest from the source APIs."
+  mechanism: "The `hra-atlas-pipeline` composite (viva_human_atlas.composites.atlas_pipeline) wires five Steps through per-stage stores: (A) ModelHarvestStep harvests the unified model->HRA map (BioModels REST/SBML/BioPAX, PubMed EFetch + Europe PMC, PhysioNet via DataCite, Physiome Model Repository, Anthropic LLM literature extraction, MeSH->Uberon/CL crosswalk) into datasets/model_hra_map.json; AsctbTablesStep harvests the HRA ASCT+B tables (ASCT+B API + CDN) and builds the gene->Uberon index; (B) GeneEnrichStep adds each model's organism (ENA taxonomy), HGNC/Ensembl genes (UniProt), and gene-derived Uberon anatomy; (C) HRApopEnrichStep attaches HRApop measured per-AS cell populations; (D) ComputationalModelAtlas places each model at the organ subregion(s) its cell types/FTUs resolve to (via the ASCT+B-3D crosswalk + HRApop enrichment, whole-organ fallback) and writes atlas.json/config.json/coverage.json for the viewer. A uniform `live` param (default false) makes stages replay the committed datasets deterministically; `live=true` re-harvests from the external APIs (subject to upstream drift). BtoCrosswalkStep (the BTO->Uberon crosswalk feeder) is also surfaced in the modules tab for reuse."
+  expected_result: "Running the composite offline regenerates the committed atlas.json exactly: 50 GLB-backed HRA organs (12 anatomical systems), 24 modeled, 689 distinct models, 52 subregions across 9 organs — byte-identical to the committed artifact. Every stage appears as a connectable node in the Composite Explorer / modules tab."
+  main_expert_question: "Is a connected Step DAG with an offline-replay default (committed datasets as the frozen snapshot) the right reproducibility contract for a pipeline whose upstream sources are live, drifting web APIs — versus re-harvesting live on every run?"
+
+biological_summary: |
+  The atlas the viewer shows is the end of a multi-source harvest-and-enrich
+  pipeline, not a single query. Mechanistic models are pulled from three
+  repositories (BioModels, the Physiome Model Repository, PhysioNet), each
+  model's anatomy is resolved from its own SBML/BioPAX identifiers, its paper's
+  MeSH terms, and (after enrichment) its genes' ASCT+B Uberon anatomy; the
+  Human Reference Atlas contributes the ASCT+B tables, the HRApop measured
+  cell-type populations, and the ASCT+B-3D crosswalk that ties a model's cell
+  types/FTUs to specific 3D organ subregions. This study makes that whole chain
+  a single connected composite: each stage is a Step with typed ports, wired
+  through the model->HRA map DB as the shared artifact, ending at the atlas pack
+  the 3D browser renders. Because the committed datasets are the frozen
+  snapshot, the pipeline run offline replays them and regenerates the exact same
+  atlas.json — so the figure is reproducible, and the machinery to refresh it
+  from the live sources (organism, genes, HRApop, new models) is the same graph
+  run with live=true.
+
+readouts:
+  - "pipeline: 5 connected Steps (ModelHarvest -> {GeneEnrich, HRApopEnrich} -> ComputationalModelAtlas; AsctbTables feeds GeneEnrich), plus BtoCrosswalkStep surfaced in the modules tab"
+  - "atlas manifest reproduced offline: n_organs (50), n_systems (12), n_modeled (24), n_models_distinct (689), n_subregions (52), n_organs_with_subregions (9)"
+  - "reproducibility: two offline runs regenerate atlas.json byte-identically; offline run reproduces the committed atlas.json readouts exactly"
+
+report:
+  title: "HRA Computational Model Atlas — one connected composite reproducibly rebuilds the atlas (689 models, 24 organs, 52 subregions)"
+  verdict: passing
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Present the atlas build as a single connected, reproducible process-bigraph
+    pipeline with every stage a first-class connectable Step, and verify it
+    regenerates the committed atlas.json offline.
+  conclusion: |
+    The `hra-atlas-pipeline` composite wires the full build — multi-source model
+    harvest, ASCT+B table harvest, gene/organism enrichment, HRApop linkage, and
+    subregion-placing atlas-pack generation — into one connected Step DAG that is
+    runnable end-to-end in the Composite Explorer and whose every stage now
+    appears in the modules tab. Run offline (the default), it replays the
+    committed datasets and regenerates the committed atlas.json byte-identically
+    (50 organs, 24 modeled, 689 distinct models, 52 subregions in 9 organs); run
+    with live=true, the same graph re-harvests from the source APIs. The two
+    enrichment stages and the BTO->Uberon crosswalk — previously loose CLI
+    scripts — are now Steps sharing their core with those scripts, so the
+    interactive pipeline and the command line cannot diverge.
+  caveat: |
+    "Reproducible" here means the committed datasets are the frozen snapshot the
+    offline pipeline replays; a live re-harvest (live=true) is subject to
+    upstream drift in the external repositories and HRA services, and the slow,
+    network- and LLM-dependent harvest is not expected to be bit-identical across
+    live runs. The atlas science (subregion placement, coverage) is unchanged
+    from the hra-atlas-browser study — this study is about the build machinery,
+    reproducibility, and presentation, not new biological findings.
+
+embed_visualizations:
+  - name: "HRA Computational Model Atlas (3D viewer)"
+    url: "/studies/hra-atlas-browser/viz/atlas/index.html"
+    description: "The artifact this pipeline produces: interactive 3D organ browser colored by model count, drill into subregions, click through to each model (BioModels / Physiome / PhysioNet)."
+
+baseline:
+  - name: baseline
+    composite: viva_human_atlas.composites.atlas_pipeline.hra-atlas-pipeline
+    params:
+      out_dir: "studies/hra-atlas-browser/viz/atlas"
+      live: false
+
+runs:
+  - name: baseline
+    status: completed
+
+pipeline_gate:
+  gate_evaluator:
+    result: passed
+  prerequisites:
+    - study: model-harvest
+      relation: leads-to
+    - study: biomodel-hra-map
+      relation: leads-to
+    - study: hra-atlas-browser
+      relation: leads-to
+
+findings:
+  - id: F-01
+    tier: interpretation
+    mechanism_origin: engineered
+    claim_scope: mechanism
+    statement: |
+      The full atlas build is a single connected process-bigraph composite:
+      ModelHarvestStep and AsctbTablesStep feed GeneEnrichStep and
+      HRApopEnrichStep, which feed ComputationalModelAtlas, wired through the
+      model->HRA map DB as the shared artifact. Every stage — including the two
+      enrichment stages and the BTO->Uberon crosswalk that were previously loose
+      scripts — is now a first-class Step visible and connectable in the modules
+      tab / Composite Explorer.
+    evidence:
+      summary: "5 Steps wired via per-stage stores (db_harvested, asctb_path, db_gene, db_hrapop); enrich/crosswalk stages promoted from scripts to Steps sharing their core with the CLIs (cannot diverge). Composite spec id: viva_human_atlas.composites.atlas_pipeline.hra-atlas-pipeline."
+  - id: F-02
+    tier: measurement
+    mechanism_origin: engineered
+    claim_scope: mechanism
+    statement: |
+      Run offline, the pipeline reproducibly regenerates the committed
+      atlas.json: it reproduces the committed atlas readouts exactly (50 organs,
+      24 modeled, 689 distinct models, 52 subregions in 9 organs), and two
+      offline runs produce byte-identical atlas.json. The committed datasets are
+      the frozen snapshot; live=true re-harvests from the source APIs.
+    evidence:
+      summary: "tests/test_atlas_pipeline_composite.py asserts regenerated readouts == committed readouts (no hardcoded numbers); tests/test_atlas_pipeline_reproducible.py asserts two offline runs are byte-identical. Verified independently: build_and_write_atlas from the committed DB is byte-identical to the committed atlas.json."
+
+limitations:
+  - "Reproducibility is offline-replay of the committed datasets; a live re-harvest (live=true) drifts with the upstream BioModels/Physiome/PhysioNet repositories, HRA services, UniProt/ENA, and the LLM literature extraction, and is not bit-identical run-to-run."
+  - "This study adds no new biological findings; the subregion-placement science and coverage numbers are inherited from the hra-atlas-browser study."

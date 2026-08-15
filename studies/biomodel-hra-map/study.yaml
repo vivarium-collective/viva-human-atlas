@@ -55,7 +55,9 @@ biological_summary: |
   The result is a single downloadable workspace resource (a Vivarium Step loads
   it network-free) that turns "which BioModels does the HRA cover, and with
   what molecular + anatomical detail" into a queryable table — the foundation
-  the Atlas Browser and the corpus-coverage / annotation studies build on.
+  the Atlas Browser and the corpus-coverage / annotation studies build on. The
+  end-to-end, reproducible build that ties this together is presented as one
+  connected composite in the atlas-pipeline study.
 
 readouts:
   - "n_models (1,096 curated BioModels harvested into the DB)"

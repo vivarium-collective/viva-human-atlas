@@ -57,7 +57,8 @@ biological_summary: |
   still have no 3D-crosswalk mesh — so liver, though heavily modeled, stays
   whole-organ. The machinery is general: as the DB enrichment, HRApop coverage,
   the 3D crosswalk, or per-model annotation improve, more subregions light up
-  automatically.
+  automatically. The end-to-end, reproducible build that ties this together is
+  presented as one connected composite in the atlas-pipeline study.
 
 readouts:
   - "atlas manifest: n_organs (50), n_systems (12, HRA anatomical-systems partonomy), n_modeled (19), n_models_distinct (256), n_models_total (417), max_models (52), n_subregions (52), n_organs_with_subregions (9)"
