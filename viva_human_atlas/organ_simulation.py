@@ -82,3 +82,19 @@ OrganModelSelectStep.contract = {
     "assumptions": ["PhysioNet entries are dataset references, not runnable ODE "
                     "models, so they are excluded from the manifest."],
 }
+
+
+def normalize_result(simulator: str, raw: dict) -> dict:
+    """Collapse a simulator result into {"time": [...], "series": {name: [...]}}."""
+    time = list(raw.get("time") or [])
+    if simulator == "opencor":
+        series = {k: list(v) for k, v in (raw.get("state") or {}).items()}
+        for k, v in (raw.get("variables") or {}).items():
+            if v:
+                series[k] = list(v)
+        return {"time": time, "series": series}
+    # SBML engines: {time, columns, values} (row-per-timepoint)
+    cols = list(raw.get("columns") or [])
+    vals = raw.get("values") or []
+    series = {c: [row[j] for row in vals] for j, c in enumerate(cols)}
+    return {"time": time, "series": series}
