@@ -96,7 +96,10 @@ def resolve_exposures(*, query: Optional[str] = None, limit: Optional[int] = Non
     q = (query or "").lower().strip()
     out: list[dict] = []
     for eid in ids:
-        exp = fetch_exposure(eid, cache_dir=cache_dir, _get=_get)
+        try:
+            exp = fetch_exposure(eid, cache_dir=cache_dir, _get=_get)
+        except Exception:  # noqa: BLE001 — one bad exposure must not abort the batch
+            continue
         if exp is None:
             continue
         if q and q not in (exp.get("name") or "").lower():
