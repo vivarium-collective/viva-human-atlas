@@ -65,9 +65,58 @@ FMA_TO_UBERON: dict[str, str] = {
     "FMA:7163": "UBERON:0002097",   # skin
 }
 
+# Author `cellml_keyword` -> HRA organ key(s). Only keys present in the HRA
+# reference organ set resolve to an UBERON id; the rest (e.g. bone, adrenal,
+# thyroid — absent from the reference set) contribute nothing, by design.
+KEYWORD_TO_ORGAN_KEYS: dict[str, list[str]] = {
+    "atrial myocyte": ["heart"], "ventricular myocyte": ["heart"],
+    "cardiac myocyte": ["heart"], "sinoatrial node": ["heart"], "atrial cell": ["heart"],
+    "cardiovascular circulation": ["heart", "blood"], "circulation": ["blood"],
+    "beta cell": ["pancreas"], "beta-cell": ["pancreas"], "islet": ["pancreas"],
+    "insulin secretion": ["pancreas"], "pancreatic acinar cell": ["pancreas"],
+    "collecting duct": ["kidney"], "nephron": ["kidney"], "proximal tubule": ["kidney"],
+    "glomerulus": ["kidney"], "renal": ["kidney"],
+    "hepatocyte": ["liver"], "bile acid": ["liver"],
+    "substantia nigra": ["brain"], "hippocampus": ["brain"], "cortical neuron": ["brain"],
+    "astrocyte": ["brain"], "dopaminergic neuron": ["brain"], "purkinje cell": ["brain"],
+    "airway myocyte": ["lung"], "alveolar": ["lung"],
+    "smooth muscle": ["intestine"], "enteric": ["intestine"], "jejunum": ["intestine"],
+    "adipocyte": ["adipose"],
+}
+
+# Keyword families (regex, first-match-wins per keyword).
+KEYWORD_PATTERNS: list[tuple[re.Pattern, list[str]]] = [
+    (re.compile(r"^cardiac|cardiac (action potential|muscle|mechanics|myocyte)|arrhythmia", re.I), ["heart"]),
+    (re.compile(r"neuron|neural|cortex|cortical|hippocamp|cerebell|dopaminerg|axon", re.I), ["brain"]),
+    (re.compile(r"hepat", re.I), ["liver"]),
+    (re.compile(r"\bislet\b|insulin", re.I), ["pancreas"]),
+    (re.compile(r"nephron|renal|collecting duct|glomerul|tubule", re.I), ["kidney"]),
+]
+
+
+def keyword_organ_keys(keywords) -> list[str]:
+    """Organ keys implied by an exposure's author `cellml_keyword`s."""
+    keys: list[str] = []
+    for kw in keywords or []:
+        k = (kw or "").strip().lower()
+        if not k:
+            continue
+        hit = KEYWORD_TO_ORGAN_KEYS.get(k)
+        if hit is None:
+            for pat, pk in KEYWORD_PATTERNS:
+                if pat.search(k):
+                    hit = pk
+                    break
+        for key in hit or []:
+            if key not in keys:
+                keys.append(key)
+    return keys
+
+
 _RESOURCE_RE = re.compile(r'resource\s*=\s*["\']([^"\']+)["\']', re.IGNORECASE)
 _MOLECULAR = ("chebi", "go")
-_CONFIDENCE = {"annotation": "high", "category": "medium", "keyword": "medium", "llm": "low"}
+_CONFIDENCE = {"annotation": "high", "category": "medium", "keyword_annotation": "medium",
+               "keyword": "medium", "llm": "low"}
 
 
 def _molecular_curie(uri: str, prefix: str) -> str | None:
@@ -142,6 +191,13 @@ def map_exposure_to_organs(exposure: dict, organ_index: dict, *, cellml_text: st
             ubs.append(ub)
     ubs = list(dict.fromkeys(ubs))
     method = "annotation" if ubs else None
+
+    # 1b) NEW primary signal: curated author-keyword -> organ table
+    if not ubs:
+        kw_keys = keyword_organ_keys(exposure.get("keywords"))
+        if kw_keys:
+            ubs = _keys_to_uberon(kw_keys, organ_index)
+            method = "keyword_annotation" if ubs else None
 
     # 2) primary signal: the PMR category taxonomy (EP refined by title)
     if not ubs and categories:

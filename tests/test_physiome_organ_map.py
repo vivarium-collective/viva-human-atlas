@@ -1,5 +1,5 @@
 from viva_human_atlas.physiome_organ_map import (
-    extract_cellml_curies, map_exposure_to_organs, category_organ_keys)
+    extract_cellml_curies, map_exposure_to_organs, category_organ_keys, keyword_organ_keys)
 from viva_human_atlas.biomodel_do import build_organ_index
 
 ORGAN_INDEX = build_organ_index()
@@ -70,3 +70,35 @@ def test_map_exposure_annotation_beats_category():
 def test_map_exposure_unmapped_agnostic_category():
     hra = map_exposure_to_organs({"name": "an oscillator", "categories": ["cell_cycle"]}, ORGAN_INDEX)
     assert hra["mapping_method"] == "unmapped" and hra["organs"] == []
+
+
+def test_keyword_organ_keys_exact_and_pattern():
+    assert "heart" in keyword_organ_keys(["atrial myocyte"])
+    assert "brain" in keyword_organ_keys(["substantia nigra"])
+    assert "pancreas" in keyword_organ_keys(["beta cell"])
+    assert "kidney" in keyword_organ_keys(["collecting duct"])
+    assert keyword_organ_keys(["cardiac action potential"]) == ["heart"]   # pattern cardiac.*
+    assert keyword_organ_keys(["systems biology"]) == []                    # no anatomy signal
+
+
+def test_map_exposure_keyword_path_beats_category():
+    # keywords give brain; category electrophysiology would give heart -> keyword wins
+    exp = {"name": "x", "keywords": ["hippocampal neuron"], "categories": ["electrophysiology"]}
+    hra = map_exposure_to_organs(exp, ORGAN_INDEX)
+    assert hra["mapping_method"] == "keyword_annotation" and hra["confidence"] == "medium"
+    assert {o["label"] for o in hra["organs"]} == {"brain"}
+
+
+def test_map_exposure_keyword_yields_celltypes_via_ftu():
+    # beta cell -> pancreas -> pancreatic islet FTU -> beta cell CL flows through map_to_hra
+    exp = {"name": "insulin secretion model", "keywords": ["beta cell"], "categories": []}
+    hra = map_exposure_to_organs(exp, ORGAN_INDEX)
+    assert {o["label"] for o in hra["organs"]} == {"pancreas"}
+    assert any("beta" in (ct["label"] or "").lower() for ct in hra["cell_types"])
+
+
+def test_map_exposure_keyword_absent_falls_to_category():
+    exp = {"name": "x", "keywords": ["oscillation"], "categories": ["ion_transport"]}
+    hra = map_exposure_to_organs(exp, ORGAN_INDEX)
+    assert hra["mapping_method"] == "category"
+    assert {o["label"] for o in hra["organs"]} == {"kidney"}
