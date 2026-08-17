@@ -113,3 +113,25 @@ def test_map_exposure_keyword_absent_falls_to_category():
     hra = map_exposure_to_organs(exp, ORGAN_INDEX)
     assert hra["mapping_method"] == "category"
     assert {o["label"] for o in hra["organs"]} == {"kidney"}
+
+
+def test_keyword_organ_keys_electrophysiology_ep_refine_by_title():
+    # "electrophysiology" is the dominant unmapped-row signal; refine like the
+    # PMR category does: default heart, neuron title -> brain.
+    assert keyword_organ_keys(["electrophysiology"], "cardiac ventricular model") == ["heart"]
+    assert keyword_organ_keys(["electrophysiology"], "substantia nigra neuron") == ["brain"]
+
+
+def test_keyword_organ_keys_brain_additions():
+    assert keyword_organ_keys(["hypothalamus"]) == ["brain"]
+    assert keyword_organ_keys(["pituitary"]) == ["brain"]
+    assert keyword_organ_keys(["cerebral aneurysm"]) == ["brain"]
+
+
+def test_keyword_organ_keys_organ_agnostic_still_unmapped():
+    assert keyword_organ_keys(["signal transduction"]) == []
+    assert keyword_organ_keys(["endocrine"]) == []
+
+
+def test_keyword_organ_keys_word_boundary_regression():
+    assert keyword_organ_keys(["adrenal cortex"]) == []

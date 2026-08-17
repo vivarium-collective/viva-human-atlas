@@ -83,6 +83,9 @@ KEYWORD_TO_ORGAN_KEYS: dict[str, list[str]] = {
     "airway myocyte": ["lung"], "alveolar": ["lung"],
     "smooth muscle": ["intestine"], "enteric": ["intestine"], "jejunum": ["intestine"],
     "adipocyte": ["adipose"],
+    "hypothalamus": ["brain"], "pituitary": ["brain"], "anterior pituitary": ["brain"],
+    "cerebral aneurysm": ["brain"], "cerebellum": ["brain"],
+    "oocyte": ["ovary-female-left"],
 }
 
 # Keyword families (regex, first-match-wins per keyword).
@@ -92,22 +95,29 @@ KEYWORD_PATTERNS: list[tuple[re.Pattern, list[str]]] = [
     (re.compile(r"hepat", re.I), ["liver"]),
     (re.compile(r"\bislet\b|\binsulin\b", re.I), ["pancreas"]),
     (re.compile(r"nephron|\brenal\b|collecting duct|glomerul", re.I), ["kidney"]),
+    (re.compile(r"\bcerebral\b|hypothalam|pituitar", re.I), ["brain"]),
 ]
 
 
-def keyword_organ_keys(keywords) -> list[str]:
-    """Organ keys implied by an exposure's author `cellml_keyword`s."""
+def keyword_organ_keys(keywords, title: str = "") -> list[str]:
+    """Organ keys implied by an exposure's author `cellml_keyword`s. `title` is
+    used only to refine the "electrophysiology" keyword the same way the PMR
+    category is refined (neuron -> brain, gut/smooth-muscle -> intestine, else
+    heart)."""
     keys: list[str] = []
     for kw in keywords or []:
         k = (kw or "").strip().lower()
         if not k:
             continue
-        hit = KEYWORD_TO_ORGAN_KEYS.get(k)
-        if hit is None:
-            for pat, pk in KEYWORD_PATTERNS:
-                if pat.search(k):
-                    hit = pk
-                    break
+        if k == "electrophysiology":
+            hit = _ep_refine(title)
+        else:
+            hit = KEYWORD_TO_ORGAN_KEYS.get(k)
+            if hit is None:
+                for pat, pk in KEYWORD_PATTERNS:
+                    if pat.search(k):
+                        hit = pk
+                        break
         for key in hit or []:
             if key not in keys:
                 keys.append(key)
@@ -195,7 +205,7 @@ def map_exposure_to_organs(exposure: dict, organ_index: dict, *, cellml_text: st
 
     # 1b) NEW primary signal: curated author-keyword -> organ table
     if not ubs:
-        kw_keys = keyword_organ_keys(exposure.get("keywords"))
+        kw_keys = keyword_organ_keys(exposure.get("keywords"), title)
         if kw_keys:
             ubs = _keys_to_uberon(kw_keys, organ_index)
             method = "keyword_annotation" if ubs else None
