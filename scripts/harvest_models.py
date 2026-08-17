@@ -25,9 +25,11 @@ def main(argv=None) -> int:
     ap.add_argument("--source", action="append", choices=list(SOURCES), dest="sources")
     ap.add_argument("--query"); ap.add_argument("--limit", type=int)
     ap.add_argument("--no-llm", action="store_true"); ap.add_argument("--force", action="store_true")
+    ap.add_argument("--rebuild", action="append", choices=list(SOURCES), dest="rebuild",
+                    help="Drop this source's existing rows before re-harvesting it (repeatable).")
     a = ap.parse_args(argv)
     res = harvest(a.sources, out=a.out, query=a.query, limit=a.limit,
-                  no_llm=a.no_llm, force=a.force, progress=print)
+                  no_llm=a.no_llm, force=a.force, rebuild=a.rebuild or False, progress=print)
     for name, c in res["per_source"].items():
         print(f"[{name}] {c}")
     print(f"total models: {res['total']}")

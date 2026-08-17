@@ -1,4 +1,5 @@
 import json
+from viva_human_atlas import model_harvest
 from viva_human_atlas import model_harvest as mh
 
 
@@ -42,3 +43,34 @@ def test_harvest_is_incremental(tmp_path, monkeypatch):
     res2 = mh.harvest(sources=["physionet"], out=out, no_llm=True)   # nothing new
     assert res2["per_source"]["physionet"]["new"] == 0
     assert res2["per_source"]["physionet"]["skipped"] == 1
+
+
+def test_rebuild_drops_only_named_source(tmp_path, monkeypatch):
+    db_path = tmp_path / "db.json"
+    from viva_human_atlas import biomodel_hra as bh
+    seed = {
+        "https://models.physiomeproject.org/e/OLD": {
+            "identifier": "https://models.physiomeproject.org/e/OLD",
+            "repository": "physiome", "source_id": "OLD", "provenance": {}},
+        "https://identifiers.org/biomodels.db:BIOMD1": {
+            "identifier": "https://identifiers.org/biomodels.db:BIOMD1",
+            "repository": "biomodels", "source_id": "BIOMD1", "provenance": {}},
+    }
+    bh.write_db(seed, db_path)
+
+    def fake_resolve(**k):
+        return [{"slug": "NEW", "identifier": "https://models.physiomeproject.org/exposure/NEW",
+                 "name": "n", "abstract": None, "keywords": [], "categories": [],
+                 "citation_ids": [], "authors": []}]
+    monkeypatch.setattr(model_harvest.physiome, "resolve_exposures", fake_resolve)
+    monkeypatch.setattr(model_harvest.physiome, "load_citations", lambda **k: {})
+    monkeypatch.setattr(model_harvest.physiome, "build_entry",
+                        lambda exp, oi, **k: {"identifier": exp["identifier"], "repository": "physiome",
+                                              "source_id": exp["slug"], "provenance": {}})
+
+    res = model_harvest.harvest(["physiome"], out=db_path, rebuild=["physiome"])
+    db = bh.load_db(db_path)
+    ids = set(db)
+    assert "https://models.physiomeproject.org/e/OLD" not in ids   # old physiome row dropped
+    assert "https://models.physiomeproject.org/exposure/NEW" in ids  # rebuilt
+    assert "https://identifiers.org/biomodels.db:BIOMD1" in ids      # other source preserved

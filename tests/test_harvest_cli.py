@@ -4,8 +4,8 @@ import scripts.harvest_models as cli  # scripts/__init__.py may be needed; add i
 
 def test_cli_runs_selected_source(tmp_path, monkeypatch):
     calls = {}
-    def fake_harvest(sources, *, out, query, limit, no_llm, force, progress=None):
-        calls.update(sources=sources, out=out, no_llm=no_llm, limit=limit)
+    def fake_harvest(sources, *, out, query, limit, no_llm, force, rebuild=False, progress=None):
+        calls.update(sources=sources, out=out, no_llm=no_llm, limit=limit, rebuild=rebuild)
         json.loads  # noop
         return {"per_source": {"physionet": {"new": 0}}, "total": 0}
     monkeypatch.setattr(cli, "harvest", fake_harvest)
