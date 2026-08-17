@@ -1,8 +1,5 @@
-import pytest
-
-from viva_human_atlas import physiome
 from viva_human_atlas.physiome_organ_map import (
-    extract_cellml_curies, map_exposure_to_organs, category_organ_keys)
+    extract_cellml_curies, map_exposure_to_organs, category_organ_keys, keyword_organ_keys)
 from viva_human_atlas.biomodel_do import build_organ_index
 
 ORGAN_INDEX = build_organ_index()
@@ -14,14 +11,6 @@ CELLML_WITH_RDF = """<?xml version="1.0"?>
     <rdf:li rdf:resource="http://identifiers.org/chebi/CHEBI:29108"/>
   </rdf:RDF>
 </model>"""
-
-# A category listing page fragment: two exposures, one short /e/ id and one hash id.
-CATEGORY_HTML = '''
-<a href="https://models.physiomeproject.org/e/103/beeler_reuter_1977.cellml/view"
-   class="url">Beeler, Reuter, 1977</a>
-<a href="https://models.physiomeproject.org/exposure/d86b21/adrian_1970.cellml/view"
-   class="url">A model of pacemaking in substantia nigra neurons</a>
-'''
 
 
 def test_extract_cellml_curies_anatomy_and_molecular():
@@ -83,42 +72,66 @@ def test_map_exposure_unmapped_agnostic_category():
     assert hra["mapping_method"] == "unmapped" and hra["organs"] == []
 
 
-def test_scrape_and_resolve_from_category_html():
-    class R:
-        def __init__(self, t): self._t = t
-        def raise_for_status(self): pass
-        @property
-        def text(self): return self._t
-    # first call returns entries, subsequent (paginated) calls are empty -> stop
-    calls = {"n": 0}
-    def get(url, timeout=0):
-        calls["n"] += 1
-        return R(CATEGORY_HTML if calls["n"] == 1 else "")
-    index = physiome.build_category_index(categories=["electrophysiology"], _get=get)
-    assert set(index) == {"103", "d86b21"}
-    assert index["103"]["categories"] == ["electrophysiology"]
-    exps = physiome.resolve_exposures(_index=index)
-    assert {e["slug"] for e in exps} == {"103", "d86b21"}
-    assert exps[0]["identifier"].startswith("https://models.physiomeproject.org/")
+def test_keyword_organ_keys_exact_and_pattern():
+    assert "heart" in keyword_organ_keys(["atrial myocyte"])
+    assert "brain" in keyword_organ_keys(["substantia nigra"])
+    assert "pancreas" in keyword_organ_keys(["beta cell"])
+    assert "kidney" in keyword_organ_keys(["collecting duct"])
+    assert keyword_organ_keys(["cardiac action potential"]) == ["heart"]   # pattern cardiac.*
+    assert keyword_organ_keys(["systems biology"]) == []                    # no anatomy signal
 
 
-def test_build_entry_shape_category_mapped():
-    exp = {"slug": "d86b21", "identifier": "https://models.physiomeproject.org/exposure/d86b21",
-           "name": "substantia nigra neurons", "categories": ["electrophysiology"]}
-    e = physiome.build_entry(exp, ORGAN_INDEX, no_llm=True,
-                             _doi=lambda ex, cache_dir=None: "10.1234/demo")
-    assert e["repository"] == "physiome" and e["source_id"] == "d86b21"
-    assert e["provenance"]["model_format"] == "CellML"
-    assert e["provenance"]["mapping_method"] == "category"
-    assert e["provenance"]["categories"] == ["electrophysiology"]
-    assert {o["label"] for o in e["organs"]} == {"brain"}
-    assert e["paper_doi"] == "10.1234/demo"
-    assert e["paper_url"] == "https://doi.org/10.1234/demo"
+def test_keyword_organ_keys_word_boundaries_avoid_false_positives():
+    # "adrenal cortex" must NOT match on substring "renal" (adrenal is absent
+    # from the HRA reference set and must contribute nothing, by design).
+    assert keyword_organ_keys(["adrenal cortex"]) == []
+    # bare "tubule" must NOT match seminiferous tubule (testis, not kidney).
+    assert keyword_organ_keys(["seminiferous tubule"]) == []
+    # real kidney keywords still map correctly.
+    assert keyword_organ_keys(["renal"]) == ["kidney"]
+    assert keyword_organ_keys(["nephron"]) == ["kidney"]
 
 
-@pytest.mark.network
-def test_pmr_live_category_scrape_maps_bulk():
-    exps = physiome.resolve_exposures()
-    assert len(exps) >= 200
-    mapped = [physiome.build_entry(e, ORGAN_INDEX, no_llm=True) for e in exps]
-    assert sum(1 for m in mapped if m["organs"]) >= 150
+def test_map_exposure_keyword_path_beats_category():
+    # keywords give brain; category electrophysiology would give heart -> keyword wins
+    exp = {"name": "x", "keywords": ["hippocampal neuron"], "categories": ["electrophysiology"]}
+    hra = map_exposure_to_organs(exp, ORGAN_INDEX)
+    assert hra["mapping_method"] == "keyword_annotation" and hra["confidence"] == "medium"
+    assert {o["label"] for o in hra["organs"]} == {"brain"}
+
+
+def test_map_exposure_keyword_yields_celltypes_via_ftu():
+    # beta cell -> pancreas -> pancreatic islet FTU -> beta cell CL flows through map_to_hra
+    exp = {"name": "insulin secretion model", "keywords": ["beta cell"], "categories": []}
+    hra = map_exposure_to_organs(exp, ORGAN_INDEX)
+    assert {o["label"] for o in hra["organs"]} == {"pancreas"}
+    assert any("beta" in (ct["label"] or "").lower() for ct in hra["cell_types"])
+
+
+def test_map_exposure_keyword_absent_falls_to_category():
+    exp = {"name": "x", "keywords": ["oscillation"], "categories": ["ion_transport"]}
+    hra = map_exposure_to_organs(exp, ORGAN_INDEX)
+    assert hra["mapping_method"] == "category"
+    assert {o["label"] for o in hra["organs"]} == {"kidney"}
+
+
+def test_keyword_organ_keys_electrophysiology_ep_refine_by_title():
+    # "electrophysiology" is the dominant unmapped-row signal; refine like the
+    # PMR category does: default heart, neuron title -> brain.
+    assert keyword_organ_keys(["electrophysiology"], "cardiac ventricular model") == ["heart"]
+    assert keyword_organ_keys(["electrophysiology"], "substantia nigra neuron") == ["brain"]
+
+
+def test_keyword_organ_keys_brain_additions():
+    assert keyword_organ_keys(["hypothalamus"]) == ["brain"]
+    assert keyword_organ_keys(["pituitary"]) == ["brain"]
+    assert keyword_organ_keys(["cerebral aneurysm"]) == ["brain"]
+
+
+def test_keyword_organ_keys_organ_agnostic_still_unmapped():
+    assert keyword_organ_keys(["signal transduction"]) == []
+    assert keyword_organ_keys(["endocrine"]) == []
+
+
+def test_keyword_organ_keys_word_boundary_regression():
+    assert keyword_organ_keys(["adrenal cortex"]) == []

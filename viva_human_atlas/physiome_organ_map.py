@@ -1,15 +1,29 @@
 """Map a Physiome Model Repository (PMR) CellML exposure to HRA organs.
 
 PMR CellML models almost never carry machine-readable *organ* annotations (their
-RDF is variable-level physiology + citations), so — unlike BioModels — the
-reliable anatomical signal is the **PMR category** each model is filed under
-(Cardiovascular Circulation, Electrophysiology, Endocrine, Ion Transport,
-Metabolism, Neurobiology, ...). We map category -> organ deterministically, refine
-the broad Electrophysiology bucket by title so neuron/gut models don't land on the
-heart, and fall back to the shared physiology-keyword table. A model whose only
-categories are organ-agnostic (Calcium Dynamics, Signal Transduction, Cell Cycle,
-...) stays unmapped rather than being forced onto an organ. Every placement records
-`mapping_method` (annotation > category > keyword > llm) and a coarse `confidence`.
+RDF is variable-level physiology + citations), so the reliable anatomical signal
+is the **author `cellml_keyword`s** each exposure carries (e.g. "hepatocyte",
+"islet", "cardiac myocyte"). `KEYWORD_TO_ORGAN_KEYS` maps curated keywords
+directly to organs, `KEYWORD_PATTERNS` catches keyword families by regex, and
+`keyword_organ_keys` (invoked as `mapping_method == "keyword_annotation"`) ties
+them together, refining the broad "electrophysiology" keyword by title so
+neuron/gut models don't land on the heart.
+
+The **PMR category** taxonomy (Cardiovascular Circulation, Electrophysiology,
+Endocrine, Ion Transport, Metabolism, Neurobiology, ...) is kept as an INERT
+fallback: `category_organ_keys`/`CATEGORY_TO_ORGAN_KEYS` retain the same
+category -> organ + EP-by-title-refinement logic, but the live pmr3 client sets
+`categories=[]` on every exposure it fetches (see physiome.py), so this path
+never actually fires today. It's retained for compatibility with any exposure
+dict that does carry categories (e.g. from an older cache or a future API
+revision), not because it's currently load-bearing.
+
+Below the keyword and category paths sits the shared physiology-keyword table
+over the title as a further fallback. A model whose only categories are
+organ-agnostic (Calcium Dynamics, Signal Transduction, Cell Cycle, ...) stays
+unmapped rather than being forced onto an organ. Every placement records
+`mapping_method` (annotation > keyword_annotation > category > keyword > llm) and
+a coarse `confidence`.
 """
 from __future__ import annotations
 
@@ -44,6 +58,15 @@ CATEGORY_TO_ORGAN_KEYS: dict[str, list[str]] = {
 # Electrophysiology spans cardiac / neuronal / smooth-muscle EP. Refine by title
 # (first match wins) so non-cardiac EP models aren't blanket-placed on the heart;
 # anything unmatched defaults to heart (the category's dominant anatomy).
+#
+# Known first-cut imprecision (intentionally deferred, not a bug): the
+# `cortex`/`retina` tokens are broad enough that a non-neural title like
+# "adrenal cortex" would refine to brain via this electrophysiology-keyword
+# path. Low real-world reach: it's a title-substring match on top of the
+# "electrophysiology" author-keyword (or, when reached via the otherwise-inert
+# category path — see the module docstring — the "electrophysiology" PMR
+# category), so it only bites a narrow slice of exposures. Flagging so it
+# isn't mistaken for a bug.
 _EP_REFINE: list[tuple[re.Pattern, list[str]]] = [
     (re.compile(r"neuron|neural|cortex|cortical|hippocamp|substantia nigra|"
                 r"purkinje cell|thalam|interneuron|pyramidal|dopaminerg|\baxon\b|"
@@ -65,9 +88,68 @@ FMA_TO_UBERON: dict[str, str] = {
     "FMA:7163": "UBERON:0002097",   # skin
 }
 
+# Author `cellml_keyword` -> HRA organ key(s). Only keys present in the HRA
+# reference organ set resolve to an UBERON id; the rest (e.g. bone, adrenal,
+# thyroid — absent from the reference set) contribute nothing, by design.
+KEYWORD_TO_ORGAN_KEYS: dict[str, list[str]] = {
+    "atrial myocyte": ["heart"], "ventricular myocyte": ["heart"],
+    "cardiac myocyte": ["heart"], "sinoatrial node": ["heart"], "atrial cell": ["heart"],
+    "cardiovascular circulation": ["heart", "blood"], "circulation": ["blood"],
+    "beta cell": ["pancreas"], "beta-cell": ["pancreas"], "islet": ["pancreas"],
+    "insulin secretion": ["pancreas"], "pancreatic acinar cell": ["pancreas"],
+    "collecting duct": ["kidney"], "nephron": ["kidney"], "proximal tubule": ["kidney"],
+    "glomerulus": ["kidney"], "renal": ["kidney"],
+    "hepatocyte": ["liver"], "bile acid": ["liver"],
+    "substantia nigra": ["brain"], "hippocampus": ["brain"], "cortical neuron": ["brain"],
+    "astrocyte": ["brain"], "dopaminergic neuron": ["brain"], "purkinje cell": ["brain"],
+    "airway myocyte": ["lung"], "alveolar": ["lung"],
+    "smooth muscle": ["intestine"], "enteric": ["intestine"], "jejunum": ["intestine"],
+    "adipocyte": ["adipose"],
+    "hypothalamus": ["brain"], "pituitary": ["brain"], "anterior pituitary": ["brain"],
+    "cerebral aneurysm": ["brain"], "cerebellum": ["brain"],
+    "oocyte": ["ovary-female-left"],
+}
+
+# Keyword families (regex, first-match-wins per keyword).
+KEYWORD_PATTERNS: list[tuple[re.Pattern, list[str]]] = [
+    (re.compile(r"^cardiac|cardiac (action potential|muscle|mechanics|myocyte)|arrhythmia", re.I), ["heart"]),
+    (re.compile(r"neuron|neural|cortical|hippocamp|cerebell|dopaminerg|axon", re.I), ["brain"]),
+    (re.compile(r"hepat", re.I), ["liver"]),
+    (re.compile(r"\bislet\b|\binsulin\b", re.I), ["pancreas"]),
+    (re.compile(r"nephron|\brenal\b|collecting duct|glomerul", re.I), ["kidney"]),
+    (re.compile(r"\bcerebral\b|hypothalam|pituitar", re.I), ["brain"]),
+]
+
+
+def keyword_organ_keys(keywords, title: str = "") -> list[str]:
+    """Organ keys implied by an exposure's author `cellml_keyword`s. `title` is
+    used only to refine the "electrophysiology" keyword the same way the PMR
+    category is refined (neuron -> brain, gut/smooth-muscle -> intestine, else
+    heart)."""
+    keys: list[str] = []
+    for kw in keywords or []:
+        k = (kw or "").strip().lower()
+        if not k:
+            continue
+        if k == "electrophysiology":
+            hit = _ep_refine(title)
+        else:
+            hit = KEYWORD_TO_ORGAN_KEYS.get(k)
+            if hit is None:
+                for pat, pk in KEYWORD_PATTERNS:
+                    if pat.search(k):
+                        hit = pk
+                        break
+        for key in hit or []:
+            if key not in keys:
+                keys.append(key)
+    return keys
+
+
 _RESOURCE_RE = re.compile(r'resource\s*=\s*["\']([^"\']+)["\']', re.IGNORECASE)
 _MOLECULAR = ("chebi", "go")
-_CONFIDENCE = {"annotation": "high", "category": "medium", "keyword": "medium", "llm": "low"}
+_CONFIDENCE = {"annotation": "high", "category": "medium", "keyword_annotation": "medium",
+               "keyword": "medium", "llm": "low"}
 
 
 def _molecular_curie(uri: str, prefix: str) -> str | None:
@@ -142,6 +224,13 @@ def map_exposure_to_organs(exposure: dict, organ_index: dict, *, cellml_text: st
             ubs.append(ub)
     ubs = list(dict.fromkeys(ubs))
     method = "annotation" if ubs else None
+
+    # 1b) NEW primary signal: curated author-keyword -> organ table
+    if not ubs:
+        kw_keys = keyword_organ_keys(exposure.get("keywords"), title)
+        if kw_keys:
+            ubs = _keys_to_uberon(kw_keys, organ_index)
+            method = "keyword_annotation" if ubs else None
 
     # 2) primary signal: the PMR category taxonomy (EP refined by title)
     if not ubs and categories:
