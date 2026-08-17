@@ -142255,9 +142255,24 @@
     "paper_pmid": "19700517",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -142266,7 +142281,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -142302,8 +142319,8 @@
           "Crampin"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -142438,7 +142455,12 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -142449,7 +142471,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -142475,8 +142499,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -142571,7 +142595,12 @@
     "paper_pmid": "17320763",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -142582,7 +142611,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -142614,8 +142645,8 @@
           "Popel"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -144245,8 +144276,26 @@
     "paper_pmid": "22912702",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
+    "organs": [
+      {
+        "label": "intestine",
+        "uberon": "UBERON:0000059"
+      },
+      {
+        "label": "muscle",
+        "uberon": null
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "large-intestine crypt of Lieberkuhn",
+        "uberon": "UBERON:0001984"
+      },
+      {
+        "label": "small-intestine crypt-villus axis",
+        "uberon": "UBERON:0001213"
+      }
+    ],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -144256,7 +144305,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000059"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -144294,8 +144345,8 @@
           "Buist"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -144463,7 +144514,12 @@
     "paper_pmid": "16280026",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -144474,7 +144530,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -144507,8 +144565,8 @@
           "Leng"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -146515,8 +146573,18 @@
     "paper_pmid": "8126097",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
+    "organs": [
+      {
+        "label": "ovary-female-left",
+        "uberon": "UBERON:0002119"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "ovarian follicle",
+        "uberon": "UBERON:0001305"
+      }
+    ],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -146526,7 +146594,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0002119"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -146557,8 +146627,8 @@
           "Tyson"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -146632,9 +146702,24 @@
     "paper_pmid": "10362783",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -146643,7 +146728,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -146673,8 +146760,8 @@
           "Fujita"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -146806,9 +146893,24 @@
     "paper_pmid": "12362939",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -146817,7 +146919,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -146852,8 +146956,8 @@
           "Heinrich"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -148380,9 +148484,24 @@
     "paper_pmid": "10362783",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -148391,7 +148510,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -148422,8 +148543,8 @@
           "Fujita"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -149943,9 +150064,24 @@
     "paper_pmid": "18276830",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -149954,7 +150090,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -149985,8 +150123,8 @@
           "Buist"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -150067,6 +150205,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -150075,6 +150217,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -150089,6 +150235,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -150100,6 +150250,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -150147,8 +150298,18 @@
     "paper_pmid": "8816754",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
+    "organs": [
+      {
+        "label": "ovary-female-left",
+        "uberon": "UBERON:0002119"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "ovarian follicle",
+        "uberon": "UBERON:0001305"
+      }
+    ],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -150158,7 +150319,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0002119"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -150189,8 +150352,8 @@
           "Ferrell"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -150778,7 +150941,12 @@
     "paper_pmid": "15480670",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -150789,7 +150957,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -150823,8 +150993,8 @@
           "Sontag"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -151108,7 +151278,12 @@
     "paper_pmid": "11035997",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -151119,7 +151294,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151151,8 +151328,8 @@
           "Selgrade"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -151165,7 +151342,12 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -151176,7 +151358,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151202,8 +151386,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -151342,9 +151526,32 @@
     "paper_pmid": "15716298",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "kidney",
+        "uberon": "UBERON:0004538"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "kidney renal corpuscle / glomerulus",
+        "uberon": "UBERON:0001229"
+      },
+      {
+        "label": "kidney nephron",
+        "uberon": "UBERON:0001285"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "podocyte",
+        "cl": "CL:0000653"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -151353,7 +151560,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151387,8 +151596,8 @@
           "Pornsawad"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -151401,9 +151610,28 @@
     "paper_pmid": "18068197",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
+        "label": "muscle",
+        "uberon": null
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -151412,7 +151640,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151447,8 +151677,8 @@
           "Wu"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -151551,9 +151781,28 @@
     "paper_pmid": "7260316",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
+        "label": "muscle",
+        "uberon": null
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -151562,7 +151811,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -151592,8 +151843,8 @@
           "Lecar"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -151987,7 +152238,12 @@
     "paper_pmid": "3306160",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -151998,7 +152254,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -152032,8 +152290,8 @@
           "Husain"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -152311,7 +152569,12 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -152322,7 +152585,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -152342,8 +152607,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -152671,7 +152936,12 @@
     "paper_pmid": "18509469",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -152682,7 +152952,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -152719,8 +152991,8 @@
           "Bahar"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -153287,10 +153559,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -153300,6 +153586,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -153416,8 +153703,18 @@
     "paper_pmid": "8126097",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
+    "organs": [
+      {
+        "label": "ovary-female-left",
+        "uberon": "UBERON:0002119"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "ovarian follicle",
+        "uberon": "UBERON:0001305"
+      }
+    ],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -153427,7 +153724,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0002119"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -153458,8 +153757,8 @@
           "Tyson"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -153637,7 +153936,12 @@
     "paper_pmid": "20164396",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -153648,7 +153952,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -153681,8 +153987,8 @@
           "Bertram"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -153971,6 +154277,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -153979,6 +154289,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -153993,6 +154307,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -154004,6 +154322,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -154173,9 +154492,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -154184,7 +154518,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -154208,8 +154544,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -154383,7 +154719,12 @@
     "paper_pmid": "15252025",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -154394,7 +154735,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -154426,8 +154769,8 @@
           "Popel"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -154692,9 +155035,32 @@
     "paper_pmid": "16112688",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "kidney",
+        "uberon": "UBERON:0004538"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "kidney renal corpuscle / glomerulus",
+        "uberon": "UBERON:0001229"
+      },
+      {
+        "label": "kidney nephron",
+        "uberon": "UBERON:0001285"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "podocyte",
+        "cl": "CL:0000653"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -154703,7 +155069,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -154737,8 +155105,8 @@
           "Kolar-Anic"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -154878,7 +155246,12 @@
     "paper_pmid": "17185408",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -154889,7 +155262,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -154925,8 +155300,8 @@
           "Veldhuis"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -155270,6 +155645,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       },
@@ -155298,7 +155677,8 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059"
+        "UBERON:0000059",
+        "UBERON:0000955"
       ],
       "cl": [],
       "mesh": [],
@@ -155353,9 +155733,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -155364,7 +155759,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -155382,8 +155779,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -156171,6 +156568,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -156179,6 +156580,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -156193,6 +156598,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -156204,6 +156613,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -157196,9 +157606,44 @@
     "paper_pmid": "15294427",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
+        "label": "pancreas",
+        "uberon": "UBERON:0001264"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "pancreatic islet of Langerhans",
+        "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "type B pancreatic cell (beta cell)",
+        "cl": "CL:0000169"
+      },
+      {
+        "label": "pancreatic A cell (alpha cell)",
+        "cl": "CL:0000171"
+      },
+      {
+        "label": "pancreatic D cell (delta cell)",
+        "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -157207,7 +157652,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -157239,8 +157686,8 @@
           "Sherman"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -157945,6 +158392,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -157953,6 +158404,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -157967,6 +158422,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -157978,6 +158437,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -158090,9 +158550,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -158101,7 +158576,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -158119,8 +158596,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -158389,9 +158866,24 @@
     "paper_pmid": "11004387",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -158400,7 +158892,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -158436,8 +158930,8 @@
           "Heinrich"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -158751,10 +159245,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -158764,6 +159272,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -158986,6 +159495,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -158994,6 +159507,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -159008,6 +159525,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -159019,6 +159540,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -159217,9 +159739,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -159228,7 +159765,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -159246,8 +159785,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -159834,6 +160373,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -159842,6 +160385,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -159856,6 +160403,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -159867,6 +160418,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -160242,6 +160794,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "kidney",
         "uberon": "UBERON:0004538"
       }
@@ -160254,12 +160810,20 @@
       {
         "label": "kidney nephron",
         "uberon": "UBERON:0001285"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
       {
         "label": "podocyte",
         "cl": "CL:0000653"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -160271,6 +160835,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0004538"
       ],
       "cl": [],
@@ -160384,9 +160949,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -160395,7 +160975,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -160413,8 +160995,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -160834,6 +161416,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "kidney",
         "uberon": "UBERON:0004538"
       }
@@ -160846,12 +161432,20 @@
       {
         "label": "kidney nephron",
         "uberon": "UBERON:0001285"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
       {
         "label": "podocyte",
         "cl": "CL:0000653"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -160863,6 +161457,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0004538"
       ],
       "cl": [],
@@ -161363,10 +161958,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -161376,6 +161985,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -162301,9 +162911,28 @@
     "paper_pmid": "10988025",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -162312,7 +162941,10 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948",
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -162351,8 +162983,8 @@
           "Wall"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -162542,7 +163174,12 @@
     "paper_pmid": "6986927",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -162553,7 +163190,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -162585,8 +163224,8 @@
           "Smith"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -162902,9 +163541,24 @@
     "paper_pmid": "16608699",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -162913,7 +163567,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -162947,8 +163603,8 @@
           "Noble"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -162961,7 +163617,12 @@
     "paper_pmid": "16339882",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -162972,7 +163633,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -163009,8 +163672,8 @@
           "Bahar"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -163105,7 +163768,12 @@
     "paper_pmid": "18474856",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -163116,7 +163784,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -163149,8 +163819,8 @@
           "Sanchez-Vives"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -163520,6 +164190,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -163528,6 +164202,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -163542,6 +164220,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -163553,6 +164235,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -163689,6 +164372,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "kidney",
         "uberon": "UBERON:0004538"
       }
@@ -163701,12 +164388,20 @@
       {
         "label": "kidney nephron",
         "uberon": "UBERON:0001285"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
       {
         "label": "podocyte",
         "cl": "CL:0000653"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -163718,7 +164413,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0004538"
+        "UBERON:0000948"
       ],
       "cl": [],
       "mesh": [],
@@ -163749,7 +164444,7 @@
           "Fujita"
         ]
       },
-      "mapping_method": "keyword",
+      "mapping_method": "keyword_annotation",
       "confidence": "medium",
       "errors": []
     }
@@ -163888,9 +164583,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -163899,7 +164609,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -163917,8 +164629,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -165423,6 +166135,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -165431,6 +166147,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -165445,6 +166165,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -165456,6 +166180,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -165563,6 +166288,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       }
@@ -165575,9 +166304,18 @@
       {
         "label": "small-intestine crypt-villus axis",
         "uberon": "UBERON:0001213"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
-    "cell_types": [],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -165587,7 +166325,8 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059"
+        "UBERON:0000059",
+        "UBERON:0000948"
       ],
       "cl": [],
       "mesh": [],
@@ -166070,7 +166809,12 @@
     "paper_pmid": "9843750",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -166081,7 +166825,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -166116,8 +166862,8 @@
           "Midgley"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -168661,6 +169407,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       }
@@ -168673,9 +169423,18 @@
       {
         "label": "small-intestine crypt-villus axis",
         "uberon": "UBERON:0001213"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
-    "cell_types": [],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -168685,7 +169444,8 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059"
+        "UBERON:0000059",
+        "UBERON:0000948"
       ],
       "cl": [],
       "mesh": [],
@@ -168805,9 +169565,24 @@
     "paper_pmid": "18408122",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -168816,7 +169591,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -168849,8 +169626,8 @@
           "Sobie"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -169138,7 +169915,12 @@
     "paper_pmid": "16864000",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -169149,7 +169931,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -169181,8 +169965,8 @@
           "Popel"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -169276,9 +170060,24 @@
     "paper_pmid": "18339738",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -169287,7 +170086,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -169325,8 +170126,8 @@
           "Smith"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -169339,7 +170140,12 @@
     "paper_pmid": "18509469",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -169350,7 +170156,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -169387,8 +170195,8 @@
           "Bahar"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -169854,9 +170662,32 @@
     "paper_pmid": "17300722",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "kidney",
+        "uberon": "UBERON:0004538"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "kidney renal corpuscle / glomerulus",
+        "uberon": "UBERON:0001229"
+      },
+      {
+        "label": "kidney nephron",
+        "uberon": "UBERON:0001285"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "podocyte",
+        "cl": "CL:0000653"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -169865,7 +170696,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -169902,8 +170735,8 @@
           "Vernon"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -170589,9 +171422,28 @@
     "paper_pmid": "10562631",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
+        "label": "muscle",
+        "uberon": null
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -170600,7 +171452,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -170632,8 +171486,8 @@
           "Campbell"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -173322,7 +174176,12 @@
     "paper_pmid": "17171720",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -173333,7 +174192,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -173364,8 +174225,8 @@
           "Sirovich"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -177995,9 +178856,24 @@
     "paper_pmid": "16945388",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -178006,7 +178882,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -178043,8 +178921,8 @@
           "Sherman"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -178974,7 +179852,12 @@
     "paper_pmid": "15653786",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -178985,7 +179868,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -179016,8 +179901,8 @@
           "Butera"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -179867,6 +180752,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -179875,6 +180764,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -179889,6 +180782,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -179900,6 +180797,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -180138,10 +181036,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -180151,6 +181063,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -180534,7 +181447,12 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -180545,7 +181463,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -180568,8 +181488,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -181022,7 +181942,12 @@
     "paper_pmid": "16005020",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -181033,7 +181958,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -181063,8 +181990,8 @@
           "Popel"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -181568,10 +182495,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -181581,6 +182522,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -182005,6 +182947,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -182013,6 +182959,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -182027,6 +182977,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -182038,6 +182992,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -182209,9 +183164,24 @@
     "paper_pmid": "17234962",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -182220,7 +183190,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -182255,8 +183227,8 @@
           "Armoundas"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -182447,7 +183419,12 @@
     "paper_pmid": "17058022",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -182458,7 +183435,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -182495,8 +183474,8 @@
           "Bertram"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -182578,9 +183557,24 @@
     "paper_pmid": "8176949",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -182589,7 +183583,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -182622,8 +183618,8 @@
           "Rinzel"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -183089,9 +184085,24 @@
     "paper_pmid": "14730449",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -183100,7 +184111,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -183132,8 +184145,8 @@
           "Ogura"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -183215,7 +184228,12 @@
     "paper_pmid": "12691603",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -183226,7 +184244,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -183276,8 +184296,8 @@
           "Saeki"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -183535,9 +184555,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -183546,7 +184581,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -183564,8 +184601,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -183880,7 +184917,12 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -183891,7 +184933,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -183911,8 +184955,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -184501,6 +185545,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -184509,6 +185557,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -184523,6 +185575,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -184534,6 +185590,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -184622,9 +185679,24 @@
     "paper_pmid": "11976397",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -184633,7 +185705,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -184668,8 +185742,8 @@
           "Zamponi"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -185105,8 +186179,22 @@
     "paper_pmid": "16608700",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
+    "organs": [
+      {
+        "label": "intestine",
+        "uberon": "UBERON:0000059"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "large-intestine crypt of Lieberkuhn",
+        "uberon": "UBERON:0001984"
+      },
+      {
+        "label": "small-intestine crypt-villus axis",
+        "uberon": "UBERON:0001213"
+      }
+    ],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -185116,7 +186204,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000059"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -185163,8 +186253,8 @@
           "Earm"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -186335,9 +187425,24 @@
     "paper_pmid": "1329108",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -186346,7 +187451,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -186378,8 +187485,8 @@
           "Keizer"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -187325,10 +188432,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -187338,6 +188459,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -188286,8 +189408,18 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
+    "organs": [
+      {
+        "label": "ovary-female-left",
+        "uberon": "UBERON:0002119"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "ovarian follicle",
+        "uberon": "UBERON:0001305"
+      }
+    ],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -188297,7 +189429,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0002119"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -188320,8 +189454,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -188377,9 +189511,24 @@
     "paper_pmid": "7643604",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -188388,7 +189537,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -188421,8 +189572,8 @@
           "Fan"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -190557,9 +191708,24 @@
     "paper_pmid": null,
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -190568,7 +191734,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -190589,8 +191757,8 @@
       "model_format": "CellML",
       "executable": "OpenCOR",
       "citation": {},
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -191620,9 +192788,28 @@
     "paper_pmid": "10938629",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -191631,7 +192818,10 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948",
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -191665,8 +192855,8 @@
           "Wall"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -191950,6 +193140,10 @@
     "taxonomy": [],
     "organs": [
       {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      },
+      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       }
@@ -191958,6 +193152,10 @@
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
+      },
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
       }
     ],
     "cell_types": [
@@ -191972,6 +193170,10 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
+      },
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -191983,6 +193185,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0001264"
       ],
       "cl": [],
@@ -193930,9 +195133,24 @@
     "paper_pmid": "19527643",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -193941,7 +195159,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000948"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -193978,8 +195198,8 @@
           "Smith"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -194577,10 +195797,24 @@
       {
         "label": "brain",
         "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "heart",
+        "uberon": "UBERON:0000948"
       }
     ],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "functional_tissue_units": [
+      {
+        "label": "cardiac muscle / myocardium unit",
+        "uberon": "UBERON:0002349"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "cardiac muscle cell (cardiomyocyte)",
+        "cl": "CL:0000746"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -194590,6 +195824,7 @@
     },
     "ontology_ids": {
       "uberon": [
+        "UBERON:0000948",
         "UBERON:0000955"
       ],
       "cl": [],
@@ -194973,7 +196208,12 @@
     "paper_pmid": "15458315",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -194984,7 +196224,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -195013,8 +196255,8 @@
           "Haugh"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -195614,9 +196856,32 @@
     "paper_pmid": "16366221",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
-    "functional_tissue_units": [],
-    "cell_types": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      },
+      {
+        "label": "kidney",
+        "uberon": "UBERON:0004538"
+      }
+    ],
+    "functional_tissue_units": [
+      {
+        "label": "kidney renal corpuscle / glomerulus",
+        "uberon": "UBERON:0001229"
+      },
+      {
+        "label": "kidney nephron",
+        "uberon": "UBERON:0001285"
+      }
+    ],
+    "cell_types": [
+      {
+        "label": "podocyte",
+        "cl": "CL:0000653"
+      }
+    ],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -195625,7 +196890,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -195661,8 +196928,8 @@
           "Vieira"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
@@ -195716,7 +196983,12 @@
     "paper_pmid": "17185408",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [],
+    "organs": [
+      {
+        "label": "brain",
+        "uberon": "UBERON:0000955"
+      }
+    ],
     "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
@@ -195727,7 +196999,9 @@
       "reactome": []
     },
     "ontology_ids": {
-      "uberon": [],
+      "uberon": [
+        "UBERON:0000955"
+      ],
       "cl": [],
       "mesh": [],
       "fma": [],
@@ -195763,8 +197037,8 @@
           "Veldhuis"
         ]
       },
-      "mapping_method": "unmapped",
-      "confidence": "none",
+      "mapping_method": "keyword_annotation",
+      "confidence": "medium",
       "errors": []
     }
   },
