@@ -1,16 +1,29 @@
 """Map a Physiome Model Repository (PMR) CellML exposure to HRA organs.
 
 PMR CellML models almost never carry machine-readable *organ* annotations (their
-RDF is variable-level physiology + citations), so — unlike BioModels — the
-reliable anatomical signal is the **PMR category** each model is filed under
-(Cardiovascular Circulation, Electrophysiology, Endocrine, Ion Transport,
-Metabolism, Neurobiology, ...). We map category -> organ deterministically, refine
-the broad Electrophysiology bucket by title so neuron/gut models don't land on the
-heart, and fall back to the shared physiology-keyword table. A model whose only
-categories are organ-agnostic (Calcium Dynamics, Signal Transduction, Cell Cycle,
-...) stays unmapped rather than being forced onto an organ. Every placement records
-`mapping_method` (annotation > keyword_annotation > category > keyword > llm) and a
-coarse `confidence`.
+RDF is variable-level physiology + citations), so the reliable anatomical signal
+is the **author `cellml_keyword`s** each exposure carries (e.g. "hepatocyte",
+"islet", "cardiac myocyte"). `KEYWORD_TO_ORGAN_KEYS` maps curated keywords
+directly to organs, `KEYWORD_PATTERNS` catches keyword families by regex, and
+`keyword_organ_keys` (invoked as `mapping_method == "keyword_annotation"`) ties
+them together, refining the broad "electrophysiology" keyword by title so
+neuron/gut models don't land on the heart.
+
+The **PMR category** taxonomy (Cardiovascular Circulation, Electrophysiology,
+Endocrine, Ion Transport, Metabolism, Neurobiology, ...) is kept as an INERT
+fallback: `category_organ_keys`/`CATEGORY_TO_ORGAN_KEYS` retain the same
+category -> organ + EP-by-title-refinement logic, but the live pmr3 client sets
+`categories=[]` on every exposure it fetches (see physiome.py), so this path
+never actually fires today. It's retained for compatibility with any exposure
+dict that does carry categories (e.g. from an older cache or a future API
+revision), not because it's currently load-bearing.
+
+Below the keyword and category paths sits the shared physiology-keyword table
+over the title as a further fallback. A model whose only categories are
+organ-agnostic (Calcium Dynamics, Signal Transduction, Cell Cycle, ...) stays
+unmapped rather than being forced onto an organ. Every placement records
+`mapping_method` (annotation > keyword_annotation > category > keyword > llm) and
+a coarse `confidence`.
 """
 from __future__ import annotations
 
@@ -45,6 +58,15 @@ CATEGORY_TO_ORGAN_KEYS: dict[str, list[str]] = {
 # Electrophysiology spans cardiac / neuronal / smooth-muscle EP. Refine by title
 # (first match wins) so non-cardiac EP models aren't blanket-placed on the heart;
 # anything unmatched defaults to heart (the category's dominant anatomy).
+#
+# Known first-cut imprecision (intentionally deferred, not a bug): the
+# `cortex`/`retina` tokens are broad enough that a non-neural title like
+# "adrenal cortex" would refine to brain via this electrophysiology-keyword
+# path. Low real-world reach: it's a title-substring match on top of the
+# "electrophysiology" author-keyword (or, when reached via the otherwise-inert
+# category path — see the module docstring — the "electrophysiology" PMR
+# category), so it only bites a narrow slice of exposures. Flagging so it
+# isn't mistaken for a bug.
 _EP_REFINE: list[tuple[re.Pattern, list[str]]] = [
     (re.compile(r"neuron|neural|cortex|cortical|hippocamp|substantia nigra|"
                 r"purkinje cell|thalam|interneuron|pyramidal|dopaminerg|\baxon\b|"

@@ -33,7 +33,8 @@ SOURCES: dict[str, dict] = {
     "physiome": {
         "repository": "physiome",
         "list_fn": lambda **k: physiome.resolve_exposures(query=k.get("query"), limit=k.get("limit"),
-                                                          cache_dir=k.get("cache_dir")),
+                                                          cache_dir=k.get("cache_dir"),
+                                                          progress=k.get("progress")),
         "entry_fn": lambda exp, oi, **k: physiome.build_entry(exp, oi, citations=k.get("citations"),
                                                              cache_dir=k.get("cache_dir"),
                                                              no_llm=k.get("no_llm", True)),
@@ -59,7 +60,7 @@ def harvest(sources: Optional[Sequence[str]] = None, *, out=DEFAULT_DB_PATH,
             for k in [k for k, v in db.items() if v.get("repository") == src["repository"]]:
                 del db[k]
         counts = {"resolved": 0, "new": 0, "updated": 0, "skipped": 0, "errors": 0}
-        items = src["list_fn"](query=query, limit=limit, cache_dir=cache_dir)
+        items = src["list_fn"](query=query, limit=limit, cache_dir=cache_dir, progress=progress)
         counts["resolved"] = len(items)
         for i, item in enumerate(items, 1):
             ident = src["id_of"](item)

@@ -80,6 +80,24 @@ def test_resolve_exposures_skips_a_failed_fetch_without_aborting(tmp_path):
     assert all(e["slug"] == "e5cfb42225d4534a1e08979e57cf8bdd" for e in exps)
 
 
+def test_resolve_exposures_skipped_fetch_reported_via_progress(tmp_path):
+    payloads = {"1": _EXP_583, "3": _EXP_583}
+
+    def get(url, timeout=0):
+        eid = url.rsplit("/", 1)[-1]
+        if eid == "2":
+            raise AssertionError("simulated network failure for id 2")
+        return _R(payloads[eid])
+
+    messages = []
+    exps = physiome.resolve_exposures(cache_dir=tmp_path, _ids=["1", "2", "3"], _get=get,
+                                      progress=messages.append)
+    assert len(exps) == 2
+    assert len(messages) == 1
+    assert "skipped 2" in messages[0]
+    assert "simulated network failure for id 2" in messages[0]
+
+
 from viva_human_atlas.biomodel_do import build_organ_index
 ORGAN_INDEX = build_organ_index()
 

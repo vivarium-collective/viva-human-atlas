@@ -14,7 +14,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 from urllib.parse import urljoin
 
 import requests
@@ -91,16 +91,21 @@ def fetch_exposure(exposure_id: str, *, cache_dir=None, _get=requests.get) -> Op
 
 
 def resolve_exposures(*, query: Optional[str] = None, limit: Optional[int] = None,
-                      cache_dir=None, _get=requests.get, _ids=None) -> list[dict]:
+                      cache_dir=None, _get=requests.get, _ids=None,
+                      progress: Optional[Callable[[str], None]] = None) -> list[dict]:
     ids = _ids if _ids is not None else list_exposure_ids(_get=_get)
     q = (query or "").lower().strip()
     out: list[dict] = []
     for eid in ids:
         try:
             exp = fetch_exposure(eid, cache_dir=cache_dir, _get=_get)
-        except Exception:  # noqa: BLE001 — one bad exposure must not abort the batch
+        except Exception as e:  # noqa: BLE001 — one bad exposure must not abort the batch
+            if progress:
+                progress(f"  [physiome] skipped {eid}: {e}")
             continue
         if exp is None:
+            if progress:
+                progress(f"  [physiome] skipped {eid}: no resource_paths returned")
             continue
         if q and q not in (exp.get("name") or "").lower():
             continue
