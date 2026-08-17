@@ -64,3 +64,49 @@ def test_resolve_exposures_query_and_limit(tmp_path):
     assert len(exps) == 2
     assert physiome.resolve_exposures(cache_dir=tmp_path, _ids=["1", "2"], limit=1, _get=get).__len__() == 1
     assert physiome.resolve_exposures(cache_dir=tmp_path, _ids=["1"], query="nomatch", _get=get) == []
+
+
+from viva_human_atlas.biomodel_do import build_organ_index
+ORGAN_INDEX = build_organ_index()
+
+_CITATIONS = {
+    "urn:miriam:pubmed:19828503": {
+        "id": "urn:miriam:pubmed:19828503", "title": "Energy metabolism control",
+        "journal": "PLoS ONE", "issued": "2009-10-01",
+        "authors": [{"family": "Cloutier", "given": "M", "other": ""}]},
+}
+
+
+def test_load_and_resolve_citation(tmp_path):
+    cites = physiome.load_citations(cache_dir=tmp_path, _get=lambda url, timeout=0: _R(_CITATIONS))
+    pmid, meta = physiome.resolve_citation(["urn:miriam:pubmed:19828503"], cites)
+    assert pmid == "19828503"
+    assert meta["title"] == "Energy metabolism control" and meta["year"] == "2009"
+    assert meta["authors"] == ["Cloutier"]
+    # empty / unknown -> (None, {})
+    assert physiome.resolve_citation(["urn:miriam:pubmed:"], cites) == (None, {})
+    assert physiome.resolve_citation([], cites) == (None, {})
+
+
+def test_build_entry_pmr3_shape_with_citation():
+    exp = {"slug": "abc", "identifier": "https://models.physiomeproject.org/exposure/abc",
+           "name": "hepatic bile acid model", "abstract": "A liver model.",
+           "keywords": ["hepatocyte", "bile acid"], "categories": [],
+           "citation_ids": ["urn:miriam:pubmed:19828503"], "authors": ["Cloutier"]}
+    e = physiome.build_entry(exp, ORGAN_INDEX, citations=_CITATIONS, no_llm=True)
+    assert e["repository"] == "physiome" and e["source_id"] == "abc"
+    assert e["paper_pmid"] == "19828503"
+    assert e["paper_url"] == "https://pubmed.ncbi.nlm.nih.gov/19828503/"
+    assert e["provenance"]["citation"]["journal"] == "PLoS ONE"
+    assert e["provenance"]["abstract"] == "A liver model."
+    assert e["provenance"]["keywords"] == ["hepatocyte", "bile acid"]
+    assert e["provenance"]["model_format"] == "CellML"
+
+
+def test_build_entry_no_citation_falls_back_to_identifier():
+    exp = {"slug": "abc", "identifier": "https://models.physiomeproject.org/exposure/abc",
+           "name": "x", "abstract": None, "keywords": [], "categories": [],
+           "citation_ids": [], "authors": []}
+    e = physiome.build_entry(exp, ORGAN_INDEX, citations={}, no_llm=True)
+    assert e["paper_pmid"] is None
+    assert e["paper_url"] == "https://models.physiomeproject.org/exposure/abc"

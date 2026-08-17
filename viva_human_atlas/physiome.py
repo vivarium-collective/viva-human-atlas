@@ -107,6 +107,75 @@ def resolve_exposures(*, query: Optional[str] = None, limit: Optional[int] = Non
     return out
 
 
+def load_citations(*, cache_dir=None, _get=requests.get) -> dict:
+    cache = Path(cache_dir) if cache_dir else DEFAULT_CACHE_DIR
+    cache.mkdir(parents=True, exist_ok=True)
+    cached = cache / "citations.json"
+    if cached.exists():
+        return json.loads(cached.read_text(encoding="utf-8"))
+    try:
+        r = _get(f"{api_base()}/api/citations", timeout=90)
+        r.raise_for_status()
+        cites = r.json()
+    except Exception:  # noqa: BLE001 — citation enrichment must never abort a harvest
+        cites = {}
+    cached.write_text(json.dumps(cites), encoding="utf-8")
+    return cites
+
+
+def resolve_citation(citation_ids, citations) -> tuple[Optional[str], dict]:
+    for cid in citation_ids or []:
+        if not cid.startswith("urn:miriam:pubmed:"):
+            continue
+        pmid = cid.rsplit(":", 1)[-1].strip()
+        if not pmid:
+            continue
+        c = (citations or {}).get(cid) or {}
+        meta = {
+            "title": c.get("title"), "journal": c.get("journal"),
+            "year": (c.get("issued") or "")[:4] or None,
+            "authors": [a.get("family") for a in c.get("authors") or [] if a.get("family")],
+        }
+        return pmid, meta
+    return None, {}
+
+
+def build_entry(exposure: dict, organ_index: dict, *, citations=None, no_llm: bool = True,
+                llm_model: str = DEFAULT_LLM_MODEL, cache_dir=None, _map=None) -> dict:
+    mapper = _map or map_exposure_to_organs
+    hra = mapper(exposure, organ_index, no_llm=no_llm, llm_model=llm_model, cache_dir=cache_dir)
+    anat = hra.get("anatomy_ids") or {}
+    mol = hra.get("molecular") or {}
+    pmid, cite = resolve_citation(exposure.get("citation_ids") or [], citations or {})
+    return {
+        "identifier": exposure["identifier"],
+        "repository": "physiome",
+        "source_id": exposure["slug"],
+        "name": exposure.get("name"),
+        "paper_url": (f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else exposure["identifier"]),
+        "paper_pmid": pmid,
+        "paper_doi": None,
+        "taxonomy": [],
+        "organs": hra["organs"],
+        "functional_tissue_units": hra["functional_tissue_units"],
+        "cell_types": hra["cell_types"],
+        "molecular_ids": {"chebi": mol.get("chebi") or [], "uniprot": [], "kegg": [],
+                          "go": mol.get("go") or [], "reactome": []},
+        "ontology_ids": {"uberon": hra.get("uberon_organ_ids", []), "cl": [], "mesh": [],
+                         "fma": anat.get("fma") or [], "bto": []},
+        "gene_symbols": [],
+        "provenance": {
+            "abstract": exposure.get("abstract"), "year": cite.get("year"), "access": "open",
+            "keywords": exposure.get("keywords") or [],
+            "authors": exposure.get("authors") or [],
+            "model_format": "CellML", "executable": "OpenCOR",
+            "citation": cite,
+            "mapping_method": hra.get("mapping_method", "unmapped"),
+            "confidence": hra.get("confidence", "none"), "errors": [],
+        },
+    }
+
+
 def resolve_cellml_url(identifier: str, *, _get=requests.get) -> "str | None":
     """Resolve a PMR exposure (identifier URL like .../e/<id>) to its primary
     runnable .cellml URL. Returns None on HTTP error or no .cellml link.
