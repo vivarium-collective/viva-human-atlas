@@ -118,7 +118,7 @@ def load_citations(*, cache_dir=None, _get=requests.get) -> dict:
         r.raise_for_status()
         cites = r.json()
     except Exception:  # noqa: BLE001 — citation enrichment must never abort a harvest
-        cites = {}
+        return {}
     cached.write_text(json.dumps(cites), encoding="utf-8")
     return cites
 

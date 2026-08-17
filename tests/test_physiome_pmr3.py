@@ -88,6 +88,30 @@ def test_load_and_resolve_citation(tmp_path):
     assert physiome.resolve_citation([], cites) == (None, {})
 
 
+def test_load_citations_does_not_cache_on_failure(tmp_path):
+    def boom(url, timeout=0):
+        raise AssertionError("simulated network failure")
+    cites = physiome.load_citations(cache_dir=tmp_path, _get=boom)
+    assert cites == {}
+    assert not (tmp_path / "citations.json").exists()
+
+
+def test_load_citations_caches_on_success_and_reuses_cache(tmp_path):
+    calls = {"n": 0}
+    def get(url, timeout=0):
+        calls["n"] += 1
+        return _R(_CITATIONS)
+    cites = physiome.load_citations(cache_dir=tmp_path, _get=get)
+    assert cites == _CITATIONS
+    assert (tmp_path / "citations.json").exists()
+    assert calls["n"] == 1
+    # second call must hit the cache, not _get
+    def unreachable(url, timeout=0):
+        raise AssertionError("should not fetch — cache hit expected")
+    cites2 = physiome.load_citations(cache_dir=tmp_path, _get=unreachable)
+    assert cites2 == _CITATIONS
+
+
 def test_build_entry_pmr3_shape_with_citation():
     exp = {"slug": "abc", "identifier": "https://models.physiomeproject.org/exposure/abc",
            "name": "hepatic bile acid model", "abstract": "A liver model.",
