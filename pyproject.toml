@@ -10,18 +10,24 @@ dependencies = [
     "pyyaml>=6.0",
     # Reused comparison machinery + transitively copasi/tellurium/simbio/biomodels/superpowers/workbench:
     "viva-biomodels",
-    # Direct engine deps (also pulled by pbg-biomodels, listed for clarity):
-    "pbg-copasi",
-    "pbg-tellurium",
+    # Direct engine deps (also pulled by viva-biomodels, listed for clarity):
+    "viva-copasi",
+    "viva-tellurium",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
 
+# Local editable siblings for development. The pbg-* repos were renamed to viva-*
+# in the 2026 rebrand; these paths point at the current sibling checkouts.
+# For a clean environment without local siblings, install the same packages from
+# git instead, e.g.:
+#   uv pip install -e . --no-deps
+#   uv pip install "viva-biomodels @ git+https://github.com/vivarium-collective/viva-biomodels"
 [tool.uv.sources]
-viva-biomodels = { path = "../pbg-biomodels", editable = true }   # dir unchanged
-pbg-copasi = { path = "../pbg-copasi", editable = true }
-pbg-tellurium = { path = "../pbg-tellurium", editable = true }
+viva-biomodels = { path = "../viva-biomodels", editable = true }
+viva-copasi = { path = "../viva-copasi", editable = true }
+viva-tellurium = { path = "../viva-tellurium", editable = true }
 
 [build-system]
 requires = ["hatchling"]
