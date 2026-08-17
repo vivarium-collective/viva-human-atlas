@@ -178,23 +178,28 @@ regenerates the committed `atlas.json`) and
 ## Environment
 
 The workspace depends on sibling process packages `viva-biomodels`,
-`viva-copasi`, `viva-tellurium` (renamed from `pbg-*` in the 2026 rebrand).
-`pyproject.toml`'s `[tool.uv.sources]` points at local sibling checkouts
-(`../viva-biomodels`, etc.) for development:
+`viva-copasi`, `viva-tellurium` (renamed from `pbg-*` in the 2026 rebrand), which
+are not on PyPI. `pyproject.toml`'s `[tool.uv.sources]` declares them as **git
+sources (`@main`)**, so a fresh clone installs with no local sibling checkouts:
 
 ```bash
-uv venv && uv pip install -e .            # needs the sibling repos checked out alongside
+uv venv && uv pip install -e .            # clone → install (pulls siblings from git)
 .venv/bin/python -m pytest -m "not network"
 ```
 
-For a clean environment without local siblings, install those packages from git
-instead (as CI does):
+For LOCAL editable dev of a sibling, override per-checkout:
 
 ```bash
-uv pip install -e . --no-deps
-uv pip install "viva-biomodels @ git+https://github.com/vivarium-collective/viva-biomodels"
+uv pip install -e ../viva-biomodels -e ../viva-copasi -e ../viva-tellurium
 ```
 
 `core.build_core()` guards the sibling-simulator import, so the registry still
 builds (Steps register, the atlas pipeline runs) even in a degraded environment;
 only the COPASI/Tellurium **simulation** studies need the engine packages.
+
+> **Note (transitional):** a clean from-scratch `uv pip install` also requires two
+> upstream fixes to be merged so the sibling dependency graph resolves —
+> viva-biomodels#25 (corrects the copasi/tellurium git-source dist names) and
+> vivarium-workbench#860 (unifies `viva-superpowers@main` across the graph). Until
+> those land, use the local-editable override above (the workspace `.venv` already
+> has everything installed).

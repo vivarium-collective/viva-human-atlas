@@ -18,16 +18,15 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
 
-# Local editable siblings for development. The pbg-* repos were renamed to viva-*
-# in the 2026 rebrand; these paths point at the current sibling checkouts.
-# For a clean environment without local siblings, install the same packages from
-# git instead, e.g.:
-#   uv pip install -e . --no-deps
-#   uv pip install "viva-biomodels @ git+https://github.com/vivarium-collective/viva-biomodels"
+# These sibling process-packages are not on PyPI. Default to GIT sources so a
+# fresh clone installs with `uv pip install -e .` and no local sibling checkouts
+# (the "clone → hit play" path in docs/REPRODUCIBILITY.md). For LOCAL editable
+# dev of a sibling, override per-checkout, e.g.:
+#   uv pip install -e ../viva-biomodels -e ../viva-copasi -e ../viva-tellurium
 [tool.uv.sources]
-viva-biomodels = { path = "../viva-biomodels", editable = true }
-viva-copasi = { path = "../viva-copasi", editable = true }
-viva-tellurium = { path = "../viva-tellurium", editable = true }
+viva-biomodels = { git = "https://github.com/vivarium-collective/viva-biomodels.git", branch = "main" }
+viva-copasi = { git = "https://github.com/vivarium-collective/viva-copasi.git", branch = "main" }
+viva-tellurium = { git = "https://github.com/vivarium-collective/viva-tellurium.git", branch = "main" }
 
 [build-system]
 requires = ["hatchling"]
