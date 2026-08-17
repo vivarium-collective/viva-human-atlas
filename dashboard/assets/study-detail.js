@@ -360,8 +360,7 @@
         + '></iframe>'
       : (c.img
         ? '<img class="chart-img figure-media" src="' + c.img + '" alt="' + (c.key || 'chart') + '" loading="lazy">'
-        // SVGs → <img> data-URI so WebKit scales foreignObject figures (_svgImg).
-        : (c.svg ? _svgImg(c) : ''));
+        : (c.svg || ''));
     var desc = c.caption ? '<div class="chart-caption">' + c.caption + '</div>' : '';
     var runLink = c.run_id
       ? '<a href="#" class="figure-run-link" data-run-id="' + escapeHtmlForTests(String(c.run_id)) + '">from run '
@@ -374,53 +373,6 @@
       + runLink
       + '</div></div>';
   }
-
-  // Render a chart SVG as an <img> data-URI rather than inline markup.
-  // Loom figure SVGs embed their nodes as <foreignObject> HTML; WebKit renders
-  // foreignObject at intrinsic size when the SVG is inlined (it ignores the
-  // viewBox→viewport scale for it), so the graph overflows its card. As an <img>
-  // the browser rasterizes the whole document (foreignObject included) and
-  // scales it with plain `max-width` — correct in every engine, shrink-only, so
-  // a small figure keeps its native size instead of being blown up to the card
-  // width. encodeURIComponent (not base64) keeps the UTF-8 math glyphs intact.
-  function _svgImg(c) {
-    return '<img class="figure-svg-img" alt="' + (c.key || 'figure') + '" loading="lazy" '
-      + 'src="data:image/svg+xml,' + encodeURIComponent(c.svg) + '">';
-  }
-
-  // "↓ visualizations" download. The button's markup lives in the study-detail
-  // shell but its handler was only defined in walkthrough.js — which the shell
-  // does NOT load — so the inline onclick threw ReferenceError and the button
-  // silently did nothing. Define it here (the shell loads study-detail.js).
-  // Probe first: the zip only holds declared IMAGE files, and in a snapshot an
-  // absent file 404s; a bare <a download> to a 404 reads as a broken button.
-  window._vivStudyFiguresFromCard = function (ev, slug) {
-    if (ev && ev.stopPropagation) ev.stopPropagation();
-    var c = window.__DASH_CONFIG__ || {};
-    var base = c.basePath || '';
-    var url = (c.mode === 'snapshot')
-      ? base + '/figures/studies/' + encodeURIComponent(slug) + '.zip'
-      : '/api/study/' + encodeURIComponent(slug) + '/outputs.zip';
-    function _notify(msg) {
-      if (typeof window._showToast === 'function') window._showToast(msg);
-      else window.alert(msg);
-    }
-    fetch(url).then(function (r) {
-      if (!r.ok) {
-        _notify('No downloadable outputs for "' + slug + '" '
-          + '(no figures or embedded HTML reports).');
-        return null;
-      }
-      return r.blob();
-    }).then(function (blob) {
-      if (!blob) return;
-      var href = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = href; a.download = slug + '-outputs.zip';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      window.setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
-    }).catch(function (e) { _notify('Outputs download failed: ' + e); });
-  };
   // Figures tab (Fable A #3): the empty state is computed over the UNION of
   // the three figure sources — native gallery, embed_visualizations iframes
   // (server-rendered, present in the DOM from page load), and latest-run
@@ -574,13 +526,7 @@
     _nativeGalleryLoaded = true;
     var slug = studyName();
     fetch('/api/study-native-gallery/' + encodeURIComponent(slug))
-      // Check r.ok before r.json(): a non-OK response (404 in a static snapshot
-      // where this live-only endpoint is absent, or 5xx from an errored live
-      // route) is treated as "no panels" -> the clean empty state below, not the
-      // hard "Failed to load baseline figures." error. Guarding r.ok also avoids
-      // parsing an SPA HTML 404 body as JSON. Only a genuine network/parse
-      // failure now reaches .catch.
-      .then(function (r) { return r.ok ? r.json() : { run_id: null, panels: {} }; })
+      .then(function (r) { return r.json(); })
       .then(function (d) {
         var panels = (d && d.panels) || {};
         var names = Object.keys(panels);
@@ -710,13 +656,6 @@
       var composite = block.getAttribute('data-model-composite');
       var overridesJson = block.getAttribute('data-model-overrides') || '{}';
       if (!composite) { mount.innerHTML = ''; return; }
-      // Editing is only possible for a real study.baseline[] entry (the
-      // add-then-remove save below replaces THAT entry) -- the conditions-only
-      // fallback card (no .baseline-composite-input, see study-detail.html)
-      // has no baseline[] entry to replace, so it stays read-only, exactly
-      // like its existing "Set composite" control already does.
-      var baselineInput = block.querySelector('.baseline-composite-input');
-      var baselineName = baselineInput ? baselineInput.getAttribute('data-baseline-name') : '';
       fetch('/api/composite-resolve?id=' + encodeURIComponent(composite) + '&overrides=' + encodeURIComponent(overridesJson))
         .then(function (r) { return r.json().then(function (b) { return { status: r.status, body: b }; }); })
         .then(function (res) {
@@ -725,73 +664,18 @@
             return;
           }
           var overrides = {}; try { overrides = JSON.parse(overridesJson); } catch (e) {}
-          _renderModelConfig(mount, res.body.parameters, overrides, esc, composite, baselineName);
+          _renderModelConfig(mount, res.body.parameters, overrides, esc);
         }).catch(function () { mount.innerHTML = ''; });
     });
   }
   window._loadModelConfig = _loadModelConfig;
 
-  // Coerce a raw <input> string to the composite's declared parameter type —
-  // mirrors process_bigraph.composite_spec._cast's canonical type vocabulary
-  // (integer/float/string/boolean; list/map are JSON-parsed best-effort) so a
-  // saved override behaves the same as a composite-authored default of the
-  // same declared type instead of always landing as a raw string.
-  function _coerceParamValue(raw, type) {
-    switch (type) {
-      case 'integer': { var i = parseInt(raw, 10); return isNaN(i) ? raw : i; }
-      case 'float': { var f = parseFloat(raw); return isNaN(f) ? raw : f; }
-      case 'boolean': return /^(true|1|yes)$/i.test(String(raw).trim());
-      case 'list': case 'map':
-        try { return JSON.parse(raw); } catch (e) { return raw; }
-      default: return raw;
-    }
-  }
-
-  // Save edited baseline params via the SAME add-then-remove sequence
-  // .baseline-composite-set already uses (there is no single "update in
-  // place" endpoint — see that handler's own comment). Only params the user
-  // actually EDITED this session (input.dataset.edited) are merged into a
-  // COPY of the study's current full params (`overrides`) — an untouched
-  // param must never be silently promoted from "composite default" to a
-  // frozen explicit override just because a sibling field was edited, and an
-  // edited param must never wipe every other already-authored override.
-  function _saveModelParams(mount, overrides, btn, status) {
-    var merged = Object.assign({}, overrides || {});
-    var editedKeys = [];
-    mount.querySelectorAll('.model-param-input').forEach(function (input) {
-      if (input.dataset.edited !== '1') return;
-      merged[input.dataset.paramKey] = _coerceParamValue(input.value, input.dataset.paramType);
-      editedKeys.push(input.dataset.paramKey);
-    });
-    if (!editedKeys.length) { status.textContent = 'No changes to save.'; return; }
-    var composite = btn.dataset.composite;
-    var oldName = btn.dataset.baselineName;
-    var newName = oldName + '-' + Date.now().toString(36);
-    btn.disabled = true;
-    status.textContent = 'Saving…';
-    api('POST', '/api/study-baseline-add', {study: studyName(), name: newName, composite: composite, params: merged})
-      .then(function (addResult) {
-        if (addResult.status !== 200) throw addResult;
-        return api('POST', '/api/study-baseline-remove', {study: studyName(), name: oldName});
-      })
-      .then(function (r) {
-        if (r.status === 200) { location.reload(); return; }
-        btn.disabled = false;
-        status.textContent = 'Error: ' + (r.body && r.body.error || r.status);
-      })
-      .catch(function (addResult) {
-        btn.disabled = false;
-        status.textContent = 'Error: ' + (addResult.body && addResult.body.error || addResult.status);
-      });
-  }
-
-  function _renderModelConfig(mount, params, overrides, esc, composite, baselineName) {
+  function _renderModelConfig(mount, params, overrides, esc) {
     var keys = Object.keys(params);
     if (!keys.length) {
       mount.innerHTML = '<p class="muted" style="font-size:0.85em;margin:0">This composite takes no configurable parameters.</p>';
       return;
     }
-    var editable = !!baselineName;
     var effective = {};
     var rows = keys.map(function (k) {
       var def = params[k] || {};
@@ -799,15 +683,10 @@
       var val = overridden ? overrides[k] : def.default;
       effective[k] = val;
       var shown = (val === undefined || val === null) ? '—' : val;
-      var valueCell = editable
-        ? '<input type="text" class="model-param-input" data-param-key="' + esc(k) + '" ' +
-          'data-param-type="' + esc(def.type || '') + '" value="' + esc(shown === '—' ? '' : shown) + '" ' +
-          'style="width:100%;min-width:80px;font-family:monospace;font-size:0.85em;padding:2px 4px;box-sizing:border-box" />'
-        : '<code>' + esc(shown) + '</code>';
       return '<tr' + (overridden ? ' style="background:#eff6ff"' : '') + '>' +
         '<td style="padding:3px 8px"><code>' + esc(k) + '</code></td>' +
         '<td style="padding:3px 8px;color:#6b7280">' + esc(def.type || '') + '</td>' +
-        '<td style="padding:3px 8px">' + valueCell +
+        '<td style="padding:3px 8px"><code>' + esc(shown) + '</code>' +
         (overridden ? ' <span style="color:#2563eb;font-size:0.72em;font-weight:600">override</span>' : '') + '</td>' +
         '<td style="padding:3px 8px;color:#6b7280">' + esc(def.description || '') + '</td></tr>';
     }).join('');
@@ -818,25 +697,9 @@
       '<thead><tr>' + ['Parameter', 'Type', 'Value', 'Description'].map(function (h) {
         return '<th style="text-align:left;padding:3px 8px;border-bottom:1px solid #e5e7eb;color:#6b7280;">' + h + '</th>';
       }).join('') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      (editable
-        ? '<div style="display:flex;align-items:center;gap:8px;margin-top:6px">' +
-          '<button type="button" class="action-btn model-config-save" style="font-size:0.8em">Save parameter changes</button>' +
-          '<span class="model-config-status muted" style="font-size:0.8em"></span></div>'
-        : '') +
       '<details style="margin-top:6px"><summary class="muted" style="cursor:pointer;font-size:0.82em">Full resolved config (JSON)</summary>' +
       '<pre style="font-size:0.78em;background:#f8fafc;padding:8px;border-radius:4px;overflow-x:auto;margin:4px 0 0">' +
       esc(JSON.stringify(effective, null, 2)) + '</pre></details>';
-    if (!editable) return;
-    mount.querySelectorAll('.model-param-input').forEach(function (input) {
-      input.addEventListener('input', function () { input.dataset.edited = '1'; });
-    });
-    var saveBtn = mount.querySelector('.model-config-save');
-    var status = mount.querySelector('.model-config-status');
-    saveBtn.dataset.composite = composite || '';
-    saveBtn.dataset.baselineName = baselineName;
-    saveBtn.addEventListener('click', function () {
-      _saveModelParams(mount, overrides, saveBtn, status);
-    });
   }
 
   // Simulations tab: the study's runs rendered with the SHARED Simulations-DB
@@ -1253,80 +1116,28 @@
   // under a new name. Remote-pinned deployments (VIVARIUM_WORKBENCH_REMOTE_PINNED,
   // e.g. the live smscdk prod deployment) dispatch to AWS Batch via
   // remote-run-submit; everything else keeps the existing local-engine path.
-  var _CANCELLED = { status: 0, body: { cancelled: true } };
-
   function _dispatchCurrentSpecBaseline() {
     return api('GET', '/api/remote-run-config').then(function(cfgRes) {
       var cfg = (cfgRes.status === 200 && cfgRes.body) || {};
       if (cfg.pinned && cfg.simulator_id) return _dispatchRemotePinned(cfg);
-      if (!confirm("Run this study's CURRENT baseline spec as a new run?")) return _CANCELLED;
       return api('POST', '/api/study-run-baseline', { study: studyName() });
     });
   }
 
-  // item 20: the resolved target (repo/branch/commit/simulator id) is fetched
-  // fresh via /api/remote-run-config immediately above -- never a stale
-  // client-rendered label -- but nothing surfaced it to a human before this
-  // function fired the actual AWS Batch dispatch. Show it and require an
-  // explicit confirm, so a workspace-identity mismatch is caught here, before
-  // money gets spent, not discovered afterward via aws batch describe-jobs.
-  //
-  // Deliberate addition beyond the || 1 removal below: window._study can be a
-  // STALE in-memory copy fetched before a param edit landed server-side (a
-  // confirmed real failure mode, not theoretical -- a tab left open across a
-  // baseline-param save re-dispatched the OLD 1x1 params from memory even
-  // though study.yaml on disk was already correct). Re-fetching via
-  // window.DataSource.loadStudy immediately before reading params closes that
-  // gap; window._study is refreshed too so the rest of the page stops reading
-  // stale state from this point on as well.
   function _dispatchRemotePinned(cfg) {
-    var slug = studyName();
-    var refetch = (window.DataSource && window.DataSource.loadStudy)
-      ? window.DataSource.loadStudy(slug).catch(function () { return null; })
-      : Promise.resolve(null);
-    return refetch.then(function (freshStudy) {
-      if (freshStudy) window._study = freshStudy;
-      var baseline = (window._study && window._study.baseline) || [];
-      var params = (baseline[0] && baseline[0].params) || {};
-      var numGenerations = params.n_generations;
-      var numSeeds = params.n_seeds;
-      // n_generations/n_seeds directly size a real AWS Batch job -- unlike
-      // ordinary composite params (already correctly default-backed via
-      // /api/composite-resolve, untouched here), an explicit value the user
-      // set must NEVER be silently replaced by a default. An unset value
-      // blocks the dispatch outright rather than falling back to 1x1.
-      var missing = [];
-      if (!numGenerations) missing.push('n_generations');
-      if (!numSeeds) missing.push('n_seeds');
-      if (missing.length) {
-        alert(
-          'Cannot dispatch: ' + missing.join(' and ') +
-          (missing.length > 1 ? ' are' : ' is') + ' not set.\n\n' +
-          'Set ' + (missing.length > 1 ? 'both' : 'it') + ' in the Model tab ' +
-          '(Runnable models → edit ' + missing.join(' / ') + ' → Save parameter changes) before running.'
-        );
-        return _CANCELLED;
-      }
-      var msg = 'Dispatch to AWS Batch:\n\n' +
-        '  repo:    ' + (cfg.repo_url || '(unknown)') + '\n' +
-        '  branch:  ' + (cfg.branch || '(unknown)') + '\n' +
-        '  commit:  ' + ((cfg.commit || '(unknown)').slice(0, 12)) + '\n' +
-        '  simulator id: ' + cfg.simulator_id + '\n' +
-        '  generations:  ' + numGenerations + '\n' +
-        '  seeds:        ' + numSeeds + '\n\n' +
-        'Proceed?';
-      if (!confirm(msg)) return _CANCELLED;
-      return api('POST', '/api/remote-run-submit', {
-        study: slug,
-        simulator_id: cfg.simulator_id,
-        num_generations: numGenerations,
-        num_seeds: numSeeds,
-      });
+    var baseline = (window._study && window._study.baseline) || [];
+    var params = (baseline[0] && baseline[0].params) || {};
+    return api('POST', '/api/remote-run-submit', {
+      study: studyName(),
+      simulator_id: cfg.simulator_id,
+      num_generations: params.n_generations || 1,
+      num_seeds: params.n_seeds || 1,
     });
   }
   window._dispatchCurrentSpecBaseline = _dispatchCurrentSpecBaseline;
 
   bindAll('#study-run-current-spec', function(btn) {
+    if (!confirm("Run this study's CURRENT baseline spec as a new run?")) return;
     var orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = '… running';
@@ -1334,7 +1145,6 @@
       .then(function(res) {
         btn.disabled = false;
         btn.textContent = orig;
-        if (res.body && res.body.cancelled) return;
         if (res.status === 200 || res.status === 202) {
           var runId = res.body && (res.body.run_id || res.body.simulation_id);
           var msg = 'Run launched' + (runId ? ' — new run ' + runId : '');
@@ -1590,65 +1400,6 @@
       + p[0] + ';color:#fff;font-size:0.72em;margin-left:5px">' + p[1] + ' ' + n + ' ' + p[2] + '</span>';
   }
 
-  // Cross-iteration diff (Slice 3): the since-last-run change for one axis,
-  // matched on (card, group, id) against window._study.test_diff.per[]
-  // (written by composite_flush._write_test_diff via
-  // viva_superpowers.diff_reports, surfaced into the payload by study_spec).
-  // Returns null when there's no diff yet (first run, or a stale/snapshot
-  // payload with no test_diff at all) or no matching entry — callers must
-  // guard for null and render nothing.
-  function _axisChange(card, group, id) {
-    var td = window._study && window._study.test_diff;
-    var per = td && td.per;
-    if (!per) return null;
-    for (var i = 0; i < per.length; i++) {
-      var r = per[i];
-      if (r.card === card && r.group === group && r.id === id) return r;
-    }
-    return null;
-  }
-
-  // change -> [colour, label] for the small badge beside the verdict pill.
-  // Only the four "something happened" changes get a badge — new/gone/
-  // unchanged are not surfaced here (unchanged is the common case and would
-  // just be noise; new/gone axes already read clearly from the table itself).
-  var _CHANGE_GL = {
-    fixed:     ['#16a34a', 'fixed'],
-    broke:     ['#dc2626', 'broke'],
-    improved:  ['#0284c7', 'improved'],
-    regressed: ['#d97706', 'regressed']
-  };
-
-  function _changeBadge(change) {
-    var g = _CHANGE_GL[change];
-    if (!g) return '';
-    return '<span class="axis-change-badge axis-change-' + change + '" style="margin-left:6px;'
-      + 'font-size:0.68em;font-family:monospace;padding:1px 7px;border-radius:9999px;'
-      + 'background:' + g[0] + ';color:#fff">' + g[1] + '</span>';
-  }
-
-  // Signed margin bar: a.margin (a report_card_verdict/v2 axis extra, in
-  // roughly [-1,1]) rendered as a horizontal bar growing from centre,
-  // coloured by the axis's own verdict (matches its pill). a.severity
-  // 'directional'/'soft' thins + greys the bar since those axes are
-  // informational signals, not hard pass/fail gates. Returns '' when the
-  // axis carries no numeric margin (v1 cards, or an ungraded axis).
-  function _marginBar(a) {
-    if (a.margin == null || typeof a.margin !== 'number') return '';
-    var m = Math.max(-1, Math.min(1, a.margin));
-    var pct = Math.abs(m) * 50;                    // half-width max, centred
-    var soft = (a.severity === 'directional' || a.severity === 'soft');
-    var color = soft ? '#94a3b8' : (_RC_GL[a.verdict] || _RC_GL.ungraded)[0];
-    var barStyle = 'position:absolute;top:0;bottom:0;background:' + color + ';'
-      + (m >= 0 ? 'left:50%;width:' + pct + '%' : 'right:50%;width:' + pct + '%');
-    return '<div class="axis-margin-bar-track" style="position:relative;width:100%;'
-      + 'height:' + (soft ? '4px' : '8px') + ';background:#eef2f7;border-radius:3px;overflow:hidden">'
-      + '<div class="axis-margin-bar" style="' + barStyle + '"></div>'
-      + '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#cbd5e1"></div>'
-      + '</div>'
-      + '<div style="font-size:0.72em;color:#94a3b8;margin-top:2px">' + m.toFixed(2) + '</div>';
-  }
-
   // The graded-scorecard look (dark header + overall pill w/ tally + per-group
   // count chips + per-axis tables) rendered from the study's verdict.json, PLUS
   // the rendered comparison trajectories (and an interactive plotly overlay when
@@ -1679,15 +1430,12 @@
       var rows = axes.map(function (a) {
         var meter = a.meter || (a.value != null ? String(a.value) : '');
         var val = (a.value != null && typeof a.value === 'number') ? a.value.toPrecision(4) : '';
-        var chg = _axisChange(card, gname, a.id);
         return '<tr class="rc-row-' + (a.verdict || 'ungraded') + '">'
           + '<td style="padding:7px 10px;border-bottom:1px solid #eef2f7;border-left:3px solid ' + (_RC_GL[a.verdict] || _RC_GL.ungraded)[0] + '">'
           + '<div style="display:flex;align-items:center;gap:8px"><span style="font-weight:600;color:#1f2937">'
-          + e(String(a.label || a.id || '')) + '</span>' + _rcPill(a.verdict)
-          + (chg ? _changeBadge(chg.change) : '') + '</div></td>'
+          + e(String(a.label || a.id || '')) + '</span>' + _rcPill(a.verdict) + '</div></td>'
           + '<td style="padding:7px 10px;border-bottom:1px solid #eef2f7;font-variant-numeric:tabular-nums;color:#334155">' + e(val) + '</td>'
           + '<td style="padding:7px 10px;border-bottom:1px solid #eef2f7;color:#475569;font-size:0.9em">' + e(String(meter)) + '</td>'
-          + '<td style="padding:7px 10px;border-bottom:1px solid #eef2f7;min-width:90px">' + _marginBar(a) + '</td>'
           + '</tr>';
       }).join('');
       return '<section style="background:#fff;border:1px solid #e5e7eb;border-top:0;padding:12px 14px">'
@@ -1699,8 +1447,7 @@
           ? '<table style="width:100%;border-collapse:collapse;font-size:0.9em">'
             + '<thead><tr style="text-align:left;color:#94a3b8;font-size:0.78em">'
             + '<th style="padding:4px 10px">Axis</th><th style="padding:4px 10px">Value</th>'
-            + '<th style="padding:4px 10px">Summary</th><th style="padding:4px 10px">Δ / Margin</th>'
-            + '</tr></thead><tbody>' + rows + '</tbody></table>'
+            + '<th style="padding:4px 10px">Summary</th></tr></thead><tbody>' + rows + '</tbody></table>'
           : '<div class="muted" style="padding:4px 10px">no axes recorded</div>')
         + '</section>';
     }).join('');

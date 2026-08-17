@@ -754,13 +754,6 @@
       _enterPopcardMode(_qsPop, new URLSearchParams(window.location.search).get('kind') || 'process');
       return;   // skip normal hash routing in a pop-out window
     }
-    // ?maxcard=<address>&kind=<kind> → the FULL workbench (with the side rail)
-    // showing this composite maximized + Explore open. The "pop back in" target.
-    var _qsMax = new URLSearchParams(window.location.search).get('maxcard');
-    if (_qsMax) {
-      _enterMaxcardMode(_qsMax, new URLSearchParams(window.location.search).get('kind') || 'composite');
-      return;
-    }
 
     if (!focusedPage) {
       function fromHash() {
@@ -1653,13 +1646,8 @@
         // hosted 3D viewer) — it opens directly in BOTH live and read-only,
         // since it needs no local launch backend. Otherwise fall back to the
         // live Launch button / the read-only "local workbench" note.
-        // A workspace-root-absolute href (/studies/…) must carry the hosting
-        // base path in the snapshot, or it 404s to the domain root; an external
-        // (http/protocol-relative) href opens as-is. Mirrors sim-table.toolsCell.
-        var _bp = window.__BASE_PATH__ || '';
-        var _openHref = (t.href && /^https?:|^\/\//.test(t.href)) ? t.href : (_bp + (t.href || ''));
         var action = t.href
-          ? '<a class="btn-mini" href="' + _esc(_openHref) + '" target="_blank" rel="noopener">Open ↗</a>'
+          ? '<a class="btn-mini" href="' + _esc(t.href) + '" target="_blank" rel="noopener">Open</a>'
           : (_isSnapshot
           ? '<span class="muted" style="font-size:0.8em">Launch from the local workbench</span>'
           : '<button class="btn-mini" onclick="_launchViewer(\'' + _esc(v.uid) + '\',\'' + _esc(t.study) + '\')">Launch</button>');
@@ -2567,35 +2555,6 @@
     return '<button class="pcard-json-btn" type="button" title="View the full composite JSON spec" ' +
       'onclick="event.stopPropagation();_toggleCompositeJson(this)">{ } JSON</button>';
   }
-  // "🔗 Share" — copy an absolute link to THIS composite's interactive bigraph
-  // view (the loom, which applies the composite's saved default view). Sits next
-  // to { } JSON so it's easy to grab a shareable URL — works in the snapshot too.
-  function _shareCompositeBtn() {
-    return '<button class="pcard-json-btn" type="button" title="Copy a shareable link to this composite\'s view" ' +
-      'onclick="event.stopPropagation();_shareCompositeFromHeader(this)">🔗 Share</button>';
-  }
-  function _shareCompositeFromHeader(btn) {
-    var card = btn.closest('.registry-entry-full');
-    var id = card ? card.getAttribute('data-address') : null;
-    if (!id) return;
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
-      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    // chrome=off → a view-only share: just the bigraph graph + toolbar, no tab
-    // strip / left Config panel / bottom run bar (matches the loom Share button).
-    var rel = document.body.classList.contains('snapshot')
-      ? apiUrl('/bigraph-loom/index.html') + '?static=1&chrome=off&stateUrl=' + encodeURIComponent(_compositeStateUrl(id))
-      : apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off';
-    var url;
-    try { url = new URL(rel, window.location.href).href; } catch (e) { url = rel; }
-    var flash = function () {
-      var old = btn.textContent; btn.textContent = '✓ Link copied'; btn.classList.add('active');
-      setTimeout(function () { btn.textContent = old; btn.classList.remove('active'); }, 1600);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(flash).catch(function () { window.prompt('Copy this link:', url); });
-    } else { window.prompt('Copy this link:', url); }
-  }
-  window._shareCompositeFromHeader = _shareCompositeFromHeader;
   function _toggleCompositeJson(btn) {
     var card = btn.closest('.registry-entry-full'); if (!card) return;
     var panel = card.querySelector('[data-role="composite-json"]'); if (!panel) return;
@@ -2644,18 +2603,6 @@
     // focus-mode strips the rail/topbar (content-only window); popcard-mode
     // additionally hides the registry tabs + toolbar to leave just the card.
     document.body.classList.add('focus-mode', 'popcard-mode');
-    // Floating "pop back in" control (top-left) — return to the full workbench
-    // (with the side rail) showing this composite maximized.
-    if (!document.getElementById('popcard-backin')) {
-      var _bi = document.createElement('button');
-      _bi.id = 'popcard-backin'; _bi.type = 'button'; _bi.textContent = '◀ Pop back in';
-      _bi.title = 'Return to the workbench (with the side menu) and show this composite here';
-      _bi.style.cssText = 'position:fixed;top:9px;left:10px;z-index:100000;height:30px;' +
-        'padding:0 12px;font-size:13px;font-weight:600;background:#fff;border:1px solid #d1d5db;' +
-        'border-radius:6px;cursor:pointer;color:#374151;box-shadow:0 1px 4px rgba(0,0,0,0.14)';
-      _bi.onclick = function () { _popCardBackIn(address, kind); };
-      document.body.appendChild(_bi);
-    }
     var isComposite = (kind === 'composite');
     if (typeof _switchPage === 'function') _switchPage('modules');
     window._registryZoom = 'full';
@@ -2693,55 +2640,6 @@
     })();
   }
   window._enterPopcardMode = _enterPopcardMode;
-
-  // Open a composite in the FULL workbench (rail visible), maximized with Explore
-  // open — shared by the card-grid "Explore" button and the "pop back in" target.
-  function _enterMaxcardMode(address, kind) {
-    var isComposite = (kind !== 'process');
-    if (typeof _switchPage === 'function') _switchPage('modules');
-    window._registryZoom = 'full';
-    try { localStorage.setItem('viv.registryZoom', 'full'); } catch (e) { /* private mode */ }
-    if (typeof _setRegistryTab === 'function') _setRegistryTab(isComposite ? 'composite' : 'process');
-    var tries = 0;
-    (function attempt() {
-      var host = null, html = null;
-      if (isComposite) {
-        var c = (window._compositesById || {})[address];
-        if (c) { host = document.getElementById('registry-composites-container'); html = _renderCompositeCardFull(c); }
-      } else {
-        var e = _registryEntryByAddress(address);
-        if (e) { host = document.getElementById('registry-processes-container'); html = _renderRegistryEntryFull(e); }
-      }
-      if (host && html) {
-        host.innerHTML = '<div class="reg-cards reg-cards-full popcard-single">' + html + '</div>';
-        if (typeof _observeRunnableCards === 'function') _observeRunnableCards(host);
-        // Maximize (fills the pane, pins to top, and auto-opens Explore/loom).
-        var card = host.querySelector('.registry-entry-full');
-        var maxBtn = card && card.querySelector('.pcard-maximize');
-        if (maxBtn) setTimeout(function () { _toggleCardMaximize(maxBtn); }, 60);
-        return;
-      }
-      if (tries % 6 === 0) {
-        if (isComposite) { if (typeof _loadComposites === 'function') _loadComposites(); }
-        else { window._registryLoaded = false; if (typeof _loadRegistry === 'function') _loadRegistry(false); }
-      }
-      if (tries++ < 120) setTimeout(attempt, 200);
-    })();
-  }
-  window._enterMaxcardMode = _enterMaxcardMode;
-
-  // "Pop back in" from a pop-out window: return to the full workbench (rail
-  // visible) with this composite maximized. Prefer navigating the opener so the
-  // pop-out closes; fall back to navigating this window.
-  function _popCardBackIn(address, kind) {
-    var url = location.origin + location.pathname +
-      '?maxcard=' + encodeURIComponent(address) + '&kind=' + encodeURIComponent(kind || 'composite');
-    if (window.opener && !window.opener.closed) {
-      try { window.opener.location.href = url; window.opener.focus(); window.close(); return; } catch (e) { /* fall through */ }
-    }
-    window.location.href = url;
-  }
-  window._popCardBackIn = _popCardBackIn;
 
   // The unified ProcessCard renderer (§ unified-process-card design):
   //   header: name + kind badge + address
@@ -2961,43 +2859,15 @@
     var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
     var stats = _regStatsHtml(c);
     var selCls = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
-    var idA = _esc(c.id);
-    // A little more info on the card: process + parameter counts, and tags.
-    var np = (c.parameters && typeof c.parameters === 'object') ? Object.keys(c.parameters).length : 0;
-    var nproc = (c.requires && c.requires.processes) ? c.requires.processes.length : 0;
-    var metaBits = [];
-    if (nproc) metaBits.push(nproc + ' process' + (nproc === 1 ? '' : 'es'));
-    if (np) metaBits.push(np + ' param' + (np === 1 ? '' : 's'));
-    var meta = metaBits.length
-      ? '<div class="reg-card-meta" style="font-size:11px;color:#6b7280;margin:2px 0 4px">' + metaBits.join(' · ') + '</div>' : '';
-    var tags = Array.isArray(c.tags) ? c.tags.slice(0, 3) : [];
-    var tagHtml = tags.length
-      ? '<div class="reg-card-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">' +
-          tags.map(function (t) { return '<span style="font-size:10px;color:#6d28d9;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:4px;padding:1px 6px">' + _esc(t) + '</span>'; }).join('') +
-        '</div>' : '';
-    var actions = '<div class="reg-card-actions" style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">' +
-      '<button type="button" onclick="event.stopPropagation();_enterMaxcardMode(\'' + idA + '\',\'composite\')" ' +
-        'title="Open maximized with the interactive bigraph (Explore) pinned at the top" ' +
-        'style="height:26px;padding:0 11px;font-size:12px;font-weight:600;background:#2563eb;color:#fff;border:1px solid #2563eb;border-radius:5px;cursor:pointer">🔍 Explore</button>' +
-      '<button type="button" onclick="event.stopPropagation();_popoutCard(\'' + idA + '\',\'composite\')" ' +
-        'title="Pop out into its own window" ' +
-        'style="height:26px;padding:0 9px;font-size:12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:5px;cursor:pointer">⤢ Pop out</button>' +
-      '<button type="button" onclick="event.stopPropagation();_setRegistryZoom(\'full\')" ' +
-        'title="Open the full card (Configure · Inputs · Run)" ' +
-        'style="height:26px;padding:0 9px;font-size:12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:5px;cursor:pointer">Full card</button>' +
-    '</div>';
-    return '<div class="registry-card' + selCls + '" data-address="' + idA + '" data-kind="composite"' +
-        ' onclick="_selectRegistryEntry(\'' + idA + '\')" ondblclick="_enterMaxcardMode(\'' + idA + '\',\'composite\')"' +
-        ' title="Double-click to Explore (maximized bigraph)">' +
+    return '<div class="registry-card' + selCls + '" data-address="' + _esc(c.id) + '" data-kind="composite"' +
+        ' onclick="_selectRegistryEntry(\'' + _esc(c.id) + '\')" ondblclick="_setRegistryZoom(\'full\')"' +
+        ' title="Double-click to open the full card">' +
       '<div class="reg-card-row">' +
         '<div class="reg-card-main">' +
           '<div class="reg-card-head"><strong class="reg-card-name">' + _esc(c.name) + '</strong>' + _compositeBadge() + wsPill + '</div>' +
           '<code class="reg-card-addr">' + _esc(addr) + '</code>' +
-          meta +
           (short ? '<p class="reg-card-desc">' + _esc(short) + '</p>' : '') +
-          tagHtml +
           _runCmdChip(c.run_command) +
-          actions +
         '</div>' +
         '<div class="reg-card-stats">' + stats + '</div>' +
       '</div>' +
@@ -3255,7 +3125,6 @@
           '<div class="pcard-header pcard-title" onclick="_pinCardTop(this)" ondblclick="event.stopPropagation();_maximizeCardFromHeader(this)" title="Click to pin to top · double-click to maximize">' +
             '<span class="loom-name">' + _esc(c.name) + '</span>' + _compositeBadge() + wsPill + roPill +
             '<code class="loom-addr">' + _esc(addr) + '</code>' +
-            _shareCompositeBtn() +
             _compositeJsonBtn() +
             _cardMaximizeBtn() +
             _cardPopoutBtn(c.id, 'composite') +
@@ -3341,32 +3210,6 @@
   }
   window._resetCompositeConfig = _resetCompositeConfig;
 
-  // item 20a: shared pre-dispatch gate for every live /api/composite-test-run
-  // launcher below (_runComposite's inline pcard Run bar, _ceTestRun's
-  // Composite Explorer Test Run panel) -- before a remote-pinned deployment
-  // dispatches to AWS Batch, fetch the server-resolved
-  // repo/branch/commit/simulator_id and require explicit confirmation
-  // (mirrors study-detail.js's _dispatchRemotePinned), so a workspace-
-  // identity mismatch is caught here, before money gets spent, not
-  // discovered afterward via aws batch describe-jobs. A plain local-engine
-  // run (unchanged, pre-existing behavior) fires with no confirm.
-  function _confirmRemoteDispatchThen(fireFn, cancelFn) {
-    fetch(_api('/api/remote-run-config')).then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (cfg) {
-      cfg = cfg || {};
-      if (cfg.pinned) {
-        var msg = 'Dispatch to AWS Batch:\n\n' +
-          '  repo:    ' + (cfg.repo_url || '(unknown)') + '\n' +
-          '  branch:  ' + (cfg.branch || '(unknown)') + '\n' +
-          '  commit:  ' + ((cfg.commit || '(unknown)').slice(0, 12)) + '\n' +
-          '  simulator id: ' + (cfg.simulator_id != null ? cfg.simulator_id : '(unknown)') + '\n\n' +
-          'Proceed?';
-        if (!confirm(msg)) { if (cancelFn) cancelFn(); return; }
-      }
-      fireFn();
-    });
-  }
-  window._confirmRemoteDispatchThen = _confirmRemoteDispatchThen;
-
   // Launch a composite run directly (no modal): POST /api/simulation with the
   // inline Time (t_end), the Configure params as overrides, and an auto name.
   // Detached run — feedback + a link to Runs; the "Configure & Run" modal is
@@ -3398,35 +3241,32 @@
         if (checked.length < obsCbs.length) payload.emit_paths = checked;
       }
     }
-    var orig = btn.textContent;
-    _confirmRemoteDispatchThen(function () {
-      btn.disabled = true; btn.textContent = 'Launching…';
-      if (status) { status.classList.remove('pcard-apply-err'); status.textContent = 'launching run…'; }
-      fetch(_api('/api/composite-test-run'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
-        .then(function (res) {
-          var rid = res.j && res.j.run_id;
-          if ((res.status === 202 || rid) && rid) {
-            // Keep the ▶ RUN button as a live "Running…" indicator until the poll
-            // resolves; the Outputs section auto-drops-down when results are READY
-            // (see _pollCompositeRun's completed / failed branches).
-            btn.disabled = true; btn.textContent = '⏳ Running…';
-            card._runBtn = btn; card._runBtnOrig = orig;
-            if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '<span class="pcard-run-live">● running…</span>'; }
-            _pollCompositeRun(card, rid);
-          } else if (res.status === 202 || rid) {
-            btn.disabled = false; btn.textContent = orig;
-            if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '✓ launched — tracking in Outputs'; }
-          } else if (res.status === 429) {
-            btn.disabled = false; btn.textContent = orig;
-            setErr('too many runs in progress — try again shortly');
-          } else {
-            btn.disabled = false; btn.textContent = orig;
-            setErr('✗ ' + ((res.j && res.j.error) || ('HTTP ' + res.status)));
-          }
-        })
-        .catch(function (e) { btn.disabled = false; btn.textContent = orig; setErr('network error: ' + String(e)); });
-    }, function () { setErr('Cancelled.'); });
+    var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Launching…';
+    if (status) { status.classList.remove('pcard-apply-err'); status.textContent = 'launching run…'; }
+    fetch(_api('/api/composite-test-run'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+      .then(function (res) {
+        var rid = res.j && res.j.run_id;
+        if ((res.status === 202 || rid) && rid) {
+          // Keep the ▶ RUN button as a live "Running…" indicator until the poll
+          // resolves; the Outputs section auto-drops-down when results are READY
+          // (see _pollCompositeRun's completed / failed branches).
+          btn.disabled = true; btn.textContent = '⏳ Running…';
+          card._runBtn = btn; card._runBtnOrig = orig;
+          if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '<span class="pcard-run-live">● running…</span>'; }
+          _pollCompositeRun(card, rid);
+        } else if (res.status === 202 || rid) {
+          btn.disabled = false; btn.textContent = orig;
+          if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '✓ launched — tracking in Outputs'; }
+        } else if (res.status === 429) {
+          btn.disabled = false; btn.textContent = orig;
+          setErr('too many runs in progress — try again shortly');
+        } else {
+          btn.disabled = false; btn.textContent = orig;
+          setErr('✗ ' + ((res.j && res.j.error) || ('HTTP ' + res.status)));
+        }
+      })
+      .catch(function (e) { btn.disabled = false; btn.textContent = orig; setErr('network error: ' + String(e)); });
   }
   window._runComposite = _runComposite;
 
@@ -9045,57 +8885,55 @@
     var steps = parseInt(document.getElementById('ce-steps').value, 10) || 5;
     var overrides = _ceCollectOverrides();
     var resultsEl = document.getElementById('ce-test-results');
-    _confirmRemoteDispatchThen(function () {
-      resultsEl.innerHTML = '<p class="empty-state">Starting run&hellip;</p>';
-      fetch(_api('/api/composite-test-run'), {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          id: window._ceCurrent.id,
-          overrides: overrides,
-          steps: steps,
-          emit_paths: window._explorerEmitPaths || [],
-        }),
-      })
-        .then(function(r) { return r.json().then(function(j) { return [r.status, j]; }); })
-        .then(function(parts) {
-          var code = parts[0], body = parts[1];
-          if (code !== 202) {
-            var errMsg = body && body.error
-              ? body.error
-              : ('HTTP ' + code);
-            resultsEl.innerHTML =
-              '<div style="color:#c00;"><strong>Could not start run:</strong> ' +
-              _esc(errMsg) + '</div>';
-            return;
-          }
-          // Successful 202 — server accepted the run, returned a run_id.
-          var run_id = body.run_id;
-          window._ceLastRunId = run_id;
-          // Bookmark the new run in the URL so refresh / share works.
-          try {
-            var url = new URL(window.location.href);
-            url.searchParams.set('run_id', run_id);
-            window.history.replaceState({}, '', url.toString());
-            if (window._ceCurrent) window._ceCurrent.run_id = run_id;
-          } catch (e) { /* non-critical */ }
-          // Invalidate the cached History list so the new run shows up the next
-          // time the Results tab is opened; refresh it now if it's already active.
-          window._ceHistoryLoaded = false;
-          var resultsPanel = document.querySelector('.ce-tab-panel[data-tab="results"]');
-          if (resultsPanel && resultsPanel.classList.contains('active')
-              && typeof _ceLoadHistory === 'function') {
-            _ceLoadHistory();
-          }
-          // Hand off to the shared loader — same render path as URL deep-link.
-          _ceLoadRunFromId(run_id);
-        })
-        .catch(function(err) {
+    resultsEl.innerHTML = '<p class="empty-state">Starting run&hellip;</p>';
+    fetch(_api('/api/composite-test-run'), {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id: window._ceCurrent.id,
+        overrides: overrides,
+        steps: steps,
+        emit_paths: window._explorerEmitPaths || [],
+      }),
+    })
+      .then(function(r) { return r.json().then(function(j) { return [r.status, j]; }); })
+      .then(function(parts) {
+        var code = parts[0], body = parts[1];
+        if (code !== 202) {
+          var errMsg = body && body.error
+            ? body.error
+            : ('HTTP ' + code);
           resultsEl.innerHTML =
-            '<div style="color:#c00;"><strong>Network error:</strong> ' +
-            _esc(String(err)) + '</div>';
-        });
-    }, function () { resultsEl.innerHTML = '<p class="empty-state">Cancelled.</p>'; });
+            '<div style="color:#c00;"><strong>Could not start run:</strong> ' +
+            _esc(errMsg) + '</div>';
+          return;
+        }
+        // Successful 202 — server accepted the run, returned a run_id.
+        var run_id = body.run_id;
+        window._ceLastRunId = run_id;
+        // Bookmark the new run in the URL so refresh / share works.
+        try {
+          var url = new URL(window.location.href);
+          url.searchParams.set('run_id', run_id);
+          window.history.replaceState({}, '', url.toString());
+          if (window._ceCurrent) window._ceCurrent.run_id = run_id;
+        } catch (e) { /* non-critical */ }
+        // Invalidate the cached History list so the new run shows up the next
+        // time the Results tab is opened; refresh it now if it's already active.
+        window._ceHistoryLoaded = false;
+        var resultsPanel = document.querySelector('.ce-tab-panel[data-tab="results"]');
+        if (resultsPanel && resultsPanel.classList.contains('active')
+            && typeof _ceLoadHistory === 'function') {
+          _ceLoadHistory();
+        }
+        // Hand off to the shared loader — same render path as URL deep-link.
+        _ceLoadRunFromId(run_id);
+      })
+      .catch(function(err) {
+        resultsEl.innerHTML =
+          '<div style="color:#c00;"><strong>Network error:</strong> ' +
+          _esc(String(err)) + '</div>';
+      });
   }
   window._ceTestRun = _ceTestRun;
 
@@ -9439,13 +9277,8 @@
       var filterStatus = (closed ? 'closed' : effStatus);
 
       // Per-study status → a compact breakdown line + an expandable study list.
-      // Keep the "done" vocabulary in sync with the backend roll-up
-      // (_STUDY_STATUS_DONE_ROLLUP): complete/ran/passed/evaluated/decided are all
-      // green "done" states, so a passed study never mislabels as "planned".
-      var _SD = { complete:['#16a34a','done'], ran:['#16a34a','done'], passed:['#16a34a','passed'],
-                  evaluated:['#16a34a','evaluated'], decided:['#16a34a','decided'],
-                  running:['#2563eb','running'], analyzing:['#2563eb','running'],
-                  in_progress:['#d97706','in progress'], failed:['#dc2626','failed'], invalid:['#dc2626','invalid'],
+      var _SD = { complete:['#16a34a','done'], running:['#2563eb','running'],
+                  in_progress:['#d97706','in progress'], failed:['#dc2626','failed'],
                   planning:['#94a3b8','planned'] };
       function _sMeta(st) { return _SD[st] || _SD[st === 'ran' ? 'complete' : 'planning'] || ['#94a3b8','planned']; }
       var studyObjs = _isetStudyObjs(iset);
@@ -9463,38 +9296,17 @@
           byStatus[st] + ' ' + _esc(m[1]) + '</span>';
       }).join('<span style="color:#cbd5e1">·</span>');
 
-      // Expandable study list (revealed by clicking the studies count): each row
-      // pulls the study's objective text + the consistent action set — downloads
-      // (↓ figures / ↓ notebook, all modes) and, live only, ▶ run / ↻ reproduce.
-      var _isSnap = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
+      // Expandable study list (revealed by clicking the studies count).
       var studyRows = studyObjs.map(function(s) {
         var m = _sMeta((s && (s.effective_status || s.status)) || 'planning');
         var slug = (s && s.name) || '';
-        var title = (s && s.title) ? String(s.title) : '';
-        var obj = (s && (s.objective || s.description)) ? String(s.objective || s.description) : '';
-        var objShort = obj ? (obj.length > 150 ? obj.slice(0, 150).replace(/\s+\S*$/, '') + '…' : obj) : '';
-        var lnk = 'font-size:0.82em;color:#3b82f6;text-decoration:none;white-space:nowrap;cursor:pointer';
-        // Card rows carry the DOWNLOADS only (↓ figures / ↓ notebook). The
-        // run/reproduce launch actions live on the study tab's header
-        // (▶ Run current spec / ↻ Reproduce), not here — so a card stays a
-        // browse+download surface.
-        var acts =
-          '<a href="#" style="' + lnk + '" title="Download this study\'s outputs (figures + embedded HTML reports) as a zip" ' +
-            'onclick="window._vivStudyFiguresFromCard(event,\'' + _esc(slug) + '\');return false;">↓ outputs</a>' +
-          '<a href="#" style="' + lnk + '" title="Download this study\'s own runnable notebook (composite + parameters + figures)" ' +
-            'onclick="window._vivStudyNotebookFromCard(event,\'' + _esc(slug) + '\',\'' + _esc(iset.name) + '\');return false;">↓ notebook</a>';
-        return '<div class="iset-study-row" style="padding:6px;border-radius:5px" ' +
+        return '<a href="/studies/' + encodeURIComponent(slug) + '" onclick="event.stopPropagation()" ' +
+          'style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:5px;' +
+          'text-decoration:none;color:#334155;font-size:0.86em" ' +
           'onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">' +
-          '<div style="display:flex;align-items:center;gap:8px">' +
-            '<span style="width:7px;height:7px;border-radius:50%;background:' + m[0] + '"></span>' +
-            '<a href="/studies/' + encodeURIComponent(slug) + '" onclick="event.stopPropagation()" style="text-decoration:none">' +
-              '<code style="font-size:0.92em;color:#475569">' + _esc(slug) + '</code></a>' +
-            (title ? '<span style="font-size:0.86em;color:#334155">' + _esc(title) + '</span>' : '') +
-            '<span style="margin-left:auto;color:#94a3b8;font-size:0.82em">' + _esc(m[1]) + '</span>' +
-          '</div>' +
-          (objShort ? '<div style="font-size:0.8em;color:#64748b;margin:2px 0 0 15px;line-height:1.35">' + _esc(objShort) + '</div>' : '') +
-          '<div style="display:flex;gap:14px;margin:4px 0 0 15px">' + acts + '</div>' +
-        '</div>';
+          '<span style="width:7px;height:7px;border-radius:50%;background:' + m[0] + '"></span>' +
+          '<code style="font-size:0.92em;color:#475569">' + _esc(slug) + '</code>' +
+          '<span style="margin-left:auto;color:#94a3b8">' + _esc(m[1]) + '</span></a>';
       }).join('');
 
       var qFull = iset.question ? String(iset.question).split('\n')[0] : '';
@@ -9510,8 +9322,8 @@
              'data-iset-slug="' + _esc(String(iset.name).toLowerCase()) + '" ' +
              'data-iset-status="' + _esc(String(filterStatus).toLowerCase()) + '" ' +
              'style="' + cardStyle + '">' +
-        '<div style="display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px;">' +
-          '<strong style="font-size:1.05em;flex:1 1 100%">' + _esc(iset.title || iset.name) + '</strong>' +
+        '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">' +
+          '<strong style="font-size:1.05em;flex:1">' + _esc(iset.title || iset.name) + '</strong>' +
           currentPill +
           statusPill +
           _originBadge(iset.origin_repo) +
@@ -9528,9 +9340,6 @@
           '<a href="#" title="Download the runnable notebook for this investigation" ' +
             'onclick="window._vivNotebookFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
             'style="color:#3b82f6;text-decoration:none;white-space:nowrap">↓ notebook</a>' +
-          (iset.n_figures ? '<a href="#" title="Download all figures for this investigation (studies figures + post-study composites), as a zip" ' +
-            'onclick="window._vivFiguresFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
-            'style="color:#3b82f6;text-decoration:none;white-space:nowrap">↓ figures</a>' : '') +
         '</div>' +
         '<div class="iset-studies-detail" style="display:' + (full ? 'block' : 'none') + ';margin-top:8px;border-top:1px solid #f1f5f9;padding-top:6px">' + (studyRows || '<span class="muted" style="font-size:0.85em">No studies.</span>') + '</div>' +
         // "Run this investigation in your terminal" chip (like the composite/process card).
@@ -9848,32 +9657,14 @@
     var actions = document.getElementById('ws-actions');
     if (!actions) return;
     var isSnapshot = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
-    var name = window._wsInvestigation || window._currentIset || '';
-    // Match the investigation CARD's ↓ actions (↓ report / ↓ notebook / ↓ figures)
-    // instead of the old emoji buttons. ↓ figures is injected async, only when the
-    // investigation actually has figures (same n_figures gate as the card).
     actions.innerHTML =
       '<button class="btn-mini" onclick="_generateInvestigationReport()" ' +
-        'title="Generate a shareable HTML report">↓ report</button> ' +
+        'title="Generate a shareable HTML report">Report 📄</button> ' +
       '<button class="btn-mini" onclick="_downloadInvestigationNotebook()" ' +
-        'title="Download a self-contained Jupyter notebook">↓ notebook</button>' +
-      '<span id="ws-actions-figures"></span>' +
+        'title="Download a self-contained Jupyter notebook">Notebook 📓</button>' +
       (isSnapshot ? '' :
       ' <button class="btn-mini" onclick="_rerunInvestigation()" ' +
         'title="Re-run every member study\'s CURRENT baseline spec (re-derives from each study\'s study.yaml)">▶ Run current spec</button>');
-    if (name) {
-      fetch('/api/investigation-summaries', {headers: {Accept: 'application/json'}})
-        .then(function (r) { return r.json(); })
-        .then(function (j) {
-          var me = ((j && j.investigations) || []).filter(function (i) { return i.name === name; })[0];
-          var host = document.getElementById('ws-actions-figures');
-          if (me && me.n_figures && host) {
-            host.innerHTML = ' <button class="btn-mini" ' +
-              'onclick="window._vivFiguresFromCard(event,\'' + _esc(name) + '\')" ' +
-              'title="Download all figures (studies figures + post-study composites) as a zip">↓ figures</button>';
-          }
-        }).catch(function () {});
-    }
   }
   window._wsSetInvestigationActions = _wsSetInvestigationActions;
 
@@ -10007,8 +9798,8 @@
            'data-iset-slug="' + _esc(String(s.name).toLowerCase()) + '" ' +
            'data-iset-status="' + _esc(String(status).toLowerCase()) + '" ' +
            'style="' + cardStyle + '">' +
-      '<div style="display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px;">' +
-        '<strong style="font-size:1.02em;flex:1 1 100%">' + _esc(s.title || s.name) + '</strong>' +
+      '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">' +
+        '<strong style="font-size:1.02em;flex:1">' + _esc(s.title || s.name) + '</strong>' +
         '<span style="font-size:0.72em;border-radius:9999px;padding:1px 9px;white-space:nowrap;' +
           'background:' + m[0] + '22;color:' + m[0] + ';border:1px solid ' + m[0] + '55">' + _esc(m[1]) + '</span>' +
         _originBadge(s.origin_repo) +
@@ -10193,9 +9984,6 @@
           '<a href="#" title="Download the runnable notebook for this investigation" ' +
             'onclick="window._vivNotebookFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
             'style="color:#3b82f6;text-decoration:none">↓ notebook</a>' +
-          (iset.n_figures ? '<a href="#" title="Download all figures for this investigation (studies figures + post-study composites), as a zip" ' +
-            'onclick="window._vivFiguresFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
-            'style="color:#3b82f6;text-decoration:none;margin-left:10px">↓ figures</a>' : '') +
         '</td>' +
         '</tr>';
     }).join('');
@@ -11166,30 +10954,22 @@
   }
 
   function _dagTriggerControlsHtml(slug) {
-    // Launch actions (Run this study / Continue from here) intentionally do NOT
-    // appear on the graph study cards — running lives on the full study tab
-    // (▶ Run current spec / ↻ Reproduce), matching the download group below and
-    // the investigation card study rows. The cards stay a browse + download
-    // surface. (Kept as a no-op so existing call sites need no change.)
-    return '';
-  }
-
-  // Download affordances for a graph study card: ↓ figures (this study's own
-  // figures) + ↓ notebook (the parent investigation's runnable notebook). Unlike
-  // the run/continue controls these are NOT authoring-gated — they survive into
-  // the read-only snapshot so shared links can still grab figures. Deliberately
-  // no ▶ run here: the small card stays uncluttered; running lives on the full
-  // study tab.
-  function _dagDownloadControlsHtml(slug) {
-    var lnk = 'font-size:0.66em;color:#3b82f6;text-decoration:none;white-space:nowrap';
-    return '<div class="dag-download-controls" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">' +
-      '<a href="#" title="Download this study\'s outputs (figures + embedded HTML reports) as a zip" ' +
-        'onclick="window._vivStudyFiguresFromCard(event,\'' + _esc(slug) + '\');return false;" ' +
-        'style="' + lnk + '">↓ outputs</a>' +
-      '<a href="#" title="Download this study\'s own runnable notebook (composite + parameters + figures)" ' +
-        'onclick="window._vivStudyNotebookFromCard(event,\'' + _esc(slug) + '\',\'' + _esc(_dagInvSlug || '') + '\');return false;" ' +
-        'style="' + lnk + '">↓ notebook</a>' +
-      '</div>';
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return '';
+    if ((window._uiConfig || {}).readonly) return '';
+    var st = _dagTriggerBySlug[slug];
+    var hasUpstream = !!(st && st.ancestors && st.ancestors.length);
+    var btn = 'font-size:0.66em;padding:2px 8px;border-radius:6px;cursor:pointer;' +
+      'border:1px solid #cbd5e1;background:#fff;color:#334155';
+    var out = '<div class="js-authoring dag-trigger-controls" ' +
+      'style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' +
+      '<button type="button" class="dag-trigger-run" data-slug="' + _esc(slug) + '" ' +
+      'style="' + btn + '">▷ Run this study</button>';
+    if (hasUpstream) {
+      out += '<button type="button" class="dag-trigger-continue" data-slug="' + _esc(slug) + '" ' +
+        'title="Reuse cached upstream results; recompute only this study" ' +
+        'style="' + btn + '">⏵ Continue from here</button>';
+    }
+    return out + '</div>';
   }
 
   function _triggerStudy(slug, onMissing, btnEl) {
@@ -11488,10 +11268,8 @@
         (_opts.followups ? followUpsChip : '') +
         (_opts.chain && chainsBySlug && typeof window._chainBlockHtml === 'function'
           ? window._chainBlockHtml(chainsBySlug[s.name]) : '') +
-        // Layer-4: cached/compute badge + downloads (↓figures/↓notebook, all
-        // modes) + run/continue buttons (live only).
+        // Layer-4: cached/compute badge + run/continue buttons (live only).
         _dagCacheBadgeHtml(s.name) +
-        _dagDownloadControlsHtml(s.name) +
         _dagTriggerControlsHtml(s.name);
       node._followUps = followUps;
       nodesHost.appendChild(node);
@@ -12175,114 +11953,6 @@
     var a = document.createElement('a');
     a.href = url; a.download = name + '.ipynb';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  };
-  // A SINGLE study's runnable notebook (just that study's cells). Live: the
-  // server generates it on demand at /api/study/<slug>/notebook. Snapshot: a
-  // static export has no per-study artifact, so fall back to the investigation
-  // notebook (which includes this study) via _vivNotebookFromCard.
-  window._vivStudyNotebookFromCard = function (ev, slug, invName) {
-    if (ev) ev.stopPropagation();
-    var c = window.__DASH_CONFIG__ || {};
-    if (c.mode === 'snapshot') {
-      return window._vivNotebookFromCard(ev, invName || slug);
-    }
-    var url = '/api/study/' + encodeURIComponent(slug) + '/notebook';
-    var a = document.createElement('a');
-    a.href = url; a.download = slug + '.ipynb';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  };
-  // Download the FULL figure archive for an investigation (every study's figures
-  // + the post-study composites) as a zip. Snapshot: a prebuilt static zip under
-  // figures/<slug>/; live: the server builds it on demand.
-  window._vivFiguresFromCard = function (ev, name) {
-    if (ev) ev.stopPropagation();
-    var c = window.__DASH_CONFIG__ || {};
-    var base = c.basePath || '';
-    var url = (c.mode === 'snapshot')
-      ? base + '/figures/' + encodeURIComponent(name) + '/figures.zip'
-      : '/api/investigation/' + encodeURIComponent(name) + '/figures.zip';
-    var a = document.createElement('a');
-    a.href = url; a.download = name + '-figures.zip';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  };
-  // A single study's OUTPUTS (its image figures + any embedded HTML report /
-  // dashboard and its viz assets) as a zip.
-  window._vivStudyFiguresFromCard = function (ev, slug) {
-    if (ev) ev.stopPropagation();
-    var c = window.__DASH_CONFIG__ || {};
-    var base = c.basePath || '';
-    var url = (c.mode === 'snapshot')
-      ? base + '/figures/studies/' + encodeURIComponent(slug) + '.zip'
-      : '/api/study/' + encodeURIComponent(slug) + '/outputs.zip';
-    // Probe before downloading. The ↓ visualizations button renders whenever a
-    // study declares any `visualizations`, but the figures zip only contains
-    // declared IMAGE files (svg/png/gif). A study whose visualizations are all
-    // native/embed panels therefore has no zip — and in a snapshot the file is
-    // simply absent (404). A bare `<a download>` to a 404 silently does nothing,
-    // which reads as a broken button. Fetch first: download the blob when it
-    // exists, otherwise tell the user why there's nothing to grab.
-    function _notify(msg) {
-      if (typeof _showToast === 'function') _showToast(msg); else window.alert(msg);
-    }
-    fetch(url).then(function (r) {
-      if (!r.ok) {
-        _notify('No downloadable outputs for "' + slug + '" '
-          + '(no figures or embedded HTML reports).');
-        return null;
-      }
-      return r.blob();
-    }).then(function (blob) {
-      if (!blob) return;
-      var href = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = href; a.download = slug + '-outputs.zip';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      window.setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
-    }).catch(function (e) {
-      _notify('Outputs download failed: ' + e);
-    });
-  };
-  // A study's ↓ notebook is its parent investigation's runnable notebook (there
-  // is no per-study notebook). In the graph the parent is the open investigation.
-  window._vivStudyNotebookFromCard = function (ev, slug) {
-    if (ev) ev.stopPropagation();
-    var inv = window._wsInvestigation || window._currentIset || '';
-    if (inv && window._vivNotebookFromCard) window._vivNotebookFromCard(ev, inv);
-  };
-  // ▶ run — launch a study's CURRENT baseline spec as a new run (live only).
-  window._vivRunStudyFromRow = function (ev, slug) {
-    if (ev) ev.stopPropagation();
-    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;
-    if (!confirm("Run this study's current baseline spec as a new run?")) return;
-    fetch('/api/study-run-baseline', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({study: slug}),
-    }).then(function (r) { return r.json(); }).then(function (j) {
-      var id = j && (j.run_id || j.simulation_id);
-      var msg = id ? ('Run launched — ' + id) : ('Run: ' + ((j && j.error) || 'done'));
-      if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
-    }).catch(function (e) { alert('Run failed: ' + e); });
-  };
-  // ↻ reproduce — replay a study's most recent run's recorded manifest (live
-  // only). Resolves the latest run id from /api/simulations first.
-  window._vivReproduceStudyFromRow = function (ev, slug) {
-    if (ev) ev.stopPropagation();
-    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;
-    fetch('/api/simulations?study=' + encodeURIComponent(slug))
-      .then(function (r) { return r.json(); })
-      .then(function (j) {
-        var rows = (j && (j.simulations || j.runs)) || [];
-        var latest = rows[0] && (rows[0].run_id || rows[0].id || rows[0].name);
-        if (!latest) { alert('No run to reproduce yet for ' + slug + '.'); return; }
-        return fetch('/api/study-reproduce', {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({study: slug, run_id: latest}),
-        }).then(function (r) { return r.json(); }).then(function (res) {
-          var id = res && res.run_id;
-          var msg = id ? ('Reproduce launched — ' + id) : ('Reproduce: ' + ((res && res.error) || 'done'));
-          if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
-        });
-      }).catch(function (e) { alert('Reproduce failed: ' + e); });
   };
 
   // Download the coder-facing notebook for the current investigation. In a
@@ -13281,70 +12951,19 @@
     // spine-computed verdicts/acceptance (no recompute). Mirrors the
     // param-enforcement banner: surfaced, connected (nodes/criteria link to the
     // per-study sections), labeled code-computed.
-    // Per-test outcome counts for a study (pass/fail/skip/pending), read from
-    // the run that carries outcomes (canonical/grade), falling back to the
-    // authored tests[].status. Single-sourced with the control-panel clarity
-    // counter (_studyControlPanel) so the two never drift.
-    function _studyOutcomeCounts(s) {
-      var tests = _studyTests(s);
-      var latest = _runWithOutcomes((s && s.runs) || []);
-      var outc = (latest && latest.outcomes) || {};
-      var c = { pass: 0, fail: 0, skip: 0, pending: 0, total: tests.length };
-      tests.forEach(function (t) {
-        var o = outc[t.name];
-        var r = (((o && o.result) != null ? o.result : o) || '').toString().toLowerCase();
-        if (!r) r = (_testStatusToResult(t.status) || '').toLowerCase();
-        if (r === 'pass' || r === 'passed' || r === 'ok') c.pass++;
-        else if (r === 'fail' || r === 'failed' || r === 'error') c.fail++;
-        else if (r === 'skip' || r === 'skipped' || r === 'inconclusive' || r === 'partial') c.skip++;
-        else c.pending++;
-      });
-      return c;
-    }
-    // A compact "4 passed · 1 skipped" summary of the counts a verdict was
-    // derived from — the data already lives in the outcomes, so surface it so
-    // needs_calibration reads as progress, not a bare ⚠.
-    function _spineCountLabel(c) {
-      if (!c || !c.total) return '';
-      var bits = [];
-      if (c.pass) bits.push(c.pass + ' passed');
-      if (c.fail) bits.push(c.fail + ' failed');
-      if (c.skip) bits.push(c.skip + ' skipped');
-      if (c.pending) bits.push(c.pending + ' pending');
-      return bits.join(' · ');
-    }
-    // Map a study's code-computed gate verdict onto a badge. roll_up_verdict
-    // emits FIVE states (passed / failed / needs_calibration / blocked /
-    // not_started); render all five distinctly so partial progress is visible
-    // to a reader. In particular: ◽ neutral for not-yet-evaluated (never ⚠ —
-    // an unstarted study must not read as broken), 🔄 progress-shaped for
-    // needs_calibration, and ⚠ reserved for genuinely blocked.
     function _spineVerdictBadge(result, study) {
       var r = (result || '').toString().toLowerCase();
       // Descriptive/informational reference (not_applicable gate) → neutral
       // "reference" badge, NOT ⚠ "needs work".
       if (r === 'not_applicable' || r === 'n/a' || r === 'na' || r === 'informational'
           || r === 'descriptive' || (study && _isInformationalStudy(study))) {
-        return { glyph: '📄', cls: 'none', bd: '#94a3b8', label: 'reference' };
+        return { glyph: '📄', cls: 'none', bd: '#94a3b8' };
       }
-      if (r === 'passed' || r === 'pass') return { glyph: '✅', cls: 'pass', bd: '#16a34a', label: 'passed' };
-      if (r === 'failed' || r === 'fail') return { glyph: '⛔', cls: 'fail', bd: '#dc2626', label: 'failed' };
-      // Nothing recorded yet — no run, no outcomes. Neutral "not evaluated",
-      // matching the empty-result badge. Covers the explicit not_started
-      // constant from roll_up_verdict, which is a non-empty string and would
-      // otherwise fall through to the ⚠ catch-all below.
-      if (!r || r === 'not_started' || r === 'not started') {
-        return { glyph: '◽', cls: 'none', bd: '#cbd5e1', label: 'not evaluated' };
-      }
-      // Ran; some behaviors pass, some deferred/skipped → progress-shaped and
-      // distinct from both "broken" and "not started". Mirrors the 🔄 used for
-      // needs_calibration in the study control panel.
-      if (r === 'needs_calibration' || r === 'stale') {
-        return { glyph: '🔄', cls: 'cal', bd: '#0284c7',
-                 label: r === 'stale' ? 'stale' : 'needs calibration' };
-      }
-      // Ran, but a prerequisite is unmet — genuinely blocked. ⚠ reserved here.
-      return { glyph: '⚠', cls: 'warn', bd: '#f59e0b', label: 'blocked' };
+      if (r === 'passed' || r === 'pass') return { glyph: '✅', cls: 'pass', bd: '#16a34a' };
+      if (r === 'failed' || r === 'fail') return { glyph: '⛔', cls: 'fail', bd: '#dc2626' };
+      if (!r) return { glyph: '◽', cls: 'none', bd: '#cbd5e1' };
+      // needs_calibration / blocked / stale → needs work
+      return { glyph: '⚠', cls: 'warn', bd: '#f59e0b' };
     }
     function _verdictDagHtml() {
       if (!ordered.length) return '';
@@ -13366,21 +12985,11 @@
                 return '<a href="#study-' + _h(p) + '">' + _h(p) + '</a>';
               }).join(', ') + '</span>'
             : '';
-          // Show the counts the verdict was derived from, so needs_calibration
-          // (4 passed · 1 skipped) reads as progress, not a bare badge. Prefer
-          // the canonical counts the server attaches to computed_gate_verdict
-          // (from viva_superpowers roll_up_verdict); fall back to a client-side
-          // recompute when an older/snapshot payload lacks them.
-          var cgvCounts = (s.computed_gate_verdict || {}).counts;
-          var counts = _spineCountLabel(cgvCounts || _studyOutcomeCounts(s));
-          var countHtml = counts
-            ? ' <span class="sdag-counts muted small" style="color:#64748b">(' + _h(counts) + ')</span>'
-            : '';
           return '<li class="sdag-node sdag-' + b.cls + '" '
             + 'style="margin:3px 0;padding:2px 8px;border-left:3px solid ' + b.bd + '">'
-            + '<span class="sdag-badge" title="code-computed gate verdict: ' + _h(b.label) + '">' + b.glyph + '</span> '
+            + '<span class="sdag-badge" title="code-computed gate verdict">' + b.glyph + '</span> '
             + '<a href="#study-' + _h(s.name) + '"><strong>' + _h(s.name) + '</strong></a>'
-            + countHtml + dep + '</li>';
+            + dep + '</li>';
         }).join('');
         return '<div class="sdag-rank" style="margin:4px 0">'
           + (hasEdges ? '<span class="sdag-rank-lbl muted small" style="display:inline-block;min-width:64px">depth ' + d + '</span>' : '')
@@ -13389,7 +12998,7 @@
       return '<div class="study-verdict-dag" id="study-verdict-dag" '
         + 'style="margin:14px 0;padding:12px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left-width:5px;border-radius:6px">'
         + '<strong>Study verdict map</strong> '
-        + '<span class="muted small">code-computed gate verdicts (✅ passed · ⛔ failed · 🔄 needs calibration · ⚠ blocked · ◽ not evaluated)'
+        + '<span class="muted small">code-computed gate verdicts (✅ passed · ⚠ needs work · ⛔ blocked)'
         + (hasEdges ? '; edges = pipeline prerequisites (← depends on)' : '') + '</span>'
         + ranks + '</div>';
     }
@@ -14288,17 +13897,11 @@
         links.push('<a href="#' + sid.discovery + '">Discovery implications'
                    + (_nDisc ? ' <span class="sn-count">' + _nDisc + '</span>' : '') + '</a>');
       }
-      // Conditions sub-nav link: rendered when the Conditions section will
-      // render — i.e. a v4 ``conditions:`` block, a server-folded
-      // ``simulation_set``, or (v3-shaped) a top-level ``baseline:`` list that
-      // _renderConditionsBlock now derives from.
+      // Conditions sub-nav link: rendered when v4 ``conditions:`` exists.
       var _cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : null;
       var _nVar = (_cond && _cond.variants || []).length;
       var _nEI  = (_cond && (_cond.model_settings || _cond.expert_inputs) || []).length;
-      var _hasCond = !!_cond
-                     || (Array.isArray(s.simulation_set) && s.simulation_set.length)
-                     || (Array.isArray(s.baseline) && s.baseline.length);
-      if (_hasCond) {
+      if (_cond) {
         var _condCount = _nVar + _nEI;
         links.push('<a href="#' + sid.conditions + '">Conditions ' +
                    (_condCount ? '<span class="sn-count">' + _condCount + '</span>' : '') + '</a>');
@@ -15742,29 +15345,6 @@
           }
         });
         cond = {baseline: _derivedBaseline, variants: _derivedVariants, model_settings: []};
-      }
-      // Third fallback — v3-shaped studies that declare their setup ONLY as a
-      // top-level ``baseline:`` (+ ``variants:``) list and carry no ``conditions:``
-      // block and no server-folded ``simulation_set`` (migrate_v3_to_v4 doesn't
-      // synthesize one). Derive the conditions table straight from those lists so
-      // the "Conditions — what we set up to test it" section isn't blank by
-      // default. Handles a Step/Process baseline (no ``composite``) by using its
-      // dotted address, mirroring how the simulation_set fallback treats base_model.
-      if (!cond && Array.isArray(s.baseline) && s.baseline.length) {
-        var _b0 = s.baseline[0] || {};
-        var _bModel = _b0.composite || _b0.step || _b0.process || '';
-        var _dv = (Array.isArray(s.variants) ? s.variants : []).map(function(v) {
-          return {
-            name: v.name,
-            composite: v.composite || v.base_composite,
-            parameter_overrides: v.parameter_overrides || v.params || {},
-            description: v.description || v.notes || ''
-          };
-        });
-        if (_bModel || _dv.length) {
-          cond = {baseline: {composite: _bModel, params: _b0.params || {}},
-                  variants: _dv, model_settings: []};
-        }
       }
       if (!cond) return '';
       var baseline = cond.baseline || {};
@@ -21003,19 +20583,6 @@
     if (key === 'run') return String(row.sim_name || row.label || row.run_id || '').toLowerCase();
     if (key === 'composite') return String(row.spec_id || '').toLowerCase();
     if (key === 'status') return String(row.status || '').toLowerCase();
-    if (key === 'location') return String(row.store_path || row.db_path || '').toLowerCase();
-    if (key === 'config') {
-      var c = row.config || {};
-      return Object.keys(c).length ? JSON.stringify(c).toLowerCase() : '';
-    }
-    // Tools: sort by the matched tool's label so runs that have a tool (e.g. the
-    // atlas run → "HRA Computational Model Atlas") group together and, on the
-    // first (ascending) click, rise to the TOP; tool-less runs get a high
-    // sentinel so they sink. Clicking Tools thus surfaces the tool-linked runs.
-    if (key === 'tools') {
-      var mt = row.matched_tools || [];
-      return mt.length ? String(mt[0].label || mt[0].id || '').toLowerCase() : '\uffff';
-    }
     return '';
   }
 

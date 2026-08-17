@@ -22,7 +22,6 @@
     
   </h1>
   <span class="study-header-actions" style="display:inline-flex; gap:6px; flex-shrink:0;">
-    
     <button type="button" id="study-reproduce" class="btn-mini" title="Replay this study's most recent run's RECORDED manifest verbatim (POST /api/study-reproduce) — ignores any study.yaml edits made since">↻ Reproduce</button>
     <button type="button" id="study-run-current-spec" class="btn-mini" title="Run this study's CURRENT baseline spec (POST /api/study-run-baseline) as a brand-new run">▶ Run current spec</button>
   </span>
@@ -330,11 +329,6 @@ rather than distributing every model uniformly across the whole organ?
 /* SVGs/PNGs scale to fit their card; preserves aspect ratio so a 1400×484
    chart shrinks instead of overflowing horizontally + clipping. */
 .figure-card svg,.figure-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}
-/* Loom figure SVGs (with <foreignObject> HTML that WebKit won't scale when
-   inlined) are rendered as <img> data-URIs by study-detail.js so the browser
-   rasterizes + scales the whole figure. max-width shrinks a too-wide figure;
-   no width:100%, so small figures keep their native size instead of upscaling. */
-.figure-card img.figure-svg-img{display:block;max-width:100%;height:auto}
 .figure-desc{margin:8px 12px 0;font-size:0.85em;color:#475569}
 .figure-caption-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 12px;font-size:0.85em;color:#475569;border-top:1px solid #f1f5f9;background:#f8fafc}
 .figure-source-chip{font-size:0.68em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#64748b;flex-shrink:0}
@@ -786,11 +780,7 @@ structures.
 
 
 <section class="study-tab-panel" data-kind="compose" id="panel-compose" hidden>
-  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
-    <h2 class="overview-label" style="margin:0">Model composition</h2>
-    
-    <button type="button" class="btn-mini" onclick="window._vivStudyNotebookFromCard(event, 'hra-atlas-browser', 'hra-3d')" title="Download a runnable Jupyter notebook for THIS study — its composite + editable parameters + figures">↓ notebook</button>
-  </div>
+  <h2 class="overview-label" style="margin-bottom:8px">Model composition</h2>
   
   
   
@@ -829,7 +819,7 @@ structures.
       
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:0.8em">
         
-        
+        <span class="cond-pill"><span class="cond-pill-k">steps</span>=5</span>
         
         <span class="cond-pill"><span class="cond-pill-k">status</span>=completed</span>
       </div>
@@ -915,9 +905,6 @@ structures.
 <section class="study-tab-panel" data-kind="visualize" id="panel-visualize" hidden>
 
   <div class="overview-section study-figures figure-gallery" id="visualize-section">
-
-    
-    
 
     <div id="native-gallery-panel" class="figure-mount"><p class="empty-message">Loading figures…</p></div>
 
@@ -1026,6 +1013,12 @@ structures.
 
     
     
+    
+    <p class="muted small verdict-frozen-indicator" style="margin:0 0 8px 0"
+       title="Content digest (sha256, sorted-key canonical JSON) of the frozen verdict payload — a locked record, not a live recompute.">
+      <span class="frozen-glyph">🔒</span> frozen 2026-08-03 14:08 UTC ·
+      <code style="font-family:ui-monospace,monospace">bb47e9e557</code>
+    </p>
     
 
     <div class="overview-section narrative-card" data-narrative-card="conclusion_verdicts" style="margin-bottom:18px">
@@ -1241,7 +1234,7 @@ structures.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "e05bca86be77dfec6b523b11ac86030dbf276064", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/e05bca86be77dfec6b523b11ac86030dbf276064", "branch": "main", "generated_at": "2026-08-15 19:19 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/dashboard", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "27577f5c75c0ab5cd65be582f1aed091b6702dc3", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/27577f5c75c0ab5cd65be582f1aed091b6702dc3", "branch": "main", "generated_at": "2026-08-17 17:32 UTC"} };</script>
 <script src="/viva-human-atlas/dashboard/assets/data-source.js"></script>
 <script>
 window._studyName = "hra-atlas-browser";

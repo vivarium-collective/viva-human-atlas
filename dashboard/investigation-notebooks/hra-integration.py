@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python hra-integration.py
 
-Figures are written to:  reports/notebooks/figures
+Figures are written to:  reports/published/dashboard/investigation-notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -73,8 +73,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
-    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -136,32 +136,7 @@ def describe_spec(spec):
     print("\nfull editable spec dict:")
     print(_json.dumps(spec, indent=2, default=str))
 
-import base64 as _b64, pathlib as _pl
-def _render_one(address, config, runs_db, study_yaml):
-    """Generic figure renderer (no workspace render_study_viz.py):
-    resolve an ``image:<relpath>`` visualization to displayable HTML,
-    relative to the study directory."""
-    addr = str(address or '')
-    for _scheme in ('image:', 'file:', 'gif:', 'png:', 'svg:', 'jpg:', 'jpeg:'):
-        if addr.startswith(_scheme):
-            addr = addr[len(_scheme):]; break
-    _p = _pl.Path(addr)
-    if not _p.is_absolute():
-        _p = _pl.Path(study_yaml).resolve().parent / _p
-    if not _p.is_file():
-        return f'<p style="color:#b91c1c">figure not found: {address}</p>'
-    _suffix = _p.suffix.lower()
-    if _suffix == '.svg':
-        return _p.read_text(encoding='utf-8', errors='replace')
-    if _suffix in ('.png', '.jpg', '.jpeg', '.gif', '.webp'):
-        _mime = 'jpeg' if _suffix in ('.jpg', '.jpeg') else _suffix[1:]
-        _data = _b64.b64encode(_p.read_bytes()).decode('ascii')
-        return f'<img src="data:image/{_mime};base64,{_data}" style="max-width:100%"/>'
-    if _suffix in ('.html', '.htm'):
-        return _p.read_text(encoding='utf-8', errors='replace')
-    return f'<p style="color:#6b7280">unsupported figure type: {address}</p>'
-
-# ## Study: HRA Reference Organs — Uberon-Keyed Organ Set (`hra-reference-organs`)
+# ## Study: `hra-reference-organs`
 #
 # **Question.** Does the HRA CCF API's reference-organs endpoint load into a Step-driven
 # composite, giving an Uberon-keyed organ set (with per-sex GLB assets)?
@@ -180,7 +155,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: HRA Cell-Type Term Occurrences (`hra-cell-types`)
+# ## Study: `hra-cell-types`
 #
 # **Question.** Does the HRA CCF API's cell-type-term-occurences endpoint load into a
 # Step-driven composite, giving a Cell Ontology (CL) term occurrence list?
@@ -199,7 +174,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: HRA Anatomical-Structure Term Occurrences (`hra-anatomical-structures`)
+# ## Study: `hra-anatomical-structures`
 #
 # **Question.** Does the HRA CCF API's ontology-term-occurences endpoint load into a
 # Step-driven composite, giving an anatomical-structure term occurrence list?
@@ -218,7 +193,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: Glucose BioModel Digital Objects — Uberon Organ Annotation (`glucose-biomodel-do`)
+# ## Study: `glucose-biomodel-do`
 #
 # **Question.** Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
 # (via transparent synonym matching) and inverted into an organ->models index?
@@ -237,7 +212,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: Annotation-Based Organ Matching — SBML MIRIAM + BTO Crosswalk Provenance (`annotation-organ-matching`)
+# ## Study: `annotation-organ-matching`
 #
 # **Question.** How does a BioModels entry get tagged with an HRA Uberon organ when the
 # match comes from its embedded SBML MIRIAM annotations rather than its
@@ -245,18 +220,6 @@ print("No recorded runs for this study; nothing to reproduce.")
 # that organ signal?
 
 # ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `baseline` | `viva_human_atlas.composites.annotation_composite.annotation-organ-matching` | 0 | catalog_path=datasets/biomodel_annotation_catalog.json |
-
-# ### Specification (process-bigraph) — load, inspect, edit
-#
-# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
-
-# **Composite `viva_human_atlas.composites.annotation_composite.annotation-organ-matching`** — `spec_viva_human_atlas_composites_annotation_composite_annotation_organ_matching` (a plain, editable dict)
-
-# _composite spec file for `viva_human_atlas.composites.annotation_composite.annotation-organ-matching` not found under `viva_human_atlas/composites/` — skipped._
 
 # ### Run
 #
@@ -270,7 +233,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: Annotation Recall Gain — Annotation-Matching vs Name-Only Organ Tagging (`annotation-recall-gain`)
+# ## Study: `annotation-recall-gain`
 #
 # **Question.** How much organ/model coverage does annotation-based organ matching (SBML
 # MIRIAM + BTO crosswalk) add over the existing name-synonym matcher
@@ -278,18 +241,6 @@ print("No recorded runs for this study; nothing to reproduce.")
 # curated BioModels corpus?
 
 # ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `baseline` | `viva_human_atlas.composites.annotation_composite.annotation-recall-gain` | 0 | name_catalog_path=datasets/biomodel_corpus_catalog.json, annotation_catalog_path=datasets/biomodel_annotation_catalog.json |
-
-# ### Specification (process-bigraph) — load, inspect, edit
-#
-# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
-
-# **Composite `viva_human_atlas.composites.annotation_composite.annotation-recall-gain`** — `spec_viva_human_atlas_composites_annotation_composite_annotation_recall_gain` (a plain, editable dict)
-
-# _composite spec file for `viva_human_atlas.composites.annotation_composite.annotation-recall-gain` not found under `viva_human_atlas/composites/` — skipped._
 
 # ### Run
 #
@@ -303,7 +254,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: BioModels → HRA Map — Harvesting the Curated Corpus into the Human Reference Atlas (`biomodel-hra-map`)
+# ## Study: `biomodel-hra-map`
 #
 # **Question.** Can we harvest the entire curated BioModels corpus into a single, reusable
 # JSON DB that links each model to the Human Reference Atlas — molecular
@@ -326,7 +277,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: Unified Model Harvest — BioModels + PhysioNet into the HRA Model DB (`model-harvest`)
+# ## Study: `model-harvest`
 #
 # **Question.** Can a single Step reproduce/refresh the unified HRA model DB
 # (datasets/model_hra_map.json) across every registered model source --

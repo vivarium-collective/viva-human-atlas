@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python glucose-regulation.py
 
-Figures are written to:  reports/notebooks/figures
+Figures are written to:  reports/published/dashboard/investigation-notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -63,8 +63,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
-    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -126,49 +126,12 @@ def describe_spec(spec):
     print("\nfull editable spec dict:")
     print(_json.dumps(spec, indent=2, default=str))
 
-import base64 as _b64, pathlib as _pl
-def _render_one(address, config, runs_db, study_yaml):
-    """Generic figure renderer (no workspace render_study_viz.py):
-    resolve an ``image:<relpath>`` visualization to displayable HTML,
-    relative to the study directory."""
-    addr = str(address or '')
-    for _scheme in ('image:', 'file:', 'gif:', 'png:', 'svg:', 'jpg:', 'jpeg:'):
-        if addr.startswith(_scheme):
-            addr = addr[len(_scheme):]; break
-    _p = _pl.Path(addr)
-    if not _p.is_absolute():
-        _p = _pl.Path(study_yaml).resolve().parent / _p
-    if not _p.is_file():
-        return f'<p style="color:#b91c1c">figure not found: {address}</p>'
-    _suffix = _p.suffix.lower()
-    if _suffix == '.svg':
-        return _p.read_text(encoding='utf-8', errors='replace')
-    if _suffix in ('.png', '.jpg', '.jpeg', '.gif', '.webp'):
-        _mime = 'jpeg' if _suffix in ('.jpg', '.jpeg') else _suffix[1:]
-        _data = _b64.b64encode(_p.read_bytes()).decode('ascii')
-        return f'<img src="data:image/{_mime};base64,{_data}" style="max-width:100%"/>'
-    if _suffix in ('.html', '.htm'):
-        return _p.read_text(encoding='utf-8', errors='replace')
-    return f'<p style="color:#6b7280">unsupported figure type: {address}</p>'
-
-# ## Study: Glucose Regulation — COPASI vs Tellurium (`glucose-regulation`)
+# ## Study: `glucose-regulation`
 #
 # **Question.** Do COPASI and Tellurium agree on the dynamics of BioModels matching
 # "glucose regulation"?
 
 # ### Parameters
-#
-# | simulation | composite | steps | params |
-# | --- | --- | --- | --- |
-# | `baseline` | `viva_human_atlas.composites.glucose_regulation.glucose-regulation` | 0 | query=glucose regulation, max_results=10, simulators=copasi,tellurium |
-
-# ### Specification (process-bigraph) — load, inspect, edit
-#
-# Each composite is a process-bigraph *document*: named processes (`_type: process`) bound to an `address`, wired by `inputs`/`outputs` ports over shared stores. For every composite below the first cell loads the spec into a plain **editable Python dict** and prints its structure; the second cell is a **control panel** listing every configuration value and per-process `interval` so you can tweak any of them. Your edits are read when the composite is built and run, in the **Run** section.
-
-# **Composite `viva_human_atlas.composites.glucose_regulation.glucose-regulation`** — `spec_viva_human_atlas_composites_glucose_regulation_glucose_regulation` (a plain, editable dict)
-
-# _composite spec file for `viva_human_atlas.composites.glucose_regulation.glucose-regulation` not found under `viva_human_atlas/composites/` — skipped._
 
 # ### Run
 #
@@ -182,7 +145,7 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No recorded runs for this study; nothing to reproduce.")
 
-# ## Study: CTpop -> Topp2000 Islet Parameterization — Beta-Cell Composition Shifts the Glucose Setpoint (`ctpop-islet-parameterization`)
+# ## Study: `ctpop-islet-parameterization`
 #
 # **Question.** Does binding HRA CTpop islet cell-type composition to the Topp2000
 # beta-cell-mass model (BIOMD0000000341) change the predicted glucose
