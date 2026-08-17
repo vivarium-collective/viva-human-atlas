@@ -81,6 +81,17 @@ def test_keyword_organ_keys_exact_and_pattern():
     assert keyword_organ_keys(["systems biology"]) == []                    # no anatomy signal
 
 
+def test_keyword_organ_keys_word_boundaries_avoid_false_positives():
+    # "adrenal cortex" must NOT match on substring "renal" (adrenal is absent
+    # from the HRA reference set and must contribute nothing, by design).
+    assert keyword_organ_keys(["adrenal cortex"]) == []
+    # bare "tubule" must NOT match seminiferous tubule (testis, not kidney).
+    assert keyword_organ_keys(["seminiferous tubule"]) == []
+    # real kidney keywords still map correctly.
+    assert keyword_organ_keys(["renal"]) == ["kidney"]
+    assert keyword_organ_keys(["nephron"]) == ["kidney"]
+
+
 def test_map_exposure_keyword_path_beats_category():
     # keywords give brain; category electrophysiology would give heart -> keyword wins
     exp = {"name": "x", "keywords": ["hippocampal neuron"], "categories": ["electrophysiology"]}

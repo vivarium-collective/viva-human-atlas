@@ -9,7 +9,8 @@ the broad Electrophysiology bucket by title so neuron/gut models don't land on t
 heart, and fall back to the shared physiology-keyword table. A model whose only
 categories are organ-agnostic (Calcium Dynamics, Signal Transduction, Cell Cycle,
 ...) stays unmapped rather than being forced onto an organ. Every placement records
-`mapping_method` (annotation > category > keyword > llm) and a coarse `confidence`.
+`mapping_method` (annotation > keyword_annotation > category > keyword > llm) and a
+coarse `confidence`.
 """
 from __future__ import annotations
 
@@ -87,10 +88,10 @@ KEYWORD_TO_ORGAN_KEYS: dict[str, list[str]] = {
 # Keyword families (regex, first-match-wins per keyword).
 KEYWORD_PATTERNS: list[tuple[re.Pattern, list[str]]] = [
     (re.compile(r"^cardiac|cardiac (action potential|muscle|mechanics|myocyte)|arrhythmia", re.I), ["heart"]),
-    (re.compile(r"neuron|neural|cortex|cortical|hippocamp|cerebell|dopaminerg|axon", re.I), ["brain"]),
+    (re.compile(r"neuron|neural|cortical|hippocamp|cerebell|dopaminerg|axon", re.I), ["brain"]),
     (re.compile(r"hepat", re.I), ["liver"]),
-    (re.compile(r"\bislet\b|insulin", re.I), ["pancreas"]),
-    (re.compile(r"nephron|renal|collecting duct|glomerul|tubule", re.I), ["kidney"]),
+    (re.compile(r"\bislet\b|\binsulin\b", re.I), ["pancreas"]),
+    (re.compile(r"nephron|\brenal\b|collecting duct|glomerul", re.I), ["kidney"]),
 ]
 
 
