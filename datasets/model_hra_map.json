@@ -13325,38 +13325,8 @@
     "taxonomy": [
       "NCBITaxon:10114"
     ],
-    "organs": [
-      {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -13373,12 +13343,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
-        "UBERON:0004548"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000540",
         "CL:0000598"
@@ -13416,8 +13381,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -13439,38 +13404,8 @@
     "taxonomy": [
       "NCBITaxon:10114"
     ],
-    "organs": [
-      {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [
@@ -13491,12 +13426,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
-        "UBERON:0004548"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000540",
         "CL:0000598"
@@ -13534,8 +13464,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -16226,88 +16156,9 @@
     "taxonomy": [
       "NCBITaxon:40674"
     ],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:15379",
@@ -16341,14 +16192,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001004",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000775"
       ],
@@ -16385,8 +16229,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -20870,36 +20714,11 @@
     ],
     "organs": [
       {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
         "label": "spinal-cord",
         "uberon": "UBERON:0002240"
       }
     ],
-    "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [
@@ -20930,10 +20749,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
-        "UBERON:0004548"
+        "UBERON:0002240"
       ],
       "cl": [
         "CL:0000127",
@@ -40509,80 +40325,9 @@
     "taxonomy": [
       "NCBITaxon:33208"
     ],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:59132"
@@ -40597,15 +40342,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000145",
         "CL:0000473",
@@ -40636,8 +40373,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -40659,80 +40396,9 @@
     "taxonomy": [
       "NCBITaxon:33208"
     ],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:59132"
@@ -40747,15 +40413,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000145",
         "CL:0000473",
@@ -40786,8 +40444,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -75362,10 +75020,6 @@
         "uberon": "UBERON:0004548"
       },
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       },
@@ -75400,10 +75054,6 @@
         "uberon": "UBERON:0001213"
       },
       {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
         "label": "skin epidermis unit",
         "uberon": "UBERON:0001003"
       },
@@ -75424,10 +75074,6 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -75447,7 +75093,6 @@
     "ontology_ids": {
       "uberon": [
         "UBERON:0000059",
-        "UBERON:0000948",
         "UBERON:0001264",
         "UBERON:0002097",
         "UBERON:0002370",
@@ -92350,72 +91995,9 @@
     "taxonomy": [
       "NCBITaxon:5658"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -92428,13 +92010,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235"
       ],
@@ -92465,8 +92041,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -94927,20 +94503,8 @@
     ],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
         "label": "kidney",
         "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
       },
       {
         "label": "lymph-node",
@@ -94949,18 +94513,6 @@
       {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
       }
     ],
     "functional_tissue_units": [
@@ -94975,26 +94527,6 @@
       {
         "label": "kidney nephron",
         "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
       },
       {
         "label": "lymph node follicle",
@@ -95017,18 +94549,6 @@
       {
         "label": "podocyte",
         "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -95044,13 +94564,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
         "UBERON:0001264",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
         "UBERON:0002509",
         "UBERON:0004538"
       ],
@@ -96320,38 +95834,8 @@
     "taxonomy": [
       "NCBITaxon:9606"
     ],
-    "organs": [
-      {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -96371,12 +95855,7 @@
       ]
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
-        "UBERON:0004548"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000540"
       ],
@@ -96398,8 +95877,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -96423,108 +95902,9 @@
     "taxonomy": [
       "NCBITaxon:9606"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [
@@ -96543,16 +95923,7 @@
       ]
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0000775"
@@ -96580,8 +95951,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -97984,28 +97355,8 @@
     ],
     "organs": [
       {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
         "label": "lymph-node",
         "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
       },
       {
         "label": "spleen",
@@ -98018,48 +97369,11 @@
     ],
     "functional_tissue_units": [
       {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
         "label": "lymph node follicle",
         "uberon": "UBERON:0010748"
       }
     ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [
@@ -98113,15 +97427,10 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001004",
         "UBERON:0001242",
-        "UBERON:0001987",
-        "UBERON:0002097",
         "UBERON:0002106",
         "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002509"
       ],
       "cl": [
         "CL:0000815",
@@ -100784,72 +100093,9 @@
     "paper_pmid": "9661282",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -100863,13 +100109,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0001063"
@@ -100896,8 +100136,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -104544,72 +103784,9 @@
     "paper_pmid": "9661282",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -104623,13 +103800,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0001063"
@@ -104656,8 +103827,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -105601,72 +104772,9 @@
     "taxonomy": [
       "NCBITaxon:9606"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -105680,13 +104788,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0000863"
@@ -105717,8 +104819,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -105740,72 +104842,9 @@
     "taxonomy": [
       "NCBITaxon:9606"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -105819,13 +104858,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0000863"
@@ -105856,8 +104889,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -105879,72 +104912,9 @@
     "taxonomy": [
       "NCBITaxon:9606"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -105958,13 +104928,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0000863"
@@ -105995,8 +104959,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -106254,62 +105218,12 @@
     ],
     "organs": [
       {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
         "label": "spleen",
         "uberon": "UBERON:0002106"
       }
     ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -106323,12 +105237,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002106"
       ],
       "cl": [
         "CL:0000492",
@@ -106442,60 +105351,9 @@
     "taxonomy": [
       "NCBITaxon:9606"
     ],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -106508,13 +105366,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000145",
         "CL:0000910"
@@ -106546,8 +105398,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -106569,108 +105421,9 @@
     "taxonomy": [
       "NCBITaxon:10088"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -106683,18 +105436,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000623",
         "CL:0000910"
@@ -106725,8 +105467,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -106748,108 +105490,9 @@
     "taxonomy": [
       "NCBITaxon:10088"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -106869,18 +105512,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000000",
         "CL:0000623",
@@ -106914,8 +105546,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -106937,108 +105569,9 @@
     "taxonomy": [
       "NCBITaxon:10088"
     ],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -107059,18 +105592,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000000",
         "CL:0000623",
@@ -107105,8 +105627,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [
       {
@@ -113700,78 +112222,12 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
         "label": "spleen",
         "uberon": "UBERON:0002106"
       }
     ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -113789,13 +112245,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002106"
       ],
       "cl": [
         "CL:0000794",
@@ -114571,39 +113021,11 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
         "label": "lymph-node",
         "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
       }
     ],
     "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
       {
         "label": "lymph node follicle",
         "uberon": "UBERON:0010748"
@@ -114631,12 +113053,8 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
         "UBERON:0002410",
-        "UBERON:0002509",
-        "UBERON:0004548"
+        "UBERON:0002509"
       ],
       "cl": [
         "CL:0000540",
@@ -115206,10 +113624,6 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       },
@@ -115218,19 +113632,11 @@
         "uberon": "UBERON:0002509"
       },
       {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
         "label": "skin",
         "uberon": "UBERON:0002097"
       }
     ],
     "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
       {
         "label": "large-intestine crypt of Lieberkuhn",
         "uberon": "UBERON:0001984"
@@ -115238,10 +113644,6 @@
       {
         "label": "small-intestine crypt-villus axis",
         "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
       },
       {
         "label": "skin epidermis unit",
@@ -115252,24 +113654,7 @@
         "uberon": "UBERON:0010748"
       }
     ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -115288,8 +113673,6 @@
     "ontology_ids": {
       "uberon": [
         "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
         "UBERON:0002097",
         "UBERON:0002509"
       ],
@@ -115741,60 +114124,9 @@
     "paper_pmid": "8186756",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -115809,13 +114141,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910",
         "CL:0000911"
@@ -115842,8 +114168,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -115857,60 +114183,9 @@
     "paper_pmid": null,
     "paper_doi": "10.1080/23737867.2018.1465863",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -115926,13 +114201,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910",
         "CL:0000912"
@@ -115949,8 +114218,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -116305,10 +114574,6 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       },
@@ -116317,19 +114582,11 @@
         "uberon": "UBERON:0002509"
       },
       {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
         "label": "skin",
         "uberon": "UBERON:0002097"
       }
     ],
     "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
       {
         "label": "large-intestine crypt of Lieberkuhn",
         "uberon": "UBERON:0001984"
@@ -116337,10 +114594,6 @@
       {
         "label": "small-intestine crypt-villus axis",
         "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
       },
       {
         "label": "skin epidermis unit",
@@ -116351,24 +114604,7 @@
         "uberon": "UBERON:0010748"
       }
     ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -116388,8 +114624,6 @@
     "ontology_ids": {
       "uberon": [
         "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
         "UBERON:0002097",
         "UBERON:0002509"
       ],
@@ -116438,10 +114672,6 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
         "label": "intestine",
         "uberon": "UBERON:0000059"
       },
@@ -116450,19 +114680,11 @@
         "uberon": "UBERON:0002509"
       },
       {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
         "label": "skin",
         "uberon": "UBERON:0002097"
       }
     ],
     "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
       {
         "label": "large-intestine crypt of Lieberkuhn",
         "uberon": "UBERON:0001984"
@@ -116470,10 +114692,6 @@
       {
         "label": "small-intestine crypt-villus axis",
         "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
       },
       {
         "label": "skin epidermis unit",
@@ -116484,24 +114702,7 @@
         "uberon": "UBERON:0010748"
       }
     ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -116519,8 +114720,6 @@
     "ontology_ids": {
       "uberon": [
         "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
         "UBERON:0002097",
         "UBERON:0002509"
       ],
@@ -116872,34 +115071,9 @@
       {
         "label": "eye-male-left",
         "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
       }
     ],
-    "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -116917,9 +115091,6 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
         "UBERON:0004548"
       ],
       "cl": [
@@ -117022,60 +115193,9 @@
     "paper_pmid": null,
     "paper_doi": "10.1142/S0218339010003226",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -117090,13 +115210,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910",
         "CL:0000912"
@@ -117113,8 +115227,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -117206,40 +115320,8 @@
         "uberon": "UBERON:0000948"
       },
       {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
       }
     ],
     "functional_tissue_units": [
@@ -117248,40 +115330,8 @@
         "uberon": "UBERON:0000006"
       },
       {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
         "label": "cardiac muscle / myocardium unit",
         "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
       }
     ],
     "cell_types": [
@@ -117296,22 +115346,6 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
       },
       {
         "label": "cardiac muscle cell (cardiomyocyte)",
@@ -117344,16 +115378,8 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
         "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0001264"
       ],
       "cl": [
         "CL:0000542",
@@ -117829,60 +115855,9 @@
     "paper_pmid": "24759513",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -117900,13 +115875,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910"
       ],
@@ -117931,8 +115900,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -118090,32 +116059,12 @@
         "uberon": "UBERON:0004538"
       },
       {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
         "label": "lymph-node",
         "uberon": "UBERON:0002509"
       },
       {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
       }
     ],
     "functional_tissue_units": [
@@ -118132,14 +116081,6 @@
         "uberon": "UBERON:0001285"
       },
       {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
         "label": "large-intestine crypt of Lieberkuhn",
         "uberon": "UBERON:0001984"
       },
@@ -118150,10 +116091,6 @@
       {
         "label": "cardiac muscle / myocardium unit",
         "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
       },
       {
         "label": "lymph node follicle",
@@ -118176,18 +116113,6 @@
       {
         "label": "podocyte",
         "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
       },
       {
         "label": "cardiac muscle cell (cardiomyocyte)",
@@ -118215,12 +116140,7 @@
       "uberon": [
         "UBERON:0000059",
         "UBERON:0000948",
-        "UBERON:0001004",
         "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
         "UBERON:0002509",
         "UBERON:0004538"
       ],
@@ -118271,32 +116191,12 @@
         "uberon": "UBERON:0000059"
       },
       {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
         "label": "lymph-node",
         "uberon": "UBERON:0002509"
       },
       {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
       }
     ],
     "functional_tissue_units": [
@@ -118305,28 +116205,12 @@
         "uberon": "UBERON:0000006"
       },
       {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
         "label": "large-intestine crypt of Lieberkuhn",
         "uberon": "UBERON:0001984"
       },
       {
         "label": "small-intestine crypt-villus axis",
         "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
       },
       {
         "label": "lymph node follicle",
@@ -118345,18 +116229,6 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
       }
     ],
     "molecular_ids": {
@@ -118384,13 +116256,8 @@
     "ontology_ids": {
       "uberon": [
         "UBERON:0000059",
-        "UBERON:0001004",
         "UBERON:0001264",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002509"
       ],
       "cl": [
         "CL:0000451",
@@ -118908,52 +116775,9 @@
     "paper_pmid": "22300422",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -118968,12 +116792,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000000",
         "CL:0000115",
@@ -118998,8 +116817,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -119640,74 +117459,12 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
         "label": "spleen",
         "uberon": "UBERON:0002106"
       }
     ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -119728,12 +117485,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509"
+        "UBERON:0002106"
       ],
       "cl": [
         "CL:0000235",
@@ -119828,60 +117580,9 @@
     "paper_pmid": "17823798",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [
@@ -119901,13 +117602,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910",
         "CL:0001063"
@@ -119939,8 +117634,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -120026,72 +117721,9 @@
     "paper_pmid": "30183728",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -120123,13 +117755,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235"
       ],
@@ -120159,8 +117785,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -120401,60 +118027,9 @@
     "paper_pmid": "21656310",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [
@@ -120470,13 +118045,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910",
         "CL:0001063"
@@ -120501,8 +118070,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -122716,28 +120285,8 @@
         "uberon": "UBERON:0000948"
       },
       {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
       }
     ],
     "functional_tissue_units": [
@@ -122746,32 +120295,8 @@
         "uberon": "UBERON:0000006"
       },
       {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
         "label": "cardiac muscle / myocardium unit",
         "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
       }
     ],
     "cell_types": [
@@ -122786,10 +120311,6 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
       },
       {
         "label": "cardiac muscle cell (cardiomyocyte)",
@@ -122811,13 +120332,8 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
         "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0001264"
       ],
       "cl": [
         "CL:0000542",
@@ -123900,104 +121416,20 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
         "label": "liver",
         "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
       }
     ],
     "functional_tissue_units": [
       {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
         "label": "liver lobule",
         "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
       }
     ],
     "cell_types": [
       {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
         "label": "hepatocyte",
         "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -124023,16 +121455,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002107"
       ],
       "cl": [
         "CL:0000182",
@@ -124432,108 +121855,9 @@
     "paper_pmid": "25446708",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:17650",
@@ -124552,16 +121876,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0000775"
@@ -124592,8 +121907,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -125255,104 +122570,9 @@
     "paper_pmid": "31681292",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -125363,17 +122583,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000623"
       ],
@@ -125396,8 +122606,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -126097,60 +123307,9 @@
     "paper_pmid": null,
     "paper_doi": "10.1016/j.apm.2019.05.028",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -126165,13 +123324,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910"
       ],
@@ -126189,8 +123342,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -127152,62 +124305,12 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
         "label": "spleen",
         "uberon": "UBERON:0002106"
       }
     ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [],
       "uniprot": [],
@@ -127224,12 +124327,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002106"
       ],
       "cl": [
         "CL:0000492",
@@ -131785,38 +128883,8 @@
     "paper_pmid": "31645462",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "eye-male-left",
-        "uberon": "UBERON:0004548"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spinal-cord",
-        "uberon": "UBERON:0002240"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
     "cell_types": [],
     "molecular_ids": {
       "chebi": [],
@@ -131828,12 +128896,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0002097",
-        "UBERON:0002240",
-        "UBERON:0004548"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000540"
       ],
@@ -131868,8 +128931,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -138458,20 +135521,8 @@
     "taxonomy": [],
     "organs": [
       {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
         "label": "kidney",
         "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
       },
       {
         "label": "lymph-node",
@@ -138480,18 +135531,6 @@
       {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
       }
     ],
     "functional_tissue_units": [
@@ -138506,26 +135545,6 @@
       {
         "label": "kidney nephron",
         "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
       },
       {
         "label": "lymph node follicle",
@@ -138548,18 +135567,6 @@
       {
         "label": "podocyte",
         "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
       }
     ],
     "molecular_ids": {
@@ -138580,13 +135587,7 @@
     },
     "ontology_ids": {
       "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
         "UBERON:0001264",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
         "UBERON:0002509",
         "UBERON:0004538"
       ],
@@ -142627,80 +139628,9 @@
     "paper_pmid": "28131824",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:59132"
@@ -142717,15 +139647,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000795",
         "CL:0000815",
@@ -142754,8 +139676,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -142890,72 +139812,9 @@
     "paper_pmid": "33525118",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "pancreas",
-        "uberon": "UBERON:0001264"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "pancreatic islet of Langerhans",
-        "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "type B pancreatic cell (beta cell)",
-        "cl": "CL:0000169"
-      },
-      {
-        "label": "pancreatic A cell (alpha cell)",
-        "cl": "CL:0000171"
-      },
-      {
-        "label": "pancreatic D cell (delta cell)",
-        "cl": "CL:0000173"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:144829"
@@ -142977,13 +139836,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002509"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000235",
         "CL:0000863",
@@ -143013,8 +139866,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -143226,108 +140079,9 @@
     "paper_pmid": null,
     "paper_doi": "10.1186/s13662-020-02893-6",
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "heart",
-        "uberon": "UBERON:0000948"
-      },
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
-        "label": "spleen",
-        "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "cardiac muscle / myocardium unit",
-        "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
-      },
-      {
-        "label": "cardiac muscle cell (cardiomyocyte)",
-        "cl": "CL:0000746"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:144829"
@@ -143347,18 +140101,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0000948",
-        "UBERON:0001004",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000623",
         "CL:0000910",
@@ -143378,8 +140121,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []
@@ -144851,58 +141594,18 @@
         "uberon": "UBERON:0000059"
       },
       {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "liver",
-        "uberon": "UBERON:0002107"
-      },
-      {
-        "label": "lung",
-        "uberon": "UBERON:0001004"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
         "label": "pancreas",
         "uberon": "UBERON:0001264"
       },
       {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      },
-      {
         "label": "spleen",
         "uberon": "UBERON:0002106"
-      },
-      {
-        "label": "thymus",
-        "uberon": "UBERON:0002370"
       }
     ],
     "functional_tissue_units": [
       {
         "label": "pancreatic islet of Langerhans",
         "uberon": "UBERON:0000006"
-      },
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "liver lobule",
-        "uberon": "UBERON:0004647"
-      },
-      {
-        "label": "lung alveolus",
-        "uberon": "UBERON:0002299"
       },
       {
         "label": "large-intestine crypt of Lieberkuhn",
@@ -144915,14 +141618,6 @@
       {
         "label": "cardiac muscle / myocardium unit",
         "uberon": "UBERON:0002349"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
       }
     ],
     "cell_types": [
@@ -144937,22 +141632,6 @@
       {
         "label": "pancreatic D cell (delta cell)",
         "cl": "CL:0000173"
-      },
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      },
-      {
-        "label": "hepatocyte",
-        "cl": "CL:0000182"
-      },
-      {
-        "label": "type I pneumocyte (AT1)",
-        "cl": "CL:0002062"
-      },
-      {
-        "label": "type II pneumocyte (AT2)",
-        "cl": "CL:0002063"
       },
       {
         "label": "cardiac muscle cell (cardiomyocyte)",
@@ -144978,14 +141657,8 @@
       "uberon": [
         "UBERON:0000059",
         "UBERON:0000948",
-        "UBERON:0001004",
         "UBERON:0001264",
-        "UBERON:0002097",
-        "UBERON:0002106",
-        "UBERON:0002107",
-        "UBERON:0002370",
-        "UBERON:0002509",
-        "UBERON:0004538"
+        "UBERON:0002106"
       ],
       "cl": [
         "CL:0000080",
@@ -145035,60 +141708,9 @@
     "paper_pmid": "11309314",
     "paper_doi": null,
     "taxonomy": [],
-    "organs": [
-      {
-        "label": "intestine",
-        "uberon": "UBERON:0000059"
-      },
-      {
-        "label": "kidney",
-        "uberon": "UBERON:0004538"
-      },
-      {
-        "label": "lymph-node",
-        "uberon": "UBERON:0002509"
-      },
-      {
-        "label": "placenta-full-term",
-        "uberon": "UBERON:0001987"
-      },
-      {
-        "label": "skin",
-        "uberon": "UBERON:0002097"
-      }
-    ],
-    "functional_tissue_units": [
-      {
-        "label": "kidney renal corpuscle / glomerulus",
-        "uberon": "UBERON:0001229"
-      },
-      {
-        "label": "kidney nephron",
-        "uberon": "UBERON:0001285"
-      },
-      {
-        "label": "large-intestine crypt of Lieberkuhn",
-        "uberon": "UBERON:0001984"
-      },
-      {
-        "label": "small-intestine crypt-villus axis",
-        "uberon": "UBERON:0001213"
-      },
-      {
-        "label": "skin epidermis unit",
-        "uberon": "UBERON:0001003"
-      },
-      {
-        "label": "lymph node follicle",
-        "uberon": "UBERON:0010748"
-      }
-    ],
-    "cell_types": [
-      {
-        "label": "podocyte",
-        "cl": "CL:0000653"
-      }
-    ],
+    "organs": [],
+    "functional_tissue_units": [],
+    "cell_types": [],
     "molecular_ids": {
       "chebi": [
         "CHEBI:144829"
@@ -145108,13 +141730,7 @@
       "ensembl": []
     },
     "ontology_ids": {
-      "uberon": [
-        "UBERON:0000059",
-        "UBERON:0001987",
-        "UBERON:0002097",
-        "UBERON:0002509",
-        "UBERON:0004538"
-      ],
+      "uberon": [],
       "cl": [
         "CL:0000910",
         "CL:0001063"
@@ -145141,8 +141757,8 @@
       "text_source": "none",
       "has_fulltext": false,
       "errors": [],
-      "mapping_method": "cell_type",
-      "confidence": "medium"
+      "mapping_method": "",
+      "confidence": "none"
     },
     "organism": [],
     "gene_symbols": []

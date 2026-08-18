@@ -7,13 +7,17 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
-from typing import Optional
 
 _DATASETS = Path(__file__).resolve().parents[1] / "datasets"
 
 _CONFIDENCE = {"annotation": "high", "annotation_rollup": "high",
                "crosswalk": "medium", "cell_type": "medium",
                "keyword": "medium", "gene_asctb": "low"}
+
+# A CL cell type present in >= this many organs' ASCT+B tables (e.g. T cell,
+# NK cell, endothelial cell, lymphocyte) is too promiscuous to localize a
+# model to a specific organ; the CL tier skips it and falls through.
+CL_MAX_ORGANS = 4
 
 
 def _load(name) -> dict:
@@ -83,9 +87,9 @@ def resolve_organ_keys(organ_index, *, uberon=(), cl=(), fma=(), bto=(), mesh=()
     rollup = load_rollup() if rollup is None else rollup
     cl_map = load_cl_map() if cl_map is None else cl_map
     fma_map = load_fma_map() if fma_map is None else fma_map
-    if bto_map is None:
-        from viva_human_atlas.anatomy_crosswalk import load_bto_uberon
-        bto_map = load_bto_uberon()
+    if bto_map is None and bto:
+        from viva_human_atlas.anatomy_crosswalk import _BTO_MAP
+        bto_map = _BTO_MAP
     ub_to_organ = _organ_uberon_keys(organ_index)
 
     def organs_from_uberon(uberons):
@@ -117,8 +121,10 @@ def resolve_organ_keys(organ_index, *, uberon=(), cl=(), fma=(), bto=(), mesh=()
         if e2 or r2:
             return _dedup(e2 + r2), "crosswalk"
 
-    # tier 4: CL cell-type -> organ
-    cl_organs = _dedup([k for c in cl for k in cl_map.get(c, [])])
+    # tier 4: CL cell-type -> organ, specificity-gated (skip promiscuous CLs
+    # that map to >= CL_MAX_ORGANS organs' ASCT+B tables)
+    cl_organs = _dedup([k for c in cl for k in cl_map.get(c, [])
+                         if len(cl_map.get(c, [])) < CL_MAX_ORGANS])
     if cl_organs:
         return cl_organs, "cell_type"
 

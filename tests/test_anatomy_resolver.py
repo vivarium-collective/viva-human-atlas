@@ -42,6 +42,28 @@ def test_cl_celltype_maps_to_organ():
     assert keys == ["kidney"] and m == "cell_type"
 
 
+PROMISCUOUS_CL_MAP = {
+    "CL:0000499": ["kidney"],   # stromal cell (specific: 1 organ)
+    "CL:0000084": ["kidney", "lung"],   # a moderately specific example (2 organs, still allowed)
+    "CL:0000542": ["kidney", "lung", "heart", "brain"],   # e.g. "T cell" (>=4 organs: promiscuous)
+}
+
+def test_cl_promiscuous_does_not_place():
+    keys, m = ar.resolve_organ_keys(ORGAN_INDEX, cl=["CL:0000542"], rollup={}, cl_map=PROMISCUOUS_CL_MAP)
+    assert keys == [] and m == ""
+
+def test_cl_specific_still_places():
+    keys, m = ar.resolve_organ_keys(ORGAN_INDEX, cl=["CL:0000499"], rollup={}, cl_map=PROMISCUOUS_CL_MAP)
+    assert keys == ["kidney"] and m == "cell_type"
+    keys2, m2 = ar.resolve_organ_keys(ORGAN_INDEX, cl=["CL:0000084"], rollup={}, cl_map=PROMISCUOUS_CL_MAP)
+    assert set(keys2) == {"kidney", "lung"} and m2 == "cell_type"
+
+def test_cl_mix_promiscuous_and_specific_keeps_only_specific():
+    keys, m = ar.resolve_organ_keys(ORGAN_INDEX, cl=["CL:0000542", "CL:0000499"],
+                                    rollup={}, cl_map=PROMISCUOUS_CL_MAP)
+    assert keys == ["kidney"] and m == "cell_type"
+
+
 def test_precedence_annotation_beats_rollup_beats_crosswalk_beats_cl():
     # organ-level uberon wins over everything
     keys, m = ar.resolve_organ_keys(ORGAN_INDEX, uberon=[BRAIN_UB, "UBERON:0001285"],

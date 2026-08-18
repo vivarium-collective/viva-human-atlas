@@ -137,7 +137,9 @@ def test_step_summary_matches_committed_corpus_db():
     (Task 5: scripts/remap_organs.py re-mapped every row from its existing
     annotations -- BioModels via anatomy_resolver directly, Physiome/PhysioNet via
     their own keyword/category mappers (their ontology_ids.uberon is an echo of a
-    prior keyword match, not a raw annotation) -- n_with_uberon rose 788->901)."""
+    prior keyword match, not a raw annotation) -- n_with_uberon rose 788->901,
+    then gated back down to 868 by the CL_MAX_ORGANS specificity gate on the
+    cell_type tier, Task 5 fix round 2 (final review))."""
     if not COMMITTED_DB.exists():
         return  # DB not present in this checkout; nothing to assert
     core = build_core()
@@ -146,7 +148,7 @@ def test_step_summary_matches_committed_corpus_db():
     out = step.update({})
     assert out["n_models"] == 2554
     assert out["summary"]["n_with_molecular"] == 978
-    assert out["summary"]["n_with_uberon"] == 901
+    assert out["summary"]["n_with_uberon"] == 868
     assert out["summary"]["n_with_hrapop"] == 112
 
 
