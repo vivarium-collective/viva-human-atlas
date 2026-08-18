@@ -22,13 +22,16 @@ Below the keyword and category paths sits the shared physiology-keyword table
 over the title as a further fallback. A model whose only categories are
 organ-agnostic (Calcium Dynamics, Signal Transduction, Cell Cycle, ...) stays
 unmapped rather than being forced onto an organ. Every placement records
-`mapping_method` (annotation > keyword_annotation > category > keyword > llm) and
-a coarse `confidence`.
+`mapping_method` (the tier reached: `anatomy_resolver.resolve_organ_keys`'s
+own tiers -- annotation / annotation_rollup / crosswalk, for the rare real
+CellML RDF anatomy annotation -- > keyword_annotation > category > keyword >
+llm) and a coarse `confidence`.
 """
 from __future__ import annotations
 
 import re
 
+from viva_human_atlas import anatomy_resolver
 from viva_human_atlas.annotation_match import _curie_from_uri
 from viva_human_atlas.hra_mapping import map_to_hra
 from viva_human_atlas.physionet_organ_map import DEFAULT_LLM_MODEL, keyword_uberons
@@ -78,6 +81,15 @@ _EP_REFINE: list[tuple[re.Pattern, list[str]]] = [
 # Minimal whole-organ FMA -> UBERON crosswalk for the rare PMR model that DOES
 # carry an anatomy annotation (CellML anatomy, when present, leans FMA; the HRA
 # organ_index is keyed by UBERON). The long tail falls through to category/keyword.
+#
+# `anatomy_resolver.load_fma_map()` (the committed, ontology-generated FMA
+# crosswalk) is the primary source fed into `resolve_organ_keys` below, but it
+# is scoped to the FMA ids that actually appear in the BioModels corpus (see
+# task-3-report.md: "resolved 24/51 corpus FMA ids") -- PMR's CellML RDF uses
+# a disjoint set of FMA ids, so none of these whole-organ entries are in it.
+# This table is therefore kept and merged in as a supplemental `fma_map`
+# rather than dropped, so the handful of PMR models that DO carry a real
+# anatomy annotation don't silently lose organ coverage.
 FMA_TO_UBERON: dict[str, str] = {
     "FMA:7088": "UBERON:0000948",   # heart
     "FMA:50801": "UBERON:0000955",  # brain
@@ -148,7 +160,8 @@ def keyword_organ_keys(keywords, title: str = "") -> list[str]:
 
 _RESOURCE_RE = re.compile(r'resource\s*=\s*["\']([^"\']+)["\']', re.IGNORECASE)
 _MOLECULAR = ("chebi", "go")
-_CONFIDENCE = {"annotation": "high", "category": "medium", "keyword_annotation": "medium",
+_CONFIDENCE = {"annotation": "high", "annotation_rollup": "high", "crosswalk": "medium",
+               "category": "medium", "keyword_annotation": "medium",
                "keyword": "medium", "llm": "low"}
 
 
@@ -216,14 +229,17 @@ def map_exposure_to_organs(exposure: dict, organ_index: dict, *, cellml_text: st
     categories = exposure.get("categories") or []
     curies = extract_cellml_curies(cellml_text)
 
-    # 1) rare high-confidence path: an actual anatomy annotation in the model RDF
-    ubs = list(curies["uberon"])
-    for fma in curies["fma"]:
-        ub = FMA_TO_UBERON.get(fma)
-        if ub:
-            ubs.append(ub)
-    ubs = list(dict.fromkeys(ubs))
-    method = "annotation" if ubs else None
+    # 1) rare high-confidence path: an actual anatomy annotation in the model
+    # RDF, routed through the shared ontology resolver (organ-level UBERON ->
+    # hierarchy roll-up -> FMA crosswalk). `fma_map` merges the committed,
+    # corpus-scoped crosswalk with the curated whole-organ FMA_TO_UBERON
+    # table above (see its comment for why both are needed).
+    resolver_keys, resolver_method = anatomy_resolver.resolve_organ_keys(
+        organ_index, uberon=curies["uberon"], fma=curies["fma"],
+        fma_map={**anatomy_resolver.load_fma_map(), **FMA_TO_UBERON},
+    )
+    ubs = _keys_to_uberon(resolver_keys, organ_index) if resolver_keys else []
+    method = resolver_method if ubs else None
 
     # 1b) NEW primary signal: curated author-keyword -> organ table
     if not ubs:

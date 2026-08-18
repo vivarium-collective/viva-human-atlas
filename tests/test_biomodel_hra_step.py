@@ -133,8 +133,13 @@ def test_step_summary_matches_committed_corpus_db():
     report + summary figure quote. Across three sources the DB is 1,096 BioModels
     + 480 PhysioNet + 978 Physiome = 2,554 models (Physiome rebuilt onto the pmr3
     API); PhysioNet and Physiome rows carry no molecular/HRApop data (offline /
-    category-based organ mappers only) but resolve an organ Uberon (323 BioModels
-    + 124 PhysioNet + 341 Physiome = 788). Counts reflect the pmr3-rebuilt corpus."""
+    category-based organ mappers only). Counts reflect the ontology-resolver remap
+    (Task 5: scripts/remap_organs.py re-mapped every row from its existing
+    annotations -- BioModels via anatomy_resolver directly, Physiome/PhysioNet via
+    their own keyword/category mappers (their ontology_ids.uberon is an echo of a
+    prior keyword match, not a raw annotation) -- n_with_uberon rose 788->901,
+    then gated back down to 868 by the CL_MAX_ORGANS specificity gate on the
+    cell_type tier, Task 5 fix round 2 (final review))."""
     if not COMMITTED_DB.exists():
         return  # DB not present in this checkout; nothing to assert
     core = build_core()
@@ -143,7 +148,7 @@ def test_step_summary_matches_committed_corpus_db():
     out = step.update({})
     assert out["n_models"] == 2554
     assert out["summary"]["n_with_molecular"] == 978
-    assert out["summary"]["n_with_uberon"] == 788
+    assert out["summary"]["n_with_uberon"] == 868
     assert out["summary"]["n_with_hrapop"] == 112
 
 

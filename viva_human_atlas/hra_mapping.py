@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+from viva_human_atlas import anatomy_resolver
 from viva_human_atlas.biomodel_do import _match_organ_key
 from viva_human_atlas.ftu_coverage import HRA_FTUS
 
@@ -48,12 +49,16 @@ def map_to_hra(uberon_ids, name: str, organ_index: dict, *, ftus: Optional[list]
     `ftu_coverage.HRA_FTUS`.
 
     An id that matches an organ-level Uberon in `organ_index` is reported as
-    an organ; every other id is reported as a subregion. Organ matches also
-    come from the model `name` via `biomodel_do._match_organ_key`, which
-    returns the `ORGAN_SYNONYMS` key whose name or synonym occurs in the
-    text. FTUs are the curated FTUs whose organ matches one of those organs
-    (word-set match, see `_ftu_organ_matches`), and `cell_types` are those
-    FTUs' cell types (deduped by CL, first-seen order).
+    an organ; every other id is reported as a subregion (this classification
+    is unaffected by the resolver below). Organ matches come from the union
+    of (a) `anatomy_resolver.resolve_organ_keys(organ_index, uberon=
+    uberon_ids)` -- organ-level exact match, then (falling back) UBERON
+    hierarchy roll-up, via the committed ontology datasets -- and (b) the
+    model `name` via `biomodel_do._match_organ_key`, which returns the
+    `ORGAN_SYNONYMS` key whose name or synonym occurs in the text. FTUs are
+    the curated FTUs whose organ matches one of those organs (word-set
+    match, see `_ftu_organ_matches`), and `cell_types` are those FTUs' cell
+    types (deduped by CL, first-seen order).
 
     Returns `{"organs": [{"label", "uberon"}], "functional_tissue_units":
     [{"label", "uberon"}], "cell_types": [{"label", "cl"}],
@@ -67,9 +72,10 @@ def map_to_hra(uberon_ids, name: str, organ_index: dict, *, ftus: Optional[list]
     uberon_organ_ids = sorted({u for u in uberon_ids if u in organ_uberons})
     uberon_subregion_ids = sorted({u for u in uberon_ids if u not in organ_uberons})
 
-    # organs: organ-level Uberon hits + name-synonym organ matches.
-    ub_to_organ = {e["uberon"]: k for k, e in organ_index.items() if e.get("uberon")}
-    organ_keys = {ub_to_organ[u] for u in uberon_organ_ids}
+    # organs: anatomy_resolver's organ-level-exact -> UBERON-rollup tiers over
+    # `uberon_ids`, unioned with the model-name synonym match.
+    resolver_keys, _ = anatomy_resolver.resolve_organ_keys(organ_index, uberon=uberon_ids)
+    organ_keys = set(resolver_keys)
     name_key = _match_organ_key((name or "").lower())
     if name_key:
         organ_keys.add(name_key)

@@ -1,0 +1,1933 @@
+{
+  "UBERON:0000006": [
+    "pancreas"
+  ],
+  "UBERON:0000007": [
+    "brain"
+  ],
+  "UBERON:0000016": [
+    "pancreas"
+  ],
+  "UBERON:0000017": [
+    "pancreas"
+  ],
+  "UBERON:0000029": [
+    "lymph-node"
+  ],
+  "UBERON:0000035": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000036": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000038": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000039": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000054": [
+    "eye-female-left"
+  ],
+  "UBERON:0000055": [
+    "intestine"
+  ],
+  "UBERON:0000059": [
+    "intestine"
+  ],
+  "UBERON:0000065": [
+    "lung"
+  ],
+  "UBERON:0000074": [
+    "kidney"
+  ],
+  "UBERON:0000086": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000114": [
+    "lung"
+  ],
+  "UBERON:0000155": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000156": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000157": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000159": [
+    "intestine"
+  ],
+  "UBERON:0000305": [
+    "placenta-full-term"
+  ],
+  "UBERON:0000314": [
+    "intestine"
+  ],
+  "UBERON:0000317": [
+    "intestine"
+  ],
+  "UBERON:0000320": [
+    "intestine"
+  ],
+  "UBERON:0000331": [
+    "intestine"
+  ],
+  "UBERON:0000362": [
+    "kidney"
+  ],
+  "UBERON:0000369": [
+    "brain"
+  ],
+  "UBERON:0000389": [
+    "eye-female-left"
+  ],
+  "UBERON:0000390": [
+    "eye-female-left"
+  ],
+  "UBERON:0000397": [
+    "intestine"
+  ],
+  "UBERON:0000399": [
+    "intestine"
+  ],
+  "UBERON:0000400": [
+    "intestine"
+  ],
+  "UBERON:0000412": [
+    "skin"
+  ],
+  "UBERON:0000423": [
+    "intestine",
+    "skin"
+  ],
+  "UBERON:0000428": [
+    "prostate"
+  ],
+  "UBERON:0000450": [
+    "ovary-female-left"
+  ],
+  "UBERON:0000482": [
+    "eye-female-left",
+    "pancreas"
+  ],
+  "UBERON:0000569": [
+    "intestine"
+  ],
+  "UBERON:0000941": [
+    "eye-female-left"
+  ],
+  "UBERON:0000946": [
+    "heart"
+  ],
+  "UBERON:0000948": [
+    "heart"
+  ],
+  "UBERON:0000955": [
+    "brain"
+  ],
+  "UBERON:0000956": [
+    "brain"
+  ],
+  "UBERON:0000964": [
+    "eye-female-left"
+  ],
+  "UBERON:0000965": [
+    "eye-female-left"
+  ],
+  "UBERON:0000966": [
+    "eye-female-left"
+  ],
+  "UBERON:0000970": [
+    "eye-female-left"
+  ],
+  "UBERON:0000992": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001003": [
+    "intestine",
+    "skin"
+  ],
+  "UBERON:0001004": [
+    "lung"
+  ],
+  "UBERON:0001013": [
+    "thymus"
+  ],
+  "UBERON:0001021": [
+    "liver",
+    "thymus"
+  ],
+  "UBERON:0001052": [
+    "intestine"
+  ],
+  "UBERON:0001064": [
+    "pancreas"
+  ],
+  "UBERON:0001069": [
+    "pancreas"
+  ],
+  "UBERON:0001145": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001150": [
+    "pancreas"
+  ],
+  "UBERON:0001151": [
+    "pancreas"
+  ],
+  "UBERON:0001153": [
+    "intestine"
+  ],
+  "UBERON:0001154": [
+    "intestine"
+  ],
+  "UBERON:0001155": [
+    "intestine"
+  ],
+  "UBERON:0001156": [
+    "intestine"
+  ],
+  "UBERON:0001157": [
+    "intestine"
+  ],
+  "UBERON:0001158": [
+    "intestine"
+  ],
+  "UBERON:0001159": [
+    "intestine"
+  ],
+  "UBERON:0001174": [
+    "pancreas"
+  ],
+  "UBERON:0001190": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001193": [
+    "liver"
+  ],
+  "UBERON:0001194": [
+    "spleen"
+  ],
+  "UBERON:0001213": [
+    "intestine"
+  ],
+  "UBERON:0001225": [
+    "kidney"
+  ],
+  "UBERON:0001228": [
+    "kidney"
+  ],
+  "UBERON:0001229": [
+    "kidney"
+  ],
+  "UBERON:0001231": [
+    "kidney"
+  ],
+  "UBERON:0001232": [
+    "kidney"
+  ],
+  "UBERON:0001245": [
+    "intestine"
+  ],
+  "UBERON:0001248": [
+    "spleen"
+  ],
+  "UBERON:0001250": [
+    "spleen"
+  ],
+  "UBERON:0001251": [
+    "spleen"
+  ],
+  "UBERON:0001255": [
+    "urinary-bladder"
+  ],
+  "UBERON:0001263": [
+    "pancreas"
+  ],
+  "UBERON:0001264": [
+    "pancreas"
+  ],
+  "UBERON:0001265": [
+    "spleen"
+  ],
+  "UBERON:0001266": [
+    "spleen"
+  ],
+  "UBERON:0001279": [
+    "liver"
+  ],
+  "UBERON:0001281": [
+    "liver"
+  ],
+  "UBERON:0001282": [
+    "liver"
+  ],
+  "UBERON:0001284": [
+    "kidney"
+  ],
+  "UBERON:0001285": [
+    "kidney"
+  ],
+  "UBERON:0001289": [
+    "kidney"
+  ],
+  "UBERON:0001290": [
+    "kidney"
+  ],
+  "UBERON:0001291": [
+    "kidney"
+  ],
+  "UBERON:0001292": [
+    "kidney"
+  ],
+  "UBERON:0001294": [
+    "kidney"
+  ],
+  "UBERON:0001295": [
+    "placenta-full-term"
+  ],
+  "UBERON:0001305": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001306": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001310": [
+    "placenta-full-term"
+  ],
+  "UBERON:0001330": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001335": [
+    "prostate"
+  ],
+  "UBERON:0001340": [
+    "prostate"
+  ],
+  "UBERON:0001342": [
+    "ovary-female-left"
+  ],
+  "UBERON:0001357": [
+    "intestine"
+  ],
+  "UBERON:0001367": [
+    "intestine"
+  ],
+  "UBERON:0001473": [
+    "liver",
+    "lymph-node",
+    "prostate",
+    "spleen"
+  ],
+  "UBERON:0001552": [
+    "kidney"
+  ],
+  "UBERON:0001558": [
+    "lung"
+  ],
+  "UBERON:0001591": [
+    "thymus"
+  ],
+  "UBERON:0001592": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0001605": [
+    "eye-female-left"
+  ],
+  "UBERON:0001610": [
+    "mouth"
+  ],
+  "UBERON:0001620": [
+    "eye-female-left",
+    "eye-female-right",
+    "eye-male-left",
+    "eye-male-right"
+  ],
+  "UBERON:0001625": [
+    "heart"
+  ],
+  "UBERON:0001626": [
+    "heart"
+  ],
+  "UBERON:0001639": [
+    "liver"
+  ],
+  "UBERON:0001769": [
+    "eye-female-left"
+  ],
+  "UBERON:0001772": [
+    "eye-female-left"
+  ],
+  "UBERON:0001773": [
+    "eye-female-left"
+  ],
+  "UBERON:0001775": [
+    "eye-female-left"
+  ],
+  "UBERON:0001776": [
+    "eye-female-left"
+  ],
+  "UBERON:0001778": [
+    "eye-female-left"
+  ],
+  "UBERON:0001782": [
+    "eye-female-left"
+  ],
+  "UBERON:0001783": [
+    "eye-female-left"
+  ],
+  "UBERON:0001789": [
+    "eye-female-left"
+  ],
+  "UBERON:0001791": [
+    "eye-female-left"
+  ],
+  "UBERON:0001792": [
+    "eye-female-left"
+  ],
+  "UBERON:0001803": [
+    "eye-female-left"
+  ],
+  "UBERON:0001811": [
+    "eye-female-left"
+  ],
+  "UBERON:0001820": [
+    "skin"
+  ],
+  "UBERON:0001821": [
+    "intestine",
+    "skin"
+  ],
+  "UBERON:0001901": [
+    "trachea"
+  ],
+  "UBERON:0001955": [
+    "lung"
+  ],
+  "UBERON:0001956": [
+    "lung",
+    "main-bronchus"
+  ],
+  "UBERON:0001958": [
+    "lung"
+  ],
+  "UBERON:0001959": [
+    "spleen"
+  ],
+  "UBERON:0001960": [
+    "spleen"
+  ],
+  "UBERON:0001961": [
+    "intestine"
+  ],
+  "UBERON:0001962": [
+    "intestine"
+  ],
+  "UBERON:0001978": [
+    "pancreas"
+  ],
+  "UBERON:0001979": [
+    "heart"
+  ],
+  "UBERON:0001981": [
+    "prostate"
+  ],
+  "UBERON:0001984": [
+    "intestine"
+  ],
+  "UBERON:0001985": [
+    "eye-female-left"
+  ],
+  "UBERON:0001986": [
+    "kidney"
+  ],
+  "UBERON:0001987": [
+    "placenta-full-term"
+  ],
+  "UBERON:0001992": [
+    "skin"
+  ],
+  "UBERON:0002006": [
+    "lymph-node"
+  ],
+  "UBERON:0002007": [
+    "lymph-node"
+  ],
+  "UBERON:0002009": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0002012": [
+    "lung"
+  ],
+  "UBERON:0002015": [
+    "kidney"
+  ],
+  "UBERON:0002016": [
+    "lung"
+  ],
+  "UBERON:0002025": [
+    "skin"
+  ],
+  "UBERON:0002026": [
+    "skin"
+  ],
+  "UBERON:0002027": [
+    "skin"
+  ],
+  "UBERON:0002033": [
+    "skin"
+  ],
+  "UBERON:0002034": [
+    "brain"
+  ],
+  "UBERON:0002037": [
+    "brain"
+  ],
+  "UBERON:0002040": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0002042": [
+    "kidney"
+  ],
+  "UBERON:0002048": [
+    "lung"
+  ],
+  "UBERON:0002051": [
+    "lung"
+  ],
+  "UBERON:0002066": [
+    "placenta-full-term"
+  ],
+  "UBERON:0002067": [
+    "intestine",
+    "skin"
+  ],
+  "UBERON:0002069": [
+    "skin"
+  ],
+  "UBERON:0002072": [
+    "skin"
+  ],
+  "UBERON:0002073": [
+    "intestine",
+    "skin"
+  ],
+  "UBERON:0002074": [
+    "skin"
+  ],
+  "UBERON:0002076": [
+    "skin"
+  ],
+  "UBERON:0002077": [
+    "skin"
+  ],
+  "UBERON:0002078": [
+    "heart"
+  ],
+  "UBERON:0002079": [
+    "heart"
+  ],
+  "UBERON:0002080": [
+    "heart"
+  ],
+  "UBERON:0002082": [
+    "heart"
+  ],
+  "UBERON:0002084": [
+    "heart"
+  ],
+  "UBERON:0002094": [
+    "heart"
+  ],
+  "UBERON:0002097": [
+    "skin"
+  ],
+  "UBERON:0002106": [
+    "spleen"
+  ],
+  "UBERON:0002107": [
+    "liver"
+  ],
+  "UBERON:0002108": [
+    "intestine"
+  ],
+  "UBERON:0002113": [
+    "kidney"
+  ],
+  "UBERON:0002114": [
+    "intestine"
+  ],
+  "UBERON:0002115": [
+    "intestine"
+  ],
+  "UBERON:0002116": [
+    "intestine"
+  ],
+  "UBERON:0002119": [
+    "ovary-female-left"
+  ],
+  "UBERON:0002122": [
+    "thymus"
+  ],
+  "UBERON:0002123": [
+    "thymus"
+  ],
+  "UBERON:0002124": [
+    "thymus"
+  ],
+  "UBERON:0002125": [
+    "thymus"
+  ],
+  "UBERON:0002134": [
+    "heart"
+  ],
+  "UBERON:0002135": [
+    "heart"
+  ],
+  "UBERON:0002137": [
+    "heart"
+  ],
+  "UBERON:0002146": [
+    "heart"
+  ],
+  "UBERON:0002173": [
+    "lung"
+  ],
+  "UBERON:0002182": [
+    "main-bronchus"
+  ],
+  "UBERON:0002183": [
+    "lung"
+  ],
+  "UBERON:0002184": [
+    "lung"
+  ],
+  "UBERON:0002187": [
+    "lung"
+  ],
+  "UBERON:0002188": [
+    "lung"
+  ],
+  "UBERON:0002189": [
+    "kidney"
+  ],
+  "UBERON:0002190": [
+    "intestine"
+  ],
+  "UBERON:0002194": [
+    "lymph-node"
+  ],
+  "UBERON:0002195": [
+    "lymph-node"
+  ],
+  "UBERON:0002196": [
+    "brain"
+  ],
+  "UBERON:0002202": [
+    "trachea"
+  ],
+  "UBERON:0002203": [
+    "eye-female-left"
+  ],
+  "UBERON:0002240": [
+    "spinal-cord"
+  ],
+  "UBERON:0002264": [
+    "brain"
+  ],
+  "UBERON:0002270": [
+    "brain"
+  ],
+  "UBERON:0002276": [
+    "eye-female-left"
+  ],
+  "UBERON:0002283": [
+    "skin"
+  ],
+  "UBERON:0002298": [
+    "brain"
+  ],
+  "UBERON:0002299": [
+    "lung"
+  ],
+  "UBERON:0002303": [
+    "kidney"
+  ],
+  "UBERON:0002319": [
+    "kidney"
+  ],
+  "UBERON:0002320": [
+    "kidney"
+  ],
+  "UBERON:0002331": [
+    "placenta-full-term"
+  ],
+  "UBERON:0002335": [
+    "kidney"
+  ],
+  "UBERON:0002337": [
+    "placenta-full-term"
+  ],
+  "UBERON:0002339": [
+    "lung"
+  ],
+  "UBERON:0002340": [
+    "main-bronchus"
+  ],
+  "UBERON:0002341": [
+    "lung"
+  ],
+  "UBERON:0002348": [
+    "heart"
+  ],
+  "UBERON:0002349": [
+    "heart"
+  ],
+  "UBERON:0002351": [
+    "heart"
+  ],
+  "UBERON:0002352": [
+    "heart"
+  ],
+  "UBERON:0002353": [
+    "heart"
+  ],
+  "UBERON:0002367": [
+    "prostate"
+  ],
+  "UBERON:0002370": [
+    "thymus"
+  ],
+  "UBERON:0002384": [
+    "intestine",
+    "liver",
+    "pancreas",
+    "thymus"
+  ],
+  "UBERON:0002394": [
+    "liver"
+  ],
+  "UBERON:0002401": [
+    "lung"
+  ],
+  "UBERON:0002405": [
+    "lung"
+  ],
+  "UBERON:0002420": [
+    "brain"
+  ],
+  "UBERON:0002421": [
+    "brain"
+  ],
+  "UBERON:0002439": [
+    "intestine"
+  ],
+  "UBERON:0002444": [
+    "eye-female-left"
+  ],
+  "UBERON:0002451": [
+    "placenta-full-term"
+  ],
+  "UBERON:0002493": [
+    "uterus"
+  ],
+  "UBERON:0002506": [
+    "eye-female-left"
+  ],
+  "UBERON:0002509": [
+    "lymph-node"
+  ],
+  "UBERON:0002512": [
+    "ovary-female-left"
+  ],
+  "UBERON:0002726": [
+    "spinal-cord"
+  ],
+  "UBERON:0002792": [
+    "spinal-cord"
+  ],
+  "UBERON:0003038": [
+    "spinal-cord"
+  ],
+  "UBERON:0003124": [
+    "placenta-full-term"
+  ],
+  "UBERON:0003126": [
+    "trachea"
+  ],
+  "UBERON:0003254": [
+    "placenta-full-term"
+  ],
+  "UBERON:0003262": [
+    "placenta-full-term"
+  ],
+  "UBERON:0003315": [
+    "ovary-female-left"
+  ],
+  "UBERON:0003329": [
+    "intestine"
+  ],
+  "UBERON:0003331": [
+    "intestine"
+  ],
+  "UBERON:0003332": [
+    "intestine"
+  ],
+  "UBERON:0003333": [
+    "intestine"
+  ],
+  "UBERON:0003335": [
+    "intestine"
+  ],
+  "UBERON:0003336": [
+    "intestine"
+  ],
+  "UBERON:0003337": [
+    "intestine"
+  ],
+  "UBERON:0003342": [
+    "intestine"
+  ],
+  "UBERON:0003346": [
+    "intestine"
+  ],
+  "UBERON:0003379": [
+    "heart"
+  ],
+  "UBERON:0003380": [
+    "heart"
+  ],
+  "UBERON:0003383": [
+    "heart"
+  ],
+  "UBERON:0003387": [
+    "trachea"
+  ],
+  "UBERON:0003422": [
+    "placenta-full-term"
+  ],
+  "UBERON:0003498": [
+    "heart"
+  ],
+  "UBERON:0003517": [
+    "kidney"
+  ],
+  "UBERON:0003527": [
+    "kidney"
+  ],
+  "UBERON:0003529": [
+    "lung"
+  ],
+  "UBERON:0003571": [
+    "trachea"
+  ],
+  "UBERON:0003590": [
+    "main-bronchus"
+  ],
+  "UBERON:0003591": [
+    "lung"
+  ],
+  "UBERON:0003604": [
+    "trachea"
+  ],
+  "UBERON:0003617": [
+    "trachea"
+  ],
+  "UBERON:0003713": [
+    "spleen"
+  ],
+  "UBERON:0003846": [
+    "thymus"
+  ],
+  "UBERON:0003881": [
+    "brain"
+  ],
+  "UBERON:0003902": [
+    "eye-female-left"
+  ],
+  "UBERON:0003910": [
+    "spleen"
+  ],
+  "UBERON:0003920": [
+    "lung"
+  ],
+  "UBERON:0003952": [
+    "eye-female-left"
+  ],
+  "UBERON:0003981": [
+    "ovary-female-left"
+  ],
+  "UBERON:0003982": [
+    "ovary-female-left"
+  ],
+  "UBERON:0003987": [
+    "thymus"
+  ],
+  "UBERON:0003988": [
+    "thymus"
+  ],
+  "UBERON:0004027": [
+    "placenta-full-term"
+  ],
+  "UBERON:0004041": [
+    "spleen"
+  ],
+  "UBERON:0004042": [
+    "spleen"
+  ],
+  "UBERON:0004058": [
+    "liver"
+  ],
+  "UBERON:0004100": [
+    "kidney"
+  ],
+  "UBERON:0004134": [
+    "kidney"
+  ],
+  "UBERON:0004150": [
+    "heart"
+  ],
+  "UBERON:0004179": [
+    "prostate"
+  ],
+  "UBERON:0004184": [
+    "prostate"
+  ],
+  "UBERON:0004188": [
+    "kidney"
+  ],
+  "UBERON:0004190": [
+    "kidney"
+  ],
+  "UBERON:0004193": [
+    "kidney"
+  ],
+  "UBERON:0004196": [
+    "kidney"
+  ],
+  "UBERON:0004197": [
+    "kidney"
+  ],
+  "UBERON:0004200": [
+    "kidney"
+  ],
+  "UBERON:0004201": [
+    "kidney"
+  ],
+  "UBERON:0004202": [
+    "kidney"
+  ],
+  "UBERON:0004203": [
+    "kidney"
+  ],
+  "UBERON:0004204": [
+    "kidney"
+  ],
+  "UBERON:0004205": [
+    "kidney"
+  ],
+  "UBERON:0004212": [
+    "kidney"
+  ],
+  "UBERON:0004237": [
+    "prostate"
+  ],
+  "UBERON:0004241": [
+    "main-bronchus"
+  ],
+  "UBERON:0004242": [
+    "lung"
+  ],
+  "UBERON:0004243": [
+    "prostate"
+  ],
+  "UBERON:0004294": [
+    "kidney"
+  ],
+  "UBERON:0004491": [
+    "heart"
+  ],
+  "UBERON:0004515": [
+    "lung"
+  ],
+  "UBERON:0004516": [
+    "lung"
+  ],
+  "UBERON:0004517": [
+    "lung"
+  ],
+  "UBERON:0004536": [
+    "prostate"
+  ],
+  "UBERON:0004537": [
+    "prostate"
+  ],
+  "UBERON:0004538": [
+    "kidney"
+  ],
+  "UBERON:0004548": [
+    "eye-female-left",
+    "eye-male-left"
+  ],
+  "UBERON:0004549": [
+    "eye-female-right",
+    "eye-male-right"
+  ],
+  "UBERON:0004573": [
+    "lung"
+  ],
+  "UBERON:0004638": [
+    "prostate"
+  ],
+  "UBERON:0004639": [
+    "kidney"
+  ],
+  "UBERON:0004640": [
+    "kidney"
+  ],
+  "UBERON:0004641": [
+    "spleen"
+  ],
+  "UBERON:0004647": [
+    "liver"
+  ],
+  "UBERON:0004648": [
+    "liver"
+  ],
+  "UBERON:0004723": [
+    "kidney"
+  ],
+  "UBERON:0004726": [
+    "kidney"
+  ],
+  "UBERON:0004760": [
+    "intestine"
+  ],
+  "UBERON:0004785": [
+    "lung"
+  ],
+  "UBERON:0004791": [
+    "thymus"
+  ],
+  "UBERON:0004848": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0004849": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0004864": [
+    "eye-female-left"
+  ],
+  "UBERON:0004883": [
+    "lung"
+  ],
+  "UBERON:0004884": [
+    "lung"
+  ],
+  "UBERON:0004911": [
+    "ovary-female-left"
+  ],
+  "UBERON:0004913": [
+    "pancreas"
+  ],
+  "UBERON:0004915": [
+    "pancreas"
+  ],
+  "UBERON:0004927": [
+    "intestine"
+  ],
+  "UBERON:0004928": [
+    "intestine"
+  ],
+  "UBERON:0004946": [
+    "intestine"
+  ],
+  "UBERON:0004989": [
+    "intestine"
+  ],
+  "UBERON:0004990": [
+    "intestine"
+  ],
+  "UBERON:0004991": [
+    "intestine"
+  ],
+  "UBERON:0004992": [
+    "intestine"
+  ],
+  "UBERON:0004993": [
+    "intestine"
+  ],
+  "UBERON:0005096": [
+    "kidney"
+  ],
+  "UBERON:0005097": [
+    "kidney"
+  ],
+  "UBERON:0005099": [
+    "kidney"
+  ],
+  "UBERON:0005169": [
+    "liver"
+  ],
+  "UBERON:0005170": [
+    "ovary-female-left"
+  ],
+  "UBERON:0005184": [
+    "skin"
+  ],
+  "UBERON:0005192": [
+    "prostate"
+  ],
+  "UBERON:0005196": [
+    "spleen"
+  ],
+  "UBERON:0005203": [
+    "trachea"
+  ],
+  "UBERON:0005215": [
+    "kidney"
+  ],
+  "UBERON:0005271": [
+    "kidney"
+  ],
+  "UBERON:0005272": [
+    "kidney"
+  ],
+  "UBERON:0005304": [
+    "intestine"
+  ],
+  "UBERON:0005336": [
+    "eye-female-left"
+  ],
+  "UBERON:0005353": [
+    "spleen"
+  ],
+  "UBERON:0005429": [
+    "pancreas"
+  ],
+  "UBERON:0005438": [
+    "heart"
+  ],
+  "UBERON:0005452": [
+    "liver"
+  ],
+  "UBERON:0005463": [
+    "lymph-node"
+  ],
+  "UBERON:0005483": [
+    "thymus"
+  ],
+  "UBERON:0005630": [
+    "placenta-full-term"
+  ],
+  "UBERON:0005742": [
+    "intestine"
+  ],
+  "UBERON:0005750": [
+    "kidney"
+  ],
+  "UBERON:0005751": [
+    "kidney"
+  ],
+  "UBERON:0005839": [
+    "spinal-cord"
+  ],
+  "UBERON:0005840": [
+    "spinal-cord"
+  ],
+  "UBERON:0005841": [
+    "spinal-cord"
+  ],
+  "UBERON:0005843": [
+    "spinal-cord"
+  ],
+  "UBERON:0005847": [
+    "spinal-cord"
+  ],
+  "UBERON:0005848": [
+    "spinal-cord"
+  ],
+  "UBERON:0005849": [
+    "spinal-cord"
+  ],
+  "UBERON:0005850": [
+    "spinal-cord"
+  ],
+  "UBERON:0005852": [
+    "spinal-cord"
+  ],
+  "UBERON:0005853": [
+    "spinal-cord"
+  ],
+  "UBERON:0005854": [
+    "spinal-cord"
+  ],
+  "UBERON:0005932": [
+    "skin"
+  ],
+  "UBERON:0005941": [
+    "skin"
+  ],
+  "UBERON:0005942": [
+    "skin"
+  ],
+  "UBERON:0005968": [
+    "skin"
+  ],
+  "UBERON:0005975": [
+    "skin"
+  ],
+  "UBERON:0006134": [
+    "intestine"
+  ],
+  "UBERON:0006136": [
+    "eye-female-left"
+  ],
+  "UBERON:0006447": [
+    "spinal-cord"
+  ],
+  "UBERON:0006448": [
+    "spinal-cord"
+  ],
+  "UBERON:0006449": [
+    "spinal-cord"
+  ],
+  "UBERON:0006450": [
+    "spinal-cord"
+  ],
+  "UBERON:0006451": [
+    "spinal-cord"
+  ],
+  "UBERON:0006452": [
+    "spinal-cord"
+  ],
+  "UBERON:0006453": [
+    "spinal-cord"
+  ],
+  "UBERON:0006454": [
+    "spinal-cord"
+  ],
+  "UBERON:0006455": [
+    "spinal-cord"
+  ],
+  "UBERON:0006456": [
+    "spinal-cord"
+  ],
+  "UBERON:0006457": [
+    "spinal-cord"
+  ],
+  "UBERON:0006458": [
+    "spinal-cord"
+  ],
+  "UBERON:0006459": [
+    "spinal-cord"
+  ],
+  "UBERON:0006460": [
+    "spinal-cord"
+  ],
+  "UBERON:0006461": [
+    "spinal-cord"
+  ],
+  "UBERON:0006462": [
+    "spinal-cord"
+  ],
+  "UBERON:0006463": [
+    "spinal-cord"
+  ],
+  "UBERON:0006464": [
+    "spinal-cord"
+  ],
+  "UBERON:0006465": [
+    "spinal-cord"
+  ],
+  "UBERON:0006466": [
+    "spinal-cord"
+  ],
+  "UBERON:0006467": [
+    "spinal-cord"
+  ],
+  "UBERON:0006468": [
+    "spinal-cord"
+  ],
+  "UBERON:0006469": [
+    "spinal-cord"
+  ],
+  "UBERON:0006470": [
+    "spinal-cord"
+  ],
+  "UBERON:0006488": [
+    "spinal-cord"
+  ],
+  "UBERON:0006489": [
+    "spinal-cord"
+  ],
+  "UBERON:0006490": [
+    "spinal-cord"
+  ],
+  "UBERON:0006491": [
+    "spinal-cord"
+  ],
+  "UBERON:0006492": [
+    "spinal-cord"
+  ],
+  "UBERON:0006493": [
+    "spinal-cord"
+  ],
+  "UBERON:0006544": [
+    "kidney"
+  ],
+  "UBERON:0006566": [
+    "heart"
+  ],
+  "UBERON:0006567": [
+    "heart"
+  ],
+  "UBERON:0006644": [
+    "ovary-female-left"
+  ],
+  "UBERON:0006679": [
+    "trachea"
+  ],
+  "UBERON:0006680": [
+    "trachea"
+  ],
+  "UBERON:0006729": [
+    "liver"
+  ],
+  "UBERON:0006761": [
+    "eye-female-left"
+  ],
+  "UBERON:0006762": [
+    "eye-female-left"
+  ],
+  "UBERON:0006763": [
+    "eye-female-left"
+  ],
+  "UBERON:0006841": [
+    "liver"
+  ],
+  "UBERON:0006842": [
+    "lymph-node"
+  ],
+  "UBERON:0006936": [
+    "thymus"
+  ],
+  "UBERON:0006958": [
+    "heart"
+  ],
+  "UBERON:0006960": [
+    "ovary-female-left"
+  ],
+  "UBERON:0006966": [
+    "heart"
+  ],
+  "UBERON:0007121": [
+    "skin"
+  ],
+  "UBERON:0007177": [
+    "intestine"
+  ],
+  "UBERON:0007178": [
+    "intestine"
+  ],
+  "UBERON:0007180": [
+    "ovary-female-left"
+  ],
+  "UBERON:0007196": [
+    "lung"
+  ],
+  "UBERON:0007324": [
+    "pancreas"
+  ],
+  "UBERON:0007329": [
+    "pancreas"
+  ],
+  "UBERON:0007714": [
+    "spinal-cord"
+  ],
+  "UBERON:0007715": [
+    "spinal-cord"
+  ],
+  "UBERON:0007716": [
+    "spinal-cord"
+  ],
+  "UBERON:0007717": [
+    "spinal-cord"
+  ],
+  "UBERON:0007798": [
+    "prostate"
+  ],
+  "UBERON:0007834": [
+    "spinal-cord"
+  ],
+  "UBERON:0007835": [
+    "spinal-cord"
+  ],
+  "UBERON:0007836": [
+    "spinal-cord"
+  ],
+  "UBERON:0007837": [
+    "spinal-cord"
+  ],
+  "UBERON:0008198": [
+    "skin"
+  ],
+  "UBERON:0008320": [
+    "prostate"
+  ],
+  "UBERON:0008321": [
+    "prostate"
+  ],
+  "UBERON:0008322": [
+    "prostate"
+  ],
+  "UBERON:0008323": [
+    "prostate"
+  ],
+  "UBERON:0008345": [
+    "intestine"
+  ],
+  "UBERON:0008346": [
+    "intestine"
+  ],
+  "UBERON:0008847": [
+    "ovary-female-left"
+  ],
+  "UBERON:0008870": [
+    "lung"
+  ],
+  "UBERON:0008874": [
+    "lung"
+  ],
+  "UBERON:0008886": [
+    "lung"
+  ],
+  "UBERON:0008974": [
+    "intestine",
+    "skin"
+  ],
+  "UBERON:0009039": [
+    "lymph-node"
+  ],
+  "UBERON:0009091": [
+    "kidney"
+  ],
+  "UBERON:0009095": [
+    "kidney"
+  ],
+  "UBERON:0009202": [
+    "kidney"
+  ],
+  "UBERON:0009644": [
+    "trachea"
+  ],
+  "UBERON:0009654": [
+    "mouth"
+  ],
+  "UBERON:0009687": [
+    "heart"
+  ],
+  "UBERON:0009708": [
+    "pancreas"
+  ],
+  "UBERON:0009709": [
+    "pancreas"
+  ],
+  "UBERON:0009744": [
+    "lymph-node"
+  ],
+  "UBERON:0009745": [
+    "lymph-node"
+  ],
+  "UBERON:0009752": [
+    "pancreas"
+  ],
+  "UBERON:0009883": [
+    "kidney"
+  ],
+  "UBERON:0009966": [
+    "heart"
+  ],
+  "UBERON:0010011": [
+    "brain"
+  ],
+  "UBERON:0010185": [
+    "ovary-female-left"
+  ],
+  "UBERON:0010369": [
+    "lung"
+  ],
+  "UBERON:0010373": [
+    "pancreas"
+  ],
+  "UBERON:0010395": [
+    "lymph-node"
+  ],
+  "UBERON:0010396": [
+    "lymph-node"
+  ],
+  "UBERON:0010397": [
+    "lymph-node",
+    "thymus"
+  ],
+  "UBERON:0010399": [
+    "spleen"
+  ],
+  "UBERON:0010400": [
+    "spleen"
+  ],
+  "UBERON:0010401": [
+    "spleen"
+  ],
+  "UBERON:0010420": [
+    "lymph-node"
+  ],
+  "UBERON:0010421": [
+    "spleen"
+  ],
+  "UBERON:0010753": [
+    "lymph-node"
+  ],
+  "UBERON:0011184": [
+    "intestine"
+  ],
+  "UBERON:0011189": [
+    "intestine"
+  ],
+  "UBERON:0011820": [
+    "heart"
+  ],
+  "UBERON:0012067": [
+    "lung"
+  ],
+  "UBERON:0012271": [
+    "pancreas"
+  ],
+  "UBERON:0012373": [
+    "spleen"
+  ],
+  "UBERON:0012375": [
+    "intestine"
+  ],
+  "UBERON:0012377": [
+    "intestine"
+  ],
+  "UBERON:0012398": [
+    "intestine"
+  ],
+  "UBERON:0012399": [
+    "intestine"
+  ],
+  "UBERON:0012401": [
+    "intestine"
+  ],
+  "UBERON:0012416": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0012418": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:0012419": [
+    "intestine"
+  ],
+  "UBERON:0012441": [
+    "kidney"
+  ],
+  "UBERON:0012489": [
+    "intestine"
+  ],
+  "UBERON:0012494": [
+    "intestine"
+  ],
+  "UBERON:0012498": [
+    "intestine"
+  ],
+  "UBERON:0013132": [
+    "spleen"
+  ],
+  "UBERON:0013191": [
+    "ovary-female-left"
+  ],
+  "UBERON:0013192": [
+    "ovary-female-left"
+  ],
+  "UBERON:0013485": [
+    "intestine"
+  ],
+  "UBERON:0013487": [
+    "skin"
+  ],
+  "UBERON:0013644": [
+    "intestine"
+  ],
+  "UBERON:0014455": [
+    "adipose"
+  ],
+  "UBERON:0014541": [
+    "spinal-cord"
+  ],
+  "UBERON:0014543": [
+    "spinal-cord"
+  ],
+  "UBERON:0014547": [
+    "spinal-cord"
+  ],
+  "UBERON:0014607": [
+    "spinal-cord"
+  ],
+  "UBERON:0014609": [
+    "spinal-cord"
+  ],
+  "UBERON:0014610": [
+    "spinal-cord"
+  ],
+  "UBERON:0014611": [
+    "spinal-cord"
+  ],
+  "UBERON:0014612": [
+    "spinal-cord"
+  ],
+  "UBERON:0014613": [
+    "spinal-cord"
+  ],
+  "UBERON:0014614": [
+    "spinal-cord"
+  ],
+  "UBERON:0014619": [
+    "spinal-cord"
+  ],
+  "UBERON:0014620": [
+    "spinal-cord"
+  ],
+  "UBERON:0014621": [
+    "spinal-cord"
+  ],
+  "UBERON:0014622": [
+    "spinal-cord"
+  ],
+  "UBERON:0014623": [
+    "spinal-cord"
+  ],
+  "UBERON:0014632": [
+    "spinal-cord"
+  ],
+  "UBERON:0014633": [
+    "spinal-cord"
+  ],
+  "UBERON:0014636": [
+    "spinal-cord"
+  ],
+  "UBERON:0014637": [
+    "spinal-cord"
+  ],
+  "UBERON:0014638": [
+    "spinal-cord"
+  ],
+  "UBERON:0014693": [
+    "mouth"
+  ],
+  "UBERON:0014716": [
+    "pancreas"
+  ],
+  "UBERON:0014719": [
+    "pancreas"
+  ],
+  "UBERON:0014726": [
+    "pancreas"
+  ],
+  "UBERON:0014904": [
+    "lung"
+  ],
+  "UBERON:0015125": [
+    "heart"
+  ],
+  "UBERON:0015126": [
+    "heart"
+  ],
+  "UBERON:0015127": [
+    "heart"
+  ],
+  "UBERON:0015171": [
+    "uterus"
+  ],
+  "UBERON:0015172": [
+    "placenta-full-term"
+  ],
+  "UBERON:0015173": [
+    "uterus"
+  ],
+  "UBERON:0015174": [
+    "prostate"
+  ],
+  "UBERON:0015481": [
+    "liver"
+  ],
+  "UBERON:0015482": [
+    "liver"
+  ],
+  "UBERON:0015716": [
+    "intestine"
+  ],
+  "UBERON:0015834": [
+    "intestine"
+  ],
+  "UBERON:0016405": [
+    "lung"
+  ],
+  "UBERON:0016478": [
+    "liver"
+  ],
+  "UBERON:0016519": [
+    "intestine"
+  ],
+  "UBERON:0018107": [
+    "eye-female-left"
+  ],
+  "UBERON:0018227": [
+    "lung"
+  ],
+  "UBERON:0018234": [
+    "pancreas"
+  ],
+  "UBERON:0018243": [
+    "thymus"
+  ],
+  "UBERON:0018674": [
+    "heart"
+  ],
+  "UBERON:0022276": [
+    "intestine"
+  ],
+  "UBERON:0022277": [
+    "intestine"
+  ],
+  "UBERON:0022358": [
+    "placenta-full-term"
+  ],
+  "UBERON:0026246": [
+    "spinal-cord"
+  ],
+  "UBERON:0026293": [
+    "spinal-cord"
+  ],
+  "UBERON:0026386": [
+    "spinal-cord"
+  ],
+  "UBERON:0029503": [
+    "spinal-cord"
+  ],
+  "UBERON:0029538": [
+    "spinal-cord"
+  ],
+  "UBERON:0029626": [
+    "spinal-cord"
+  ],
+  "UBERON:0029636": [
+    "spinal-cord"
+  ],
+  "UBERON:0030276": [
+    "spinal-cord"
+  ],
+  "UBERON:0031111": [
+    "spinal-cord"
+  ],
+  "UBERON:0031906": [
+    "spinal-cord"
+  ],
+  "UBERON:0032748": [
+    "spinal-cord"
+  ],
+  "UBERON:0033483": [
+    "spinal-cord"
+  ],
+  "UBERON:0033939": [
+    "spinal-cord"
+  ],
+  "UBERON:0034713": [
+    "eye-female-left"
+  ],
+  "UBERON:0034729": [
+    "lymph-node"
+  ],
+  "UBERON:0034884": [
+    "kidney"
+  ],
+  "UBERON:0035374": [
+    "heart"
+  ],
+  "UBERON:0035422": [
+    "heart"
+  ],
+  "UBERON:0035495": [
+    "lymph-node"
+  ],
+  "UBERON:0035549": [
+    "skin"
+  ],
+  "UBERON:0035966": [
+    "eye-female-left"
+  ],
+  "UBERON:0039232": [
+    "heart"
+  ],
+  "UBERON:1000023": [
+    "spleen"
+  ],
+  "UBERON:2001571": [
+    "ovary-female-left"
+  ],
+  "UBERON:2005346": [
+    "pancreas"
+  ],
+  "UBERON:8410000": [
+    "intestine"
+  ],
+  "UBERON:8410005": [
+    "intestine"
+  ],
+  "UBERON:8410032": [
+    "lymph-node"
+  ],
+  "UBERON:8410033": [
+    "lymph-node"
+  ],
+  "UBERON:8410034": [
+    "lymph-node"
+  ],
+  "UBERON:8410035": [
+    "lymph-node"
+  ],
+  "UBERON:8410036": [
+    "lymph-node"
+  ],
+  "UBERON:8410038": [
+    "lymph-node"
+  ],
+  "UBERON:8410041": [
+    "lymph-node"
+  ],
+  "UBERON:8410042": [
+    "lymph-node"
+  ],
+  "UBERON:8410043": [
+    "lung",
+    "main-bronchus"
+  ],
+  "UBERON:8410052": [
+    "lymph-node"
+  ],
+  "UBERON:8410053": [
+    "lymph-node"
+  ],
+  "UBERON:8410062": [
+    "thymus"
+  ],
+  "UBERON:8410064": [
+    "intestine"
+  ],
+  "UBERON:8410066": [
+    "lymph-node"
+  ],
+  "UBERON:8410067": [
+    "lymph-node"
+  ],
+  "UBERON:8410071": [
+    "lymph-node"
+  ],
+  "UBERON:8410072": [
+    "lymph-node"
+  ],
+  "UBERON:8410074": [
+    "lymph-node"
+  ],
+  "UBERON:8410075": [
+    "lymph-node"
+  ],
+  "UBERON:8440014": [
+    "brain"
+  ],
+  "UBERON:8470002": [
+    "heart"
+  ],
+  "UBERON:8600000": [
+    "lung"
+  ],
+  "UBERON:8600009": [
+    "lung"
+  ],
+  "UBERON:8600010": [
+    "lung",
+    "main-bronchus"
+  ],
+  "UBERON:8600011": [
+    "trachea"
+  ],
+  "UBERON:8600012": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:8600013": [
+    "lung",
+    "main-bronchus",
+    "trachea"
+  ],
+  "UBERON:8600017": [
+    "lung"
+  ],
+  "UBERON:8600019": [
+    "placenta-full-term"
+  ],
+  "UBERON:8600020": [
+    "placenta-full-term"
+  ],
+  "UBERON:8600021": [
+    "placenta-full-term"
+  ],
+  "UBERON:8600022": [
+    "lung"
+  ],
+  "UBERON:8600036": [
+    "kidney"
+  ],
+  "UBERON:8600037": [
+    "kidney"
+  ],
+  "UBERON:8600060": [
+    "lung"
+  ],
+  "UBERON:8600063": [
+    "heart"
+  ],
+  "UBERON:8600077": [
+    "lung"
+  ],
+  "UBERON:8600081": [
+    "lung"
+  ],
+  "UBERON:8600094": [
+    "lung"
+  ],
+  "UBERON:8600097": [
+    "mouth"
+  ],
+  "UBERON:8600102": [
+    "heart"
+  ]
+}

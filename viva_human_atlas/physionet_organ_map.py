@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 
+from viva_human_atlas import anatomy_resolver
 from viva_human_atlas.hra_mapping import map_to_hra
 
 DEFAULT_LLM_MODEL = "claude-haiku-4-5-20251001"
@@ -56,8 +57,24 @@ def map_project_to_organs(project: dict, organ_index: dict, *, no_llm: bool = Tr
                           llm_model: str = DEFAULT_LLM_MODEL, cache_dir=None,
                           _llm=None) -> dict:
     title = project.get("name") or ""
-    ubs = keyword_uberons(project.get("keywords") or [], title)
-    method = "keyword" if ubs else None
+
+    # 0) annotation tier: resolve any ontology ids the project record carries.
+    # PhysioNet projects come from DataCite metadata (free-text subjects, no
+    # UBERON/CL/FMA/BTO/MeSH ids), so `project` never actually carries these
+    # fields today -- this is a no-op in practice, kept for parity with
+    # biomodel_hra/physiome_organ_map so any future annotation source needs
+    # no second wiring pass.
+    resolver_keys, resolver_method = anatomy_resolver.resolve_organ_keys(
+        organ_index, uberon=project.get("uberon") or (), cl=project.get("cl") or (),
+        fma=project.get("fma") or (), bto=project.get("bto") or (),
+        mesh=project.get("mesh") or (),
+    )
+    if resolver_keys:
+        ubs = [organ_index[k]["uberon"] for k in resolver_keys if organ_index.get(k, {}).get("uberon")]
+        method = resolver_method if ubs else None
+    else:
+        ubs = keyword_uberons(project.get("keywords") or [], title)
+        method = "keyword" if ubs else None
 
     if not ubs and not no_llm:
         extract = _llm
