@@ -53,6 +53,26 @@ def test_deterministic_two_calls_identical():
     assert out1 == out2
 
 
+def test_physiome_echoed_uberon_is_not_upgraded_to_annotation():
+    # physiome.build_entry writes ontology_ids.uberon = hra["uberon_organ_ids"]
+    # -- the ORGAN ID ITS OWN KEYWORD MAPPER ALREADY RESOLVED, not a raw
+    # annotation. remap_row must not feed that echo into resolve_organ_keys
+    # (which would trivially tier-1 exact-match it and mislabel a
+    # keyword-based placement as high-confidence "annotation" -- fix-round-1
+    # bug); it must call physiome_organ_map.map_exposure_to_organs instead.
+    row = _row(
+        repository="physiome",
+        name="a generic model title",
+        ontology_ids={"uberon": ["UBERON:0001264"], "cl": [], "mesh": [], "fma": [], "bto": []},
+        provenance={"keywords": ["islet"], "categories": [], "errors": []},
+    )
+    out = remap_row(row, ORGAN_INDEX)
+    labels = [o["label"] for o in out["organs"]]
+    assert labels == ["pancreas"]
+    assert out["provenance"]["mapping_method"] in {"keyword", "keyword_annotation", "category"}
+    assert out["provenance"]["mapping_method"] != "annotation"
+
+
 def test_mesh_id_strings_do_not_crash_and_no_op():
     # Committed rows store ontology_ids.mesh as plain "MESH:Dxxxxx" id strings
     # (no labels); the mesh crosswalk tier needs label dicts, so this must be a

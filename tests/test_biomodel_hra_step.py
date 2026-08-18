@@ -135,7 +135,9 @@ def test_step_summary_matches_committed_corpus_db():
     API); PhysioNet and Physiome rows carry no molecular/HRApop data (offline /
     category-based organ mappers only). Counts reflect the ontology-resolver remap
     (Task 5: scripts/remap_organs.py re-mapped every row from its existing
-    annotations via anatomy_resolver -- n_with_uberon rose 788->901)."""
+    annotations -- BioModels via anatomy_resolver directly, Physiome/PhysioNet via
+    their own keyword/category mappers (their ontology_ids.uberon is an echo of a
+    prior keyword match, not a raw annotation) -- n_with_uberon rose 788->901)."""
     if not COMMITTED_DB.exists():
         return  # DB not present in this checkout; nothing to assert
     core = build_core()

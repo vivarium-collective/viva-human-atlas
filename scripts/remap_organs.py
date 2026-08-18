@@ -41,22 +41,25 @@ from viva_human_atlas.anatomy_resolver import resolve_organ_keys  # noqa: E402
 from viva_human_atlas.hra_mapping import map_to_hra  # noqa: E402
 from viva_human_atlas.biomodel_hra import load_map, write_db, DEFAULT_DB_PATH  # noqa: E402
 from viva_human_atlas.coverage import load_corpus_catalog  # noqa: E402
+from viva_human_atlas.physiome_organ_map import (  # noqa: E402
+    map_exposure_to_organs, _CONFIDENCE as _PHYSIOME_CONFIDENCE,
+)
+from viva_human_atlas.physionet_organ_map import map_project_to_organs  # noqa: E402
 
 DEFAULT_CATALOG_PATH = REPO_ROOT / "datasets" / "biomodel_corpus_catalog.json"
 
+# Shared method->confidence table for sources whose own mapper doesn't return
+# a confidence (physionet_organ_map.map_project_to_organs never sets one --
+# see _remap_physionet_row). Same values physiome_organ_map._CONFIDENCE uses.
+_METHOD_CONFIDENCE = {**_PHYSIOME_CONFIDENCE, "unmapped": "none"}
 
-def remap_row(row: dict, organ_index: dict) -> dict:
-    """Recompute `organs`/`functional_tissue_units`/`cell_types`/
-    `ontology_ids.uberon`/`provenance.mapping_method`/`provenance.confidence`
-    for one model_hra_map row, from the row's EXISTING
-    `ontology_ids.{uberon,cl,fma,bto,mesh}` + `gene_symbols` + `name`, via
-    `anatomy_resolver.resolve_organ_keys` + `hra_mapping.map_to_hra`. No
-    network. Deterministic: same input -> same output.
 
-    Returns a new row dict (the input `row` is not mutated); every other
-    field is carried over unchanged. `ontology_ids.mesh` is read but NOT fed
-    into the resolver's mesh tier -- see the module docstring's MeSH note.
-    """
+def _remap_annotation_row(row: dict, organ_index: dict) -> dict:
+    """`remap_row` for sources whose `ontology_ids`/`gene_symbols` are
+    GENUINE raw annotations (BioModels: SBML/BioPAX + BTO/MeSH-crosswalk
+    ids) -- recompute via `anatomy_resolver.resolve_organ_keys` +
+    `hra_mapping.map_to_hra`. See `remap_row`'s docstring for why this path
+    is repository-specific."""
     ont = row.get("ontology_ids") or {}
     uberon = ont.get("uberon") or []
     cl = ont.get("cl") or []
@@ -100,6 +103,93 @@ def remap_row(row: dict, organ_index: dict) -> dict:
     out["provenance"]["mapping_method"] = mapping_method
     out["provenance"]["confidence"] = confidence
     return out
+
+
+def _remap_physiome_row(row: dict, organ_index: dict) -> dict:
+    """`remap_row` for physiome. `ontology_ids.uberon` on these rows is NOT a
+    raw annotation -- `physiome.build_entry` writes back `hra["uberon_organ_ids"]`,
+    the organ id its OWN keyword/category mapper already resolved. Feeding that
+    echo into `resolve_organ_keys` would trivially exact-match tier 1 and
+    mislabel a keyword-based placement as `mapping_method="annotation"`,
+    `confidence="high"` (Task 5 fix-round-1 bug). Instead this calls
+    `physiome_organ_map.map_exposure_to_organs` -- the single source of truth
+    for physiome organ mapping (its own resolver-annotation / keyword_annotation
+    / category / keyword tiers) -- on a reconstructed exposure dict from the
+    row's `name` + `provenance.keywords`/`categories`. No CellML text is
+    available offline, so the rare real-CellML-RDF-annotation tier is a no-op
+    here (as it already is for the vast majority of physiome rows)."""
+    prov = row.get("provenance") or {}
+    exposure = {
+        "name": row.get("name"),
+        "keywords": prov.get("keywords") or [],
+        "categories": prov.get("categories") or [],
+    }
+    hra = map_exposure_to_organs(exposure, organ_index, no_llm=True)
+
+    out = dict(row)
+    out["organs"] = hra["organs"]
+    out["functional_tissue_units"] = hra["functional_tissue_units"]
+    out["cell_types"] = hra["cell_types"]
+    out["ontology_ids"] = dict(row.get("ontology_ids") or {})
+    out["ontology_ids"]["uberon"] = hra.get("uberon_organ_ids", [])
+    out["provenance"] = dict(prov)
+    out["provenance"]["mapping_method"] = hra.get("mapping_method", "unmapped")
+    out["provenance"]["confidence"] = hra.get("confidence", "none")
+    return out
+
+
+def _remap_physionet_row(row: dict, organ_index: dict) -> dict:
+    """`remap_row` for physionet -- same rationale as `_remap_physiome_row`:
+    `ontology_ids.uberon` is an echoed, already-resolved organ id (`physionet.py`
+    `build_entry` writes back `hra.get("uberon_organ_ids", [])`), not a raw
+    annotation, so it must not be fed into `resolve_organ_keys` again. Calls
+    `physionet_organ_map.map_project_to_organs` -- the source of truth for
+    physionet (its own resolver-annotation-then-keyword-title tiers) -- on a
+    reconstructed project dict from the row's `name` + `provenance.keywords`.
+    That function never returns a `confidence` (neither does the original
+    `physionet.py` `build_entry`), so confidence is derived here from
+    `mapping_method` via the same table `physiome_organ_map._CONFIDENCE` uses."""
+    prov = row.get("provenance") or {}
+    project = {"name": row.get("name"), "keywords": prov.get("keywords") or []}
+    hra = map_project_to_organs(project, organ_index, no_llm=True)
+
+    out = dict(row)
+    out["organs"] = hra["organs"]
+    out["functional_tissue_units"] = hra["functional_tissue_units"]
+    out["cell_types"] = hra["cell_types"]
+    out["ontology_ids"] = dict(row.get("ontology_ids") or {})
+    out["ontology_ids"]["uberon"] = hra.get("uberon_organ_ids", [])
+    method = hra.get("mapping_method", "unmapped")
+    out["provenance"] = dict(prov)
+    out["provenance"]["mapping_method"] = method
+    out["provenance"]["confidence"] = _METHOD_CONFIDENCE.get(method, "none")
+    return out
+
+
+_REMAPPERS = {"physiome": _remap_physiome_row, "physionet": _remap_physionet_row}
+
+
+def remap_row(row: dict, organ_index: dict) -> dict:
+    """Recompute `organs`/`functional_tissue_units`/`cell_types`/
+    `ontology_ids.uberon`/`provenance.mapping_method`/`provenance.confidence`
+    for one model_hra_map row. No network. Deterministic: same input -> same
+    output. Returns a new row dict (the input `row` is not mutated); every
+    other field is carried over unchanged.
+
+    Source-aware (Task 5 fix-round-1): only BioModels rows carry genuine raw
+    ontology annotation in `ontology_ids`/`gene_symbols`, so only those go
+    through `anatomy_resolver.resolve_organ_keys` directly
+    (`_remap_annotation_row`). Physiome/PhysioNet rows' `ontology_ids.uberon`
+    is an ECHO of their own keyword/category mapper's prior result, not a raw
+    annotation -- feeding it back into the resolver would trivially exact-match
+    and mislabel a keyword-based placement as high-confidence "annotation".
+    Those two sources are instead re-mapped by calling their own single
+    source of truth (`physiome_organ_map.map_exposure_to_organs` /
+    `physionet_organ_map.map_project_to_organs`, `_remap_physiome_row` /
+    `_remap_physionet_row`), which already contain a
+    resolver-annotation-first-then-keyword path (Task 4)."""
+    fn = _REMAPPERS.get(row.get("repository"), _remap_annotation_row)
+    return fn(row, organ_index)
 
 
 def main(db_path=None, catalog_path=None) -> None:
