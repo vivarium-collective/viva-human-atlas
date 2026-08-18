@@ -5,6 +5,7 @@ scripts/build_anatomy_crosswalks.py and committed. See the design spec."""
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -21,6 +22,7 @@ def _load(name) -> dict:
 
 
 _ROLLUP = _CL = _FMA = None  # lazy module caches
+_GENE = None
 
 
 def load_rollup():
@@ -38,6 +40,29 @@ def load_fma_map():
     if _FMA is None: _FMA = _load("fma_uberon_crosswalk.json")
     return _FMA
 
+def load_gene_map():
+    global _GENE
+    if _GENE is None: _GENE = _load("gene_organ_map.json")
+    return _GENE
+
+
+def normalize_gene(sym: str) -> str:
+    s = (sym or "").strip().upper()
+    return re.sub(r"-[A-Z0-9]+$", "", s)
+
+
+def _gene_organs(gene_symbols, gene_map) -> list[str]:
+    counts = {}
+    for g in gene_symbols:
+        for organ, n in (gene_map.get(normalize_gene(g)) or {}).items():
+            counts[organ] = counts.get(organ, 0) + n
+    if not counts:
+        return []
+    top = max(counts.values())
+    winners = [o for o, n in counts.items() if n == top]
+    # dominant single organ only (no pan-organ tie)
+    return winners if len(winners) == 1 else []
+
 
 def _organ_uberon_keys(organ_index) -> dict:
     """{organ_level_uberon_id: organ_key} from the reference index."""
@@ -53,8 +78,8 @@ def _dedup(seq):
 
 
 def resolve_organ_keys(organ_index, *, uberon=(), cl=(), fma=(), bto=(), mesh=(),
-                       rollup=None, cl_map=None, bto_map=None, mesh_map=None,
-                       fma_map=None) -> tuple[list[str], str]:
+                       gene_symbols=(), rollup=None, cl_map=None, bto_map=None,
+                       mesh_map=None, fma_map=None, gene_map=None) -> tuple[list[str], str]:
     rollup = load_rollup() if rollup is None else rollup
     cl_map = load_cl_map() if cl_map is None else cl_map
     fma_map = load_fma_map() if fma_map is None else fma_map
@@ -96,5 +121,11 @@ def resolve_organ_keys(organ_index, *, uberon=(), cl=(), fma=(), bto=(), mesh=()
     cl_organs = _dedup([k for c in cl for k in cl_map.get(c, [])])
     if cl_organs:
         return cl_organs, "cell_type"
+
+    # tier 5: ASCT+B gene -> organ, specificity-gated
+    gene_map = load_gene_map() if gene_map is None else gene_map
+    g_organs = _gene_organs(gene_symbols, gene_map)
+    if g_organs:
+        return g_organs, "gene_asctb"
 
     return [], ""

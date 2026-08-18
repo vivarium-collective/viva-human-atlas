@@ -52,3 +52,27 @@ def test_precedence_annotation_beats_rollup_beats_crosswalk_beats_cl():
 def test_unmapped_returns_empty():
     keys, m = ar.resolve_organ_keys(ORGAN_INDEX, uberon=["UBERON:9999999"], rollup=ROLLUP)
     assert keys == [] and m == ""
+
+
+GENE_MAP = {
+    "FOXD1": {"kidney": 2}, "PECAM1": {"kidney": 1, "heart": 1, "lung": 1, "blood": 1},
+    "NPHS1": {"kidney": 3},
+}
+
+def test_gene_specific_places():
+    keys, m = ar.resolve_organ_keys(ORGAN_INDEX, gene_symbols=["foxd1", "nphs1-a"],
+                                    rollup={}, gene_map=GENE_MAP)
+    assert keys == ["kidney"] and m == "gene_asctb"
+
+def test_gene_panorgan_does_not_place():
+    keys, m = ar.resolve_organ_keys(ORGAN_INDEX, gene_symbols=["PECAM1"],
+                                    rollup={}, gene_map=GENE_MAP)
+    assert keys == [] and m == ""
+
+def test_annotation_beats_gene():
+    keys, m = ar.resolve_organ_keys(ORGAN_INDEX, uberon=[BRAIN_UB], gene_symbols=["NPHS1"],
+                                    rollup={}, gene_map=GENE_MAP)
+    assert m == "annotation" and keys == ["brain"]
+
+def test_normalize_gene():
+    assert ar.normalize_gene("cdk1-a") == "CDK1" and ar.normalize_gene("FoxD1") == "FOXD1"
