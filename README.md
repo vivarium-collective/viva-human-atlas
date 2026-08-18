@@ -14,15 +14,16 @@ https://vivarium-collective.github.io/viva-human-atlas/dashboard/
 🧭 **HRA Computational Model Atlas (organ selector, model-count gradient, subregion placement, BioModels links):**
 https://vivarium-collective.github.io/viva-human-atlas/dashboard/studies/hra-atlas-browser/viz/atlas/index.html
 — pick any of the 50 GLB-backed HRA organs (or compose them with "All modeled"),
-see organs colored by associated model count (viridis), and click through to
-BioModels. Built from the **BioModels→HRA map DB** (see below): **172 distinct
-models across 14 organs**. Where the data supports it, models are placed at
-specific organ **subregions** driven up from their cell types / FTUs — **14
-models onto 6 subregions in 4 organs** (brain hippocampal formation + olfactory
-bulb, kidney outer cortex, lymph-node follicle, colon), colored on a warm ramp
-and listed per-structure on hover/click; everything else falls back to the whole
-organ. Built by `scripts/build_atlas_pack.py` / the `hra-atlas-browser`
-composite; also launchable from the Analyses tab.
+see organs colored by associated model count (viridis), and click through to the
+source models. Built from the unified **model→HRA map DB** (see below): **721
+distinct models across 24 modeled organs** (of 50 GLB-backed HRA organs). Where
+cell-type / FTU evidence supports it, models are placed at specific organ
+**subregions** driven up from their cell types / FTUs — **52 subregions across 9
+organs** — colored on a warm ramp and listed per-structure on hover/click;
+everything else falls back to the whole organ. Built by the **`hra-atlas-pipeline`**
+composite (harvest → enrich → atlas pack) or `scripts/build_atlas_pack.py`; also
+launchable from the Analyses tab. **▶ To regenerate the atlas yourself, see
+[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md).**
 
 ## Investigations
 
@@ -45,16 +46,20 @@ composite; also launchable from the Analyses tab.
     some organs (e.g., pancreas). Most BioModels annotate anatomy via BTO terms
     rather than direct Uberon links. (See `studies/annotation-organ-matching`
     and `studies/annotation-recall-gain`.)
-  - **BioModels→HRA corpus map:** the whole curated corpus (**1,096 models**)
-    harvested into one reusable JSON DB (`datasets/model_hra_map.json`), each
-    model with molecular ids (CHEBI/UniProt/KEGG/GO/Reactome), publication link,
-    organism, and HRA organ/FTU/cell-type mapping (anatomy crosswalked from paper
-    **MeSH** + BTO), with 112 models carrying **HRApop** measured cell-type
-    populations. Exposed as a reusable Vivarium **Step** (`BiomodelHraMapStep`,
-    cache-or-load) and a downloadable workspace dataset, with a committed summary
-    figure (`reports/figures/biomodel_hra_summary.png`). This DB is what the Atlas
-    Browser's organ→models and subregion placement now build on.
-    (See `studies/biomodel-hra-map`.)
+  - **Unified model→HRA corpus map:** the curated corpus harvested into one
+    reusable JSON DB (`datasets/model_hra_map.json`) across **three sources** —
+    **2,554 models = 1,096 BioModels + 480 PhysioNet + 978 Physiome (PMR)** —
+    each model with (where available) molecular ids
+    (CHEBI/UniProt/KEGG/GO/Reactome), a publication link, organism, and an HRA
+    organ/FTU/cell-type mapping, with 112 models carrying **HRApop** measured
+    cell-type populations. Harvested and refreshed by the multi-source
+    **`ModelHarvestStep`** (the `model-harvest` study): a plain run replays the
+    committed DB offline; a `--rebuild <source>` run re-harvests one source
+    non-destructively. Physiome is harvested from the **pmr3 API** with
+    author-keyword organ mapping + PubMed citations. (The older BioModels-only
+    `BiomodelHraMapStep` / `biomodel-hra-map` study predates the multi-source
+    harvest.) This DB is what the Atlas Browser's organ→models and subregion
+    placement build on. (See `studies/model-harvest`.)
 
 ## Composites
 
@@ -65,21 +70,12 @@ composite; also launchable from the Analyses tab.
 |---|---|
 | `annotation-organ-matching` | Summarize the committed annotation-based (SBML MIRIAM + BTO crosswalk) organ-matching catalog: model/organ counts and the biological-qualifier/ontology distribution behind each organ tag. |
 | `annotation-recall-gain` | Compare the annotation-based organ-matching catalog against the name-synonym catalog to quantify the recall gain (organs/models added) from parsing SBML MIRIAM/BTO annotations. |
-| `biomodel-hra-map` | Make the BioModels->HRA map DB available (cache-or-load) and emit its path, model count, and coverage summary. |
 | `blood-vasculature-network` | Pull the HRA/VCCF vasculature data (28 FTU heart->FTU->heart paths + VCCF vessel classes) and build a directed whole-body blood-transport graph, validating every FTU closes a circuit through the hear… |
 | `corpus-coverage` | Cross the ASCT+B-3D crosswalk's anatomical structures with the committed full-corpus catalog's organ->models index (1,096 curated BioModels, Task A) to mark model coverage, at organ granularity. |
-| `ctpop-islet-parameterization` | Bind documented HRA-aligned islet beta-cell-composition fractions to the Topp2000 beta-cell-mass model's (BIOMD0000000341) initial beta-cell mass, and run healthy vs beta-depleted composition scenari… |
-| `ftu-glomerulus` | Fetch the glomerulus 3D functional-tissue-unit (FTU) digital object from the HRA CDN's `3d-ftu/glomerulus` endpoint, resolving its GLB asset URL. |
 | `ftu-model-coverage` | Match the committed full-corpus catalog's biomodel names against a curated list of HRA functional tissue units (FTUs) by synonym substring, answering which FTUs any curated model already claims to mo… |
-| `glucose-biomodel-do` | Search BioModels for a text query, annotate hits with HRA Uberon organ terms (synonym-match), and build the inverse organ->models index. |
 | `glucose-regulation` | Query BioModels for a text term (default 'glucose regulation'), then run every matching model under COPASI and Tellurium and score their agreement (all-pairs nRMSE). |
-| `hra-3d-crosswalk` | Fetch the ASCT+B-3D models crosswalk (1,400+ anatomical structures) from the HRA CDN's `asct-b-3d-models-crosswalk.csv` digital object. |
-| `hra-anatomical-structures` | Fetch HRA anatomical-structure term occurrences from the CCF API. |
-| `hra-atlas-browser` | Regenerate the HRA Computational Model Atlas pack from the BioModels->HRA map DB (Phase 1), placing each model at the organ subregion(s) its cell types / FTUs resolve to — via HRApop per-AS cell populations + th… |
-| `hra-cell-types` | Fetch HRA cell-type term occurrences (Cell Ontology) from the CCF API. |
-| `hra-reference-organs` | Fetch HRA reference organs (Uberon-keyed, per-sex GLB assets) from the CCF API. |
-| `model-coverage-3d` | Cross the ASCT+B-3D crosswalk's anatomical structures with the biomodel-DO organ->models index to mark model coverage, at organ granularity. |
-| `spatial-linkage` | Join biomodel-DO organ annotations to ASCT+B-3D crosswalk anatomical-structure nodes on shared Uberon CURIE, so each linked GLB scene node can be colored/labeled by its model. |
+| `hra-atlas-pipeline` | End-to-end HRA Computational Model Atlas build: harvest models -> gene/organism enrichment -> HRApop linkage -> atlas pack, wired as a connectable Step DAG. Offline (live=false) it replays the commit… |
+| `organ-vasculature-scaffold` | Store-hierarchy scaffold for the Whole-Person-Physiome model: a Vasculature tree (parathyroid vessel, renal artery, superior mesenteric artery, blood) and an Organs tree (parathyroid, kidney, small i… |
 <!-- END:composites -->
 
 ## Layout
@@ -89,27 +85,45 @@ viva_human_atlas/
   hra_api.py            # HRA CCF-API client + process-bigraph Steps
   biomodels_search.py   # BioModels REST text search
   biomodel_do.py        # biomodel Digital Objects (Uberon organ annotation + organ->models index)
-  biomodel_hra.py       # BioModels->HRA corpus map: extraction core + BiomodelHraMapStep
+  biomodel_hra.py       # BioModels->HRA extraction core + BiomodelHraMapStep
+  model_harvest.py      # multi-source registry + ModelHarvestStep (biomodels + physionet + physiome)
+  physionet.py / physionet_organ_map.py   # PhysioNet (DataCite) source + organ mapping
+  physiome.py  / physiome_organ_map.py     # Physiome (pmr3 API) source + author-keyword organ mapping
+  enrich.py / enrich_hrapop.py             # GeneEnrichStep + HRApopEnrichStep
+  asctb_tables.py       # AsctbTablesStep (ASCT+B anatomical-structure/cell-type tables)
   hra_pop.py            # HRApop cell-type populations (organ + per-AS loaders)
   atlas_subregions.py   # place models at organ subregions (cell types / FTUs -> AS)
   atlas_pack.py         # Atlas Browser manifest builder + offline orchestrator
   atlas_browser.py      # ComputationalModelAtlas (regenerate the atlas pack)
-  composites/           # @composite_generator entries (glucose-regulation, hra-*, biomodel-hra-map, hra-atlas-browser)
-scripts/                # build_biomodel_hra_map.py, make_biomodel_hra_figure.py, build_atlas_pack.py
+  composites/           # @composite_generator entries (hra-atlas-pipeline, glucose-regulation, corpus-coverage, ...)
+scripts/                # harvest_models.py, build_atlas_pack.py, enrich_hrapop.py, publish_dashboard.sh, serve_dashboard.sh, ...
 investigations/         # glucose-regulation, hra-integration, hra-3d
-studies/                # one study per composite; demonstrate loading
+studies/                # one study per composite; demonstrate loading (see studies/atlas-pipeline for the full build)
 references/sources/     # DynXR proposal extraction + HRA/WPP context + curated references
+docs/REPRODUCIBILITY.md # how to run the modules/composites to regenerate the atlas
 ```
 
 ## Develop
 
 ```bash
-uv venv && uv pip install -e .          # needs sibling repos ../pbg-biomodels, ../pbg-copasi, ../pbg-tellurium
+uv venv && uv pip install -e .          # needs sibling repos ../viva-biomodels, ../viva-copasi, ../viva-tellurium
 .venv/bin/python -m pytest -m "not network"   # offline suite
 .venv/bin/python -m pytest -m network         # live BioModels + HRA API
 ```
 
-Run the comparison directly:
+(For a clean environment without local sibling checkouts, install those packages
+from git instead — see [docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md#environment).)
+
+**Regenerate the atlas** (harvest → enrich → atlas pack, offline replay):
+
+```bash
+.venv/bin/python -c "from process_bigraph import Composite; from viva_human_atlas.core import build_core; from viva_human_atlas.composites.atlas_pipeline import build_atlas_pipeline_document; Composite(build_atlas_pipeline_document(live=False), core=build_core())"
+```
+
+Full details, the run-it-from-the-workbench path, and replay-vs-live rebuild:
+**[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md)**.
+
+Run the glucose comparison directly:
 
 ```bash
 .venv/bin/python -c "from viva_human_atlas.composites.glucose_regulation import run_glucose_regulation; print(run_glucose_regulation(max_results=5))"

@@ -1,6 +1,6 @@
 """Demonstrate-loading test for the `model-harvest` study (Task 8): its
 baseline must point at the unified ModelHarvestStep with the exact params
-that reproduce/refresh `datasets/model_hra_map.json` across both sources."""
+that reproduce/refresh `datasets/model_hra_map.json` across all three sources."""
 import yaml
 from pathlib import Path
 
@@ -17,5 +17,5 @@ def test_study_baseline_points_at_model_harvest_step():
     baseline = d["baseline"][0]
     assert baseline["step"] == "local:viva_human_atlas.model_harvest.ModelHarvestStep"
     assert baseline["params"]["db_path"] == "datasets/model_hra_map.json"
-    assert set(baseline["params"]["sources"]) == {"biomodels", "physionet"}
+    assert set(baseline["params"]["sources"]) == {"biomodels", "physionet", "physiome"}
     assert baseline["params"]["build_if_missing"] is False

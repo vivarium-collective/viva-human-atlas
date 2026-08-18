@@ -10,18 +10,23 @@ dependencies = [
     "pyyaml>=6.0",
     # Reused comparison machinery + transitively copasi/tellurium/simbio/biomodels/superpowers/workbench:
     "viva-biomodels",
-    # Direct engine deps (also pulled by pbg-biomodels, listed for clarity):
-    "pbg-copasi",
-    "pbg-tellurium",
+    # Direct engine deps (also pulled by viva-biomodels, listed for clarity):
+    "viva-copasi",
+    "viva-tellurium",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
 
+# These sibling process-packages are not on PyPI. Default to GIT sources so a
+# fresh clone installs with `uv pip install -e .` and no local sibling checkouts
+# (the "clone → hit play" path in docs/REPRODUCIBILITY.md). For LOCAL editable
+# dev of a sibling, override per-checkout, e.g.:
+#   uv pip install -e ../viva-biomodels -e ../viva-copasi -e ../viva-tellurium
 [tool.uv.sources]
-viva-biomodels = { path = "../pbg-biomodels", editable = true }   # dir unchanged
-pbg-copasi = { path = "../pbg-copasi", editable = true }
-pbg-tellurium = { path = "../pbg-tellurium", editable = true }
+viva-biomodels = { git = "https://github.com/vivarium-collective/viva-biomodels.git", branch = "main" }
+viva-copasi = { git = "https://github.com/vivarium-collective/viva-copasi.git", branch = "main" }
+viva-tellurium = { git = "https://github.com/vivarium-collective/viva-tellurium.git", branch = "main" }
 
 [build-system]
 requires = ["hatchling"]

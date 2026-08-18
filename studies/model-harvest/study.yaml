@@ -48,6 +48,17 @@ biological_summary: |
   this together is presented as one connected composite in the atlas-pipeline
   study.
 
+  UPDATE (2026-08-17): a third source, **Physiome (PMR)**, was added to the same
+  registry via the pmr3 API (PR #50). The committed DB now spans three sources —
+  **2,554 models = 1,096 BioModels + 480 PhysioNet + 978 Physiome** (341 Physiome
+  rows organ-tagged via author `cellml_keyword`s), so `n_with_uberon` rose to 788
+  (323 BioModels + 124 PhysioNet + 341 Physiome). The mechanism is unchanged —
+  Physiome plugged in as one more `SOURCES` entry (`list_fn`/`entry_fn`/`id_of`)
+  and its rows upserted non-destructively alongside the others. The per-run
+  narrative below (findings, verdicts, limitations) still describes the original
+  two-source PhysioNet harvest; a full three-source refresh of that prose is a
+  follow-up (see PR #50 and docs/REPRODUCIBILITY.md).
+
 readouts:
   - "n_models (total rows in datasets/model_hra_map.json across every registered source)"
   - "per_source.{biomodels,physionet} (row count contributed by each source, from a Counter over the repository field)"
@@ -55,7 +66,7 @@ readouts:
   - "db_path (the committed dataset path the Step loaded, confirming the reproducibility hook points at the real file)"
 
 report:
-  title: "Unified Model Harvest — 1,576 models (1,096 BioModels + 480 PhysioNet) into one HRA Model DB"
+  title: "Unified Model Harvest — 2,554 models (1,096 BioModels + 480 PhysioNet + 978 Physiome) into one HRA Model DB"
   verdict: passing
   confidence: high
   evidence_quality: measured
@@ -85,7 +96,7 @@ baseline:
     step: "local:viva_human_atlas.model_harvest.ModelHarvestStep"
     params:
       db_path: datasets/model_hra_map.json
-      sources: [biomodels, physionet]
+      sources: [biomodels, physionet, physiome]
       build_if_missing: false
 
 runs:
