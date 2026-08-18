@@ -1,0 +1,3767 @@
+{
+  "5'-NUCLEOTIDASE ECTO": {
+    "placenta-full-term": 12
+  },
+  "A2M": {
+    "thymus": 9
+  },
+  "ABLIM1": {
+    "thymus": 2
+  },
+  "ACHAETE-SCUTE FAMILY BHLH TRANSCRIPTION FACTOR 1": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "ACHAETE-SCUTE FAMILY BHLH TRANSCRIPTION FACTOR 2": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "ACHAETE-SCUTE FAMILY BHLH TRANSCRIPTION FACTOR 3": {
+    "lung": 3,
+    "main-bronchus": 1
+  },
+  "ACID PHOSPHATASE 3": {
+    "prostate": 1
+  },
+  "ACKR1": {
+    "lymph-node": 13,
+    "spleen": 1
+  },
+  "ACKR4": {
+    "lymph-node": 5
+  },
+  "ACTA1": {
+    "thymus": 1
+  },
+  "ACTA2": {
+    "liver": 1,
+    "lymph-node": 4,
+    "pancreas": 3
+  },
+  "ACTIN ALPHA 2, SMOOTH MUSCLE": {
+    "heart": 33,
+    "intestine": 2,
+    "kidney": 3,
+    "lung": 12,
+    "main-bronchus": 4,
+    "placenta-full-term": 13,
+    "prostate": 3,
+    "trachea": 4
+  },
+  "ACTIN GAMMA 2, SMOOTH MUSCLE": {
+    "prostate": 1
+  },
+  "ACTN1": {
+    "thymus": 3
+  },
+  "ACYL-COA SYNTHETASE MEDIUM CHAIN FAMILY MEMBER 2A": {
+    "kidney": 1
+  },
+  "ADAM METALLOPEPTIDASE WITH THROMBOSPONDIN TYPE 1 MOTIF 6": {
+    "kidney": 5
+  },
+  "ADAM28": {
+    "thymus": 2
+  },
+  "ADD3": {
+    "thymus": 2
+  },
+  "ADENOSINE DEAMINASE RNA SPECIFIC B2 (INACTIVE)": {
+    "spinal-cord": 2
+  },
+  "ADENYLATE CYCLASE 3": {
+    "kidney": 1
+  },
+  "ADRENOCEPTOR ALPHA 1A": {
+    "kidney": 1
+  },
+  "ADVANCED GLYCOSYLATION END-PRODUCT SPECIFIC RECEPTOR": {
+    "lung": 3
+  },
+  "AES": {
+    "thymus": 1
+  },
+  "AHR": {
+    "spleen": 1
+  },
+  "AHSP": {
+    "thymus": 2
+  },
+  "AICDA": {
+    "lymph-node": 2,
+    "spleen": 1
+  },
+  "AIF1": {
+    "pancreas": 3
+  },
+  "ALANYL AMINOPEPTIDASE, MEMBRANE": {
+    "placenta-full-term": 3
+  },
+  "ALAS2": {
+    "thymus": 2
+  },
+  "ALB": {
+    "liver": 1
+  },
+  "ALDEHYDE DEHYDROGENASE 1 FAMILY MEMBER A2": {
+    "kidney": 1
+  },
+  "ALDEHYDE DEHYDROGENASE 1 FAMILY MEMBER A3": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "ALDH2": {
+    "thymus": 2
+  },
+  "ALDO-KETO REDUCTASE FAMILY 1 MEMBER C1": {
+    "prostate": 1
+  },
+  "ALDOLASE, FRUCTOSE-BISPHOSPHATE B": {
+    "kidney": 1
+  },
+  "ALG13": {
+    "thymus": 1
+  },
+  "ALLOGRAFT INFLAMMATORY FACTOR 1": {
+    "spinal-cord": 4
+  },
+  "AMY2A": {
+    "pancreas": 1
+  },
+  "ANTERIOR GRADIENT 2, PROTEIN DISULPHIDE ISOMERASE FAMILY MEMBER": {
+    "lung": 6,
+    "main-bronchus": 2,
+    "trachea": 1
+  },
+  "ANXA1": {
+    "thymus": 4
+  },
+  "ANXA4": {
+    "thymus": 1
+  },
+  "AP3M2": {
+    "thymus": 1
+  },
+  "APELIN": {
+    "lung": 3
+  },
+  "APELIN RECEPTOR": {
+    "lung": 4
+  },
+  "APLP2": {
+    "spleen": 1
+  },
+  "APOE": {
+    "spleen": 7,
+    "thymus": 5
+  },
+  "APOLIPOPROTEIN D": {
+    "prostate": 1
+  },
+  "APOLIPOPROTEIN E": {
+    "eye-female-left": 1,
+    "kidney": 1
+  },
+  "AQP1": {
+    "thymus": 9
+  },
+  "AQUAPORIN 1 (COLTON BLOOD GROUP)": {
+    "kidney": 4
+  },
+  "AQUAPORIN 2": {
+    "kidney": 7
+  },
+  "AQUAPORIN 3 (GILL BLOOD GROUP)": {
+    "kidney": 5
+  },
+  "AQUAPORIN 4": {
+    "lung": 3
+  },
+  "AQUAPORIN 6": {
+    "kidney": 3
+  },
+  "ARID5B": {
+    "thymus": 1
+  },
+  "ARMH1": {
+    "thymus": 1
+  },
+  "ARRESTIN 3": {
+    "eye-female-left": 1
+  },
+  "ARX": {
+    "pancreas": 1
+  },
+  "ASMA": {
+    "intestine": 85
+  },
+  "ATP BINDING CASSETTE SUBFAMILY A MEMBER 3": {
+    "lung": 3
+  },
+  "ATP BINDING CASSETTE SUBFAMILY C MEMBER 9": {
+    "heart": 14
+  },
+  "ATPASE H+ TRANSPORTING V0 SUBUNIT A4": {
+    "prostate": 1
+  },
+  "ATPASE H+ TRANSPORTING V0 SUBUNIT D2": {
+    "kidney": 2
+  },
+  "ATYPICAL CHEMOKINE RECEPTOR 1 (DUFFY BLOOD GROUP)": {
+    "lung": 2,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "AVIL": {
+    "pancreas": 1
+  },
+  "B CELL SCAFFOLD PROTEIN WITH ANKYRIN REPEATS 1": {
+    "lung": 2
+  },
+  "B-LYMPHOCYTE SURFACE ANTIGEN B4": {
+    "heart": 6
+  },
+  "BANK1": {
+    "thymus": 2
+  },
+  "BARTTIN CLCNK TYPE ACCESSORY SUBUNIT BETA": {
+    "lung": 3,
+    "main-bronchus": 1
+  },
+  "BATF": {
+    "thymus": 1
+  },
+  "BATF3": {
+    "lymph-node": 1,
+    "thymus": 2
+  },
+  "BCAM": {
+    "thymus": 9
+  },
+  "BCL11B": {
+    "thymus": 4
+  },
+  "BCL6": {
+    "lymph-node": 2
+  },
+  "BEST4": {
+    "intestine": 22
+  },
+  "BESTROPHIN 3": {
+    "spinal-cord": 1
+  },
+  "BEX1": {
+    "thymus": 1
+  },
+  "BIRC3": {
+    "thymus": 1
+  },
+  "BLVRB": {
+    "thymus": 2
+  },
+  "BMX": {
+    "thymus": 1
+  },
+  "BMX NON-RECEPTOR TYROSINE KINASE": {
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "BONE MORPHOGENETIC PROTEIN 1": {
+    "lung": 3
+  },
+  "BPI FOLD CONTAINING FAMILY A MEMBER 1": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "BST1": {
+    "spleen": 3
+  },
+  "C-C MOTIF CHEMOKINE LIGAND 19": {
+    "lung": 1
+  },
+  "C-C MOTIF CHEMOKINE LIGAND 21": {
+    "lung": 1
+  },
+  "C-C MOTIF CHEMOKINE LIGAND 3": {
+    "lung": 1
+  },
+  "C-C MOTIF CHEMOKINE LIGAND 4": {
+    "kidney": 2
+  },
+  "C-C MOTIF CHEMOKINE LIGAND 5": {
+    "kidney": 1
+  },
+  "C-C MOTIF CHEMOKINE RECEPTOR 2": {
+    "lung": 1
+  },
+  "C-C MOTIF CHEMOKINE RECEPTOR 7": {
+    "lung": 3
+  },
+  "C-TYPE LECTIN DOMAIN CONTAINING 10A": {
+    "lung": 1
+  },
+  "C-TYPE LECTIN DOMAIN CONTAINING 14A": {
+    "lung": 11,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "C-TYPE LECTIN DOMAIN CONTAINING 7A": {
+    "lung": 8
+  },
+  "C-TYPE LECTIN DOMAIN CONTAINING 9A": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "C-TYPE LECTIN DOMAIN FAMILY 4 MEMBER C": {
+    "lung": 1
+  },
+  "C-X-C MOTIF CHEMOKINE RECEPTOR 3": {
+    "lung": 1
+  },
+  "C1ORF54": {
+    "thymus": 2
+  },
+  "C1Q & TNF RELATED 7": {
+    "lung": 1
+  },
+  "C1QA": {
+    "thymus": 5
+  },
+  "C1QB": {
+    "thymus": 5
+  },
+  "C1QC": {
+    "thymus": 5
+  },
+  "C3": {
+    "spleen": 3
+  },
+  "C7": {
+    "thymus": 1
+  },
+  "CA2": {
+    "pancreas": 1
+  },
+  "CADHERIN 5": {
+    "heart": 38,
+    "placenta-full-term": 3
+  },
+  "CADHERIN 7": {
+    "spinal-cord": 1
+  },
+  "CADHERIN 9": {
+    "spinal-cord": 1
+  },
+  "CADHERIN RELATED 23": {
+    "spinal-cord": 1
+  },
+  "CADHERIN RELATED FAMILY MEMBER 3": {
+    "spinal-cord": 2
+  },
+  "CADHERIN-1": {
+    "kidney": 9
+  },
+  "CADM1": {
+    "lymph-node": 1
+  },
+  "CALBINDIN 1": {
+    "eye-female-left": 1,
+    "kidney": 3
+  },
+  "CALCITONIN RELATED POLYPEPTIDE ALPHA": {
+    "kidney": 1,
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "CALCITONIN RELATED POLYPEPTIDE BETA": {
+    "spinal-cord": 1
+  },
+  "CALCIUM BINDING PROTEIN 5": {
+    "eye-female-left": 1
+  },
+  "CALCIUM SENSING RECEPTOR": {
+    "kidney": 4
+  },
+  "CALML3": {
+    "thymus": 1
+  },
+  "CALML5": {
+    "thymus": 2
+  },
+  "CALPAIN 8": {
+    "spinal-cord": 2
+  },
+  "CALPONIN 1": {
+    "lung": 11,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "CALRETICULIN": {
+    "heart": 1
+  },
+  "CALRETININ": {
+    "intestine": 10
+  },
+  "CAMK2B": {
+    "thymus": 1
+  },
+  "CAMK4": {
+    "thymus": 2
+  },
+  "CAN ALSO SEE T-HELPER CELLS, CNT AND DCT SSUBSEGMENTS": {
+    "kidney": 1
+  },
+  "CARBONIC ANHYDRASE 2": {
+    "kidney": 2
+  },
+  "CARBONIC ANHYDRASE 4": {
+    "lung": 3,
+    "prostate": 1
+  },
+  "CARBOXYLESTERASE 1": {
+    "lung": 2
+  },
+  "CARBOXYPEPTIDASE A3": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "CARBOXYPEPTIDASE E": {
+    "kidney": 2
+  },
+  "CARD16": {
+    "thymus": 1
+  },
+  "CARHSP1": {
+    "thymus": 1
+  },
+  "CART PREPROPEPTIDE": {
+    "spinal-cord": 1
+  },
+  "CATENIN ALPHA 3": {
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "CATENIN BETA 1": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "CAV1": {
+    "lymph-node": 15
+  },
+  "CCDC50": {
+    "thymus": 2
+  },
+  "CCL12": {
+    "lymph-node": 1
+  },
+  "CCL14": {
+    "lymph-node": 12
+  },
+  "CCL19": {
+    "lymph-node": 2,
+    "spleen": 2,
+    "thymus": 2
+  },
+  "CCL2": {
+    "thymus": 1
+  },
+  "CCL20": {
+    "lymph-node": 1
+  },
+  "CCL21": {
+    "lymph-node": 1,
+    "spleen": 3,
+    "thymus": 1
+  },
+  "CCL25": {
+    "thymus": 2
+  },
+  "CCL4": {
+    "thymus": 1
+  },
+  "CCL5": {
+    "thymus": 2
+  },
+  "CCN1": {
+    "thymus": 1
+  },
+  "CCNH": {
+    "thymus": 1
+  },
+  "CCR6": {
+    "lymph-node": 2
+  },
+  "CCR7": {
+    "lymph-node": 4,
+    "thymus": 1
+  },
+  "CCR9": {
+    "thymus": 1
+  },
+  "CD117": {
+    "intestine": 50
+  },
+  "CD11B": {
+    "intestine": 51
+  },
+  "CD11C": {
+    "intestine": 55
+  },
+  "CD123": {
+    "intestine": 22
+  },
+  "CD127": {
+    "intestine": 11
+  },
+  "CD138": {
+    "intestine": 11
+  },
+  "CD14": {
+    "lymph-node": 6,
+    "spleen": 2
+  },
+  "CD14 MOLECULE": {
+    "heart": 8,
+    "kidney": 2,
+    "lung": 1
+  },
+  "CD15": {
+    "intestine": 11
+  },
+  "CD16": {
+    "intestine": 11
+  },
+  "CD160": {
+    "spleen": 2
+  },
+  "CD161": {
+    "intestine": 11
+  },
+  "CD163": {
+    "intestine": 34,
+    "pancreas": 2
+  },
+  "CD163 MOLECULE": {
+    "kidney": 1,
+    "lung": 5,
+    "placenta-full-term": 5
+  },
+  "CD19": {
+    "intestine": 35,
+    "lymph-node": 9,
+    "pancreas": 2,
+    "spleen": 14,
+    "thymus": 1
+  },
+  "CD19 MOLECULE": {
+    "lung": 1
+  },
+  "CD1A": {
+    "intestine": 2,
+    "thymus": 2
+  },
+  "CD1B": {
+    "thymus": 1
+  },
+  "CD1C": {
+    "lymph-node": 1,
+    "spleen": 3,
+    "thymus": 2
+  },
+  "CD1C MOLECULE": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "CD1D": {
+    "spleen": 1
+  },
+  "CD1E": {
+    "thymus": 1
+  },
+  "CD1E MOLECULE": {
+    "kidney": 1
+  },
+  "CD2": {
+    "intestine": 131,
+    "thymus": 1
+  },
+  "CD20": {
+    "intestine": 33
+  },
+  "CD206": {
+    "intestine": 34
+  },
+  "CD209": {
+    "lymph-node": 14
+  },
+  "CD209 MOLECULE": {
+    "placenta-full-term": 3
+  },
+  "CD21": {
+    "intestine": 33
+  },
+  "CD22": {
+    "thymus": 1
+  },
+  "CD22 MOLECULE": {
+    "lung": 1
+  },
+  "CD247 MOLECULE": {
+    "kidney": 2
+  },
+  "CD25": {
+    "intestine": 33
+  },
+  "CD27": {
+    "lymph-node": 1,
+    "spleen": 1,
+    "thymus": 1
+  },
+  "CD28": {
+    "thymus": 1
+  },
+  "CD28 MOLECULE": {
+    "placenta-full-term": 3
+  },
+  "CD294": {
+    "intestine": 17
+  },
+  "CD3": {
+    "intestine": 137
+  },
+  "CD3 DELTA SUBUNIT OF T-CELL RECEPTOR COMPLEX": {
+    "kidney": 1
+  },
+  "CD3 GAMMA SUBUNIT OF T-CELL RECEPTOR COMPLEX": {
+    "kidney": 2
+  },
+  "CD3-TCR": {
+    "intestine": 120
+  },
+  "CD300LG": {
+    "lymph-node": 12
+  },
+  "CD34": {
+    "intestine": 187,
+    "liver": 3,
+    "lymph-node": 12,
+    "spleen": 15,
+    "thymus": 3
+  },
+  "CD34 MOLECULE": {
+    "heart": 6
+  },
+  "CD36": {
+    "intestine": 159
+  },
+  "CD36 MOLECULE": {
+    "prostate": 1
+  },
+  "CD38": {
+    "lymph-node": 4
+  },
+  "CD38 MOLECULE": {
+    "lung": 1
+  },
+  "CD3D": {
+    "lymph-node": 22
+  },
+  "CD3D MOLECULE": {
+    "lung": 1
+  },
+  "CD3E": {
+    "pancreas": 2,
+    "spleen": 13,
+    "thymus": 3
+  },
+  "CD3E MOLECULE": {
+    "lung": 9
+  },
+  "CD4": {
+    "intestine": 83,
+    "lymph-node": 10,
+    "pancreas": 2,
+    "spleen": 13
+  },
+  "CD4 MOLECULE": {
+    "lung": 2
+  },
+  "CD40": {
+    "lymph-node": 3
+  },
+  "CD40 LIGAND": {
+    "kidney": 1
+  },
+  "CD40LG": {
+    "thymus": 1
+  },
+  "CD44": {
+    "intestine": 11,
+    "thymus": 2
+  },
+  "CD44 MOLECULE (INDIAN BLOOD GROUP)": {
+    "lung": 1,
+    "placenta-full-term": 18
+  },
+  "CD5": {
+    "intestine": 131
+  },
+  "CD52": {
+    "thymus": 2
+  },
+  "CD53 MOLECULE": {
+    "lung": 27
+  },
+  "CD56": {
+    "intestine": 70
+  },
+  "CD57": {
+    "intestine": 33
+  },
+  "CD5L": {
+    "spleen": 7
+  },
+  "CD68": {
+    "intestine": 34,
+    "liver": 1,
+    "pancreas": 3
+  },
+  "CD68 MOLECULE": {
+    "heart": 6,
+    "placenta-full-term": 8
+  },
+  "CD69": {
+    "thymus": 1
+  },
+  "CD69 MOLECULE": {
+    "lung": 2
+  },
+  "CD7": {
+    "intestine": 131,
+    "thymus": 7
+  },
+  "CD74": {
+    "lymph-node": 12,
+    "spleen": 2
+  },
+  "CD79A": {
+    "intestine": 35,
+    "spleen": 14,
+    "thymus": 1
+  },
+  "CD79A MOLECULE": {
+    "lung": 1
+  },
+  "CD79B": {
+    "thymus": 1
+  },
+  "CD8": {
+    "intestine": 74
+  },
+  "CD8 SUBUNIT ALPHA": {
+    "heart": 5,
+    "placenta-full-term": 3
+  },
+  "CD83": {
+    "lymph-node": 4
+  },
+  "CD86": {
+    "lymph-node": 1
+  },
+  "CD8A": {
+    "lymph-node": 7,
+    "pancreas": 2,
+    "spleen": 14,
+    "thymus": 6
+  },
+  "CD8A MOLECULE": {
+    "lung": 2
+  },
+  "CD8B": {
+    "thymus": 4
+  },
+  "CD8B MOLECULE": {
+    "lung": 1
+  },
+  "CD96 MOLECULE": {
+    "kidney": 2
+  },
+  "CDH1": {
+    "lung": 60,
+    "main-bronchus": 14,
+    "trachea": 11
+  },
+  "CELA3A": {
+    "pancreas": 1
+  },
+  "CELL ADHESION MOLECULE 1": {
+    "lung": 1
+  },
+  "CELL DIVISION CYCLE 20B": {
+    "lung": 4,
+    "main-bronchus": 1
+  },
+  "CELLULAR RETINOIC ACID BINDING PROTEIN 1": {
+    "eye-female-left": 1
+  },
+  "CEREBELLIN 1 PRECURSOR": {
+    "spinal-cord": 1
+  },
+  "CEREBELLIN 4 PRECURSOR": {
+    "spinal-cord": 1
+  },
+  "CFB": {
+    "spleen": 1
+  },
+  "CFTR": {
+    "liver": 2,
+    "pancreas": 1
+  },
+  "CH25H": {
+    "thymus": 1
+  },
+  "CHGA": {
+    "pancreas": 7
+  },
+  "CHI3L2": {
+    "thymus": 2
+  },
+  "CHLORIDE INTRACELLULAR CHANNEL 5": {
+    "kidney": 1,
+    "lung": 3
+  },
+  "CHLORIDE VOLTAGE-GATED CHANNEL KA": {
+    "kidney": 1
+  },
+  "CHLORIDE VOLTAGE-GATED CHANNEL KB": {
+    "lung": 3,
+    "main-bronchus": 1
+  },
+  "CHOLECYSTOKININ": {
+    "spinal-cord": 1
+  },
+  "CHONDROITIN SULFATE PROTEOGLYCAN 4": {
+    "placenta-full-term": 8
+  },
+  "CHORIONIC GONADOTROPIN SUBUNIT BETA 3": {
+    "placenta-full-term": 7
+  },
+  "CHORIONIC SOMATOMAMMOTROPIN HORMONE 1": {
+    "placenta-full-term": 7
+  },
+  "CHROMOGRANIN A": {
+    "intestine": 23,
+    "lung": 3,
+    "main-bronchus": 1,
+    "prostate": 1,
+    "trachea": 1
+  },
+  "CHROMOSOME 1 OPEN READING FRAME 162": {
+    "lung": 8
+  },
+  "CHYMASE 1": {
+    "lung": 1
+  },
+  "CIB2": {
+    "thymus": 1
+  },
+  "CILIA AND FLAGELLA ASSOCIATED PROTEIN 73": {
+    "spinal-cord": 1
+  },
+  "CKLF": {
+    "thymus": 1
+  },
+  "CLAUDIN 1": {
+    "kidney": 1
+  },
+  "CLAUDIN 16": {
+    "kidney": 1
+  },
+  "CLAUDIN 3": {
+    "kidney": 1
+  },
+  "CLAUDIN 5": {
+    "eye-female-left": 1,
+    "lung": 12,
+    "main-bronchus": 2,
+    "spinal-cord": 4,
+    "trachea": 2
+  },
+  "CLDN3": {
+    "thymus": 1
+  },
+  "CLEC10A": {
+    "lymph-node": 1,
+    "spleen": 2,
+    "thymus": 2
+  },
+  "CLEC4C": {
+    "lymph-node": 1,
+    "spleen": 3
+  },
+  "CLEC4F": {
+    "liver": 1
+  },
+  "CLEC4G": {
+    "lymph-node": 2
+  },
+  "CLEC4M": {
+    "lymph-node": 2
+  },
+  "CLEC9A": {
+    "lymph-node": 1,
+    "spleen": 2,
+    "thymus": 2
+  },
+  "CLU": {
+    "spleen": 2,
+    "thymus": 1
+  },
+  "CLUSTERIN": {
+    "eye-female-left": 1
+  },
+  "CMC1": {
+    "thymus": 1
+  },
+  "COILED-COIL DOMAIN CONTAINING 102B": {
+    "kidney": 1
+  },
+  "COL14A1": {
+    "thymus": 1
+  },
+  "COL1A1": {
+    "liver": 1,
+    "lymph-node": 2,
+    "thymus": 1
+  },
+  "COL1A2": {
+    "thymus": 1
+  },
+  "COL3A1": {
+    "lymph-node": 2,
+    "thymus": 1
+  },
+  "COL4A1": {
+    "pancreas": 1
+  },
+  "COL6A1": {
+    "intestine": 91
+  },
+  "COL6A2": {
+    "intestine": 91
+  },
+  "COLLAGEN TYPE I ALPHA 1 CHAIN": {
+    "kidney": 2
+  },
+  "COLLAGEN TYPE I ALPHA 2 CHAIN": {
+    "kidney": 1,
+    "lung": 27,
+    "main-bronchus": 4,
+    "trachea": 6
+  },
+  "COLLAGEN TYPE II ALPHA 1 CHAIN": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 2
+  },
+  "COLLAGEN TYPE IV ALPHA 1 CHAIN": {
+    "eye-female-left": 2
+  },
+  "COLLAGEN TYPE V ALPHA 1 CHAIN": {
+    "kidney": 1
+  },
+  "COLLAGEN TYPE VI ALPHA 2 CHAIN": {
+    "spinal-cord": 1
+  },
+  "COLLAGEN TYPE VI ALPHA 3 CHAIN": {
+    "lung": 7,
+    "trachea": 1
+  },
+  "COLLAGEN TYPE XI ALPHA 1 CHAIN": {
+    "main-bronchus": 1
+  },
+  "COLLAGEN TYPE XVI ALPHA 1 CHAIN": {
+    "kidney": 1
+  },
+  "COLONY STIMULATING FACTOR 1 RECEPTOR": {
+    "lung": 1
+  },
+  "COLONY STIMULATING FACTOR 2 RECEPTOR SUBUNIT ALPHA": {
+    "kidney": 1
+  },
+  "COLONY STIMULATING FACTOR 3": {
+    "prostate": 1
+  },
+  "COLONY STIMULATING FACTOR 3 RECEPTOR": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "COMPLEMENT C1Q A CHAIN": {
+    "heart": 8,
+    "kidney": 1
+  },
+  "COMPLEMENT C1Q LIKE 1": {
+    "eye-female-left": 1
+  },
+  "COMPLEMENT C1Q LIKE 2": {
+    "eye-female-left": 1
+  },
+  "COMPLEMENT C7": {
+    "kidney": 1,
+    "prostate": 1
+  },
+  "COMPLEMENT FACTOR H": {
+    "kidney": 1
+  },
+  "CORONIN 1A": {
+    "lung": 27
+  },
+  "COX-1": {
+    "intestine": 11
+  },
+  "COX7A1": {
+    "thymus": 1
+  },
+  "CPA3": {
+    "spleen": 1,
+    "thymus": 1
+  },
+  "CPVL": {
+    "thymus": 2
+  },
+  "CR2": {
+    "lymph-node": 2,
+    "spleen": 5
+  },
+  "CRIP1": {
+    "thymus": 2
+  },
+  "CRTAM": {
+    "thymus": 1
+  },
+  "CRUMBS CELL POLARITY COMPLEX COMPONENT 2": {
+    "kidney": 1
+  },
+  "CRYSTALLIN ALPHA B": {
+    "kidney": 6
+  },
+  "CRYSTALLIN MU": {
+    "eye-female-left": 1
+  },
+  "CST7": {
+    "thymus": 3
+  },
+  "CSTA": {
+    "thymus": 1
+  },
+  "CTGF": {
+    "liver": 1
+  },
+  "CTLA4": {
+    "lymph-node": 2,
+    "thymus": 1
+  },
+  "CTRB1": {
+    "pancreas": 1
+  },
+  "CTSH": {
+    "thymus": 2
+  },
+  "CTSS": {
+    "spleen": 1,
+    "thymus": 1
+  },
+  "CTSV": {
+    "thymus": 2
+  },
+  "CTSW": {
+    "thymus": 1
+  },
+  "CUBILIN": {
+    "kidney": 1
+  },
+  "CXADR LIKE MEMBRANE PROTEIN": {
+    "kidney": 1
+  },
+  "CXCL1": {
+    "lymph-node": 1
+  },
+  "CXCL12": {
+    "lymph-node": 2
+  },
+  "CXCL13": {
+    "lymph-node": 3,
+    "spleen": 6
+  },
+  "CXCL5": {
+    "lymph-node": 1
+  },
+  "CXCL9": {
+    "spleen": 1
+  },
+  "CXCR4": {
+    "lymph-node": 1,
+    "spleen": 1
+  },
+  "CXCR5": {
+    "lymph-node": 3,
+    "spleen": 2
+  },
+  "CXCR6": {
+    "lymph-node": 4
+  },
+  "CYCLIN DEPENDENT KINASE 1": {
+    "lung": 1
+  },
+  "CYP2A7": {
+    "liver": 2
+  },
+  "CYP3A4": {
+    "liver": 2
+  },
+  "CYTOCHROME C OXIDASE SUBUNIT 4I2 HGNC:16232": {
+    "lung": 3
+  },
+  "CYTOCHROME P450 FAMILY 2 SUBFAMILY F MEMBER 1": {
+    "lung": 5
+  },
+  "CYTOCHROME P450 FAMILY 27 SUBFAMILY A MEMBER 1": {
+    "lung": 4
+  },
+  "CYTOTOXIC T-LYMPHOCYTE ASSOCIATED PROTEIN 4": {
+    "lung": 1
+  },
+  "DCLK1": {
+    "intestine": 11
+  },
+  "DCN": {
+    "spleen": 2
+  },
+  "DDIT4": {
+    "thymus": 1
+  },
+  "DECORIN": {
+    "heart": 37,
+    "kidney": 2,
+    "lung": 26,
+    "main-bronchus": 4,
+    "prostate": 2,
+    "trachea": 6
+  },
+  "DEFB1": {
+    "thymus": 2
+  },
+  "DEFENSIN ALPHA 5": {
+    "intestine": 12
+  },
+  "DENND2D": {
+    "thymus": 2
+  },
+  "DENTICLELESS E3 UBIQUITIN PROTEIN LIGASE HOMOLOG": {
+    "lung": 3
+  },
+  "DEOXYRIBONUCLEASE 1 LIKE 3": {
+    "kidney": 2
+  },
+  "DERL3": {
+    "thymus": 1
+  },
+  "DERLIN 3": {
+    "lung": 1
+  },
+  "DES": {
+    "intestine": 1,
+    "liver": 1
+  },
+  "DESMIN": {
+    "lung": 8,
+    "main-bronchus": 3,
+    "placenta-full-term": 13,
+    "prostate": 1,
+    "trachea": 3
+  },
+  "DEUTEROSOME ASSEMBLY PROTEIN 1": {
+    "lung": 4,
+    "main-bronchus": 1
+  },
+  "DIACYLGLYCEROL KINASE IOTA": {
+    "prostate": 1
+  },
+  "DICKKOPF WNT SIGNALING PATHWAY INHIBITOR 2": {
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "DICKKOPF WNT SIGNALING PATHWAY INHIBITOR 3": {
+    "eye-female-left": 1
+  },
+  "DNASE1L3": {
+    "thymus": 2
+  },
+  "DNTT": {
+    "thymus": 1
+  },
+  "DOPAMINE RECEPTOR D2": {
+    "intestine": 2
+  },
+  "DOUBLECORTIN LIKE KINASE 1": {
+    "lung": 6,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "DPT": {
+    "thymus": 1
+  },
+  "DSC2": {
+    "spleen": 2
+  },
+  "DUSP4": {
+    "thymus": 1
+  },
+  "DYNEIN AXONEMAL HEAVY CHAIN 12": {
+    "main-bronchus": 1
+  },
+  "DYNEIN LIGHT CHAIN ROADBLOCK-TYPE 2": {
+    "lung": 9,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "E74 LIKE ETS TRANSCRIPTION FACTOR 3": {
+    "lung": 60,
+    "main-bronchus": 14,
+    "trachea": 11
+  },
+  "EBF TRANSCRIPTION FACTOR 2": {
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "EH DOMAIN CONTAINING 3": {
+    "kidney": 1
+  },
+  "EIF4A3": {
+    "thymus": 1
+  },
+  "ELASTASE, NEUTROPHIL": {
+    "pancreas": 1
+  },
+  "ELOVL4": {
+    "thymus": 1
+  },
+  "EMCN": {
+    "lymph-node": 12
+  },
+  "ENDOGLIN": {
+    "liver": 1,
+    "placenta-full-term": 15
+  },
+  "ENDOMUCIN": {
+    "kidney": 2
+  },
+  "ENDOTHELIAL CELL SURFACE EXPRESSED CHEMOTAXIS AND APOPTOSIS REGULATOR": {
+    "lung": 12,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "ENDOTHELIN RECEPTOR TYPE B": {
+    "lung": 3
+  },
+  "ENPP2": {
+    "lymph-node": 1,
+    "spleen": 3
+  },
+  "ENTPD3": {
+    "pancreas": 1
+  },
+  "EOMES": {
+    "liver": 4
+  },
+  "EOMESODERMIN": {
+    "lung": 1
+  },
+  "EOSINOPHIL PEROXIDASE": {
+    "lung": 1
+  },
+  "EPCAM": {
+    "main-bronchus": 14,
+    "thymus": 1,
+    "trachea": 11
+  },
+  "EPH RECEPTOR B4": {
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "EPHRIN B2": {
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "EPIDERMAL GROWTH FACTOR RECEPTOR": {
+    "placenta-full-term": 15
+  },
+  "EPITHELIAL CELL ADHESION MOLECULE": {
+    "lung": 60,
+    "placenta-full-term": 3
+  },
+  "ESAM": {
+    "lymph-node": 12
+  },
+  "ESTROGEN RECEPTOR 2": {
+    "placenta-full-term": 3
+  },
+  "FABP4": {
+    "pancreas": 1
+  },
+  "FABP5": {
+    "thymus": 1
+  },
+  "FAM177A1": {
+    "thymus": 1
+  },
+  "FAM178B": {
+    "thymus": 2
+  },
+  "FAMILY WITH SEQUENCE SIMILARITY 83 MEMBER D": {
+    "lung": 5,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "FATTY ACID BINDING PROTEIN 4": {
+    "lung": 4
+  },
+  "FATTY ACID SYNTHASE": {
+    "heart": 7
+  },
+  "FBN1": {
+    "thymus": 1
+  },
+  "FC EPSILON RECEPTOR IA": {
+    "kidney": 1
+  },
+  "FC EPSILON RECEPTOR IG": {
+    "lung": 8
+  },
+  "FC FRAGMENT OF IGG RECEPTOR IIB": {
+    "lung": 1
+  },
+  "FC GAMMA BINDING PROTEIN": {
+    "prostate": 1
+  },
+  "FC GAMMA RECEPTOR IA": {
+    "placenta-full-term": 5
+  },
+  "FC GAMMA RECEPTOR IIIA": {
+    "kidney": 1
+  },
+  "FC GAMMA RECEPTOR IIIB": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "FC RECEPTOR LIKE 5": {
+    "kidney": 1
+  },
+  "FCER2": {
+    "lymph-node": 3,
+    "spleen": 2,
+    "thymus": 1
+  },
+  "FCGR1B": {
+    "lymph-node": 2
+  },
+  "FCGR2B": {
+    "spleen": 5
+  },
+  "FCGR3A": {
+    "spleen": 3
+  },
+  "FCGRT": {
+    "thymus": 1
+  },
+  "FCN1": {
+    "spleen": 2,
+    "thymus": 1
+  },
+  "FGF17": {
+    "thymus": 1
+  },
+  "FHOD1": {
+    "spleen": 1
+  },
+  "FIBROBLAST GROWTH FACTOR RECEPTOR 2": {
+    "trachea": 1
+  },
+  "FIBROBLAST GROWTH FACTOR RECEPTOR 4": {
+    "lung": 3
+  },
+  "FIBRONECTIN TYPE III AND ANKYRIN REPEAT DOMAINS 1": {
+    "lung": 1
+  },
+  "FIBULIN 1": {
+    "lung": 8,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "FICOLIN 1": {
+    "lung": 1
+  },
+  "FILAMIN B": {
+    "trachea": 1
+  },
+  "FKBP11": {
+    "thymus": 1
+  },
+  "FLT3LG": {
+    "thymus": 1
+  },
+  "FMS RELATED RECEPTOR TYROSINE KINASE 1": {
+    "kidney": 2
+  },
+  "FMS RELATED RECEPTOR TYROSINE KINASE 3": {
+    "kidney": 4,
+    "lung": 1
+  },
+  "FMS RELATED RECEPTOR TYROSINE KINASE 4": {
+    "prostate": 1
+  },
+  "FN1": {
+    "thymus": 2
+  },
+  "FNBP1": {
+    "spleen": 5
+  },
+  "FNDC3A": {
+    "pancreas": 1
+  },
+  "FOLATE RECEPTOR BETA": {
+    "heart": 8,
+    "lung": 1
+  },
+  "FORKHEAD BOX C1": {
+    "lung": 2,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "FORKHEAD BOX D1": {
+    "kidney": 1
+  },
+  "FORKHEAD BOX I1": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "prostate": 1
+  },
+  "FORKHEAD BOX J1": {
+    "lung": 13,
+    "main-bronchus": 3,
+    "trachea": 2
+  },
+  "FORKHEAD BOX N4": {
+    "lung": 4,
+    "main-bronchus": 1
+  },
+  "FORKHEAD BOX P2": {
+    "spinal-cord": 2
+  },
+  "FORKHEAD BOX P3": {
+    "kidney": 1,
+    "lung": 1,
+    "placenta-full-term": 3
+  },
+  "FOSB": {
+    "thymus": 1
+  },
+  "FOUR AND A HALF LIM DOMAINS 2": {
+    "heart": 5
+  },
+  "FOXI1": {
+    "thymus": 1
+  },
+  "FOXP3": {
+    "intestine": 35,
+    "lymph-node": 4,
+    "spleen": 3,
+    "thymus": 1
+  },
+  "FUCOSYLTRANSFERASE 4": {
+    "placenta-full-term": 3
+  },
+  "FXYD DOMAIN CONTAINING ION TRANSPORT REGULATOR 3": {
+    "lung": 60,
+    "main-bronchus": 14,
+    "trachea": 11
+  },
+  "FXYD DOMAIN CONTAINING ION TRANSPORT REGULATOR 4": {
+    "kidney": 6
+  },
+  "G PROTEIN SUBUNIT ALPHA TRANSDUCIN 1": {
+    "eye-female-left": 1
+  },
+  "G PROTEIN SUBUNIT ALPHA TRANSDUCIN 2": {
+    "eye-female-left": 1
+  },
+  "G PROTEIN SUBUNIT BETA 1": {
+    "eye-female-left": 1
+  },
+  "G PROTEIN SUBUNIT GAMMA TRANSDUCIN 1": {
+    "eye-female-left": 1
+  },
+  "G PROTEIN SUBUNIT GAMMA TRANSDUCIN 2": {
+    "eye-female-left": 1
+  },
+  "GAMMA-AMINOBUTYRIC ACID TYPE A RECEPTOR SUBUNIT BETA2": {
+    "spinal-cord": 2
+  },
+  "GAP JUNCTION PROTEIN ALPHA 1": {
+    "prostate": 1
+  },
+  "GAP JUNCTION PROTEIN ALPHA 4": {
+    "prostate": 2
+  },
+  "GAP JUNCTION PROTEIN ALPHA 5": {
+    "heart": 5,
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "GAP JUNCTION PROTEIN GAMMA 1": {
+    "heart": 4
+  },
+  "GAS1 ADJACENT REGULATORY RNA": {
+    "spinal-cord": 1
+  },
+  "GAST": {
+    "pancreas": 1
+  },
+  "GASTRIN RELEASING PEPTIDE": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "prostate": 1,
+    "trachea": 1
+  },
+  "GATA BINDING PROTEIN 3": {
+    "kidney": 5,
+    "spinal-cord": 1
+  },
+  "GATA2": {
+    "thymus": 1
+  },
+  "GATA3": {
+    "thymus": 4
+  },
+  "GBP2": {
+    "thymus": 1
+  },
+  "GCG": {
+    "pancreas": 1
+  },
+  "GELSOLIN": {
+    "heart": 44
+  },
+  "GEMININ DNA REPLICATION INHIBITOR": {
+    "lung": 1
+  },
+  "GFAP": {
+    "liver": 1
+  },
+  "GHRL": {
+    "pancreas": 1
+  },
+  "GIMAP4": {
+    "thymus": 1
+  },
+  "GIMAP7": {
+    "thymus": 2
+  },
+  "GLUL": {
+    "liver": 1
+  },
+  "GLUTAMATE DECARBOXYLASE 1": {
+    "eye-female-left": 1
+  },
+  "GLUTAMATE DECARBOXYLASE 2": {
+    "eye-female-left": 1,
+    "spinal-cord": 1
+  },
+  "GLUTAMATE IONOTROPIC RECEPTOR KAINATE TYPE SUBUNIT 1": {
+    "eye-female-left": 1
+  },
+  "GLUTAMATE METABOTROPIC RECEPTOR 6": {
+    "eye-female-left": 1
+  },
+  "GLUTAMATE-AMMONIA LIGASE": {
+    "eye-female-left": 1
+  },
+  "GLUTATHIONE PEROXIDASE 2": {
+    "kidney": 1
+  },
+  "GLYCEROL-3-PHOSPHATE ACYLTRANSFERASE, MITOCHONDRIAL": {
+    "heart": 7
+  },
+  "GLYCINE AMIDINOTRANSFERASE": {
+    "kidney": 1
+  },
+  "GLYCOPROTEIN IB PLATELET SUBUNIT ALPHA": {
+    "lung": 1
+  },
+  "GLYCOPROTEIN M6A": {
+    "kidney": 1
+  },
+  "GLYCOSYLPHOSPHATIDYLINOSITOL ANCHORED HIGH DENSITY LIPOPROTEIN BINDING PROTEIN 1": {
+    "lung": 3
+  },
+  "GNG11": {
+    "thymus": 1
+  },
+  "GNLY": {
+    "spleen": 3,
+    "thymus": 1
+  },
+  "GP9": {
+    "spleen": 1
+  },
+  "GPR183": {
+    "thymus": 3
+  },
+  "GRAM DOMAIN CONTAINING 2A": {
+    "lung": 3
+  },
+  "GRANULYSIN": {
+    "heart": 6,
+    "kidney": 2
+  },
+  "GRANZYME A": {
+    "heart": 6,
+    "kidney": 3
+  },
+  "GSN": {
+    "thymus": 2
+  },
+  "GUANYLATE CYCLASE ACTIVATOR 1A": {
+    "eye-female-left": 1
+  },
+  "GZMA": {
+    "thymus": 1
+  },
+  "GZMB": {
+    "lymph-node": 3,
+    "spleen": 3,
+    "thymus": 2
+  },
+  "GZMK": {
+    "lymph-node": 2,
+    "thymus": 3
+  },
+  "GZMM": {
+    "thymus": 3
+  },
+  "HAL": {
+    "liver": 1
+  },
+  "HAL-DQB1": {
+    "thymus": 2
+  },
+  "HBA1": {
+    "thymus": 2
+  },
+  "HBA2": {
+    "thymus": 2
+  },
+  "HBB": {
+    "thymus": 2
+  },
+  "HBG1": {
+    "thymus": 2
+  },
+  "HBG2": {
+    "thymus": 2
+  },
+  "HBM": {
+    "thymus": 2
+  },
+  "HCFC1R1": {
+    "thymus": 1
+  },
+  "HCST": {
+    "thymus": 1
+  },
+  "HDC": {
+    "thymus": 1
+  },
+  "HECT, C2 AND WW DOMAIN CONTAINING E3 UBIQUITIN PROTEIN LIGASE 2": {
+    "kidney": 1
+  },
+  "HEMICENTIN 1": {
+    "spinal-cord": 1
+  },
+  "HEPACAM2": {
+    "thymus": 1
+  },
+  "HES RELATED FAMILY BHLH TRANSCRIPTION FACTOR WITH YRPW MOTIF 1": {
+    "lung": 1
+  },
+  "HES RELATED FAMILY BHLH TRANSCRIPTION FACTOR WITH YRPW MOTIF 2": {
+    "lung": 4,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "HES6": {
+    "thymus": 1
+  },
+  "HHEX": {
+    "pancreas": 1
+  },
+  "HIG1 HYPOXIA INDUCIBLE DOMAIN FAMILY MEMBER 1B": {
+    "lung": 3
+  },
+  "HLA-DPA1": {
+    "lymph-node": 12,
+    "thymus": 2
+  },
+  "HLA-DPB1": {
+    "lymph-node": 12
+  },
+  "HLA-DQA1": {
+    "thymus": 5
+  },
+  "HLA-DQB1": {
+    "thymus": 1
+  },
+  "HLA-DR": {
+    "intestine": 56
+  },
+  "HLA-DRA": {
+    "lymph-node": 27,
+    "thymus": 3
+  },
+  "HLA-DRB1": {
+    "lymph-node": 12
+  },
+  "HNF4A": {
+    "liver": 1
+  },
+  "HOBIT": {
+    "liver": 1
+  },
+  "HOP HOMEOBOX": {
+    "lung": 6
+  },
+  "HOPX": {
+    "thymus": 1
+  },
+  "HOXC8": {
+    "pancreas": 1
+  },
+  "HOXC9": {
+    "pancreas": 1
+  },
+  "HPGDS": {
+    "pancreas": 1,
+    "spleen": 1,
+    "thymus": 1
+  },
+  "HSPB6": {
+    "thymus": 1
+  },
+  "HYDROXYSTEROID 11-BETA DEHYDROGENASE 2": {
+    "kidney": 2
+  },
+  "HYPERPOLARIZATION ACTIVATED CYCLIC NUCLEOTIDE GATED POTASSIUM CHANNEL 4": {
+    "heart": 9
+  },
+  "ICAM1": {
+    "lymph-node": 12
+  },
+  "ICOS": {
+    "spleen": 1
+  },
+  "ID2": {
+    "lymph-node": 9,
+    "spleen": 1,
+    "thymus": 2
+  },
+  "IDO1": {
+    "lymph-node": 1
+  },
+  "IFI27": {
+    "thymus": 9
+  },
+  "IGFBP6": {
+    "thymus": 1
+  },
+  "IGHA1": {
+    "thymus": 2
+  },
+  "IGHD": {
+    "lymph-node": 2,
+    "spleen": 2,
+    "thymus": 1
+  },
+  "IGHG1": {
+    "spleen": 5,
+    "thymus": 1
+  },
+  "IGHG3": {
+    "thymus": 1
+  },
+  "IGHM": {
+    "lymph-node": 1,
+    "spleen": 7,
+    "thymus": 1
+  },
+  "IGKC": {
+    "thymus": 1
+  },
+  "IGLL1": {
+    "spleen": 1
+  },
+  "IKZF2": {
+    "thymus": 1
+  },
+  "IL10": {
+    "thymus": 1
+  },
+  "IL1RL1": {
+    "thymus": 1
+  },
+  "IL2RA": {
+    "lymph-node": 4,
+    "spleen": 3
+  },
+  "IL32": {
+    "thymus": 1
+  },
+  "IL3RA": {
+    "lymph-node": 1,
+    "spleen": 3,
+    "thymus": 2
+  },
+  "IL4R": {
+    "spleen": 2
+  },
+  "IL6": {
+    "spleen": 1
+  },
+  "IL7": {
+    "lymph-node": 2,
+    "spleen": 2
+  },
+  "IL7R": {
+    "lymph-node": 6,
+    "thymus": 6
+  },
+  "IMMUNOGLOBIN SUPERFAMILY MEMBER 21": {
+    "lung": 1
+  },
+  "IMMUNOGLOBULIN KAPPA CONSTANT": {
+    "kidney": 1
+  },
+  "INDOLETHYLAMINE N-METHYLTRANSFERASE": {
+    "lung": 2
+  },
+  "INHIBITOR OF DNA BINDING 1": {
+    "kidney": 1
+  },
+  "INS": {
+    "pancreas": 1
+  },
+  "INSL5": {
+    "intestine": 11
+  },
+  "INSM1": {
+    "intestine": 22
+  },
+  "INSULIN GROWTH FACTOR BINDING PROTEIN 3": {
+    "prostate": 1
+  },
+  "INSULIN LIKE GROWTH FACTOR 1": {
+    "spinal-cord": 1
+  },
+  "INSULIN LIKE GROWTH FACTOR BINDING PROTEIN 3": {
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "INSULIN LIKE GROWTH FACTOR BINDING PROTEIN 7": {
+    "eye-female-left": 1
+  },
+  "INSULIN RECEPTOR RELATED RECEPTOR": {
+    "kidney": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA 1": {
+    "lung": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA 2B": {
+    "lung": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA 7": {
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "INTEGRIN SUBUNIT ALPHA 8": {
+    "kidney": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA E": {
+    "heart": 5,
+    "lung": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA E/CD103": {
+    "intestine": 2
+  },
+  "INTEGRIN SUBUNIT ALPHA L": {
+    "kidney": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA M": {
+    "heart": 5,
+    "lung": 1
+  },
+  "INTEGRIN SUBUNIT ALPHA M/CD11B": {
+    "intestine": 2
+  },
+  "INTEGRIN SUBUNIT ALPHA X": {
+    "heart": 5,
+    "kidney": 3,
+    "placenta-full-term": 3
+  },
+  "INTEGRIN SUBUNIT BETA 3": {
+    "lung": 1
+  },
+  "INTELECTIN 1": {
+    "lung": 1
+  },
+  "INTERLEUKIN 3 RECEPTOR SUBUNIT ALPHA": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "INTERLEUKIN 7 RECEPTOR": {
+    "heart": 6,
+    "kidney": 1,
+    "lung": 12
+  },
+  "IQ MOTIF CONTAINING GTPASE ACTIVATING PROTEIN 2": {
+    "spinal-cord": 1
+  },
+  "IRAG2": {
+    "thymus": 1
+  },
+  "IRF4": {
+    "lymph-node": 4
+  },
+  "IRF7": {
+    "thymus": 2
+  },
+  "IRF8": {
+    "thymus": 5
+  },
+  "IRX2": {
+    "pancreas": 1
+  },
+  "ISL LIM HOMEOBOX 1": {
+    "spinal-cord": 1
+  },
+  "ISTHMIN 1": {
+    "spinal-cord": 1
+  },
+  "ITGA1": {
+    "liver": 1,
+    "lymph-node": 4
+  },
+  "ITGAX": {
+    "lymph-node": 8,
+    "pancreas": 2
+  },
+  "JAGGED CANONICAL NOTCH LIGAND 1": {
+    "kidney": 1
+  },
+  "JAM2": {
+    "lymph-node": 12
+  },
+  "JAML": {
+    "thymus": 3
+  },
+  "JCHAIN": {
+    "lymph-node": 1,
+    "spleen": 5,
+    "thymus": 3
+  },
+  "JOINING CHAIN OF MULTIMERIC IGA AND IGM": {
+    "kidney": 2
+  },
+  "KALLIKREIN RELATED PEPTIDASE 11": {
+    "lung": 1
+  },
+  "KALLIKREIN RELATED PEPTIDASE 3": {
+    "prostate": 1
+  },
+  "KERATIN 13": {
+    "prostate": 1
+  },
+  "KERATIN 14": {
+    "lung": 6,
+    "main-bronchus": 2,
+    "prostate": 1,
+    "trachea": 2
+  },
+  "KERATIN 15": {
+    "prostate": 1
+  },
+  "KERATIN 18": {
+    "intestine": 10,
+    "placenta-full-term": 3
+  },
+  "KERATIN 19": {
+    "intestine": 2,
+    "lung": 3,
+    "main-bronchus": 1,
+    "placenta-full-term": 3
+  },
+  "KERATIN 20": {
+    "intestine": 68
+  },
+  "KERATIN 4": {
+    "lung": 3
+  },
+  "KERATIN 5": {
+    "kidney": 1,
+    "lung": 14,
+    "main-bronchus": 4,
+    "prostate": 2,
+    "trachea": 3
+  },
+  "KERATIN 7": {
+    "intestine": 6,
+    "placenta-full-term": 31
+  },
+  "KERATIN 8": {
+    "intestine": 10
+  },
+  "KERATIN, TYPE II CYTOSKELETAL 8": {
+    "kidney": 1
+  },
+  "KIF19": {
+    "thymus": 1
+  },
+  "KILLER CELL LECTIN LIKE RECEPTOR B1": {
+    "lung": 1
+  },
+  "KILLER CELL LECTIN LIKE RECEPTOR D1": {
+    "lung": 1
+  },
+  "KILLER CELL LECTIN LIKE RECEPTOR G1": {
+    "lung": 1
+  },
+  "KIT": {
+    "liver": 1,
+    "lymph-node": 2
+  },
+  "KIT PROTO-ONCOGENE, RECEPTOR TYROSINE KINASE": {
+    "heart": 6,
+    "kidney": 4,
+    "lung": 3
+  },
+  "KLF2": {
+    "thymus": 1
+  },
+  "KLF6": {
+    "spleen": 5
+  },
+  "KLHL41": {
+    "thymus": 1
+  },
+  "KLRB1": {
+    "thymus": 3
+  },
+  "KLRC1": {
+    "thymus": 1
+  },
+  "KLRD1": {
+    "lymph-node": 3,
+    "thymus": 1
+  },
+  "KLRF1": {
+    "thymus": 1
+  },
+  "KRT14": {
+    "thymus": 1
+  },
+  "KRT15": {
+    "thymus": 1
+  },
+  "KRT17": {
+    "thymus": 1
+  },
+  "KRT18": {
+    "pancreas": 1,
+    "thymus": 1
+  },
+  "KRT19": {
+    "liver": 1,
+    "pancreas": 5,
+    "thymus": 3
+  },
+  "KRT5": {
+    "thymus": 2
+  },
+  "KRT6A": {
+    "thymus": 2
+  },
+  "KRT7": {
+    "liver": 1,
+    "pancreas": 1
+  },
+  "KRT8": {
+    "pancreas": 1,
+    "thymus": 1
+  },
+  "KRT86": {
+    "thymus": 1
+  },
+  "KRTAP5-6": {
+    "intestine": 4
+  },
+  "LACTOPEROXIDASE": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "LACTOTRANSFERRIN": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "LADININ 1": {
+    "lung": 1
+  },
+  "LAMA2": {
+    "pancreas": 1
+  },
+  "LAMB2": {
+    "pancreas": 1
+  },
+  "LAMININ SUBUNIT ALPHA 2": {
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "LAMININ SUBUNIT GAMMA 3": {
+    "lung": 3
+  },
+  "LANGERIN": {
+    "intestine": 1
+  },
+  "LAPTM5": {
+    "thymus": 1
+  },
+  "LAT": {
+    "thymus": 1
+  },
+  "LATENT TRANSFORMING GROWTH FACTOR BETA BINDING PROTEIN 2": {
+    "lung": 1
+  },
+  "LCK PROTO-ONCOGENE, SRC FAMILY TYROSINE KINASE": {
+    "heart": 5
+  },
+  "LCP2": {
+    "thymus": 1
+  },
+  "LDL RECEPTOR RELATED PROTEIN 2": {
+    "kidney": 1
+  },
+  "LEF1": {
+    "thymus": 1
+  },
+  "LEPTIN": {
+    "heart": 7
+  },
+  "LEUCINE RICH REPEAT CONTAINING G PROTEIN-COUPLED RECEPTOR 4": {
+    "trachea": 1
+  },
+  "LEUCINE RICH REPEAT CONTAINING G PROTEIN-COUPLED RECEPTOR 6": {
+    "lung": 8,
+    "main-bronchus": 1,
+    "trachea": 2
+  },
+  "LEUKOCYTE IMMUNOGLOBULIN LIKE RECEPTOR B2": {
+    "kidney": 1
+  },
+  "LGALS2": {
+    "thymus": 4
+  },
+  "LGMN": {
+    "thymus": 5
+  },
+  "LGR5": {
+    "intestine": 11,
+    "liver": 1
+  },
+  "LILRA4": {
+    "thymus": 2
+  },
+  "LIM DOMAIN BINDING 3": {
+    "kidney": 1
+  },
+  "LIM DOMAIN ONLY 3": {
+    "spinal-cord": 1
+  },
+  "LIM HOMEOBOX 1": {
+    "eye-female-left": 1
+  },
+  "LIM HOMEOBOX TRANSCRIPTION FACTOR 1 BETA": {
+    "spinal-cord": 1
+  },
+  "LIPE": {
+    "pancreas": 1
+  },
+  "LMO4": {
+    "thymus": 1
+  },
+  "LRIG1": {
+    "intestine": 11
+  },
+  "LRRN3": {
+    "thymus": 2
+  },
+  "LST1": {
+    "thymus": 1
+  },
+  "LTB": {
+    "thymus": 2
+  },
+  "LUM": {
+    "thymus": 1
+  },
+  "LUMICAN": {
+    "kidney": 1,
+    "lung": 7
+  },
+  "LY6/PLAUR DOMAIN CONTAINING 3": {
+    "prostate": 1
+  },
+  "LY6D": {
+    "thymus": 2
+  },
+  "LY86": {
+    "thymus": 2
+  },
+  "LYAR": {
+    "thymus": 1
+  },
+  "LYMPHATIC ENDOTHELIAL TRANSCRIPTIONAL REGULATOR LNCRNA 1": {
+    "spinal-cord": 1
+  },
+  "LYMPHATIC VESSEL ENDOTHELIAL HYALURONAN RECEPTOR 1": {
+    "heart": 6,
+    "lung": 1,
+    "prostate": 1
+  },
+  "LYMPHOCYTE ANTIGEN 75": {
+    "heart": 5
+  },
+  "LYMPHOID ENHANCER BINDING FACTOR 1": {
+    "lung": 1,
+    "spinal-cord": 1
+  },
+  "LYSOSOMAL ASSOCIATED MEMBRANE PROTEIN 3": {
+    "lung": 3
+  },
+  "LYSOZYME": {
+    "intestine": 1,
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "LYVE-1": {
+    "intestine": 22
+  },
+  "LYVE1": {
+    "lymph-node": 4
+  },
+  "LYZ": {
+    "lymph-node": 1,
+    "thymus": 3
+  },
+  "MACROPHAGE RECEPTOR WITH COLLAGENOUS STRUCTURE": {
+    "lung": 4
+  },
+  "MACROPHAGE SCAVENGER RECEPTOR 1": {
+    "kidney": 1
+  },
+  "MADCAM1": {
+    "intestine": 22,
+    "lymph-node": 2,
+    "spleen": 6
+  },
+  "MAF": {
+    "lymph-node": 1
+  },
+  "MAF BZIP TRANSCRIPTION FACTOR": {
+    "spinal-cord": 1
+  },
+  "MAF BZIP TRANSCRIPTION FACTOR A": {
+    "spinal-cord": 3
+  },
+  "MAFA": {
+    "pancreas": 1
+  },
+  "MAJOR HISTOCOMPATIBILITY COMPLEX, CLASS I, G": {
+    "placenta-full-term": 13
+  },
+  "MAJOR HISTOCOMPATIBILITY COMPLEX, CLASS II, DQ ALPHA 1": {
+    "kidney": 1
+  },
+  "MAJOR HISTOCOMPATIBILITY COMPLEX, CLASS II, DR ALPHA": {
+    "kidney": 4,
+    "placenta-full-term": 3
+  },
+  "MAJOR HISTOCOMPATIBILITY COMPLEX, CLASS II, DR BETA 1": {
+    "kidney": 1,
+    "lung": 3
+  },
+  "MANNOSE RECEPTOR C-TYPE 1": {
+    "lung": 5,
+    "placenta-full-term": 3
+  },
+  "MAP-2": {
+    "intestine": 65
+  },
+  "MAP1B": {
+    "thymus": 1
+  },
+  "MARCO": {
+    "lymph-node": 15
+  },
+  "MARGINAL ZONE B AND B1 CELL SPECIFIC PROTEIN": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "MATRIX GLA PROTEIN": {
+    "eye-female-left": 1
+  },
+  "MATRIX METALLOPEPTIDASE 2": {
+    "lung": 1
+  },
+  "MCT": {
+    "intestine": 13
+  },
+  "MELANA": {
+    "intestine": 1
+  },
+  "MELANOMA CELL ADHESION MOLECULE": {
+    "kidney": 2,
+    "placenta-full-term": 25,
+    "prostate": 1
+  },
+  "MEMBRANE METALLOENDOPEPTIDASE": {
+    "placenta-full-term": 3
+  },
+  "MEMBRANE SPANNING 4-DOMAINS A1": {
+    "heart": 6,
+    "kidney": 1,
+    "lung": 2
+  },
+  "MEMBRANE SPANNING 4-DOMAINS A2": {
+    "heart": 6,
+    "kidney": 1,
+    "lung": 2
+  },
+  "MEMBRANE SPANNING 4-DOMAINS A7": {
+    "lung": 1
+  },
+  "MESOTHELIN": {
+    "heart": 1
+  },
+  "METALLOTHIONEIN 1E": {
+    "lung": 1
+  },
+  "MFAP4": {
+    "lymph-node": 2,
+    "thymus": 1
+  },
+  "MFGE8": {
+    "lymph-node": 2,
+    "spleen": 6
+  },
+  "MFSD2 LYSOLIPID TRANSPORTER A, LYSOPHOSPHOLIPID": {
+    "lung": 3
+  },
+  "MGP": {
+    "thymus": 1
+  },
+  "MIA SH3 DOMAIN CONTAINING": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "MICROFIBRIL ASSOCIATED PROTEIN 4": {
+    "lung": 23,
+    "main-bronchus": 4,
+    "prostate": 1,
+    "trachea": 6
+  },
+  "MICROFIBRIL ASSOCIATED PROTEIN 5": {
+    "lung": 4,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "MICROSEMINOPROTEIN BETA": {
+    "prostate": 1
+  },
+  "MKI67": {
+    "lymph-node": 2
+  },
+  "MME": {
+    "thymus": 4
+  },
+  "MMRN1": {
+    "thymus": 1
+  },
+  "MNDA": {
+    "thymus": 2
+  },
+  "MONOACYLGLYCEROL O-ACYLTRANSFERASE 1": {
+    "kidney": 1
+  },
+  "MPO": {
+    "thymus": 1
+  },
+  "MRC1": {
+    "pancreas": 2
+  },
+  "MS4A1": {
+    "lymph-node": 8,
+    "pancreas": 2,
+    "spleen": 14,
+    "thymus": 3
+  },
+  "MS4A2": {
+    "lymph-node": 2
+  },
+  "MS4A7": {
+    "thymus": 5
+  },
+  "MUC2": {
+    "intestine": 22,
+    "pancreas": 1
+  },
+  "MUCIN 5AC, OLIGOMERIC MUCUS/GEL-FORMING": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "MUCIN 5B, OLIGOMERIC MUCUS/GEL-FORMING": {
+    "lung": 6,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "MULTIMERIN 1": {
+    "kidney": 1,
+    "lung": 2
+  },
+  "MULTIPLE C2 AND TRANSMEMBRANE DOMAIN CONTAINING 1": {
+    "kidney": 1
+  },
+  "MUSCULAR LMNA INTERACTING PROTEIN": {
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "MYC PROTO-ONCOGENE, BHLH TRANSCRIPTION FACTOR": {
+    "lung": 1
+  },
+  "MYELIN OLIGODENDROCYTE GLYCOPROTEIN": {
+    "spinal-cord": 4
+  },
+  "MYELOPEROXIDASE": {
+    "pancreas": 1
+  },
+  "MYLPF": {
+    "thymus": 1
+  },
+  "MYOG": {
+    "thymus": 1
+  },
+  "MYOSIN HEAVY CHAIN 11": {
+    "heart": 33,
+    "kidney": 2,
+    "lung": 12,
+    "main-bronchus": 4,
+    "trachea": 4
+  },
+  "MYOSIN HEAVY CHAIN 7": {
+    "heart": 5
+  },
+  "MYOSIN LIGHT CHAIN 2": {
+    "heart": 5
+  },
+  "MYOSIN LIGHT CHAIN 4": {
+    "heart": 6
+  },
+  "MYOSIN LIGHT CHAIN 7": {
+    "heart": 6
+  },
+  "MYOSIN LIGHT CHAIN 9": {
+    "eye-female-left": 1
+  },
+  "MYOSIN X": {
+    "spinal-cord": 1
+  },
+  "MZB1": {
+    "thymus": 1
+  },
+  "N-ACYLSPHINGOSINE AMIDOHYDROLASE 2": {
+    "spinal-cord": 1
+  },
+  "NATRIURETIC PEPTIDE A": {
+    "heart": 6
+  },
+  "NATRIURETIC PEPTIDE RECEPTOR 3": {
+    "heart": 6
+  },
+  "NATURAL CYTOTOXICITY TRIGGERING RECEPTOR 1": {
+    "lung": 1
+  },
+  "NATURAL KILLER CELL GRANULE PROTEIN 7": {
+    "heart": 11,
+    "kidney": 2,
+    "lung": 1
+  },
+  "NCAM1": {
+    "lymph-node": 1,
+    "spleen": 2
+  },
+  "NDUFA4 MITOCHONDRIAL COMPLEX ASSOCIATED LIKE 2": {
+    "prostate": 1
+  },
+  "NDUFV2": {
+    "thymus": 1
+  },
+  "NEB": {
+    "thymus": 1
+  },
+  "NECTIN2": {
+    "lymph-node": 12
+  },
+  "NERVE GROWTH FACTOR RECEPTOR": {
+    "lung": 8,
+    "main-bronchus": 2,
+    "trachea": 1
+  },
+  "NETRIN G1": {
+    "kidney": 1
+  },
+  "NEURAL CELL ADHESION MOLECULE 1": {
+    "kidney": 1,
+    "lung": 2,
+    "placenta-full-term": 4
+  },
+  "NEURAL RETINA LEUCINE ZIPPER": {
+    "eye-female-left": 1
+  },
+  "NEUREXIN 1": {
+    "heart": 2,
+    "lung": 2,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "NEUREXIN 3": {
+    "heart": 2
+  },
+  "NEUREXOPHILIN 2": {
+    "kidney": 1
+  },
+  "NEUROFILAMENT LIGHT CHAIN": {
+    "eye-female-left": 1
+  },
+  "NEUROFILAMENT MEDIUM CHAIN": {
+    "eye-female-left": 1
+  },
+  "NEUROMEDIN U": {
+    "spinal-cord": 2
+  },
+  "NEUROMEDIN U RECEPTOR 2": {
+    "spinal-cord": 2
+  },
+  "NEUROPEPTIDE Y": {
+    "spinal-cord": 1
+  },
+  "NEUROPILIN 1": {
+    "lung": 1
+  },
+  "NEUROTENSIN": {
+    "spinal-cord": 1
+  },
+  "NEUROTROPHIC RECEPTOR TYROSINE KINASE 1": {
+    "kidney": 1
+  },
+  "NEUROTROPHIC RECEPTOR TYROSINE KINASE 3": {
+    "kidney": 2,
+    "lung": 4,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "NKG2D": {
+    "intestine": 33
+  },
+  "NKG7": {
+    "thymus": 3
+  },
+  "NKX6-1": {
+    "pancreas": 1
+  },
+  "NNAT": {
+    "thymus": 2
+  },
+  "NOSIP": {
+    "thymus": 1
+  },
+  "NOTCH RECEPTOR 1": {
+    "lung": 1
+  },
+  "NOTCH RECEPTOR 3": {
+    "lung": 7,
+    "main-bronchus": 3,
+    "trachea": 2
+  },
+  "NOTCH4": {
+    "lung": 11,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "NPDC1": {
+    "thymus": 9
+  },
+  "NPHS1 ADHESION MOLECULE, NEPHRIN": {
+    "kidney": 4
+  },
+  "NPHS2 STOMATIN FAMILY MEMBER, PODOCIN": {
+    "kidney": 4
+  },
+  "NR4A2": {
+    "thymus": 1
+  },
+  "NT5E": {
+    "lymph-node": 5
+  },
+  "NTHL1": {
+    "thymus": 1
+  },
+  "NTS": {
+    "thymus": 1
+  },
+  "NUCB2": {
+    "thymus": 1
+  },
+  "NUCLEAR FACTOR I X": {
+    "spinal-cord": 3
+  },
+  "NUCLEAR FACTOR OF ACTIVATED T CELLS 1": {
+    "spinal-cord": 1
+  },
+  "NUCLEAR RECEPTOR SUBFAMILY 2 GROUP E MEMBER 3": {
+    "eye-female-left": 1
+  },
+  "NUCLEAR RECEPTOR SUBFAMILY 2 GROUP F MEMBER 1": {
+    "spinal-cord": 2
+  },
+  "NUCLEAR RECEPTOR SUBFAMILY 2 GROUP F MEMBER 2": {
+    "kidney": 1,
+    "lung": 1,
+    "main-bronchus": 1,
+    "spinal-cord": 1,
+    "trachea": 1
+  },
+  "NUCLEAR RECEPTOR SUBFAMILY 4 GROUP A MEMBER 2": {
+    "spinal-cord": 1
+  },
+  "NUDT4": {
+    "lymph-node": 3
+  },
+  "NUPR1": {
+    "thymus": 1
+  },
+  "OGN": {
+    "thymus": 1
+  },
+  "ONE CUT HOMEOBOX 1": {
+    "eye-female-left": 1
+  },
+  "ONE CUT HOMEOBOX 2": {
+    "eye-female-left": 1,
+    "spinal-cord": 2
+  },
+  "OPN1": {
+    "liver": 1
+  },
+  "OPSIN 1, LONG WAVE SENSITIVE": {
+    "eye-female-left": 1
+  },
+  "OPSIN 1, MEDIUM WAVE SENSITIVE": {
+    "eye-female-left": 1
+  },
+  "OPSIN 1, SHORT WAVE SENSITIVE": {
+    "eye-female-left": 1
+  },
+  "ORTHODENTICLE HOMEOBOX 2": {
+    "eye-female-left": 1
+  },
+  "P3H2": {
+    "thymus": 1
+  },
+  "P60": {
+    "intestine": 2
+  },
+  "PALMDELPHIN": {
+    "kidney": 5
+  },
+  "PDCD1": {
+    "lymph-node": 1,
+    "spleen": 2
+  },
+  "PDGFRA": {
+    "lymph-node": 2
+  },
+  "PDGFRB": {
+    "intestine": 87,
+    "liver": 1,
+    "lymph-node": 2,
+    "pancreas": 1
+  },
+  "PDL1": {
+    "intestine": 24
+  },
+  "PDLIM1": {
+    "thymus": 1
+  },
+  "PDX1": {
+    "pancreas": 3
+  },
+  "PDZ DOMAIN CONTAINING RING FINGER 4": {
+    "lung": 1
+  },
+  "PECAM1": {
+    "intestine": 252,
+    "liver": 3,
+    "spleen": 16
+  },
+  "PEPTIDASE INHIBITOR 16": {
+    "lung": 2
+  },
+  "PERFORIN 1": {
+    "lung": 1
+  },
+  "PERIOSTIN": {
+    "kidney": 1
+  },
+  "PERIPHERIN": {
+    "intestine": 65,
+    "spinal-cord": 1
+  },
+  "PEROXISOME PROLIFERATOR ACTIVATED RECEPTOR GAMMA": {
+    "lung": 4
+  },
+  "PERP": {
+    "thymus": 2
+  },
+  "PF4": {
+    "spleen": 1
+  },
+  "PGP9.5": {
+    "intestine": 141
+  },
+  "PHOSDUCIN": {
+    "eye-female-left": 1
+  },
+  "PHOSPHODIESTERASE 11A": {
+    "spinal-cord": 3
+  },
+  "PHOSPHODIESTERASE 6H": {
+    "eye-female-left": 1
+  },
+  "PHOSPHOLAMBAN": {
+    "lung": 12,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "PHOSPHOLIPASE A2 GROUP IIA": {
+    "lung": 2
+  },
+  "PHRIN B2": {
+    "lung": 1
+  },
+  "PIEZO TYPE MECHANOSENSITIVE ION CHANNEL COMPONENT 2": {
+    "kidney": 1
+  },
+  "PIM2": {
+    "thymus": 1
+  },
+  "PLAC8": {
+    "thymus": 3
+  },
+  "PLACENTA ASSOCIATED 8": {
+    "placenta-full-term": 10
+  },
+  "PLASMALEMMA VESICLE ASSOCIATED PROTEIN": {
+    "kidney": 2,
+    "lung": 4
+  },
+  "PLASMINOGEN ACTIVATOR, TISSUE TYPE": {
+    "kidney": 1
+  },
+  "PLATELET AND ENDOTHELIAL CELL ADHESION MOLECULE 1": {
+    "heart": 42,
+    "kidney": 1,
+    "placenta-full-term": 9,
+    "prostate": 4
+  },
+  "PLATELET DERIVED GROWTH FACTOR RECEPTOR ALPHA": {
+    "heart": 44
+  },
+  "PLATELET DERIVED GROWTH FACTOR RECEPTOR BETA": {
+    "kidney": 1,
+    "lung": 4,
+    "placenta-full-term": 8
+  },
+  "PLATELET FACTOR 4": {
+    "lung": 1
+  },
+  "PLD4": {
+    "thymus": 2
+  },
+  "PLIN2": {
+    "thymus": 1
+  },
+  "PLPP5": {
+    "spleen": 1
+  },
+  "PLTP": {
+    "thymus": 2
+  },
+  "PLVAP": {
+    "lymph-node": 12,
+    "thymus": 9
+  },
+  "PMAIP1": {
+    "thymus": 1
+  },
+  "PNLIP": {
+    "pancreas": 1
+  },
+  "PODOCALYXIN LIKE": {
+    "kidney": 4
+  },
+  "PODOPLANIN": {
+    "heart": 6,
+    "intestine": 78,
+    "placenta-full-term": 3
+  },
+  "POLYMERIC IMMUNOGLOBULIN RECEPTOR": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "prostate": 1
+  },
+  "POSTN": {
+    "spleen": 5
+  },
+  "POTASSIUM INWARDLY RECTIFYING CHANNEL SUBFAMILY J MEMBER 8": {
+    "eye-female-left": 1,
+    "heart": 14
+  },
+  "POTASSIUM TWO PORE DOMAIN CHANNEL SUBFAMILY K MEMBER 2": {
+    "kidney": 1
+  },
+  "POU CLASS 2 HOMEOBOX 3": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "POU CLASS 4 HOMEOBOX 1": {
+    "eye-female-left": 1
+  },
+  "POU CLASS 4 HOMEOBOX 2": {
+    "eye-female-left": 1
+  },
+  "POU CLASS 4 HOMEOBOX 3": {
+    "eye-female-left": 1
+  },
+  "POU CLASS 5 HOMEOBOX 1": {
+    "placenta-full-term": 3
+  },
+  "POU CLASS 6 HOMEOBOX 2": {
+    "spinal-cord": 2
+  },
+  "POU2F3": {
+    "intestine": 11
+  },
+  "PPY": {
+    "pancreas": 1
+  },
+  "PR/SET DOMAIN 8": {
+    "spinal-cord": 1
+  },
+  "PRDM1": {
+    "liver": 1,
+    "lymph-node": 4,
+    "thymus": 1
+  },
+  "PREGNANCY SPECIFIC BETA-1-GLYCOPROTEIN 4": {
+    "placenta-full-term": 7
+  },
+  "PRF1": {
+    "spleen": 3
+  },
+  "PRKCH": {
+    "thymus": 1
+  },
+  "PRODYNORPHIN": {
+    "spinal-cord": 3
+  },
+  "PROENKEPHALIN": {
+    "spinal-cord": 1
+  },
+  "PROLINE DEHYDROGENASE 2": {
+    "kidney": 1
+  },
+  "PROLINE RICH 4": {
+    "trachea": 1
+  },
+  "PROM1": {
+    "liver": 1
+  },
+  "PROSPERO HOMEOBOX 1": {
+    "kidney": 3,
+    "lung": 1,
+    "spinal-cord": 2
+  },
+  "PROSTAGLANDIN D2 SYNTHASE": {
+    "prostate": 1
+  },
+  "PROTEIN KINASE C ALPHA": {
+    "eye-female-left": 1
+  },
+  "PROTEIN TYROSINE PHOSPHATASE RECEPTOR TYPE C": {
+    "lung": 27
+  },
+  "PROTEIN TYROSINE PHOSPHATASE RECEPTOR TYPE Q": {
+    "kidney": 4
+  },
+  "PROTEOLIPID PROTEIN 1": {
+    "heart": 2
+  },
+  "PROTOCADHERIN 7": {
+    "heart": 6
+  },
+  "PROX1": {
+    "thymus": 1
+  },
+  "PRSS1": {
+    "pancreas": 1
+  },
+  "PRSS16": {
+    "thymus": 1
+  },
+  "PSMB11": {
+    "thymus": 1
+  },
+  "PTCRA": {
+    "thymus": 3
+  },
+  "PTGDS": {
+    "thymus": 2
+  },
+  "PTHLH": {
+    "spleen": 5
+  },
+  "PTN": {
+    "thymus": 1
+  },
+  "PTPN7": {
+    "thymus": 1
+  },
+  "PTPRC": {
+    "pancreas": 4
+  },
+  "PURINERGIC RECEPTOR P2Y1": {
+    "spinal-cord": 1
+  },
+  "RADIAL SPOKE HEAD COMPONENT 1": {
+    "lung": 9,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "RAG2": {
+    "thymus": 2
+  },
+  "RAMP2": {
+    "thymus": 9
+  },
+  "RAP1 GTPASE ACTIVATING PROTEIN": {
+    "kidney": 1
+  },
+  "RAR RELATED ORPHAN RECEPTOR B": {
+    "spinal-cord": 3
+  },
+  "RASSF6": {
+    "thymus": 1
+  },
+  "RBP5": {
+    "thymus": 1
+  },
+  "RECEPTOR ACTIVITY MODIFYING PROTEIN 3": {
+    "kidney": 1
+  },
+  "RECEPTOR-TYPE TYROSINE-PROTEIN PHOSPHATASE C": {
+    "kidney": 1
+  },
+  "RECOVERIN": {
+    "eye-female-left": 1
+  },
+  "REELIN": {
+    "spinal-cord": 2
+  },
+  "REGULATOR OF G PROTEIN SIGNALING 13": {
+    "lung": 2
+  },
+  "REGULATOR OF G PROTEIN SIGNALING 18": {
+    "lung": 1
+  },
+  "REGULATOR OF G PROTEIN SIGNALING 5": {
+    "heart": 10
+  },
+  "REGULATOR OF G PROTEIN SIGNALING 6": {
+    "kidney": 1
+  },
+  "RENIN": {
+    "kidney": 1
+  },
+  "RETINALDEHYDE BINDING PROTEIN 1": {
+    "eye-female-left": 1
+  },
+  "RETINOIC ACID RECEPTOR ALPHA": {
+    "placenta-full-term": 3
+  },
+  "RETINOIC ACID RECEPTOR RESPONDER 1": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "RETINOID X RECEPTOR ALPHA": {
+    "placenta-full-term": 3
+  },
+  "RGCC": {
+    "thymus": 4
+  },
+  "RGMB": {
+    "intestine": 11
+  },
+  "RGS1": {
+    "thymus": 1
+  },
+  "RHODOPSIN": {
+    "eye-female-left": 1
+  },
+  "RHOTEKIN 2": {
+    "lung": 4
+  },
+  "RIBONUCLEASE A FAMILY MEMBER 3": {
+    "lung": 1
+  },
+  "RING FINGER PROTEIN 220": {
+    "spinal-cord": 1
+  },
+  "RNA BINDING PROTEIN, MRNA PROCESSING FACTOR": {
+    "eye-female-left": 1
+  },
+  "RNASE1": {
+    "thymus": 14
+  },
+  "RNF19A": {
+    "thymus": 1
+  },
+  "RORC": {
+    "spleen": 1
+  },
+  "ROUNDABOUT GUIDANCE RECEPTOR 1": {
+    "kidney": 2
+  },
+  "RPL17": {
+    "thymus": 2
+  },
+  "RPL36A": {
+    "thymus": 1
+  },
+  "RSPO3": {
+    "intestine": 1,
+    "thymus": 1
+  },
+  "RUNX FAMILY TRANSCRIPTION FACTOR 3": {
+    "kidney": 2
+  },
+  "S-ANTIGEN VISUAL ARRESTIN": {
+    "eye-female-left": 1
+  },
+  "S100": {
+    "intestine": 146
+  },
+  "S100 CALCIUM BINDING PROTEIN A2": {
+    "intestine": 2,
+    "prostate": 2
+  },
+  "S100 CALCIUM BINDING PROTEIN A8": {
+    "kidney": 1
+  },
+  "S100 CALCIUM BINDING PROTEIN A9": {
+    "kidney": 1,
+    "lung": 1
+  },
+  "S100A12": {
+    "thymus": 1
+  },
+  "S100A14": {
+    "thymus": 1
+  },
+  "S100A4": {
+    "thymus": 3
+  },
+  "S100A6": {
+    "thymus": 1
+  },
+  "S100A8": {
+    "thymus": 1
+  },
+  "S100A9": {
+    "thymus": 3
+  },
+  "SAA1": {
+    "thymus": 1
+  },
+  "SAM POINTED DOMAIN CONTAINING ETS TRANSCRIPTION FACTOR": {
+    "lung": 6,
+    "main-bronchus": 2,
+    "trachea": 2
+  },
+  "SAMD3": {
+    "thymus": 1
+  },
+  "SATB HOMEOBOX 2": {
+    "kidney": 3,
+    "spinal-cord": 1
+  },
+  "SCAVENGER RECEPTOR CLASS A MEMBER 5": {
+    "lung": 3,
+    "main-bronchus": 1
+  },
+  "SCIELLIN": {
+    "lung": 3
+  },
+  "SCX": {
+    "thymus": 1
+  },
+  "SDC1": {
+    "lymph-node": 4,
+    "spleen": 5
+  },
+  "SDPR": {
+    "thymus": 1
+  },
+  "SEC11C": {
+    "thymus": 1
+  },
+  "SECRETED PHOSPHOPROTEIN 1": {
+    "kidney": 2
+  },
+  "SECRETOGLOBIN FAMILY 1A MEMBER 1": {
+    "lung": 6
+  },
+  "SECRETOGLOBIN FAMILY 3A MEMBER 1": {
+    "prostate": 1
+  },
+  "SECRETOGLOBIN FAMILY 3A MEMBER 2": {
+    "lung": 6
+  },
+  "SECRETOGRANIN II": {
+    "prostate": 1
+  },
+  "SECRETORY LEUKOCYTE PEPTIDASE INHIBITOR": {
+    "lung": 2
+  },
+  "SELECTIN P": {
+    "prostate": 1
+  },
+  "SELENOP": {
+    "thymus": 5
+  },
+  "SELL": {
+    "lymph-node": 6,
+    "thymus": 3
+  },
+  "SERINE PALMITOYLTRANSFERASE SMALL SUBUNIT B": {
+    "lung": 1
+  },
+  "SERINE/THREONINE KINASE 32B": {
+    "spinal-cord": 1
+  },
+  "SERPIN FAMILY E MEMBER 2": {
+    "kidney": 5
+  },
+  "SERUM AMYLOID A1": {
+    "lung": 2
+  },
+  "SFN": {
+    "thymus": 2
+  },
+  "SH3 DOMAIN CONTAINING GRB2 LIKE 3, ENDOPHILIN A3": {
+    "kidney": 2
+  },
+  "SH3BP5": {
+    "thymus": 1
+  },
+  "SH3TC1": {
+    "thymus": 1
+  },
+  "SIALIC ACID BINDING IG LIKE LECTIN 1": {
+    "lung": 5
+  },
+  "SIGNAL REGULATORY PROTEIN ALPHA": {
+    "lung": 1
+  },
+  "SLC40A1": {
+    "thymus": 5
+  },
+  "SMC4": {
+    "thymus": 1
+  },
+  "SMIM24": {
+    "thymus": 1
+  },
+  "SMOC2": {
+    "intestine": 11
+  },
+  "SMOOTHELIN": {
+    "intestine": 26
+  },
+  "SMPD3": {
+    "thymus": 2
+  },
+  "SNCG": {
+    "thymus": 1
+  },
+  "SODIUM CHANNEL EPITHELIAL 1 SUBUNIT GAMMA": {
+    "kidney": 6
+  },
+  "SODIUM VOLTAGE-GATED CHANNEL ALPHA SUBUNIT 2": {
+    "kidney": 1
+  },
+  "SODIUM/POTASSIUM-TRANSPORTING ATPASE SUBUNIT ALPHA-1": {
+    "kidney": 5
+  },
+  "SOLUTE CARRIER FAMILY 1 MEMBER 3": {
+    "eye-female-left": 1
+  },
+  "SOLUTE CARRIER FAMILY 12 MEMBER 1": {
+    "kidney": 5
+  },
+  "SOLUTE CARRIER FAMILY 12 MEMBER 3": {
+    "kidney": 3
+  },
+  "SOLUTE CARRIER FAMILY 13 MEMBER 1": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 13 MEMBER 3": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 14 MEMBER 1 (KIDD BLOOD GROUP)": {
+    "kidney": 3,
+    "spinal-cord": 4
+  },
+  "SOLUTE CARRIER FAMILY 14 MEMBER 2": {
+    "kidney": 4
+  },
+  "SOLUTE CARRIER FAMILY 17 MEMBER 1": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 17 MEMBER 6": {
+    "eye-female-left": 1
+  },
+  "SOLUTE CARRIER FAMILY 18 MEMBER A2": {
+    "lung": 2
+  },
+  "SOLUTE CARRIER FAMILY 22 MEMBER 6": {
+    "kidney": 2
+  },
+  "SOLUTE CARRIER FAMILY 22 MEMBER 7": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 22 MEMBER 8": {
+    "kidney": 2
+  },
+  "SOLUTE CARRIER FAMILY 26 MEMBER 4": {
+    "kidney": 3
+  },
+  "SOLUTE CARRIER FAMILY 26 MEMBER 7": {
+    "kidney": 5
+  },
+  "SOLUTE CARRIER FAMILY 34 MEMBER 1": {
+    "kidney": 2
+  },
+  "SOLUTE CARRIER FAMILY 35 MEMBER F3": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 39 MEMBER 8": {
+    "kidney": 2,
+    "lung": 6
+  },
+  "SOLUTE CARRIER FAMILY 4 MEMBER 1 (DIEGO BLOOD GROUP)": {
+    "kidney": 2
+  },
+  "SOLUTE CARRIER FAMILY 4 MEMBER 11": {
+    "kidney": 2
+  },
+  "SOLUTE CARRIER FAMILY 4 MEMBER 9": {
+    "kidney": 6
+  },
+  "SOLUTE CARRIER FAMILY 44 MEMBER 5": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 5 MEMBER 11": {
+    "kidney": 2
+  },
+  "SOLUTE CARRIER FAMILY 5 MEMBER 12": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 5 MEMBER 2": {
+    "kidney": 1
+  },
+  "SOLUTE CARRIER FAMILY 6 MEMBER 9": {
+    "eye-female-left": 1
+  },
+  "SOLUTE CARRIER FAMILY 8 MEMBER A1": {
+    "kidney": 4
+  },
+  "SOLUTE CARRIER FAMILY 9 MEMBER A3": {
+    "kidney": 2
+  },
+  "SORL1": {
+    "thymus": 1
+  },
+  "SOX10": {
+    "intestine": 105
+  },
+  "SOX4": {
+    "spleen": 1
+  },
+  "SOX9": {
+    "intestine": 11,
+    "liver": 1,
+    "spleen": 5
+  },
+  "SPALT LIKE TRANSCRIPTION FACTOR 3": {
+    "kidney": 1
+  },
+  "SPARCL1": {
+    "lymph-node": 12,
+    "thymus": 10
+  },
+  "SPI1": {
+    "thymus": 2
+  },
+  "SPINK5": {
+    "thymus": 2
+  },
+  "SRPX": {
+    "thymus": 1
+  },
+  "SRY-BOX TRANSCRIPTION FACTOR 10": {
+    "heart": 1
+  },
+  "SRY-BOX TRANSCRIPTION FACTOR 17": {
+    "kidney": 2,
+    "lung": 1
+  },
+  "SRY-BOX TRANSCRIPTION FACTOR 2": {
+    "placenta-full-term": 3
+  },
+  "SRY-BOX TRANSCRIPTION FACTOR 4": {
+    "lung": 1
+  },
+  "SRY-BOX TRANSCRIPTION FACTOR 5": {
+    "spinal-cord": 5
+  },
+  "SRY-BOX TRANSCRIPTION FACTOR 9": {
+    "lung": 4
+  },
+  "SSR4": {
+    "thymus": 1
+  },
+  "SST": {
+    "pancreas": 1
+  },
+  "STAB1": {
+    "thymus": 5
+  },
+  "STABILIN 1": {
+    "lung": 1
+  },
+  "STERILE ALPHA MOTIF DOMAIN CONTAINING 3": {
+    "spinal-cord": 1
+  },
+  "STK17A": {
+    "thymus": 2
+  },
+  "SUCO": {
+    "thymus": 2
+  },
+  "SULFATASE 1": {
+    "kidney": 1,
+    "spinal-cord": 1
+  },
+  "SURFACTANT ASSOCIATED 2": {
+    "lung": 6
+  },
+  "SURFACTANT PROTEIN A2": {
+    "lung": 3
+  },
+  "SYNAPTOPHYSIN": {
+    "intestine": 23
+  },
+  "SYNAPTOPODIN 2": {
+    "kidney": 1
+  },
+  "SYNAPTOSOME ASSOCIATED PROTEIN 25": {
+    "spinal-cord": 1
+  },
+  "SYNAPTOTAGMIN 1": {
+    "kidney": 1
+  },
+  "SYNDECAN 1": {
+    "lung": 1,
+    "placenta-full-term": 3
+  },
+  "SYNUCLEIN GAMMA": {
+    "eye-female-left": 1
+  },
+  "SYP": {
+    "pancreas": 7
+  },
+  "T-BOX TRANSCRIPTION FACTOR 1": {
+    "kidney": 1
+  },
+  "T-BOX TRANSCRIPTION FACTOR 21": {
+    "lung": 1
+  },
+  "TACHYKININ PRECURSOR 1": {
+    "spinal-cord": 5
+  },
+  "TACHYKININ PRECURSOR 3": {
+    "spinal-cord": 1
+  },
+  "TBC/LYSM-ASSOCIATED DOMAIN CONTAINING 2": {
+    "kidney": 1
+  },
+  "TBX21": {
+    "liver": 4
+  },
+  "TCF7": {
+    "thymus": 3
+  },
+  "TCL1A": {
+    "spleen": 2,
+    "thymus": 1
+  },
+  "TDGF1": {
+    "thymus": 1
+  },
+  "TENASCIN C": {
+    "kidney": 1
+  },
+  "TESPA1": {
+    "thymus": 1
+  },
+  "TETRASPANIN 1": {
+    "lung": 48,
+    "main-bronchus": 12,
+    "trachea": 9
+  },
+  "TFF3": {
+    "thymus": 1
+  },
+  "TFPI": {
+    "thymus": 1
+  },
+  "TFPI2": {
+    "thymus": 1
+  },
+  "THROMBOMODULIN": {
+    "lung": 1
+  },
+  "THY-1 CELL SURFACE ANTIGEN": {
+    "eye-female-left": 1,
+    "placenta-full-term": 15
+  },
+  "THY1": {
+    "liver": 2,
+    "lymph-node": 1
+  },
+  "THYMIDYLATE SYNTHETASE": {
+    "lung": 4,
+    "main-bronchus": 1
+  },
+  "TIGIT": {
+    "thymus": 1
+  },
+  "TIMP METALLOPEPTIDASE INHIBITOR 3": {
+    "lung": 1,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "TITIN": {
+    "heart": 5
+  },
+  "TM4SF1": {
+    "thymus": 9
+  },
+  "TMIGD2": {
+    "thymus": 1
+  },
+  "TNF RECEPTOR SUPERFAMILY MEMBER 4": {
+    "lung": 1
+  },
+  "TNFRSF13B": {
+    "spleen": 1,
+    "thymus": 2
+  },
+  "TNFRSF9": {
+    "lymph-node": 1
+  },
+  "TNFSF10": {
+    "thymus": 1
+  },
+  "TNFSF11": {
+    "lymph-node": 3
+  },
+  "TNNI2": {
+    "thymus": 1
+  },
+  "TNNT3": {
+    "thymus": 1
+  },
+  "TPH1": {
+    "pancreas": 1
+  },
+  "TPM2": {
+    "thymus": 1
+  },
+  "TPSAB1": {
+    "lymph-node": 2,
+    "thymus": 1
+  },
+  "TPSB2": {
+    "lymph-node": 2,
+    "thymus": 1
+  },
+  "TRAC": {
+    "thymus": 1
+  },
+  "TRANSCRIPTION FACTOR 21": {
+    "lung": 3
+  },
+  "TRANSCRIPTION FACTOR AP-2 ALPHA": {
+    "eye-female-left": 1
+  },
+  "TRANSCRIPTION FACTOR AP-2 BETA": {
+    "eye-female-left": 1,
+    "spinal-cord": 1
+  },
+  "TRANSCRIPTION FACTOR AP-2 GAMMA": {
+    "eye-female-left": 1
+  },
+  "TRANSGELIN": {
+    "heart": 33,
+    "kidney": 2,
+    "lung": 3
+  },
+  "TRANSIENT RECEPTOR POTENTIAL CATION CHANNEL SUBFAMILY C MEMBER 6": {
+    "lung": 3
+  },
+  "TRANSIENT RECEPTOR POTENTIAL CATION CHANNEL SUBFAMILY M MEMBER 1": {
+    "eye-female-left": 1
+  },
+  "TRANSIENT RECEPTOR POTENTIAL CATION CHANNEL SUBFAMILY M MEMBER 2": {
+    "kidney": 1
+  },
+  "TRANSIENT RECEPTOR POTENTIAL CATION CHANNEL SUBFAMILY M MEMBER 5": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "TRANSIENT RECEPTOR POTENTIAL CATION CHANNEL SUBFAMILY M MEMBER 6": {
+    "kidney": 2
+  },
+  "TRANSIENT RECEPTOR POTENTIAL CATION CHANNEL SUBFAMILY V MEMBER 5": {
+    "kidney": 2
+  },
+  "TRANSMEMBRANE 4 L SIX FAMILY MEMBER 1": {
+    "kidney": 5
+  },
+  "TRANSMEMBRANE PROTEIN 207": {
+    "kidney": 1
+  },
+  "TRANSMEMBRANE PROTEIN 213": {
+    "kidney": 1
+  },
+  "TRDC": {
+    "lymph-node": 1,
+    "thymus": 2
+  },
+  "TREFOIL FACTOR 2": {
+    "lung": 3,
+    "main-bronchus": 1,
+    "trachea": 1
+  },
+  "TRGC2": {
+    "thymus": 1
+  },
+  "TRGV2": {
+    "spleen": 1
+  },
+  "TRPM5": {
+    "intestine": 11
+  },
+  "TRYPTASE ALPHA/BETA 1": {
+    "lung": 2
+  },
+  "TRYPTASE BETA 2": {
+    "lung": 1
+  },
+  "TTN": {
+    "thymus": 1
+  },
+  "TUBB3": {
+    "liver": 1
+  },
+  "TUBULIN ALPHA 1A": {
+    "lung": 3,
+    "trachea": 1
+  },
+  "TUBULIN BETA 4B CLASS IVB": {
+    "lung": 9,
+    "main-bronchus": 1,
+    "trachea": 2
+  },
+  "TUMOR ASSOCIATED CALCIUM SIGNAL TRANSDUCER 2": {
+    "kidney": 6
+  },
+  "TUMOR PROTEIN P63": {
+    "kidney": 1,
+    "lung": 11,
+    "main-bronchus": 3,
+    "placenta-full-term": 8,
+    "trachea": 2
+  },
+  "TYROBP": {
+    "thymus": 1
+  },
+  "TYW3": {
+    "thymus": 1
+  },
+  "UCHL1": {
+    "lymph-node": 1,
+    "pancreas": 5
+  },
+  "UGCG": {
+    "thymus": 2
+  },
+  "UHRF1": {
+    "thymus": 1
+  },
+  "UROMODULIN": {
+    "kidney": 5
+  },
+  "UROPLAKIN 3B": {
+    "lung": 1
+  },
+  "VASCULAR CELL ADHESION MOLECULE 1": {
+    "kidney": 2
+  },
+  "VASCULAR ENDOTHELIAL GROWTH FACTOR D": {
+    "lung": 2
+  },
+  "VCAM1": {
+    "lymph-node": 2
+  },
+  "VCAN": {
+    "spleen": 2,
+    "thymus": 1
+  },
+  "VERSICAN": {
+    "lung": 1
+  },
+  "VIM": {
+    "thymus": 1
+  },
+  "VIMENTIN": {
+    "heart": 6
+  },
+  "VISUAL SYSTEM HOMEOBOX 1": {
+    "eye-female-left": 1
+  },
+  "VISUAL SYSTEM HOMEOBOX 2": {
+    "eye-female-left": 1,
+    "kidney": 1
+  },
+  "VON WILLEBRAND FACTOR": {
+    "heart": 38,
+    "placenta-full-term": 12
+  },
+  "VWF": {
+    "spleen": 16
+  },
+  "WNT FAMILY MEMBER 2": {
+    "lung": 3
+  },
+  "WNT2B": {
+    "intestine": 1
+  },
+  "WT1 TRANSCRIPTION FACTOR": {
+    "heart": 1,
+    "lung": 1
+  },
+  "X-C MOTIF CHEMOKINE LIGAND 1": {
+    "lung": 1
+  },
+  "X-C MOTIF CHEMOKINE LIGAND 2": {
+    "lung": 1
+  },
+  "XBP1": {
+    "spleen": 5,
+    "thymus": 1
+  },
+  "XCL1": {
+    "thymus": 1
+  },
+  "XCL2": {
+    "thymus": 1
+  },
+  "XCR1": {
+    "lymph-node": 1,
+    "spleen": 2
+  },
+  "YBX3": {
+    "spleen": 1
+  },
+  "ZBTB16": {
+    "thymus": 1
+  },
+  "ZINC FINGER E-BOX BINDING HOMEOBOX 2": {
+    "kidney": 1
+  },
+  "ZINC FINGER HOMEOBOX 3": {
+    "spinal-cord": 8
+  },
+  "ZNF683": {
+    "liver": 1,
+    "thymus": 1
+  }
+}
