@@ -67,6 +67,16 @@ ASCTB_ORGAN_ALIAS = {
     "ovary": "ovary-female-left",
 }
 
+# organ_index["blood"]'s reference term is UBERON:0004537 "blood vasculature" --
+# the whole-body circulatory tree, not a placeable organ compartment. It's a
+# part_of/subClassOf ancestor of nearly every named artery/vein in the corpus
+# (radial artery, buccal artery, uterine artery, ...), so letting the hierarchy
+# step match against it turns vessel containment into a near-universal false
+# "blood" hit. Exclude it from the reference-organ set the hierarchy step
+# matches against; "blood" stays reachable via direct annotation (resolver
+# tier 1), just not via vessel-containment rollup.
+_HIERARCHY_EXCLUDED_ORGAN_KEYS = {"blood"}
+
 # Strip a leading/trailing sex/side qualifier from an ontology label so
 # "left kidney" and "kidney" (or "right ovary" / "ovary") compare equal --
 # HRA reference organs are frequently a *sided* Uberon term (e.g. "left
@@ -195,7 +205,11 @@ def uberon_ancestors_rollup(uberon_ids, organ_index: dict, *, _post=requests.pos
         return {}
 
     organ_ubs = sorted(
-        {v["uberon"] for v in organ_index.values() if (v.get("uberon") or "").startswith("UBERON:")}
+        {
+            v["uberon"]
+            for k, v in organ_index.items()
+            if k not in _HIERARCHY_EXCLUDED_ORGAN_KEYS and (v.get("uberon") or "").startswith("UBERON:")
+        }
     )
     all_terms = sorted(set(uberon_ids) | set(organ_ubs))
     values = " ".join("obo:" + t.replace("UBERON:", "UBERON_") for t in all_terms)
@@ -224,9 +238,12 @@ SELECT ?term ?ancestor ?label WHERE {{
         if label or anc not in closures[term]:
             closures[term][anc] = label
 
-    # exact reference-uberon -> organ_key(s)
+    # exact reference-uberon -> organ_key(s) (blood excluded -- see
+    # _HIERARCHY_EXCLUDED_ORGAN_KEYS above)
     exact_index: dict = defaultdict(list)
     for k, v in organ_index.items():
+        if k in _HIERARCHY_EXCLUDED_ORGAN_KEYS:
+            continue
         u = v.get("uberon")
         if u and u.startswith("UBERON:"):
             exact_index[u].append(k)
@@ -253,7 +270,7 @@ SELECT ?term ?ancestor ?label WHERE {{
                 if k not in exact_hits:
                     exact_hits.append(k)
         if exact_hits:
-            out[term] = exact_hits
+            out[term] = sorted(exact_hits)  # SPARQL binding order isn't stable
             continue
 
         label_hits: list = []
@@ -264,7 +281,7 @@ SELECT ?term ?ancestor ?label WHERE {{
                 if k not in label_hits:
                     label_hits.append(k)
         if label_hits:
-            out[term] = label_hits
+            out[term] = sorted(label_hits)  # SPARQL binding order isn't stable
 
     return out
 
@@ -336,18 +353,28 @@ def main() -> None:
 
     uncovered_uberon = sorted(set(corpus_uberon) - set(asctb_rollup))
 
+    # Each network step is isolated so a failure in one doesn't misreport the
+    # other as skipped (degrade gracefully per-step, not all-or-nothing).
     hierarchy_rollup: dict = {}
     fma_crosswalk: dict = {}
-    ubergraph_ok = True
+    uberon_ok = True
+    fma_ok = True
     try:
         hierarchy_rollup = uberon_ancestors_rollup(uncovered_uberon, organ_index)
+    except Exception as exc:  # network unreachable / SPARQL failure: degrade gracefully
+        uberon_ok = False
+        print(f"WARNING: Ubergraph hierarchy roll-up failed ({exc!r}); "
+              f"uberon_organ_rollup.json will be ASCT+B-only.")
+    try:
         fma_crosswalk = fma_to_uberon(corpus_fma)
     except Exception as exc:  # network unreachable / SPARQL failure: degrade gracefully
-        ubergraph_ok = False
-        print(f"WARNING: Ubergraph unreachable ({exc!r}); writing ASCT+B-only datasets, "
-              f"hierarchy roll-up and FMA crosswalk skipped.")
+        fma_ok = False
+        print(f"WARNING: Ubergraph FMA crosswalk failed ({exc!r}); "
+              f"fma_uberon_crosswalk.json will be empty.")
 
-    print(f"Ubergraph reachable: {ubergraph_ok}")
+    ubergraph_ok = uberon_ok and fma_ok
+    print(f"Ubergraph reachable: {ubergraph_ok}"
+          + ("" if ubergraph_ok else f" (uberon_ok={uberon_ok}, fma_ok={fma_ok})"))
     print(f"Ubergraph hierarchy roll-up: resolved {len(hierarchy_rollup)}/{len(uncovered_uberon)} "
           f"uncovered corpus UBERON ids")
     print(f"Ubergraph FMA crosswalk: resolved {len(fma_crosswalk)}/{len(corpus_fma)} corpus FMA ids")

@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 import scripts.build_anatomy_crosswalks as b
@@ -171,11 +173,117 @@ def test_uberon_ancestors_rollup_no_match_is_absent_offline():
     assert r == {}
 
 
+def test_uberon_ancestors_rollup_excludes_blood_vasculature_container_offline():
+    # A named vessel (e.g. uterine artery) is part_of BOTH the whole-body
+    # "blood vasculature" container AND (via a different ancestor chain) a
+    # real placeable organ. "blood" must never win via containment alone --
+    # only the genuine organ hit should survive.
+    payload = {"results": {"bindings": [
+        _binding("UBERON_0002416", "UBERON_0002416", "uterine artery"),
+        _binding("UBERON_0002416", "UBERON_0004537", "blood vasculature"),
+        _binding("UBERON_0002416", "UBERON_0000995", "uterus"),
+        _binding("UBERON_0004537", "UBERON_0004537", "blood vasculature"),
+        _binding("UBERON_0000995", "UBERON_0000995", "uterus"),
+    ]}}
+    fake_organ_index = {
+        "blood": {"uberon": "UBERON:0004537"},
+        "uterus": {"uberon": "UBERON:0000995"},
+    }
+
+    def fake_post(url, **kw):
+        return _FakeResp(payload)
+
+    r = b.uberon_ancestors_rollup(["UBERON:0002416"], fake_organ_index, _post=fake_post)
+    assert r == {"UBERON:0002416": ["uterus"]}
+
+
+def test_uberon_ancestors_rollup_vessel_with_no_organ_ancestor_is_unplaced_offline():
+    # A vessel that is ONLY part_of the whole-body vasculature (no other
+    # organ ancestor) resolves to nothing, not "blood" -- acceptably unplaced.
+    payload = {"results": {"bindings": [
+        _binding("UBERON_0002097", "UBERON_0002097", "radial artery"),
+        _binding("UBERON_0002097", "UBERON_0004537", "blood vasculature"),
+        _binding("UBERON_0004537", "UBERON_0004537", "blood vasculature"),
+    ]}}
+    fake_organ_index = {"blood": {"uberon": "UBERON:0004537"}}
+
+    def fake_post(url, **kw):
+        return _FakeResp(payload)
+
+    r = b.uberon_ancestors_rollup(["UBERON:0002097"], fake_organ_index, _post=fake_post)
+    assert r == {}
+
+
+def test_uberon_ancestors_rollup_multi_hit_lists_are_sorted_offline():
+    # SPARQL binding order isn't stable -- multi-organ hits must come back
+    # sorted for deterministic regeneration, regardless of response order.
+    payload = {"results": {"bindings": [
+        _binding("UBERON_0000001", "UBERON_0000001", "dual-organ structure"),
+        _binding("UBERON_0000001", "UBERON_0000955", "brain"),
+        _binding("UBERON_0000001", "UBERON_0004538", "left kidney"),
+    ]}}
+    fake_organ_index = {
+        "brain": {"uberon": "UBERON:0000955"},
+        "kidney": {"uberon": "UBERON:0004538"},
+    }
+
+    def fake_post(url, **kw):
+        return _FakeResp(payload)
+
+    r = b.uberon_ancestors_rollup(["UBERON:0000001"], fake_organ_index, _post=fake_post)
+    assert r["UBERON:0000001"] == sorted(r["UBERON:0000001"])
+    assert r["UBERON:0000001"] == ["brain", "kidney"]
+
+
 def test_uberon_ancestors_rollup_empty_input_makes_no_request():
     def fake_post(url, **kw):
         raise AssertionError("should not be called for empty input")
 
     assert b.uberon_ancestors_rollup([], {"brain": {"uberon": "UBERON:0000955"}}, _post=fake_post) == {}
+
+
+def test_main_writes_asctb_only_datasets_when_ubergraph_unreachable(tmp_path, monkeypatch):
+    """Graceful-degradation path: both network calls fail (network down) --
+    main() must still write the ASCT+B-derived datasets (rollup/CL/gene),
+    with an empty FMA crosswalk, and must not raise."""
+
+    def raising_uberon(*a, **k):
+        raise ConnectionError("network down")
+
+    def raising_fma(*a, **k):
+        raise ConnectionError("network down")
+
+    monkeypatch.setattr(b, "uberon_ancestors_rollup", raising_uberon)
+    monkeypatch.setattr(b, "fma_to_uberon", raising_fma)
+
+    rollup_out = tmp_path / "uberon_organ_rollup.json"
+    cl_out = tmp_path / "cl_organ_map.json"
+    gene_out = tmp_path / "gene_organ_map.json"
+    fma_out = tmp_path / "fma_uberon_crosswalk.json"
+    monkeypatch.setattr(b, "DATASETS", tmp_path)
+    monkeypatch.setattr(b, "ROLLUP_OUT", rollup_out)
+    monkeypatch.setattr(b, "CL_OUT", cl_out)
+    monkeypatch.setattr(b, "GENE_OUT", gene_out)
+    monkeypatch.setattr(b, "FMA_OUT", fma_out)
+
+    b.main()  # must not raise
+
+    rollup = json.loads(rollup_out.read_text())
+    cl_map = json.loads(cl_out.read_text())
+    gene_map = json.loads(gene_out.read_text())
+    fma_crosswalk = json.loads(fma_out.read_text())
+
+    # ASCT+B-derived slice still written in full (579 UBERON entries from
+    # the real committed datasets/asctb_tables.json -- unaffected by the
+    # network outage since ASCT+B parsing is entirely offline).
+    asctb = json.loads(b.ASCTB_PATH.read_text(encoding="utf-8"))
+    organ_index = b.load_corpus_catalog()["organ_index"]  # same source main() uses
+    expected_asctb_rollup = b.rollup_from_asctb(asctb, organ_index)
+    assert rollup == expected_asctb_rollup
+    assert len(rollup) == 579
+    assert cl_map  # non-empty, ASCT+B CL map unaffected
+    assert gene_map  # non-empty, ASCT+B gene map unaffected
+    assert fma_crosswalk == {}  # FMA step failed -> empty, not crashed
 
 
 def test_fma_to_uberon_offline():
