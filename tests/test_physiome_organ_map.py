@@ -60,11 +60,36 @@ def test_map_exposure_ep_neuron_goes_to_brain_not_heart():
 
 
 def test_map_exposure_annotation_beats_category():
-    # neurobiology would map to brain, but a real FMA:7088 annotation wins -> heart
+    # neurobiology would map to brain, but a real FMA:7088 annotation wins ->
+    # heart, routed through anatomy_resolver.resolve_organ_keys (Task 4).
+    # FMA-derived hits are always the resolver's tier-3 "crosswalk" (never
+    # "annotation", which is reserved for an organ-level UBERON id directly
+    # on the model) -- confidence medium, not high. The real committed
+    # datasets/fma_uberon_crosswalk.json is scoped to BioModels' own FMA ids
+    # (task-3-report.md) and doesn't cover FMA:7088, so FMA_TO_UBERON is
+    # merged in as a supplemental fma_map rather than dropped, or this
+    # PMR-only annotation path would silently lose coverage.
     hra = map_exposure_to_organs(
         {"name": "x", "categories": ["neurobiology"]}, ORGAN_INDEX, cellml_text=CELLML_WITH_RDF)
-    assert hra["mapping_method"] == "annotation" and hra["confidence"] == "high"
+    assert hra["mapping_method"] == "crosswalk" and hra["confidence"] == "medium"
     assert {o["label"] for o in hra["organs"]} == {"heart"}  # FMA:7088
+
+
+CELLML_WITH_NONORGAN_UBERON = """<?xml version="1.0"?>
+<model xmlns="http://www.cellml.org/cellml/1.0#" name="demo">
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:li rdf:resource="http://identifiers.org/uberon/UBERON:0000956"/>
+  </rdf:RDF>
+</model>"""
+
+
+def test_map_exposure_uberon_rollup_via_resolver():
+    # UBERON:0000956 (cerebral cortex) is not an organ-level reference UBERON,
+    # so only the resolver's rollup tier (Task 4) resolves it -> brain.
+    hra = map_exposure_to_organs(
+        {"name": "x", "categories": []}, ORGAN_INDEX, cellml_text=CELLML_WITH_NONORGAN_UBERON)
+    assert hra["mapping_method"] == "annotation_rollup" and hra["confidence"] == "high"
+    assert {o["label"] for o in hra["organs"]} == {"brain"}
 
 
 def test_map_exposure_unmapped_agnostic_category():

@@ -37,6 +37,8 @@ from viva_human_atlas.biomodel_do import build_organ_index
 from viva_human_atlas.annotation_match import fetch_sbml
 from viva_human_atlas.biopax_identifiers import extract_biopax_identifiers, fetch_biopax
 from viva_human_atlas.anatomy_crosswalk import crosswalk_anatomy, crosswalk_mesh_labels
+from viva_human_atlas import anatomy_resolver
+from viva_human_atlas.anatomy_resolver import resolve_organ_keys
 
 _REPO = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = _REPO / "datasets" / "model_hra_map.json"
@@ -112,6 +114,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
     # crosswalk failure is isolated (`crosswalk:{e}`) and falls back to the
     # raw SBML/BioPAX uberon/cl without aborting the HRA mapping itself.
     ont_uberon, ont_cl = sorted(set(ids["uberon"])), sorted(set(ids["cl"]))
+    mapping_method, mapping_confidence = "", "none"
     try:
         try:
             raw_ont = {"uberon": ids["uberon"], "cl": ids["cl"], "mesh": mesh,
@@ -123,7 +126,30 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         except Exception as e:  # noqa: BLE001
             errors.append(f"crosswalk:{e}")
 
-        hra = map_to_hra(ont_uberon, meta.get("name", ""), organ_index)
+        # Route every extracted annotation (uberon/cl/fma/bto/mesh + genes)
+        # through the shared ontology resolver. This picks up two tiers the
+        # crosswalk above cannot: CL cell-type -> organ, and FMA -> Uberon
+        # (raw_ont's `fma` key is never consumed by crosswalk_anatomy, which
+        # is BTO-only). Resolver-found organs are folded in by unioning their
+        # reference-organ Uberon ids into the id list fed to `map_to_hra`, so
+        # organ/FTU/cell-type derivation stays single-sourced through
+        # `map_to_hra` rather than duplicating its organ-assembly logic here.
+        resolver_keys, resolver_method = resolve_organ_keys(
+            organ_index, uberon=ont_uberon, cl=ont_cl, fma=ids["fma"], bto=ids["bto"],
+            mesh=mesh_terms, gene_symbols=ids.get("genes") or [],
+        )
+        resolver_uberon = {organ_index[k]["uberon"] for k in resolver_keys
+                           if organ_index.get(k, {}).get("uberon")}
+        hra = map_to_hra(sorted(set(ont_uberon) | resolver_uberon), meta.get("name", ""), organ_index)
+
+        if resolver_keys:
+            mapping_method = resolver_method
+            mapping_confidence = anatomy_resolver._CONFIDENCE.get(resolver_method, "low")
+        elif hra["organs"]:
+            # organs came from map_to_hra's model-name synonym match alone --
+            # no ontology annotation resolved anything.
+            mapping_method, mapping_confidence = "name_match", "medium"
+
         # merge SBML-annotated + MeSH-derived CL directly into cell_types
         cl_seen = {c["cl"] for c in hra["cell_types"]}
         for cl in ont_cl:
@@ -134,6 +160,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         errors.append(f"hra:{e}")
         hra = {"organs": [], "functional_tissue_units": [], "cell_types": [],
                "uberon_organ_ids": [], "uberon_subregion_ids": []}
+        mapping_method, mapping_confidence = "", "none"
 
     # Preferred paper link is PubMed (most BioModels record a PubMed ID, not a
     # DOI); fall back to a DOI link, then None.
@@ -162,6 +189,7 @@ def build_entry(biomodel_id, organ_index, *, cache_dir=None, no_llm=False,
         "provenance": {
             "journal": meta.get("journal"), "year": meta.get("year"), "title": meta.get("title"),
             "n_species": ids["n_species"],
+            "mapping_method": mapping_method, "confidence": mapping_confidence,
             "text_source": "none", "has_fulltext": False, "errors": errors,
         },
     }

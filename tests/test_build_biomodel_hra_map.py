@@ -4,6 +4,7 @@ import json
 # and the workbench `BiomodelHraMapStep` both call it), so the pipeline tests
 # target the module directly.
 import viva_human_atlas.biomodel_hra as bhm
+from viva_human_atlas.biomodel_do import build_organ_index
 
 ORGAN_INDEX = {
     "pancreas": {"uberon": "UBERON:0001264", "asset_urls": []},
@@ -39,9 +40,12 @@ def test_build_entry_shape():
     assert entry["ontology_ids"]["uberon"] == ["UBERON:0001264"]
     assert entry["ontology_ids"]["mesh"] == []
     assert "literature" not in entry  # no_llm
-    # provenance is de-bloated: no id_sources / pmid / uberon_*_ids
+    # provenance is de-bloated: no id_sources / pmid / uberon_*_ids. Task 4:
+    # mapping_method/confidence now come from anatomy_resolver.resolve_organ_
+    # keys -- an organ-level exact UBERON hit is tier 1 ("annotation"/"high").
     assert entry["provenance"] == {
         "journal": "JTB", "year": 2000, "title": "T", "n_species": 1,
+        "mapping_method": "annotation", "confidence": "high",
         "text_source": "none", "has_fulltext": False, "errors": [],
     }
     assert entry["source_id"] == "BIOMD0000000341"
@@ -224,6 +228,32 @@ def test_bto_crosswalk_enriches_uberon_and_adds_organ():
     )
     assert entry["ontology_ids"]["uberon"] == ["UBERON:0002107"]
     assert {"label": "liver", "uberon": "UBERON:0002107"} in entry["organs"]
+    assert entry["provenance"]["errors"] == []
+
+
+def test_build_entry_annotation_rollup_via_resolver_places_nonorgan_uberon():
+    """Task 4: build_entry now feeds ont_uberon through anatomy_resolver.
+    resolve_organ_keys, so a model annotated only with a non-organ UBERON
+    (no organ-level id, no BTO/MeSH) still resolves an organ via the
+    committed hierarchy roll-up -- e.g. UBERON:0000956 (cerebral cortex) ->
+    brain -- and provenance.mapping_method records the resolver's tier."""
+    real_organ_index = build_organ_index()
+    entry = bhm.build_entry(
+        "BIOMD0000000341", real_organ_index, no_llm=True,
+        _sbml=lambda i: "<sbml/>",
+        _ids=lambda s: {"chebi": [], "uniprot": [], "kegg": [], "go": [],
+                        "cl": [], "uberon": ["UBERON:0000956"], "fma": [], "bto": [], "n_species": 1},
+        _meta=lambda i: {"name": "SomeBrainModel", "pmid": "11073807", "doi": None,
+                          "journal": "JTB", "year": 2000, "title": "T"},
+        _lit=lambda pmid, doi, **k: {"abstract": None, "fulltext": None,
+                                      "text_source": "none", "has_fulltext": False},
+        _biopax=lambda i, **k: None,
+        _pubmed_mesh=_NO_MESH,
+    )
+    assert entry["organs"], "expected a non-empty organs list"
+    assert {"label": "brain", "uberon": real_organ_index["brain"]["uberon"]} in entry["organs"]
+    assert entry["provenance"]["mapping_method"] == "annotation_rollup"
+    assert entry["provenance"]["confidence"] == "high"
     assert entry["provenance"]["errors"] == []
 
 

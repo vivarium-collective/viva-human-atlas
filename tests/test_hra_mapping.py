@@ -1,5 +1,6 @@
 from viva_human_atlas.hra_mapping import map_to_hra
 from viva_human_atlas.ftu_coverage import HRA_FTUS
+from viva_human_atlas.biomodel_do import build_organ_index
 
 
 def test_hra_ftus_have_uberon_ids():
@@ -71,6 +72,21 @@ def test_map_to_hra_organ_word_match_is_not_substring_match():
     out = map_to_hra(["UBERON:0002107"], "", {"liver": {"uberon": "UBERON:0002107"}})
     labels = {f["label"] for f in out["functional_tissue_units"]}
     assert labels == {"liver lobule"}
+
+
+# Task 4: map_to_hra now routes uberon_ids through anatomy_resolver.resolve_
+# organ_keys, so a non-organ UBERON that only rolls up to an organ (not an
+# organ-level exact id in organ_index) still resolves an organ, via the
+# committed uberon_organ_rollup.json dataset (real production organ_index).
+REAL_ORGAN_INDEX = build_organ_index()
+
+
+def test_map_to_hra_rolls_up_nonorgan_uberon_via_resolver():
+    # UBERON:0000956 = cerebral cortex, rolls up to "brain" per the committed
+    # dataset (verified in task-3-report.md); it is NOT brain's own reference
+    # (organ-level) UBERON id, so only the rollup tier can resolve it.
+    out = map_to_hra(["UBERON:0000956"], "", REAL_ORGAN_INDEX)
+    assert {"label": "brain", "uberon": REAL_ORGAN_INDEX["brain"]["uberon"]} in out["organs"]
 
 
 def test_map_to_hra_empty_inputs():
