@@ -169,8 +169,8 @@ def test_end_to_end_build_from_committed_datasets(tmp_path):
     atlas = json.loads((tmp_path / "atlas.json").read_text())
     # organ-tagged models across three sources (BioModels + PhysioNet + Physiome),
     # distinct across whole-organ + subregion placements
-    # count reflects the pmr3-rebuilt corpus (physiome 570->978, mapped 341)
-    assert atlas["summary"]["n_models_distinct"] == 721
+    # count reflects the ontology-resolver remap (Task 5): 721 -> 926
+    assert atlas["summary"]["n_models_distinct"] == 926
     assert atlas["summary"]["n_subregions"] >= 3
     kidney = next(o for o in atlas["organs"] if o["key"] == "kidney")
     assert len(kidney["glbs"]["female"]) == 4                      # both kidneys + pelvises
@@ -185,7 +185,7 @@ def test_atlas_browser_step_writes_pack_and_emits_summary(tmp_path):
     assert (tmp_path / "atlas.json").exists()
     # organ-tagged models across three sources (BioModels + PhysioNet + Physiome),
     # distinct across whole-organ + subregion placements
-    # count reflects the pmr3-rebuilt corpus (physiome 570->978, mapped 341)
-    assert out["summary"]["n_models_distinct"] == 721
+    # count reflects the ontology-resolver remap (Task 5): 721 -> 926
+    assert out["summary"]["n_models_distinct"] == 926
     assert out["placement_stats"]["n_subregion_models"] >= 9
     assert out["out_dir"] == str(tmp_path)
