@@ -50,12 +50,28 @@ body.snapshot #snapshot-banner a {
   text-decoration: underline;
   white-space: nowrap;
 }
+/* Dark theme — same amber-warning tint style.css already uses for
+   .inv-run-blocked / .proc-kind-step (rgba(245,158,11,*) + #fcd34d fg). */
+:root[data-theme="dark"] body.snapshot #snapshot-banner {
+  background: rgba(245, 158, 11, 0.12);
+  border-bottom-color: rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+:root[data-theme="dark"] body.snapshot #snapshot-banner a {
+  color: #fcd34d;
+}
 
 /* ── Hidden rail tabs ─────────────────────────────────────────────────── */
 /* Simulations DB and Visualizations/Analyses tabs are now read-only enabled
    (Task 1-3 of the full-surface plan). Only the Branch/GitHub tab stays hidden
    since git operations have no read-only equivalent in snapshot mode. */
 body.snapshot a.menu-link[data-page="github"] {
+  display: none !important;
+}
+
+/* ── AI panel + its rail toggle: live-server only (they call /api/chat and /api/ai) ── */
+body.snapshot #viv-ai-toggle,
+body.snapshot #viv-ai-panel {
   display: none !important;
 }
 
