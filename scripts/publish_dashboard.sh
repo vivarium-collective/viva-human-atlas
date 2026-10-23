@@ -10,8 +10,8 @@ set -euo pipefail
 # deterministic regardless of the caller's locale.
 export PYTHONUTF8=1
 WS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="${1:-$WS_ROOT/reports/published/dashboard}"
-BASE_PATH="/viva-human-atlas/dashboard"
+OUT="${1:-$WS_ROOT/reports/published/workbench}"
+BASE_PATH="/viva-human-atlas/workbench"
 INTERACTIVE_URL="https://github.com/vivarium-collective/viva-human-atlas"
 rm -rf "$OUT"
 PYTHONPATH="$WS_ROOT${PYTHONPATH:+:$PYTHONPATH}" \

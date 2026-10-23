@@ -1,12 +1,13 @@
-name: Publish read-only dashboard
+name: Publish read-only workbench
 
 # Build this workspace into a self-contained static SPA and publish it to the
-# gh-pages branch at dashboard/ (served at
-# https://vivarium-collective.github.io/viva-human-atlas/dashboard/). A read-only mirror of every
-# investigation + study on main, browsable with no server.
+# gh-pages branch at workbench/ (served at
+# https://vivarium-collective.github.io/viva-human-atlas/workbench/). A read-only
+# mirror of every investigation + study on main, browsable with no server.
+# (A legacy /dashboard/ path is kept as a redirect to /workbench/.)
 #
-# Scaffolded by `vivarium-workbench add-dashboard`. DEPLOY job; it only ever
-# writes dashboard/ on gh-pages.
+# Scaffolded by `vivarium-workbench add-dashboard`. DEPLOY job; it writes
+# workbench/ (+ a dashboard/ redirect) on gh-pages.
 #
 # MANUAL-ONLY (workflow_dispatch), NOT auto-on-push. Unlike a pure-spec
 # workspace, viva-human-atlas cannot be built on a clean CI runner:
@@ -18,8 +19,8 @@ name: Publish read-only dashboard
 # So an auto-on-push CI publish would only ever fail the guard (red) or ship an
 # incomplete bundle. Publish LOCALLY instead — from a venv with the sibling
 # ../pbg-* repos + freshly built viewer packs:
-#     bash scripts/publish_dashboard.sh reports/published/dashboard   # build+guard
-#     # then push dashboard/ to gh-pages (see the script header / repo README)
+#     bash scripts/publish_dashboard.sh reports/published/workbench   # build+guard
+#     # then push workbench/ to gh-pages (see the script header / repo README)
 # This dispatch entry is kept only for the rare case the runner CAN satisfy the
 # deps; the guard still backstops it.
 
@@ -83,15 +84,15 @@ jobs:
             "viva-biomodels @ git+https://github.com/vivarium-collective/viva-biomodels.git@main" \
             || echo "sibling process-package install failed — the registry guard will catch an empty build"
 
-      - name: Build dashboard snapshot
+      - name: Build read-only workbench snapshot
         run: |
           source .venv/bin/activate
-          bash scripts/publish_dashboard.sh reports/published/dashboard
+          bash scripts/publish_dashboard.sh reports/published/workbench
 
       - name: Publish to gh-pages (create the branch if absent)
         run: |
           set -euo pipefail
-          if [ ! -f reports/published/dashboard/index.html ]; then
+          if [ ! -f reports/published/workbench/index.html ]; then
             echo "::error::build produced no bundle (no index.html); nothing to publish"
             exit 1
           fi
@@ -111,34 +112,48 @@ jobs:
           # they are gitignored + built by scripts/build_hra_viewer_pack.py, so
           # a CI build can't regenerate them. Carry any already on gh-pages over
           # into the fresh bundle so a CI republish never drops the viewer links.
-          if [ -d dashboard/studies ]; then
-            find dashboard/studies -maxdepth 3 -type d -name hra -path '*/viz/hra' | while read -r pack; do
-              rel="${pack#dashboard/}"
-              dest="$GITHUB_WORKSPACE/reports/published/dashboard/$rel"
+          # Look under both workbench/ (new canonical) and the legacy dashboard/.
+          for root in workbench dashboard; do
+            [ -d "$root/studies" ] || continue
+            find "$root/studies" -maxdepth 3 -type d -name hra -path '*/viz/hra' | while read -r pack; do
+              rel="${pack#$root/}"
+              dest="$GITHUB_WORKSPACE/reports/published/workbench/$rel"
               if [ ! -e "$dest" ]; then
                 mkdir -p "$(dirname "$dest")"; cp -R "$pack" "$dest"
-                echo "preserved viewer pack from gh-pages: $rel"
+                echo "preserved viewer pack from gh-pages:$root/: $rel"
               fi
             done
-          fi
+          done
+          rm -rf workbench && mkdir -p workbench
+          cp -R "$GITHUB_WORKSPACE/reports/published/workbench/." workbench/
+          # Legacy /dashboard/ path → redirect to /workbench/ so old links
+          # (README showcase, external bookmarks) keep resolving.
           rm -rf dashboard && mkdir -p dashboard
-          cp -R "$GITHUB_WORKSPACE/reports/published/dashboard/." dashboard/
+          cat > dashboard/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>viva-human-atlas</title>
+          <meta http-equiv="refresh" content="0; url=../workbench/">
+          <link rel="canonical" href="../workbench/">
+          <script>location.replace('../workbench/' + location.search + location.hash)</script>
+          <a href="../workbench/">viva-human-atlas read-only workbench →</a>
+          HTML
           # Root redirect so the bare Pages URL (…/viva-human-atlas/) lands on
-          # the app instead of 404ing (the bundle only lives under dashboard/).
+          # the app instead of 404ing (the bundle only lives under workbench/).
           cat > index.html <<'HTML'
           <!doctype html>
           <meta charset="utf-8">
           <title>viva-human-atlas</title>
-          <meta http-equiv="refresh" content="0; url=./dashboard/">
-          <link rel="canonical" href="./dashboard/">
-          <script>location.replace('./dashboard/' + location.search + location.hash)</script>
-          <a href="./dashboard/">viva-human-atlas dashboard →</a>
+          <meta http-equiv="refresh" content="0; url=./workbench/">
+          <link rel="canonical" href="./workbench/">
+          <script>location.replace('./workbench/' + location.search + location.hash)</script>
+          <a href="./workbench/">viva-human-atlas read-only workbench →</a>
           HTML
           git add -A
           if git diff --cached --quiet; then
-            echo "dashboard snapshot unchanged; skipping commit"
+            echo "read-only workbench snapshot unchanged; skipping commit"
           else
-            git commit -m "gh-pages: republish read-only dashboard (automated, ${GITHUB_SHA::7})"
+            git commit -m "gh-pages: republish read-only workbench (automated, ${GITHUB_SHA::7})"
             git push origin gh-pages
-            echo "published read-only dashboard to gh-pages:dashboard/"
+            echo "published read-only workbench to gh-pages:workbench/ (+ dashboard/ redirect)"
           fi
