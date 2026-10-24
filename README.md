@@ -21,10 +21,7 @@ Atlas* proposal. It links curated mechanistic **BioModels** to HRA anatomy and
 ontologies, runs them on interoperable simulation engines, and emits
 ontology-linked outputs that can connect to the HRA's 3D reference organs.
 
-📊 **Read-only workbench (showcase):**
-https://vivarium-collective.github.io/viva-human-atlas/workbench/
-
-🧭 **HRA Computational Model Atlas (organ selector, model-count gradient, subregion placement, BioModels links):**
+**HRA Computational Model Atlas (organ selector, model-count gradient, subregion placement, BioModels links):**
 https://vivarium-collective.github.io/viva-human-atlas/workbench/studies/hra-atlas-browser/viz/atlas/index.html
 — pick any of the 50 GLB-backed HRA organs (or compose them with "All modeled"),
 see organs colored by associated model count (viridis), and click through to the
