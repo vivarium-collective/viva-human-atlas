@@ -1,6 +1,14 @@
 // walkthrough.js — v0.8.0: Registry Full view is now directly runnable — the config bar IS the editable config and the left ports ARE the editable input fields (no "Run this process" dropdown); Run lives in the body, outputs on the right. Middle (grid) zoom shows ports+types inline (no dropdown); double-click a card → runnable Full. Modules table split into Installed-here vs Marketplace sections with a Repos (imported-into) column, GitHub link on the name, and Install/Uninstall in one Action column (n_repos from module_stats federation scan). bigraph-loom: Explore (graph) is the default left tab; the right dock defaults to Processes with Nodes/Inspector collapsed. v0.7.0: Composites semantic zoom (Table/Cards full-row compact/Loom on-demand embed) + double-click to zoom in; /api/composites now runs in the WARM pooled worker (flake fix). v0.6.9: registry filter now data-driven (works in Table/Cards/Full); middle Cards zoom is full-row with composite/study usage split + details; double-click zooms in centered; select persists across zoom; run panel input ports as per-field form (type + resolved default, auto-grow) + Copy outputs; loom config bar lightened to match workbench palette. v0.6.8: run panel lazy-loads RESOLVED defaults (core.fill via /api/registry/process-template) into a per-field config form + inputs JSON (no more null-heavy templates); loom card restyled as a crisp rectangle. v0.6.7: Registry Full-view interactive runner — editable config + input-port JSON, Run → outputs (POST /api/registry/run-process; env_worker._run_process instantiates + Step.update / Process.update(interval)); loom inputs left / outputs right. v0.6.6: Registry semantic zoom (compact/detailed/full loom-rectangle: inputs left, outputs right, config top) + Cards⇄Table sortable view (_setRegistryZoom/_setRegistryView/_renderRegistryTable); rail pins hover-only + ungrouped back to a collapsible folder. v0.6.5: Registry processes sorted by USE (most-referenced across composites/runners first) with a use-count badge (build_registry._annotate_use_counts source-scan). v0.6.4: Registry page — "Discovered registry"→"Registry" (main tab), "Modules"→"Marketplace"; rich registry entries (description + inputs/outputs ports/contract + full config schema, loom-like) and a new Report Cards tab (_renderRegistryEntry/_regPortColumn). v0.6.3: STUDIES rail — per-study pin toggle (localStorage) with a "Pinned" strip at the top for quick access, and ungrouped studies rendered as a flat list at the bottom instead of a collapsible dropdown (_toggleStudyPin/_loadPinnedStudies; _railStudyItem + _renderRailInvestigationGroups). v0.6.2: Marketplace merged into the Modules tab — Modules grid loads the FULL ecosystem via /api/marketplace (available modules under the "Available to install" divider), installed cards gain an Uninstall action gated by an impact-confirmation modal (_showUninstallImpactModal via /api/catalog-uninstall-impact), viva-* display names + stat chips. v0.6.1: Marketplace sub-tab — browse the FULL viva ecosystem (unfiltered by registry.include) + install (_loadMarketplace/_renderMarketplace via /api/marketplace; shared _renderModuleGrid/_moduleActionFor with the Modules tab). v0.6.0: system-deps awareness — pre-install check + consent modal (_installFromCatalog → _showSystemDepsModal; new _checkSystemDepsForInstalled on Registry rows); v0.5.3: investigation detail panel — Spec/Runs/Visualizations tabs + Run button + Delete; v0.5.2: composite explorer UX fixes (no focus-mode hijack, one-row-per-param layout, lazy-load composite cache); v0.5.1: composite explorer page (bigraph-viz + test run + promote to simulation); v0.4.14: Available Composites picker + Emitter Use feedback + drop process multi-select; v0.4.5: _renderInstallError structured diagnosis; v0.4.1: _loadCatalog + _installFromCatalog; v0.4.0b: active-branch workstream strip; v0.3.7-A: _installImport; v0.3.6: Registry tab; v0.1.9: drag-drop uploads; v0.1.7: interactive forms.
 (function () {
   "use strict";
+  // Cache-bust token for the bigraph-loom iframe, captured once per page load.
+  // The loom bundle is served no-store, but a React re-render reuses the same
+  // <iframe> element without re-navigating, so a freshly-built loom looked stale
+  // until an Empty-Cache-and-Hard-Reload. Appending &v=<load token> to every loom
+  // iframe src makes each full page reload re-navigate the iframe (→ fresh
+  // bundle), while staying stable within a session so we don't reload it on every
+  // SPA update.
+  var _LOOM_V = Date.now();
 
   // Prefix a root-absolute /api path with the dashboard base path (e.g. /workbench)
   // so composite-explore run/resolve/status calls reach the workbench under the
@@ -10,11 +18,152 @@
     return (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl(p) : p;
   }
 
+  // Single client for all workbench /api calls. Applies the base-path shim via
+  // _api(path) (composes safely with the global _base_path_shim) and the JSON
+  // request shape, and returns the raw fetch Response so call sites keep their
+  // own `.then(function (r) { ... })` handling — a drop-in for the uniform
+  // `fetch(url, { method, headers: {'Content-Type': 'application/json'},
+  // body: JSON.stringify(x) })` pattern this file used ~77 times. Pass `body`
+  // to send it as JSON; omit it for GET / no-body requests. FormData / raw-body
+  // uploads stay on plain fetch (they don't fit the JSON shape).
+  function apiFetch(method, path, body) {
+    var opts = { method: method };
+    if (body !== undefined && body !== null) {
+      opts.headers = { 'Content-Type': 'application/json' };
+      opts.body = JSON.stringify(body);
+    }
+    return fetch(_api(path), opts);
+  }
+
   // Module-level so EVERY render function can call it. It was previously only
   // defined nested inside the investigation-report builder, but called from
   // sibling scopes (tick / study-card / v4 renderers) — which threw
   // "ReferenceError: Can't find variable: _humanizeStudyName" and failed the
   // investigation report load (fixed 2026-06-10). Hoisted here = visible IIFE-wide.
+  // Canonical study status -> {color, icon, label, state}. ONE source of truth for
+  // the colored status shown in the spine sidebar dot, the investigation-graph card
+  // badge, and the graph legend, so those three can never drift apart. (They used
+  // to: the sidebar read the lifecycle `effective_status` while the card read the
+  // hand-set `confidence` field first — so a `blocked` study showed amber
+  // "Investigating" on its card while its sidebar dot was red.) Precedence, honoring
+  // the card code's own stated intent: the COMPUTED gate_status verdict wins, then
+  // the hand-set confidence, then the lifecycle status. `Blocked` is its own state —
+  // a study that could not run — distinct from `Refuted` (a hypothesis disproven).
+  // Two-axis investigation-graph ontology — EXECUTION (what happened) is kept
+  // separate from VERDICT (what the evidence supports); both render as prominent
+  // pills on the card. Replaces the old single _STATUS_META badge that conflated
+  // workflow progress with scientific interpretation ("Accepted"/"Refuted").
+  // The server (investigation_graph_views) derives execution_status for every
+  // node and verdict when authored/derivable; the fallbacks below cover study
+  // objects (e.g. the rail) that don't carry the derived fields.
+  var _EXEC_META = {
+    proposed:  {color: '#94a3b8', icon: '○', label: 'Proposed'},
+    planned:   {color: '#2563eb', icon: '◔', label: 'Planned'},
+    running:   {color: '#ca8a04', icon: '◑', label: 'Running'},
+    completed: {color: '#475569', icon: '●', label: 'Completed'},
+    failed:    {color: '#dc2626', icon: '⊘', label: 'Failed'},
+  };
+  function _execState(s) {
+    s = s || {};
+    var ex = String(s.execution_status || '').trim().toLowerCase();
+    if (_EXEC_META[ex]) return ex;
+    // Client fallback (server normally sets execution_status): derive from the
+    // legacy multi-axis fields. A gate/evaluation that reached a result means the
+    // study RAN — that's `completed`; a negative verdict is NOT a failed execution.
+    var gate = String(s.gate_status || '').trim().toLowerCase();
+    var sim = String(s.simulation_status || '').trim().toLowerCase();
+    var ev = String(s.evaluation_status || '').trim().toLowerCase();
+    var life = String(s.effective_status || s.status || '').trim().toLowerCase();
+    if (sim === 'failed' || life === 'invalid' || life === 'failed') return 'failed';
+    if (['passed', 'failed', 'needs_calibration', 'stale'].indexOf(gate) >= 0) return 'completed';
+    if (sim === 'ran' && (ev === 'evaluated' || ev === 'failed_evaluation')) return 'completed';
+    if (['complete', 'completed', 'ran', 'decided', 'evaluated'].indexOf(life) >= 0) return 'completed';
+    if (sim === 'running' || ['running', 'analyzing', 'in_progress'].indexOf(life) >= 0) return 'running';
+    var conf = String(s.confidence || '').trim().toLowerCase();
+    if (conf === 'accepted') return 'completed';
+    if (conf === 'investigating') return 'running';
+    if (life === 'planned' || conf === 'planned') return s.proposed === true ? 'proposed' : 'planned';
+    if (s.proposed === true) return 'proposed';
+    return 'planned';
+  }
+  function _execMeta(s) { return _EXEC_META[_execState(s)] || _EXEC_META.planned; }
+
+  // Scientific verdict — what the evidence supports, shown only once meaningful.
+  var _VERDICT_META = {
+    'supported':    {color: '#16a34a', icon: '◆', label: 'Supported'},
+    'qualified':    {color: '#0d9488', icon: '◇', label: 'Qualified'},
+    'inconclusive': {color: '#64748b', icon: '◐', label: 'Inconclusive'},
+    'refuted':      {color: '#dc2626', icon: '✗', label: 'Refuted'},
+  };
+  // Legacy verdict values fold into the four canonical ones (ontology decision:
+  // an honest negative is a refuted verdict, mixed is inconclusive).
+  var _VERDICT_ALIASES = {
+    'supported': 'supported', 'qualified': 'qualified',
+    'inconclusive': 'inconclusive', 'refuted': 'refuted',
+    'honest-negative': 'refuted', 'honest_negative': 'refuted', 'mixed': 'inconclusive',
+  };
+  // Shown in the Verdict pill when a study carries no (derivable) verdict yet.
+  var _VERDICT_PENDING = {color: '#94a3b8', icon: '·', label: 'pending'};
+  var _TIER_META = {
+    'conceptual_demonstration': {pips: 1, label: 'demonstration'},
+    'mechanistic_prediction':   {pips: 2, label: 'mechanistic'},
+    'calibrated':               {pips: 3, label: 'calibrated'},
+  };
+  function _studyVerdict(s) {
+    s = s || {};
+    return _VERDICT_ALIASES[String(s.verdict || '').trim().toLowerCase()] || null;
+  }
+  function _verdictMeta(s) {
+    var v = _studyVerdict(s);
+    return v ? _VERDICT_META[v] : null;  // null → render the pending pill
+  }
+  // A rounded two-axis pill: glyph + (optionally) label, tinted by the axis color.
+  function _aigPill(meta, title, cls, compact) {
+    return '<span class="' + cls + '" title="' + title + '" ' +
+      'style="display:inline-flex;align-items:center;gap:3px;font-size:0.6em;font-weight:700;' +
+      'white-space:nowrap;border-radius:9999px;padding:1px 7px;color:' + meta.color + ';' +
+      'background:' + meta.color + '14;border:1px solid ' + meta.color + '40">' +
+      '<span style="font-size:1.1em;line-height:1">' + meta.icon + '</span>' +
+      (compact ? '' : _esc(meta.label)) + '</span>';
+  }
+
+  // Legacy single-axis status model — still used by the rail dot, the sidebar,
+  // and the iset summary table (surfaces outside the investigation graph). The
+  // graph itself now uses the two-axis _EXEC_META × _VERDICT_META above. Kept so
+  // those surfaces render unchanged; a later pass can migrate them too.
+  var _STATUS_META = {
+    Accepted:      {color: '#16a34a', icon: '✓', label: 'Accepted'},
+    Investigating: {color: '#ca8a04', icon: '◐', label: 'Investigating'},
+    Planned:       {color: '#2563eb', icon: '○', label: 'Planned'},
+    Blocked:       {color: '#64748b', icon: '⊘', label: 'Blocked'},
+    Refuted:       {color: '#dc2626', icon: '✗', label: 'Refuted'},
+  };
+  function _studyStatusState(s) {
+    s = s || {};
+    var gate = String(s.gate_status || '').trim().toLowerCase();
+    if (gate === 'passed' || gate === 'pass' || gate === 'accepted') return 'Accepted';
+    if (gate === 'failed' || gate === 'failed_evaluation' || gate === 'refuted') return 'Refuted';
+    if (gate === 'blocked') return 'Blocked';
+    if (gate === 'partial' || gate === 'needs_calibration' || gate === 'in_progress') return 'Investigating';
+    var life = String(s.effective_status || s.status || '').trim().toLowerCase();
+    if (life.indexOf('blocked') !== -1) return 'Blocked';
+    if (life.indexOf('fail') !== -1 || life === 'invalid' || life === 'refuted') return 'Refuted';
+    var conf = String(s.confidence || '').trim();
+    if (_STATUS_META[conf]) return conf;
+    if (['complete', 'completed', 'ran', 'passed', 'evaluated', 'decided'].indexOf(life) >= 0) return 'Accepted';
+    if (['running', 'analyzing', 'in_progress'].indexOf(life) >= 0) return 'Investigating';
+    return 'Planned';
+  }
+  function _studyStatusMeta(s) { return _STATUS_META[_studyStatusState(s)] || _STATUS_META.Planned; }
+  function _studyTier(s) { s = s || {}; return _TIER_META[s.evidence_tier] ? s.evidence_tier : null; }
+  function _tierPipsHtml(s) {
+    var t = _studyTier(s); if (!t) return '';
+    var n = _TIER_META[t].pips, lab = _TIER_META[t].label, out = '';
+    for (var i = 0; i < 3; i++) out += '<span style="color:' + (i < n ? '#334155' : '#cbd5e1') + '">●</span>';
+    return '<span class="aig-tier-pips" title="evidence: ' + lab + '" ' +
+      'style="font-size:0.6em;letter-spacing:1px;margin-left:2px">' + out + '</span>';
+  }
+
   function _humanizeStudyName(slug) {
     var m = /^([a-z]+-\d+[a-z]*)-(.+)$/.exec(slug);
     if (!m) return {chip: '', title: String(slug).replace(/-/g, ' ')};
@@ -28,6 +177,16 @@
   // Investigation DAG band state
   // -------------------------------------------------------------------------
   var aigBand = 1;                 // 0=far, 1=mid, 2=near (default = current detail)
+  // Card-width scale — independent of the zoom band. Lets the viewer widen or
+  // narrow the study cards to read the Asks/Finds text as needed. Multiplies the
+  // band's cardW; persisted per viewer in localStorage.
+  var AIG_WIDTH_MIN = 0.7, AIG_WIDTH_MAX = 3.0;
+  var aigWidthScale = (function () {
+    try {
+      var v = parseFloat(localStorage.getItem('aig-width-scale'));
+      return (v >= AIG_WIDTH_MIN && v <= AIG_WIDTH_MAX) ? v : 1;
+    } catch (e) { return 1; }
+  })();
   var _lastDagArgs = null;         // [studies, chainsBySlug] for re-render on band change
 
   // Layer-4 pull-or-compute: per-study cached/compute status for the current
@@ -39,36 +198,99 @@
 
   // -------------------------------------------------------------------------
   // Investigation DAG orientation (LR = left-to-right, TB = top-to-bottom).
-  // Auto-picked per investigation shape (see chooseGraphOrientation in
-  // aig-graph.js) unless the user has manually toggled it, in which case the
-  // choice is persisted per-investigation in localStorage and wins over auto.
   // -------------------------------------------------------------------------
-  function _graphOrientationKey(name) {
-    return 'aig-orientation:' + (name || 'default');
-  }
-  function _getStoredGraphOrientation(name) {
-    try {
-      var v = window.localStorage.getItem(_graphOrientationKey(name));
-      if (v === 'LR' || v === 'TB') return v;
-    } catch (e) { /* private mode / no localStorage */ }
-    return null;
-  }
+  // MODEL: AUTO by default. The orientation ANALYSES THE GRAPH and fits it to the
+  // pane: it lays the graph's dominant axis (breadth vs depth) along the pane's
+  // long axis so the cards fill the space instead of cramming into one line.
+  //   • breadth-heavy graph (a gallery — many cards, ~1 depth):
+  //       wide pane (inline/top/bottom dock) → TB  (cards in a row along the top)
+  //       tall pane (left/right dock)         → LR  (cards in a column)
+  //   • depth-heavy graph (a dependency chain):
+  //       wide pane → LR  (chain flows left→right)
+  //       tall pane → TB  (chain flows top→down)
+  // So the dock side only sets the pane's long axis; the graph shape decides which
+  // axis the cards spread along. (See _aigAutoOrient for the full table.)
+  // Auto is (re)applied on the INITIAL render AND on EVERY dock-position switch —
+  // the dock switch itself IS the "reset to auto", so there is no separate auto
+  // button. The ⇄/⇅ LAYOUT buttons are a TRANSIENT manual override that holds only
+  // within the current dock state (it survives zoom/band re-renders); the next
+  // dock switch clears it and re-autos. The manual choice is in-memory, not
+  // persisted — a reload re-autos too.
+  var _aigManualOrient = null;   // 'LR' | 'TB' manual override for the current dock, else null
+  var _aigUserLayout = false;    // true while a manual override is in effect (drives the toggle UI)
   function _setGraphOrientation(o) {
     if (o !== 'LR' && o !== 'TB') return;
-    try { window.localStorage.setItem(_graphOrientationKey(window._currentIset), o); } catch (e) { /* ignore */ }
+    _aigManualOrient = o;        // transient manual override — holds until the next dock switch
+    _aigUserLayout = true;
     if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
   }
   window._setGraphOrientation = _setGraphOrientation;
+  // Clear the manual override → back to the aspect-derived auto. Called on dock
+  // close (return to inline) and reused by the dock-switch re-auto below.
   function _resetGraphOrientation() {
-    try { window.localStorage.removeItem(_graphOrientationKey(window._currentIset)); } catch (e) { /* ignore */ }
+    _aigManualOrient = null;
+    _aigUserLayout = false;
     if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
   }
   window._resetGraphOrientation = _resetGraphOrientation;
-  // Reflect the active/override state on the toggle control, if present.
+  // A dock-position switch RE-AUTOS the orientation: clear any transient manual
+  // override so the aspect-derived default (computed in the render from the new
+  // dock side) applies. The `o` arg is advisory — the render recomputes from the
+  // live dock aspect — so a stale value can't fight the measured layout.
+  function _setGraphOrientationForDock(o) {
+    _aigManualOrient = null;
+    _aigUserLayout = false;
+    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
+  }
+  window._setGraphOrientationForDock = _setGraphOrientationForDock;
+  // The aspect-derived AUTO direction for the current placement (dock side when the
+  // graph is hosted in the side panel, else the inline container aspect). Returns
+  // null when nothing can be measured (caller falls back to the shape heuristic).
+  function _aigAutoOrient(depthCounts) {
+    // STEP 1 — the pane's LONG axis: is the available area wide (horizontal) or
+    // tall (vertical)? From the dock side when hosted in the side panel, else the
+    // inline container's measured aspect.
+    var wide = null;
+    var fsEl = document.getElementById('investigation-dag-fs');
+    if (fsEl) {
+      if (fsEl.closest && fsEl.closest('#viv-graph-panel')) {
+        var gp = document.getElementById('viv-graph-panel');
+        var dock = gp && gp.dataset ? gp.dataset.dock : '';
+        if (dock === 'left' || dock === 'right') wide = false;       // narrow side column → tall
+        else if (dock === 'top' || dock === 'bottom') wide = true;   // short band → wide
+      } else {
+        var r = fsEl.getBoundingClientRect();
+        var availW = r.width || fsEl.clientWidth || 0;
+        var availH = Math.max(0, (window.innerHeight || 900) - r.top);
+        if (availW > 1 && availH > 1) wide = availW >= availH;
+      }
+    }
+    if (wide === null) return null;   // unmeasurable → caller falls back to the shape heuristic
+
+    // STEP 2 — the graph's SHAPE: breadth-heavy (gallery-like — many cards at few
+    // depths, i.e. a wide row of independent studies) vs depth-heavy (chain-like —
+    // a long dependency column). `depthCounts` maps depth level → node count.
+    var counts = depthCounts || {};
+    var levels = Object.keys(counts);
+    var maxDepth = levels.length || 1;                  // how DEEP (number of dependency levels)
+    var maxBreadth = 0;                                 // how WIDE (most cards at any one level)
+    levels.forEach(function (d) { var n = counts[d] || 0; if (n > maxBreadth) maxBreadth = n; });
+    var breadthHeavy = maxBreadth > maxDepth;
+
+    // STEP 3 — lay the graph's DOMINANT axis along the pane's LONG axis, so the
+    // cards fill the space instead of cramming into a single line. In this
+    // layout TB spreads same-depth cards HORIZONTALLY (a row) and stacks depth
+    // vertically; LR is the opposite.
+    //   breadth-heavy + wide pane → breadth horizontal → TB  (a row of cards along the top)
+    //   breadth-heavy + tall pane → breadth vertical   → LR  (a column — fits a side dock)
+    //   depth-heavy  + wide pane  → depth horizontal    → LR  (a chain flowing left→right)
+    //   depth-heavy  + tall pane  → depth vertical      → TB  (a chain flowing top→down)
+    return wide ? (breadthHeavy ? 'TB' : 'LR') : (breadthHeavy ? 'LR' : 'TB');
+  }
+  // Reflect the active (LR/TB) state on the toggle control, if present.
   function _syncGraphOrientToggleUI(orient, isOverride) {
     var lrBtn = document.getElementById('aig-orient-lr');
     var tbBtn = document.getElementById('aig-orient-tb');
-    var autoBtn = document.getElementById('aig-orient-auto');
     function _mark(btn, active) {
       if (!btn) return;
       btn.style.background = active ? '#e0e7ff' : 'transparent';
@@ -78,7 +300,6 @@
     }
     _mark(lrBtn, orient === 'LR');
     _mark(tbBtn, orient === 'TB');
-    if (autoBtn) autoBtn.style.visibility = isOverride ? 'visible' : 'hidden';
   }
 
   // -------------------------------------------------------------------------
@@ -168,6 +389,13 @@
       window._ceLastRunId = ev.data.simulation_id || null;
       var bar = document.getElementById('ce-post-run-bar');
       if (bar) bar.style.display = 'flex';
+      // A just-completed run should appear in the Runs tab right away — without a
+      // manual reload or waiting the ~100s remote fetch. Re-pull the sim index: the
+      // Phase-1 local fetch picks up the new .pbg/composite-runs.db row fast
+      // (including a Cloud run's save_metadata row). The backed-off remote fetch
+      // (_maybeLoadRemoteSims) is not re-triggered, so this stays cheap.
+      if (typeof window._initSimulations === 'function') window._initSimulations(true);
+      if (typeof window._loadStudySims === 'function') window._loadStudySims(true);
     }
   });
 
@@ -318,12 +546,16 @@
         var pr = panel.getBoundingClientRect(), fr = frame.getBoundingClientRect();
         chrome = Math.max(0, Math.round(fr.top - pr.top));   // the embed's own header
       }
-      var h = Math.max(minH || 480, Math.round(window.innerHeight - chrome - 24));
+      // a bottom-docked AI panel takes height from the pane (published as --viv-ai-bottom)
+      var aiBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--viv-ai-bottom')) || 0;
+      var h = Math.max(minH || 480, Math.round(window.innerHeight - chrome - 24 - aiBottom));
       frame.style.height = h + 'px';
     };
     fit();
     if (!frame._fitBound) {
       window.addEventListener('resize', fit);
+      window.addEventListener('viv:ai-layout', fit);      // the AI panel docked/undocked/resized
+      window.addEventListener('viv:panel-layout', fit);   // any dockable panel (chat OR code) changed
       frame._fitBound = true;
     }
   }
@@ -398,10 +630,37 @@
       try {
         var doc = frame.contentDocument;
         if (doc && doc.body && window.ResizeObserver && !frame._roFit) {
-          frame._roFit = new ResizeObserver(function () { fit(true); });
+          // Debounce the refit. A CONTINUOUS container resize — e.g. dragging the
+          // left rail, which reflows the content width every frame — would otherwise
+          // run fit() (a height:0 + scrollHeight measure + scroll-restore, i.e. two
+          // forced iframe reflows) on EVERY frame for EVERY visible embed, which is
+          // what makes the rail drag stutter. Coalesce to one fit ~80ms after the
+          // size settles; late async growth is still covered by the catch-up poll.
+          var _roFitT = 0;
+          frame._roFit = new ResizeObserver(function () {
+            if (_roFitT) clearTimeout(_roFitT);
+            _roFitT = setTimeout(function () { _roFitT = 0; fit(true); }, 80);
+          });
           frame._roFit.observe(doc.body);
+          // Observe documentElement too: a tab switch / async chart render can
+          // grow the document without changing body's observed box, so a
+          // body-only observer misses it and the porthole keeps its own
+          // scrollbar (the middle of the nested-scrollbar bug).
+          if (doc.documentElement) frame._roFit.observe(doc.documentElement);
         }
       } catch (_) { /* cross-origin */ }
+      // Bounded catch-up (~8s): the observer above can still miss content that
+      // grows well after load (lazy figure iframes finishing their own resize).
+      // Poll a refit so the porthole reaches full content height. Skipped while
+      // the landing scroll is active so it can't cancel the scroll-to-study.
+      if (frame._catchupTimer) { clearInterval(frame._catchupTimer); }
+      var _ticks = 0;
+      frame._catchupTimer = setInterval(function () {
+        if (!frame.isConnected) { clearInterval(frame._catchupTimer); frame._catchupTimer = null; return; }
+        if (window._embedLandingUntil && Date.now() < window._embedLandingUntil) return;
+        fit(false);
+        if (++_ticks >= 16) { clearInterval(frame._catchupTimer); frame._catchupTimer = null; }
+      }, 500);
     };
     frame.addEventListener('load', onload);
     try {
@@ -512,15 +771,16 @@
   window._closeStudyEmbedded = _closeStudyEmbedded;
 
   // -------------------------------------------------------------------------
-  // UI feature flags (ui.composite_view)
+  // UI feature flags (ui.composite_view, ui.auto_results)
   // -------------------------------------------------------------------------
   window._uiConfig = null;
-  fetch('/api/ui-config').then(function(r) { return r.json(); }).then(function(cfg) {
+  apiFetch('GET', '/api/ui-config').then(function(r) { return r.json(); }).then(function(cfg) {
     window._uiConfig = cfg || {};
     // Read-only / remote-only mode: hide authoring controls (.js-authoring) via
     // CSS; the Source panel reads this flag at render time to go remote-only.
     if (window._uiConfig.readonly) document.body.classList.add('readonly');
     _applyCompositeViewMode();
+    _applyAutoResultsCheckbox();
   });
 
   function _applyCompositeViewMode() {
@@ -538,6 +798,39 @@
     }
   }
   window._applyCompositeViewMode = _applyCompositeViewMode;
+
+  // Composite loom viewer chrome: a default-on checkbox mirroring the
+  // workspace's ui.auto_results setting (Task 7 — gates whether a composite
+  // run auto-runs its declared analyses/visualizations). Default checked when
+  // unset (cfg.auto_results !== false), matching build_ui_config's default.
+  function _applyAutoResultsCheckbox() {
+    var cfg = window._uiConfig || {};
+    var cb = document.getElementById('ui-auto-results-cb');
+    if (!cb) return;
+    cb.checked = cfg.auto_results !== false;
+  }
+  window._applyAutoResultsCheckbox = _applyAutoResultsCheckbox;
+
+  // Checkbox onchange handler: POST the new value to the settings endpoint.
+  // This is a mirror, not the source of truth — workspace.yaml stays that.
+  function _setAutoResults(checked) {
+    var cb = document.getElementById('ui-auto-results-cb');
+    apiFetch('POST', '/api/ui-config', { auto_results: !!checked }).then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function() {
+      window._uiConfig = window._uiConfig || {};
+      window._uiConfig.auto_results = !!checked;
+    }).catch(function(err) {
+      // Revert the checkbox on failure so it doesn't silently drift from the
+      // persisted workspace setting.
+      if (cb) cb.checked = !checked;
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('Failed to persist ui.auto_results:', err);
+      }
+    });
+  }
+  window._setAutoResults = _setAutoResults;
 
   // -------------------------------------------------------------------------
   // Form submission helper
@@ -561,11 +854,7 @@
 
     var data = dataFn ? dataFn(form) : _formToObj(form);
 
-    fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    apiFetch('POST', endpoint, data)
       .then(function (res) {
         return res.json().then(function (json) {
           return { ok: res.ok, status: res.status, json: json };
@@ -587,7 +876,7 @@
         if (next) msg += "\n\nNext terminal step:\n  " + next;
         if (note) msg += "\n\n" + note;
         // Re-render then reload (strip updates on reload).
-        fetch("/api/render", { method: "POST" }).finally(function () {
+        apiFetch('POST', "/api/render").finally(function () {
           alert(msg);
           location.reload();
         });
@@ -614,11 +903,7 @@
   }
 
   function _postPhaseAction(endpoint, data) {
-    fetch("/api/" + endpoint, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(data),
-    })
+    apiFetch('POST', "/api/" + endpoint, data)
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], json = parts[1];
@@ -627,7 +912,7 @@
           return;
         }
         var msg = "Done! Branch: " + (json.branch || "?");
-        fetch("/api/render", {method: "POST"}).finally(function() {
+        apiFetch('POST', "/api/render").finally(function() {
           _refreshGitStatus();
           alert(msg);
           location.reload();
@@ -642,14 +927,17 @@
   // -------------------------------------------------------------------------
 
   function _switchPage(pageId) {
-    pageId = pageId || 'workspace-inputs';
+    pageId = pageId || 'resources';
+    // Back-compat: the former "Inputs" page (#workspace-inputs) was merged into
+    // the unified "Resources" tab. Old hashes/links resolve to it.
+    if (pageId === 'workspace-inputs') pageId = 'resources';
     // Snapshot mode: redirect authoring-only tabs to the investigations view.
     // composite-explore needs live composite resolution (build_core) which is
     // unavailable in a static bundle → redirect to simulation-setup (composites list).
     if (document.body.classList.contains('snapshot')) {
       // 'github' (Source page) IS available in snapshot now — it's the published
-      // workspace switcher (repo navigator + Sync-to-local). Only 'studies'
-      // (the legacy flat list) redirects to the investigations view.
+      // workspace switcher (repo navigator + Sync-to-local). 'studies' (the legacy
+      // flat list) redirects to the investigations view.
       if (pageId === 'studies') {
         pageId = 'investigations';
       }
@@ -660,6 +948,12 @@
     var link = document.querySelector('.menu-link[data-page="' + pageId + '"]');
     if (page) page.classList.add('active');
     if (link) link.classList.add('active');
+    // The docked investigation-graph panel lives OUTSIDE the .page containers, so a
+    // page switch doesn't hide it — close it whenever we leave the investigation
+    // view so it doesn't linger over Registry / Catalog / Runs / etc.
+    if (pageId !== 'investigations' && window.GraphPanel && window.GraphPanel.close) {
+      try { window.GraphPanel.close(); } catch (e) { /* ignore */ }
+    }
     // Load the faceted Market on switch, and the build_core() registry on
     // Modules / Simulation Setup / Visualizations.
     if (pageId === 'market') {
@@ -674,6 +968,13 @@
     // Analyses page: always refresh from /api/visualization-classes on navigate.
     if (pageId === 'visualizations') {
       _loadAnalysesPage();
+    }
+    // Resources page: one scrolling page — Datasets / References / Expert docs
+    // (/api/inputs) + the structured science sections (/api/structured-resources).
+    // _loadResources fetches the manifest, renders the science gallery, and then
+    // (re)renders the inputs so paper-references fold into the References list.
+    if (pageId === 'resources') {
+      _loadResources();
     }
     // Branch page: render the Source (Scope Local/Remote, repo, branch) section on
     // every navigation, so it's populated from the first visit instead of relying
@@ -719,9 +1020,6 @@
       if (typeof _closeInvestigationDetail === 'function') _closeInvestigationDetail();
       _loadInvestigationSets();
     }
-    if (pageId === 'workspace-inputs') {
-      _loadInputs();
-    }
     if (pageId === 'audit' && typeof window._loadAudit === 'function') {
       _loadAudit();
     }
@@ -735,8 +1033,8 @@
     if (focus) {
       var _snapshot = document.body.classList.contains('snapshot');
       var validPages = _snapshot
-        ? ['workspace-inputs', 'simulation-setup', 'modules', 'market', 'investigations', 'simulations', 'visualizations', 'audit', 'composite-explore', 'github', 'about']
-        : ['workspace-inputs', 'simulation-setup', 'visualizations', 'modules', 'market', 'investigations', 'studies', 'simulations', 'audit', 'composite-explore', 'github', 'about'];
+        ? ['workspace-inputs', 'simulation-setup', 'modules', 'market', 'investigations', 'simulations', 'visualizations', 'resources', 'audit', 'composite-explore', 'github', 'about']
+        : ['workspace-inputs', 'simulation-setup', 'visualizations', 'resources', 'modules', 'market', 'investigations', 'studies', 'simulations', 'audit', 'composite-explore', 'github', 'about'];
       if (validPages.indexOf(focus) >= 0) {
         document.body.classList.add('focus-mode', 'focus-' + focus);
         _switchPage(focus);
@@ -754,15 +1052,24 @@
       _enterPopcardMode(_qsPop, new URLSearchParams(window.location.search).get('kind') || 'process');
       return;   // skip normal hash routing in a pop-out window
     }
+    // ?maxcard=<address>&kind=<kind> → the FULL workbench (with the side rail)
+    // showing this composite maximized + Explore open. The "pop back in" target.
+    var _qsMax = new URLSearchParams(window.location.search).get('maxcard');
+    if (_qsMax) {
+      _enterMaxcardMode(_qsMax, new URLSearchParams(window.location.search).get('kind') || 'composite');
+      return;
+    }
 
     if (!focusedPage) {
       function fromHash() {
         var h = (window.location.hash || '').replace(/^#/, '');
         var _snap = document.body.classList.contains('snapshot');
         var validPages = _snap
-          ? ['workspace-inputs', 'modules', 'market', 'simulation-setup', 'investigations', 'simulations', 'visualizations', 'audit', 'composite-explore', 'github', 'about']
-          : ['workspace-inputs', 'modules', 'market', 'simulation-setup', 'visualizations', 'investigations', 'studies', 'simulations', 'audit', 'composite-explore', 'github', 'about'];
-        _switchPage(validPages.indexOf(h) >= 0 ? h : 'workspace-inputs');
+          ? ['workspace-inputs', 'modules', 'market', 'simulation-setup', 'investigations', 'simulations', 'visualizations', 'resources', 'audit', 'composite-explore', 'github', 'about']
+          : ['workspace-inputs', 'modules', 'market', 'simulation-setup', 'visualizations', 'resources', 'investigations', 'studies', 'simulations', 'audit', 'composite-explore', 'github', 'about'];
+        // Default landing view is Studies (the #investigations page) when there's
+        // no (or an unknown) hash.
+        _switchPage(validPages.indexOf(h) >= 0 ? h : 'investigations');
       }
       window.addEventListener('hashchange', fromHash);
       fromHash();
@@ -829,43 +1136,23 @@
   function _loadInputs() {
     var el = document.getElementById('inputs-api-render');
     if (!el) return;
-    el.innerHTML = '<p class="muted" style="font-style:italic">Loading inputs…</p>';
-    // Prefer the Sources-page picker selection over the git-branch-current slug.
-    var _slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
+    el.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading resources…') : '<p class="muted" style="font-style:italic">Loading resources…</p>';
+    // One repo-wide resource set: always load the global inputs (no slug). The
+    // server folds every investigation's declared resources into this block.
     var _pInputs = window.DataSource
-      ? window.DataSource.loadInputs(_slug)
-      : (function() {
-          var _url = '/api/inputs' + (_slug ? ('?investigation=' + encodeURIComponent(_slug)) : '');
-          return fetch(_url).then(function(r) { return r.json(); });
-        })();
-    // Also load the investigation list so the panel can offer a picker when no
-    // investigation is branch-current — the user chooses which investigation to
-    // load sources INTO (its own sources, not the repo-wide shared sources).
-    var _pList = fetch('/api/investigation-summaries')
-      .then(function(r) { return r.json(); })
-      .then(function(d) { return (d && d.investigations) || []; })
-      .catch(function() { return []; });
-    Promise.all([_pInputs, _pList])
-      .then(function (arr) {
-        var data = arr[0] || {};
-        data._investigations = arr[1] || [];
-        _renderInputs(el, data);
+      ? window.DataSource.loadInputs('')
+      : fetch('/api/inputs').then(function(r) { return r.json(); });
+    _pInputs
+      .then(function (data) {
+        _renderInputs(el, data || {});
       })
       .catch(function (err) {
-        el.innerHTML = '<p style="color:#c00">Could not load inputs: ' +
+        el.innerHTML = '<p style="color:#c00">Could not load resources: ' +
           _esc(String(err)) +
           ' <button class="action-btn" onclick="_loadInputs()">Retry</button></p>';
       });
   }
   window._loadInputs = _loadInputs;
-
-  // Sources-page investigation picker: set the selected slug and reload so the
-  // panel shows that investigation's sources + investigation-scoped +Add buttons.
-  function _inputsSelectInvestigation(slug) {
-    window._inputsSelectedSlug = slug || '';
-    _loadInputs();
-  }
-  window._inputsSelectInvestigation = _inputsSelectInvestigation;
 
   // A reference entry is either a bare bib key (investigation.references) or a
   // parsed bib-entry dict (global.references). Normalize to a display label.
@@ -877,6 +1164,36 @@
 
   function _inputsNone() {
     return '<p class="muted" style="font-style:italic;margin:4px 0">none</p>';
+  }
+
+  // "Cited by" chips: one pill per study that cites this resource, linking to
+  // the study page (snapshot-safe via _studyHref). cited_by is
+  // [{slug, title, investigation}], attached server-side by build_inputs from
+  // the studies' `cites:` fields. Returns '' when nothing cites the resource.
+  function _inputsCitedByHtml(citedBy) {
+    if (!citedBy || !citedBy.length) return '';
+    var chips = citedBy.map(function (c) {
+      c = c || {};
+      var slug = c.slug || c.name || '';
+      if (!slug) return '';
+      var label = c.title || c.slug || slug;
+      var href = (typeof _studyHref === 'function')
+        ? _studyHref(slug) : ('/studies/' + encodeURIComponent(slug));
+      // Open IN the workbench (keeps the left menu + SPA chrome) via the shared
+      // study router, exactly like the Studies rail. The real href is kept as a
+      // graceful fallback (middle-click / router missing / no-JS).
+      return '<a href="' + _esc(href) + '" ' +
+        'onclick="if(window._openStudyEmbeddedNewTab){_openStudyEmbeddedNewTab(\'' +
+        _esc(slug) + '\');return false;}" ' +
+        'title="Open study in workbench: ' + _esc(label) + '" ' +
+        'style="display:inline-block;font-size:0.68em;line-height:1.4;padding:0 7px;' +
+        'margin:0 3px 2px 0;border:1px solid #c7d2fe;background:#eef2ff;color:#4338ca;' +
+        'border-radius:9px;text-decoration:none">' + _esc(label) + '</a>';
+    }).join('');
+    if (!chips) return '';
+    return '<div style="margin-top:3px;display:flex;flex-wrap:wrap;align-items:baseline">' +
+      '<span class="muted" style="font-size:0.65em;margin-right:5px;letter-spacing:0.02em;' +
+      'text-transform:uppercase">Cited by</span>' + chips + '</div>';
   }
 
   // A download link to a workspace-relative path.
@@ -911,7 +1228,7 @@
       var dl = path ? _inputsDownloadLink(path, 'Download') :
         (ds.url ? '<a href="' + _esc(ds.url) + '" target="_blank" rel="noopener" ' +
           'class="action-btn" style="font-size:0.8em;padding:1px 8px;text-decoration:none">↗ Source</a>' : '');
-      return '<tr><td><code>' + name + '</code></td><td><small class="muted">' +
+      return '<tr class="res-item"><td><code>' + name + '</code></td><td><small class="muted">' +
         _esc(src) + '</small></td><td style="text-align:right">' + dl + '</td></tr>';
     }).join('');
     return '<table><thead><tr><th>Name</th><th>Source</th><th></th></tr></thead><tbody>' +
@@ -924,7 +1241,10 @@
   // references. Unmatched bare keys render as a labeled stub.
   function _inputsRefsHtml(refs) {
     if (!refs || !refs.length) return _inputsNone();
-    return '<div style="display:flex;flex-direction:column;gap:10px">' +
+    // Dense scannable list: thin dividers between rows instead of tall bordered
+    // cards with gaps, so many more references fit per screen.
+    return '<div class="res-reflist" style="display:flex;flex-direction:column;' +
+      'border-top:1px solid #e2e8f0">' +
       refs.map(_inputsRefCardHtml).join('') + '</div>';
   }
 
@@ -934,7 +1254,7 @@
     var key = ref.key || ref.bib_key || '';
 
     if (ref._unmatched) {
-      return '<div style="border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px">' +
+      return '<div class="res-item" style="border-bottom:1px solid #e2e8f0;padding:5px 2px">' +
         '<code>' + _esc(key || _inputsRefLabel(ref)) + '</code> ' +
         '<small class="muted">(no bib entry)</small></div>';
     }
@@ -949,16 +1269,16 @@
 
     var titleHtml = link
       ? '<a href="' + _esc(link) + '" target="_blank" rel="noopener" ' +
-        'style="font-weight:600">' + _esc(title) + '</a> ' +
+        'style="font-weight:600;font-size:0.9em">' + _esc(title) + '</a> ' +
         '<small class="muted">↗</small>'
-      : '<strong>' + _esc(title) + '</strong>';
+      : '<strong style="font-size:0.9em">' + _esc(title) + '</strong>';
 
     var metaParts = [];
     if (ref.author) metaParts.push(_esc(ref.author));
     if (ref.year) metaParts.push(_esc(ref.year));
     if (ref.journal) metaParts.push(_esc(ref.journal));
     var meta = metaParts.length
-      ? '<div class="muted" style="font-size:0.85em;margin-top:2px">' +
+      ? '<div class="muted" style="font-size:0.8em;margin-top:1px">' +
         metaParts.join(' · ') + '</div>'
       : '';
 
@@ -969,8 +1289,8 @@
     var bibBlock = '';
     if (bibtex) {
       var bibId = 'bibtex-' + (key || Math.random().toString(36).slice(2));
-      bibBlock = '<details style="margin-top:6px">' +
-        '<summary style="cursor:pointer;font-size:0.82em;color:#475569">BibTeX</summary>' +
+      bibBlock = '<details style="margin-top:3px">' +
+        '<summary style="cursor:pointer;font-size:0.75em;color:#475569">BibTeX</summary>' +
         // Wrap instead of scroll: a BibTeX entry's `title = {…}` line runs
         // 200-400px past the panel, and overflow:auto turned every reference
         // into its own horizontal scrollbar. Wrapping costs a line and removes
@@ -986,11 +1306,44 @@
 
     // Show the note as a sub-line only when it isn't already the headline.
     var noteHtml = (ref.note && ref.note !== title)
-      ? '<div class="muted" style="font-size:0.85em;margin-top:2px;font-style:italic">' + _esc(ref.note) + '</div>'
+      ? '<div class="muted" title="' + _esc(ref.note) + '" ' +
+        'style="font-size:0.8em;margin-top:1px;font-style:italic;' +
+        'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _esc(ref.note) + '</div>'
       : '';
 
-    return '<div style="border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px">' +
-      '<div>' + titleHtml + actions + '</div>' + meta + noteHtml + bibBlock + '</div>';
+    var citedHtml = _inputsCitedByHtml(ref.cited_by);
+
+    // A structured paper-reference folded in from the vg_data manifest (it is
+    // NOT in papers.bib) — mark it so the provenance is honest, and still show
+    // its bibdata rather than dropping it.
+    var foldFlag = ref._structured
+      ? ' <span class="res-flag res-flag-warn" title="From the structured-resources manifest; not in papers.bib">not in papers.bib</span>'
+      : '';
+
+    // Anchor by bib key so lipid/reaction citation cross-links (_resScrollToRef)
+    // resolve to this References entry.
+    var anchor = key ? ' id="res-ref-' + _esc(String(key)) + '" class="res-item res-ref-anchor"' : ' class="res-item"';
+
+    return '<div' + anchor + ' style="border-bottom:1px solid #e2e8f0;padding:6px 2px">' +
+      '<div style="line-height:1.3">' + titleHtml + foldFlag + actions + '</div>' +
+      meta + noteHtml + bibBlock + citedHtml + '</div>';
+  }
+
+  // Adapt a structured-resources paper-reference entry to the inputs reference
+  // card shape so a manifest paper not in papers.bib can be folded into the
+  // unified References list (inline bibdata) instead of a separate section.
+  function _structuredPaperToRef(p) {
+    p = p || {};
+    return {
+      key: p.bibtex_key || p.id || '',
+      title: p.title || p.name || '',
+      author: p.authors || '',
+      year: p.year || '',
+      journal: p.venue || '',
+      doi: p.doi || '',
+      note: (p.summary && p.summary !== (p.title || p.name)) ? p.summary : '',
+      _structured: true
+    };
   }
 
   // Copy the text content of a <pre> to the clipboard; flash the button label.
@@ -1026,7 +1379,11 @@
         var name = _esc(doc.name || doc.path || '(unnamed)');
         var path = doc.path ? ' <small class="muted">' + _esc(doc.path) + '</small>' : '';
         var dl = doc.path ? ' ' + _inputsDownloadLink(doc.path, 'Download') : '';
-        return '<li><strong>' + name + '</strong>' + path + dl + '</li>';
+        var desc = doc.description
+          ? '<div class="muted" style="font-size:0.85em;margin-top:2px">' +
+            _esc(doc.description) + '</div>'
+          : '';
+        return '<li class="res-item"><strong>' + name + '</strong>' + path + dl + desc + '</li>';
       }).join('') + '</ul>';
   }
 
@@ -1048,16 +1405,11 @@
     reader.readAsDataURL(file);
   }
 
-  // POST an investigation-scoped input upload, then refresh the page.
+  // POST a workspace-wide input upload (no `investigation` → the server writes
+  // to the repo-wide store), then refresh the Resources page.
   function _inputsPost(endpoint, body) {
     body = body || {};
-    var slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
-    if (slug) body.investigation = slug;
-    fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
+    apiFetch('POST', endpoint, body)
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (res) {
         if (!res.ok || (res.d && res.d.error)) {
@@ -1085,11 +1437,9 @@
     inp.click();
   }
 
-  // Entry point for the "+ Add" buttons on the investigation inputs panel.
+  // Entry point for the "+ Add" buttons on the Resources panel. Uploads go to
+  // the repo-wide store (no investigation scope).
   function _inputsAdd(category) {
-    var slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
-    if (!slug) { alert('Select an investigation first (Load sources into: …).'); return; }
-
     if (category === 'dataset') {
       var dsName = window.prompt('Dataset name?');
       if (!dsName) return;
@@ -1150,8 +1500,6 @@
   function _inputsDrop(e) {
     e.preventDefault(); e.stopPropagation();
     _inputsDzHi(e.currentTarget, false);
-    var slug = window._inputsSelectedSlug || window._currentIsetSlug || '';
-    if (!slug) { alert('Select an investigation first (Load sources into: …).'); return; }
     var files = (e.dataTransfer && e.dataTransfer.files)
       ? Array.prototype.slice.call(e.dataTransfer.files) : [];
     files.forEach(_inputsUploadDropped);
@@ -1179,98 +1527,221 @@
   window._inputsDrop = _inputsDrop;
   window._inputsUploadDropped = _inputsUploadDropped;
 
+  // Section header with an inline "+ Add" button and a short caption. One
+  // consistent treatment across References / Datasets / Expert docs so the
+  // unified Resources page reads cleanly.
+  function _inputsSection(title, caption, category, body) {
+    return '<section style="margin:0 0 22px">' +
+      '<div style="display:flex;align-items:baseline;gap:8px;' +
+      'border-bottom:1px solid #e2e8f0;padding-bottom:5px;margin-bottom:10px">' +
+      '<h4 style="margin:0;font-size:1.02em">' + _esc(title) + '</h4>' +
+      _inputsAddBtn(category) +
+      (caption ? '<span class="muted" style="font-size:0.78em;margin-left:auto">' +
+        _esc(caption) + '</span>' : '') +
+      '</div>' + body + '</section>';
+  }
+
   function _renderInputs(el, data) {
-    var inv = data.investigation || {};
-    var glob = data.global || {};
-    var current = data.current || null;
-    // Keep the selected-slug in sync with the investigation actually shown, so
-    // the drop zone + "+ Add" buttons resolve the right target even before the
-    // user touches the "Load sources into" dropdown (data.current reflects the
-    // git branch / last selection). Without this, dropping a file falsely
-    // reported "Select an investigation first".
-    if (current) window._inputsSelectedSlug = current;
+    // One repo-wide resource set. The global block already folds in every
+    // investigation's declared datasets + expert_docs (back-compat, done
+    // server-side in build_inputs), so there is no separate per-investigation
+    // section — everything shows together as workspace resources. Defensively
+    // fall back to the investigation block if an older server returns only that.
+    var glob = data.global || data.investigation || {};
+    // Uploads now target the workspace (repo-wide), not an investigation.
+    window._inputsSelectedSlug = '';
 
-    var invList = data._investigations || [];
+    var refs = (glob.references || []).slice();
+    var datasets = glob.datasets || [];
+    var experts = glob.expert_docs || [];
 
-    var html = '';
-
-    // --- This investigation's inputs (top) ---
-    var invHeading = 'This investigation’s sources';
-    if (current) invHeading += ' — ' + _esc(current);
-    html += '<div class="panel">';
-    html += '<h3>' + invHeading + '</h3>';
-
-    // Investigation picker. One dashboard per repo, but a repo can hold several
-    // investigations and the Sources page isn't always opened from inside one
-    // (git-branch detection may yield no current). Let the user choose which
-    // investigation to view and load sources INTO — its own sources, not the
-    // repo-wide shared sources below.
-    if (invList.length) {
-      var opts = '<option value="">— select an investigation —</option>' +
-        invList.map(function (it) {
-          var slug = it.name || it.slug || '';
-          var label = it.title || slug;
-          var sel = (slug === current) ? ' selected' : '';
-          return '<option value="' + _esc(slug) + '"' + sel + '>' + _esc(label) + '</option>';
-        }).join('');
-      html += '<div style="margin:4px 0 12px;display:flex;align-items:center;gap:6px">' +
-        '<label style="font-size:0.85em;color:#475569">Load sources into:</label>' +
-        '<select onchange="_inputsSelectInvestigation(this.value)" ' +
-        'style="font-size:0.9em;padding:3px 6px;border:1px solid #cbd5e1;border-radius:4px">' +
-        opts + '</select></div>';
+    // Fold the structured manifest's paper-references into this one References
+    // list, deduped by bib key: a paper already in papers.bib keeps its richer
+    // inputs card; one that ISN'T (no matching key) is appended inline so it is
+    // surfaced, not dropped. (Lipid/reaction citation cross-links resolve to
+    // these entries via their res-ref-<key> anchors.)
+    var _foldedPaperKeys = [];
+    var _haveRefKeys = {};
+    refs.forEach(function (r) {
+      var k = (r && (r.key || r.bib_key)) || (typeof r === 'string' ? r : '');
+      if (k) _haveRefKeys[String(k).toLowerCase()] = true;
+    });
+    var _sr = window._resStructured;
+    if (_sr && _sr.references_by_id) {
+      Object.keys(_sr.references_by_id).forEach(function (id) {
+        var p = _sr.references_by_id[id] || {};
+        var key = p.bibtex_key || p.id || id;
+        if (!key || _haveRefKeys[String(key).toLowerCase()]) return;
+        refs.push(_structuredPaperToRef(p));
+        _haveRefKeys[String(key).toLowerCase()] = true;
+        _foldedPaperKeys.push(key);
+      });
     }
+    // Expose the folded (not-in-papers.bib) keys for diagnostics/reporting.
+    window._resFoldedPaperKeys = _foldedPaperKeys;
 
-    if (!current) {
-      html += '<p class="muted" style="font-style:italic">' +
-        (invList.length
-          ? 'Select an investigation above to view and add its sources.'
-          : 'No investigation loaded.') + '</p>';
-    } else {
-      if (inv._repo_fallback) {
-        html += '<p class="muted" style="font-style:italic;font-size:0.85em">' +
-          'migrating: showing repo-level inputs</p>';
-      }
-      // Drag-and-drop upload zone: drop files straight in — no name prompt,
-      // no file picker. Category is inferred from the extension and the name
-      // from the filename (the "+ Add" buttons below remain for manual naming).
-      html += '<div id="inputs-dropzone" ' +
-        'ondragover="_inputsDragOver(event)" ondragleave="_inputsDragLeave(event)" ondrop="_inputsDrop(event)" ' +
-        'style="border:2px dashed #cbd5e1;border-radius:8px;padding:16px 14px;text-align:center;' +
-        'color:#64748b;font-size:0.9em;margin:10px 0 6px;background:#f8fafc;transition:background .12s,border-color .12s">' +
-        '<div style="font-weight:600;color:#475569">⬆ Drag datasets or expert docs here to upload</div>' +
-        '<div style="font-size:0.78em;color:#94a3b8;margin-top:3px">' +
-          'PDFs → references · .md / .txt / .docx → expert docs · everything else → datasets' +
-        '</div></div>';
-      html += '<h4 style="margin:12px 0 4px">Datasets ' +
-        _inputsAddBtn('dataset') + '</h4>' +
-        _inputsDatasetsHtml(inv.datasets);
-      html += '<h4 style="margin:12px 0 4px">References ' +
-        _inputsAddBtn('reference') + '</h4>' +
-        _inputsRefsHtml(inv.references);
-      html += '<h4 style="margin:12px 0 4px">Expert docs ' +
-        _inputsAddBtn('expert') + '</h4>' +
-        _inputsExpertDocsHtml(inv.expert_docs);
-    }
-    html += '</div>';
+    // Counts per formalized resource category, for the tab badges. Structured
+    // data comes from the structured-resources manifest (already loaded into
+    // window._resStructured by _loadResources before this runs).
+    var _rs = window._resStructured;
+    var structAvail = !!(_rs && _rs.type_order && _rs.type_order.length);
+    var structCount = 0;
+    if (structAvail) (_rs.type_order || []).forEach(function (t) {
+      structCount += ((_rs.groups || {})[t] || []).length;
+    });
+    var dsCount = (datasets || []).length;
+    var refCount = (refs || []).length;
+    var expCount = (experts || []).length;
+    var totalCount = dsCount + refCount + expCount + structCount;
 
-    // --- Repo-wide data sources (below) ---
-    html += '<div class="panel">';
-    html += '<h3>Repo-wide data sources</h3>';
-    // Data-source bundle (workspace.yaml dashboard.data_sources provider).
-    // Populated asynchronously; the host is hidden until sources arrive so
-    // workspaces without a provider see no extra UI. Rendered FIRST (above the
-    // shared datasets/references) as the primary repo-wide source.
-    html += '<div id="data-sources-host" style="display:none;margin-bottom:16px"></div>';
-    html += '<h4 style="margin:12px 0 4px">Datasets</h4>' +
-      _inputsDatasetsHtml(glob.datasets);
-    html += '<h4 style="margin:12px 0 4px">References</h4>' +
-      _inputsRefsHtml(glob.references);
+    // One segmented tab, matching the study/investigation detail tabs so it fits
+    // the rest of the workbench (same .investigation-detail-tab classes + count
+    // badge). Clicking a tab shows just that category — no scrolling a long page.
+    var _resTabBtn = function (id, label, count) {
+      return '<button type="button" class="investigation-detail-tab res-tab" ' +
+        'data-restab="' + id + '" role="tab" onclick="_resTab(\'' + id + '\')">' +
+        '<span class="tab-label">' + label + '</span>' +
+        (count != null ? '<span class="tab-count-badge">' + count + '</span>' : '') +
+        '</button>';
+    };
+
+    var html = '<div>';
+    html += '<h3 style="margin:0 0 2px">Resources</h3>';
+    html += '<p class="muted" style="font-size:0.85em;margin:0 0 14px">' +
+      'Papers, datasets, expert docs, and structured data for this workspace. Each ' +
+      'reference shows the studies that cite it — click a study to open it.</p>';
+
+    // Drag-and-drop upload zone (live/authoring only; category inferred from the
+    // dropped file's extension). Files land in the workspace-wide store.
+    html += '<div id="inputs-dropzone" class="js-authoring" ' +
+      'ondragover="_inputsDragOver(event)" ondragleave="_inputsDragLeave(event)" ondrop="_inputsDrop(event)" ' +
+      'style="border:2px dashed #cbd5e1;border-radius:8px;padding:16px 14px;text-align:center;' +
+      'color:#64748b;font-size:0.9em;margin:0 0 14px;background:#f8fafc;transition:background .12s,border-color .12s">' +
+      '<div style="font-weight:600;color:#475569">⬆ Drag papers, datasets, or expert docs here to upload</div>' +
+      '<div style="font-size:0.78em;color:#94a3b8;margin-top:3px">' +
+        'PDFs → references · .md / .txt / .docx → expert docs · everything else → datasets' +
+      '</div></div>';
+
+    // Category nav + search. The tabs route to the four formalized categories
+    // (Datasets / References / Expert docs / Structured data), each with a live
+    // count; "All" shows everything. The search box filters across every
+    // category at once, revealing matches wherever they live.
+    html += '<div class="res-controls">' +
+      '<div class="investigation-detail-tabs res-tabs" role="tablist">' +
+        _resTabBtn('all', 'All', totalCount) +
+        _resTabBtn('datasets', 'Datasets', dsCount) +
+        _resTabBtn('references', 'References', refCount) +
+        _resTabBtn('expert', 'Expert docs', expCount) +
+        (structAvail ? _resTabBtn('structured', 'Structured data', structCount) : '') +
+      '</div>' +
+      '<input type="search" id="res-search" class="res-search" placeholder="Search resources…" ' +
+        'oninput="_resSearch(this.value)" aria-label="Search resources">' +
+      '</div>';
+
+    // One pane per category (the structured gallery lives in the sibling
+    // #resources-gallery and is adopted as the "structured" pane below).
+    // Datasets — provider-backed bundle (if any) renders into this host first,
+    // then the declared datasets.
+    var dsBody = '<div id="data-sources-host" style="display:none;margin-bottom:12px"></div>' +
+      _inputsDatasetsHtml(datasets);
+    html += '<div class="investigation-detail-panel res-pane" data-restab="datasets">' +
+      _inputsSection('Datasets', 'data files', 'dataset', dsBody) + '</div>';
+
+    // References (papers) — the richest category, with cited-by study chips and
+    // the folded-in manifest paper-references.
+    html += '<div class="investigation-detail-panel res-pane" data-restab="references">' +
+      _inputsSection('References', 'papers · BibTeX · PDFs', 'reference', _inputsRefsHtml(refs)) + '</div>';
+
+    // Expert docs — source dossiers / background the workspace draws on.
+    html += '<div class="investigation-detail-panel res-pane" data-restab="expert">' +
+      _inputsSection('Expert docs', 'dossiers · notes', 'expert', _inputsExpertDocsHtml(experts)) + '</div>';
+
+    html += '<div id="res-empty" class="muted" style="display:none;font-style:italic;' +
+      'padding:18px 2px">No resources match your search.</div>';
     html += '</div>';
 
     el.innerHTML = html;
 
+    // Adopt the structured science gallery as the "structured" pane, then apply
+    // the active tab (persisted across reloads) and any live search.
+    _resAdoptStructuredPane();
+    _resTab(window._resActiveTab || 'all');
+
     _loadDataSources();
   }
+
+  // Give the sibling structured-science gallery (#resources-gallery) the pane
+  // classes so _resTab / _resSearch treat it as the "Structured data" category.
+  function _resAdoptStructuredPane() {
+    var g = document.getElementById('resources-gallery');
+    if (!g) return;
+    g.classList.add('investigation-detail-panel', 'res-pane');
+    g.setAttribute('data-restab', 'structured');
+  }
+
+  // Switch the visible resource category. 'all' shows every pane; otherwise only
+  // the matching one. Re-applies an active search so a filter survives tab
+  // changes. Mirrors _invDetailTab's active-class toggling.
+  function _resTab(tab) {
+    window._resActiveTab = tab;
+    document.querySelectorAll('.res-tab').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-restab') === tab);
+    });
+    var search = document.getElementById('res-search');
+    var q = search ? (search.value || '').trim() : '';
+    if (q) { _resSearch(q); return; }  // search owns visibility while active
+    // No active search: undo any search-time per-item hiding, then show the pane(s).
+    document.querySelectorAll('.res-pane .res-item, .res-pane .res-grid > *, .res-pane .res-section')
+      .forEach(function (it) { it.style.display = ''; });
+    document.querySelectorAll('.res-pane').forEach(function (p) {
+      // Explicit display (not just the .active class): the structured pane carries
+      // its own .resources-gallery display rule that would otherwise keep it shown.
+      var show = tab === 'all' || p.getAttribute('data-restab') === tab;
+      p.classList.toggle('active', show);
+      p.style.display = show ? '' : 'none';
+    });
+    var empty = document.getElementById('res-empty');
+    if (empty) empty.style.display = 'none';
+  }
+  window._resTab = _resTab;
+
+  // Filter resource items across every category by substring. While a query is
+  // active, all panes are revealed so matches surface wherever they live; each
+  // item (dataset row / reference card / expert doc / structured card) toggles
+  // on its text, and panes/sections with no match collapse. Clearing restores
+  // the active tab.
+  function _resSearch(q) {
+    q = (q || '').toLowerCase().trim();
+    var panes = Array.prototype.slice.call(document.querySelectorAll('.res-pane'));
+    if (!q) { _resTab(window._resActiveTab || 'all'); return; }
+    var anyMatch = false;
+    panes.forEach(function (p) {
+      p.classList.add('active');  // reveal all panes while searching
+      var structured = p.getAttribute('data-restab') === 'structured';
+      var items = structured
+        ? p.querySelectorAll('.res-grid > *')
+        : p.querySelectorAll('.res-item');
+      var paneMatch = false;
+      Array.prototype.forEach.call(items, function (it) {
+        var hit = (it.textContent || '').toLowerCase().indexOf(q) !== -1;
+        it.style.display = hit ? '' : 'none';
+        if (hit) paneMatch = true;
+      });
+      if (structured) {
+        // Hide a structured sub-section whose cards are all filtered out.
+        p.querySelectorAll('.res-section').forEach(function (sec) {
+          var vis = Array.prototype.slice.call(sec.querySelectorAll('.res-grid > *'))
+            .some(function (c) { return c.style.display !== 'none'; });
+          sec.style.display = vis ? '' : 'none';
+        });
+      }
+      p.style.display = paneMatch ? '' : 'none';
+      if (paneMatch) anyMatch = true;
+    });
+    var empty = document.getElementById('res-empty');
+    if (empty) empty.style.display = anyMatch ? 'none' : 'block';
+  }
+  window._resSearch = _resSearch;
 
   // -------------------------------------------------------------------------
   // Repo-wide data sources — provider-backed bundle (workspace.yaml hook).
@@ -1290,7 +1761,7 @@
     if (!host) return;
     var _p = window.DataSource
       ? window.DataSource.loadDataSources()
-      : fetch('/api/data-sources').then(function(r) { return r.json(); });
+      : apiFetch('GET', '/api/data-sources').then(function(r) { return r.json(); });
     _p
       .then(function(j) {
         var sources = (j && j.sources) || [];
@@ -1390,7 +1861,7 @@
     var dlEl = document.getElementById('ds-preview-download');
     if (titleEl) titleEl.textContent = key;
     if (dlEl) dlEl.setAttribute('href', url);
-    if (bodyEl) bodyEl.textContent = 'Loading…';
+    if (bodyEl) bodyEl.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : 'Loading…';
     openModal('modal-ds-preview');
     fetch(url)
       .then(function(r) {
@@ -1539,7 +2010,7 @@
       '<h4 style="margin:0 0 8px;font-size:0.95em;text-transform:uppercase;letter-spacing:0.06em;color:#374151">Visualizations' +
       ' <span class="count-badge" style="font-size:0.8em">' + vizzes.length + '</span></h4>';
     if (vizzes.length === 0) {
-      html += '<p class="empty-state muted" style="margin:0">No Visualization classes found. Install a pbg-* package that provides one (Registry tab &rarr; Available modules).</p>';
+      html += '<p class="empty-state muted" style="margin:0">No Visualization classes found. Install a pbg-* package that provides one (Catalog tab &rarr; Available modules).</p>';
     } else {
       html += vizzes.map(_renderClassCard).join('');
     }
@@ -1646,13 +2117,18 @@
         // hosted 3D viewer) — it opens directly in BOTH live and read-only,
         // since it needs no local launch backend. Otherwise fall back to the
         // live Launch button / the read-only "local workbench" note.
+        // A workspace-root-absolute href (/studies/…) must carry the hosting
+        // base path in the snapshot, or it 404s to the domain root; an external
+        // (http/protocol-relative) href opens as-is. Mirrors sim-table.toolsCell.
+        var _bp = window.__BASE_PATH__ || '';
+        var _openHref = (t.href && /^https?:|^\/\//.test(t.href)) ? t.href : (_bp + (t.href || ''));
         var action = t.href
-          ? '<a class="btn-mini" href="' + _esc(t.href) + '" target="_blank" rel="noopener">Open</a>'
+          ? '<a class="btn-mini" href="' + _esc(_openHref) + '" target="_blank" rel="noopener">Open ↗</a>'
           : (_isSnapshot
           ? '<span class="muted" style="font-size:0.8em">Launch from the local workbench</span>'
-          : '<button class="btn-mini" onclick="_launchViewer(\'' + _esc(v.uid) + '\',\'' + _esc(t.study) + '\')">Launch</button>');
+          : '<button class="btn-mini" onclick="_launchViewer(\'' + _esc(v.uid) + '\',\'' + _esc(t.study || '') + '\',\'' + _esc(t.run || '') + '\')">Launch</button>');
         return '<div class="picker-row">' +
-          '<div class="picker-row-main"><strong>' + _esc(t.label || t.study) + '</strong>' +
+          '<div class="picker-row-main"><strong>' + _esc(t.label || t.study || t.run) + '</strong>' +
             (t.detail ? ' <span class="muted" style="font-size:0.82em">' + _esc(t.detail) + '</span>' : '') + '</div>' +
           '<div class="picker-row-actions">' + action + '</div>' +
         '</div>';
@@ -1669,15 +2145,7 @@
     return html;
   }
 
-  function _renderExplorerCard() {
-    return '<div class="analyses-card" id="explorer-card">' +
-      '<div class="analyses-card-head"><strong>Data Explorer</strong></div>' +
-      '<p class="muted" style="font-size:0.85em;margin:2px 0 8px">' +
-      'Interactively explore any run: timeseries, scatter, allocation, and flux maps.</p>' +
-      '<div id="explorer-mount"></div></div>';
-  }
-
-  function _launchViewer(uid, study) {
+  function _launchViewer(uid, study, run) {
     // The read-only snapshot has no launch backend to call. Bail with a clear
     // message rather than fetch a 404 HTML page and throw a JSON-parse error.
     if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') {
@@ -1685,8 +2153,11 @@
             'when running the workbench locally.');
       return;
     }
-    var url = '/api/analysis-viewer/' + encodeURIComponent(uid) + '/launch' +
-      (study ? '?study=' + encodeURIComponent(study) : '');
+    // A target is keyed by `study` (a local study's exports) or `run` (a landed
+    // run's exports, e.g. a GovCloud compose analysis) — forward whichever is set.
+    var q = study ? '?study=' + encodeURIComponent(study)
+          : (run ? '?run=' + encodeURIComponent(run) : '');
+    var url = '/api/analysis-viewer/' + encodeURIComponent(uid) + '/launch' + q;
     fetch(url).then(function(r) {
       return r.text().then(function(t) {
         var d = {};
@@ -1728,6 +2199,13 @@
       ? m.viewer_url
       : base + '/parsimony-viewer/index.html?models=' +
           encodeURIComponent(base + '/api/study/' + encodeURIComponent(ref) + '/3d/models.json');
+  }
+
+  function _buildSimulariumSrc(m) {
+    var base = _analysesBase();
+    var trajs = (m && m.trajectories) || [];
+    var url = trajs.length ? trajs[0].url : '';
+    return base + '/simularium-viewer.html?traj=' + encodeURIComponent(url);
   }
 
   // Human-readable label for a matched run/study in a card's result dropdown.
@@ -1780,12 +2258,25 @@
         '<button class="btn-mini tool-open" onclick="_openTool(\'' + id + '\', this)">' +
         'Open &#8599;</button></div>';
     }
+    // Explore → study back-link: a module's targets carry the study they belong
+    // to, so link back to each distinct study's detail page (works live + snapshot
+    // via _studyHref). This is the "reach the study results from Explore" direction.
+    var _seenStudy = {}, _studyLinks = '';
+    items.forEach(function (m) {
+      var s = m && m.study;
+      if (s && !_seenStudy[s]) {
+        _seenStudy[s] = 1;
+        _studyLinks += '<a class="tool-study-link" href="' + _esc(_studyHref(s)) +
+          '" target="_blank" rel="noopener" title="Open this study">&#8592; ' +
+          _esc(m.study_label || s) + '</a>';
+      }
+    });
+    var studies = _studyLinks ? '<div class="tool-studies">' + _studyLinks + '</div>' : '';
     return '<div class="analyses-card tool-card" data-tool="' + id + '">' +
-      head + desc + body + '</div>';
+      head + desc + body + studies + '</div>';
   }
 
   // Open a tool's selected result full-window in a new tab. Per kind:
-  //   embed-explorer -> the standalone Data Explorer page for the run
   //   embed-3d       -> the (hosted or bundled) parsimony viewer for the study
   //   launcher       -> the target's external href, else the live launch endpoint
   function _openTool(toolId, btn) {
@@ -1795,11 +2286,10 @@
     var sel = card ? card.querySelector('.tool-select') : null;
     var idx = sel ? (parseInt(sel.value, 10) || 0) : 0;
     var m = items[idx] || items[0]; if (!m) return;
-    if (t.kind === 'embed-explorer') {
-      window.open(_analysesBase() + '/assets/explorer.html?run=' +
-        encodeURIComponent(m.ref || m.run_id || ''), '_blank', 'noopener');
-    } else if (t.kind === 'embed-3d') {
+    if (t.kind === 'embed-3d') {
       window.open(_build3dSrc(m), '_blank', 'noopener');
+    } else if (t.kind === 'embed-simularium') {
+      window.open(_buildSimulariumSrc(m), '_blank', 'noopener');
     } else if (m.href) {
       window.open(m.href, '_blank', 'noopener');
     } else {
@@ -1815,7 +2305,7 @@
     var countEl   = document.getElementById('viz-count');
     if (!container) return;
     // Tools-first Analysis Tools tab, backed by GET /api/analysis-tools: built-in
-    // tools (Data Explorer, Parsimony Viewer) + external contributed viewers, each
+    // tools (Parsimony Viewer) + external contributed viewers, each
     // capability-matched to the runs/studies that satisfy its `requires`. Snapshot
     // mode reads the static api/analysis-tools.json bundle file; live mode hits the
     // endpoint. Parse defensively via text() so a missing/HTML response degrades to
@@ -1835,7 +2325,7 @@
         data = data || {};
         var tools = data.tools || [];
         if (!tools.length) {
-          container.innerHTML = '<p class="empty-state">No analysis tools for this workspace. Tools are built-in (Data Explorer, Parsimony Viewer) or contributed by the repo (a package\'s <code>workbench_viewers</code> module).</p>';
+          container.innerHTML = '<p class="empty-state">No analysis tools for this workspace. Tools are built-in (Parsimony Viewer) or contributed by the repo (a package\'s <code>workbench_viewers</code> module).</p>';
           if (countEl) countEl.textContent = '';
           return;
         }
@@ -1850,6 +2340,519 @@
   }
   window._loadAnalysesPage = _loadAnalysesPage;
 
+  // ── Resources tab ──────────────────────────────────────────────────────────
+  // Curated structured scientific resources (lipid structures, reaction
+  // pathways, paper references, imported engines) read from a workspace's
+  // structured_resources vg_data manifest (GET /api/structured-resources).
+  // Grouped by `type`; every `references: [id]` cross-links to the matching
+  // paper-reference card via an in-page scroll (NOT a #hash, which would trip
+  // the page router). The whole tab — rail link + page — stays hidden unless the
+  // active workspace ships the manifest, so it's purely additive.
+
+  var _RES_TYPE_LABEL = {
+    'lipid-structure':  'Lipid structures',
+    'reaction-pathway': 'Reaction pathways',
+    'evidence-dataset': 'Evidence datasets',
+    'imported-engine':  'Imported engines',
+    'paper-reference':  'Paper references'
+  };
+
+  function _resTypeLabel(t) { return _RES_TYPE_LABEL[t] || String(t || ''); }
+
+  function _resV(v) { return (v === null || v === undefined || v === '') ? '' : String(v); }
+
+  // One compact "label: value" row (short scalars only), omitted when empty.
+  function _resKV(label, value) {
+    var v = _resV(value);
+    if (!v) return '';
+    return '<div class="res-kv"><span class="res-kv-k">' + _esc(label) +
+      '</span><span class="res-kv-v">' + _esc(v) + '</span></div>';
+  }
+
+  // A stacked prose field: label line, then the full-width value beneath. Use
+  // this (not _resKV) for anything that can run long — prose and numeric
+  // summaries — so the value never wraps one character per line in a narrow
+  // grid column. Omitted entirely when the value is empty.
+  function _resField(label, value) {
+    var v = _resV(value);
+    if (!v) return '';
+    return '<div class="res-field"><span class="res-field-k">' + _esc(label) +
+      '</span><span class="res-field-v">' + _esc(v) + '</span></div>';
+  }
+
+  // Scroll to (and briefly flash) a paper-reference card. Used instead of a raw
+  // href="#..." so the SPA hash router doesn't treat the citation jump as a page
+  // switch.
+  function _resScrollToRef(id) {
+    var el = document.getElementById('res-ref-' + id);
+    if (!el) return;
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { el.scrollIntoView(); }
+    el.classList.add('res-ref-flash');
+    setTimeout(function () { el.classList.remove('res-ref-flash'); }, 1600);
+  }
+  window._resScrollToRef = _resScrollToRef;
+
+  // Citation chips for a resource's references:[id] list. A known id links to its
+  // card (cross-link); an unknown id renders as a plain muted chip so a dangling
+  // reference is visible rather than silently dropped.
+  function _resRefChips(ids, refsById) {
+    if (!ids || !ids.length) return '';
+    var chips = ids.map(function (id) {
+      var ref = refsById[id];
+      if (ref) {
+        var label = ref.name || ref.bibtex_key || id;
+        return '<a class="res-cite" data-ref="' + _esc(id) +
+          '" onclick="_resScrollToRef(\'' + _esc(String(id)) + '\');return false;" ' +
+          'title="' + _esc(ref.title || label) + '">' + _esc(label) + '</a>';
+      }
+      return '<span class="res-cite res-cite-missing" title="Unresolved reference">' +
+        _esc(id) + '</span>';
+    }).join('');
+    return '<div class="res-cites"><span class="res-cites-lbl">Cites</span>' + chips + '</div>';
+  }
+
+  function _resCardHead(r) {
+    var badge = r.lipid_class || r.pathway || r.engine || '';
+    var abbr = r.abbreviation ? ' <span class="res-abbr">' + _esc(r.abbreviation) + '</span>' : '';
+    return '<div class="res-card-head">' +
+      '<strong class="res-card-name">' + _esc(r.name || r.id || '') + '</strong>' + abbr +
+      (badge ? '<span class="res-badge">' + _esc(badge) + '</span>' : '') +
+      '</div>' +
+      (r.summary ? '<p class="res-summary muted">' + _esc(r.summary) + '</p>' : '');
+  }
+
+  // lipid-structure → identity, chain/headgroup/charge, and the Martini CG mapping.
+  function _resLipidCard(r, refsById) {
+    // Lead with the identity: formula (monospace) + chemical name, so the reader
+    // sees WHAT the molecule is before the detail grid. (class/type is the badge
+    // in the head.) Formula/chemical name are hoisted here, not repeated below.
+    var ident = [];
+    if (r.formula) ident.push('<span class="res-formula">' + _esc(_resV(r.formula)) + '</span>');
+    if (r.chemical_name) ident.push('<span class="res-chemname">' + _esc(_resV(r.chemical_name)) + '</span>');
+    var identLine = ident.length ? '<div class="res-identity">' + ident.join('') + '</div>' : '';
+    var kv = [
+      _resKV('Chains', r.n_chains),
+      _resKV('Chain length', r.chain_length),
+      _resKV('Headgroup', r.headgroup),
+      _resKV('Charge', r.charge_state),
+      _resKV('Role', r.role),
+      _resKV('SMILES', r.smiles)
+    ].join('');
+    // Martini CG mapping: a compact collapsed <details> so its grid + bead list
+    // don't dominate the card; one click reveals the full mapping.
+    var martini = '';
+    var m = r.martini;
+    if (m && typeof m === 'object') {
+      var beads = (m.bead_mapping && m.bead_mapping.length)
+        ? '<ol class="res-beads">' + m.bead_mapping.map(function (b) {
+            return '<li>' + _esc(_resV(b)) + '</li>'; }).join('') + '</ol>'
+        : '';
+      martini = '<details class="res-martini">' +
+        '<summary class="res-sub">Martini coarse-grained mapping</summary>' +
+        '<div class="res-kv-grid">' +
+          _resKV('Version', m.version) + _resKV('Model', m.model) +
+          _resKV('Beads/chain', m.n_beads_per_chain) + _resKV('Source ITP', m.source_itp) +
+        '</div>' + beads + '</details>';
+    }
+    return '<div class="res-card res-lipid">' + _resCardHead(r) + identLine +
+      '<div class="res-kv-grid">' + kv + '</div>' + martini +
+      (r.notes ? '<p class="res-notes">' + _esc(r.notes) + '</p>' : '') + '</div>';
+  }
+
+  // reaction-pathway → network_summary from a generated universe + keystone rules
+  // + PROMINENT verbatim honesty caveats + provenance footer. Optional legacy
+  // `reactions` table rendered when present.
+  function _resPathwayCard(r, refsById) {
+    var head = _resCardHead(r);
+    var role = '';
+    if (r.role_in_campaign || r.campaign_tie) {
+      role = _resField('Role in campaign', r.role_in_campaign) +
+        _resField('Campaign tie', r.campaign_tie);
+    }
+    if (r.description) head += '<p class="res-desc">' + _esc(r.description) + '</p>';
+
+    // network_summary block
+    var net = '';
+    var ns = r.network_summary;
+    if (ns && typeof ns === 'object') {
+      var span = ns.energetic_span_kj_mol || {};
+      var th = ns.thermo || {};
+      var cc = ns.catalyst_classes || {};
+      var headline = [];
+      if (ns.n_reactions != null) headline.push(_resV(ns.n_reactions) + ' reactions');
+      if (ns.n_species != null) headline.push(_resV(ns.n_species) + ' species');
+      if (ns.max_carbons != null) headline.push('C≤' + _resV(ns.max_carbons));
+      // Only render the Rule-family table when there are actual rows — never an
+      // empty table-with-headers shell. Drop rows that carry no family name AND
+      // no count so a populated-but-empty list can't produce a headers-only table.
+      var ruleRows = (ns.rule_families && ns.rule_families.length)
+        ? ns.rule_families.filter(function (f) {
+            return f && (_resV(f.name || f.rule) || _resV(f.n_reactions)); })
+        : [];
+      var families = ruleRows.length
+        ? '<table class="res-table"><thead><tr><th>Rule family</th><th>#rxns</th></tr></thead><tbody>' +
+          ruleRows.map(function (f) {
+            return '<tr><td>' + _esc(_resV(f.name || f.rule)) + '</td><td>' +
+              _esc(_resV(f.n_reactions)) + '</td></tr>'; }).join('') +
+          '</tbody></table>'
+        : '';
+      var spanLine = (span.min != null || span.max != null || span.mean != null)
+        ? _resField('ΔG′ span (kJ/mol)',
+            'min ' + _resV(span.min) + ', max ' + _resV(span.max) + ', mean ' + _resV(span.mean))
+        : '';
+      var catLine = (cc.mineral != null || cc.base != null || cc.none != null)
+        ? _resField('Catalyst classes',
+            'mineral ' + _resV(cc.mineral) + ', base ' + _resV(cc.base) + ', none ' + _resV(cc.none))
+        : '';
+      var thermo = (th.p_h != null || th.ionic_strength_M != null || th.temperature_K != null || th.engine)
+        ? _resField('Thermo conditions',
+            'pH ' + _resV(th.p_h) + ', I ' + _resV(th.ionic_strength_M) + ' M, T ' +
+            _resV(th.temperature_K) + ' K' + (th.engine ? ' (' + _resV(th.engine) + ')' : ''))
+        : '';
+      net = '<div class="res-network"><div class="res-sub">Generated reaction universe</div>' +
+        (headline.length ? '<div class="res-headline">' + _esc(headline.join(' · ')) + '</div>' : '') +
+        spanLine + catLine + thermo +
+        families + '</div>';
+    }
+
+    // keystone_rules table
+    var keystone = '';
+    if (r.keystone_rules && r.keystone_rules.length) {
+      keystone = '<div class="res-sub">Keystone rules</div>' +
+        '<table class="res-table"><thead><tr><th>Rule</th><th>#rxns</th><th>Catalyst</th>' +
+        '<th>Role</th><th>Note</th></tr></thead><tbody>' +
+        r.keystone_rules.map(function (k) {
+          return '<tr><td>' + _esc(_resV(k.rule)) + '</td><td>' + _esc(_resV(k.n_reactions)) +
+            '</td><td>' + _esc(_resV(k.catalyst)) + '</td><td>' + _esc(_resV(k.role)) +
+            '</td><td>' + _esc(_resV(k.note)) + '</td></tr>'; }).join('') +
+        '</tbody></table>';
+    }
+
+    // honesty_notes — rendered PROMINENTLY and VERBATIM as caveats.
+    var caveats = '';
+    if (r.honesty_notes && r.honesty_notes.length) {
+      caveats = '<div class="res-caveats"><div class="res-caveats-lbl">⚠ Caveats</div><ul>' +
+        r.honesty_notes.map(function (n) { return '<li>' + _esc(_resV(n)) + '</li>'; }).join('') +
+        '</ul></div>';
+    }
+
+    // optional legacy curated reactions table
+    var reactions = '';
+    if (r.reactions && r.reactions.length) {
+      reactions = '<div class="res-sub">Curated reactions</div>' +
+        '<table class="res-table"><thead><tr><th>Name</th><th>Equation</th><th>ΔG (kJ/mol)</th>' +
+        '<th>Note</th></tr></thead><tbody>' +
+        r.reactions.map(function (rx) {
+          var dg = (rx.delta_g_kjmol != null)
+            ? _resV(rx.delta_g_kjmol) + (rx.delta_g_type ? ' (' + _esc(rx.delta_g_type) + ')' : '') : '';
+          return '<tr><td>' + _esc(_resV(rx.name)) + '</td><td class="res-eq">' + _esc(_resV(rx.equation)) +
+            '</td><td>' + dg + '</td><td>' + _esc(_resV(rx.note)) + '</td></tr>'; }).join('') +
+        '</tbody></table>';
+    }
+
+    // provenance footer
+    var prov = '';
+    var ds = r.data_source;
+    if (ds && typeof ds === 'object') {
+      var bits = [];
+      if (ds.package) bits.push(_esc(_resV(ds.package)));
+      if (ds.path) bits.push(_esc(_resV(ds.path)));
+      if (ds.generated_by) bits.push('generated by ' + _esc(_resV(ds.generated_by)));
+      if (bits.length) prov = '<div class="res-prov muted">Source: ' + bits.join(' · ') + '</div>';
+    }
+
+    return '<div class="res-card res-pathway">' + head + role + net + keystone +
+      caveats + reactions + prov + '</div>';
+  }
+
+  // imported-engine → engine/wraps/viva_package/role/used_by.
+  function _resEngineCard(r, refsById) {
+    var usedBy = (r.used_by && r.used_by.length)
+      ? '<div class="res-kv"><span class="res-kv-k">Used by</span><span class="res-kv-v">' +
+        r.used_by.map(function (u) { return '<span class="res-tag">' + _esc(_resV(u)) + '</span>'; }).join(' ') +
+        '</span></div>'
+      : '';
+    return '<div class="res-card res-engine">' + _resCardHead(r) +
+      '<div class="res-kv-grid">' +
+        _resKV('Engine', r.engine) + _resKV('Wraps', r.wraps) +
+        _resKV('viva package', r.viva_package) + _resKV('Role', r.role) +
+      '</div>' + usedBy + '</div>';
+  }
+
+  // paper-reference → a citation card, anchored by id so other resources'
+  // Cites chips can cross-link to it.
+  function _resPaperCard(r) {
+    var meta = [];
+    if (r.authors) meta.push(_esc(r.authors));
+    if (r.year) meta.push('(' + _esc(_resV(r.year)) + ')');
+    var line = meta.join(' ');
+    var venue = r.venue ? '<span class="res-venue">' + _esc(r.venue) + '</span>' : '';
+    var links = '';
+    if (r.doi) links += '<a class="res-link" href="https://doi.org/' + encodeURIComponent(r.doi) +
+      '" target="_blank" rel="noopener">doi:' + _esc(r.doi) + '</a>';
+    if (r.url) links += '<a class="res-link" href="' + _esc(r.url) + '" target="_blank" rel="noopener">link</a>';
+    var tags = (r.tags && r.tags.length)
+      ? '<div class="res-tags">' + r.tags.map(function (t) {
+          return '<span class="res-tag">' + _esc(_resV(t)) + '</span>'; }).join('') + '</div>'
+      : '';
+    var flags = '';
+    if (r.in_papers_bib) flags += '<span class="res-flag res-flag-ok">in papers.bib</span>';
+    if (r.needs_verification) flags += '<span class="res-flag res-flag-warn">needs verification</span>';
+    return '<div class="res-card res-paper" id="res-ref-' + _esc(String(r.id || '')) + '">' +
+      '<div class="res-card-head"><strong class="res-card-name">' + _esc(r.name || r.title || r.id || '') +
+      '</strong>' + flags + '</div>' +
+      (line ? '<p class="res-authors">' + line + '</p>' : '') +
+      (r.title ? '<p class="res-title">' + _esc(r.title) + '</p>' : '') +
+      (venue ? '<p>' + venue + '</p>' : '') +
+      (links ? '<div class="res-links">' + links + '</div>' : '') +
+      tags + '</div>';
+  }
+
+  // A study-slug chip that opens the study (feeds_into + model_prediction.study).
+  // Falls back to a plain chip when study navigation isn't available (snapshot).
+  function _resStudyChip(slug) {
+    var s = _resV(slug);
+    if (!s) return '';
+    return '<a class="res-tag res-study-chip" title="Open study ' + _esc(s) + '" ' +
+      'onclick="if(window._openStudyEmbeddedNewTab){_openStudyEmbeddedNewTab(\'' +
+      _esc(String(s)) + '\');}return false;">' + _esc(s) + '</a>';
+  }
+
+  // evidence-dataset → a provenance-chain card: original measurement vs model
+  // prediction (or a "prediction pending" marker), the condition vector, the
+  // caution (verbatim), and provenance/status badges. The whole chain is meant
+  // to read at a glance.
+  function _resEvidenceCard(r, refsById) {
+    // Badges row: provenance_class + status.
+    var badges = '';
+    if (r.provenance_class) {
+      badges += '<span class="res-ev-badge res-ev-prov" data-prov="' +
+        _esc(_resV(r.provenance_class)) + '">' + _esc(_resV(r.provenance_class)) + '</span>';
+    }
+    if (r.status) {
+      badges += '<span class="res-ev-badge res-ev-status" data-status="' +
+        _esc(_resV(r.status)) + '">' + _esc(_resV(r.status)) + '</span>';
+    }
+    var head = '<div class="res-card-head">' +
+      '<strong class="res-card-name">' + _esc(r.name || r.id || '') + '</strong>' +
+      (badges ? '<span class="res-ev-badges">' + badges + '</span>' : '') +
+      '</div>' +
+      (r.summary ? '<p class="res-summary muted">' + _esc(r.summary) + '</p>' : '');
+
+    // Citation line: bibtex_key + DOI link.
+    var cite = '';
+    var c = r.citation;
+    if (c && typeof c === 'object' && (c.bibtex_key || c.doi)) {
+      var parts = [];
+      if (c.bibtex_key) parts.push('<span class="res-ev-bibkey">' + _esc(_resV(c.bibtex_key)) + '</span>');
+      if (c.doi) parts.push('<a class="res-link" href="https://doi.org/' + encodeURIComponent(c.doi) +
+        '" target="_blank" rel="noopener">doi:' + _esc(c.doi) + '</a>');
+      cite = '<div class="res-ev-cite">' + parts.join(' · ') + '</div>';
+    }
+
+    // Provenance chain: original measurement vs model prediction (or pending).
+    var om = r.original_measurement;
+    var measBody = '';
+    if (om && typeof om === 'object') {
+      var val = _resV(om.value);
+      if (val !== '' && om.units) val += ' ' + _resV(om.units);
+      measBody =
+        _resKV('Quantity', om.quantity) +
+        (val !== '' ? _resKV('Value', val) : '') +
+        _resKV('Normalized', om.value_normalized) +
+        _resKV('Uncertainty / detection', om.uncertainty_or_detection_limit);
+    }
+    var measCol = '<div class="res-ev-col res-ev-measured"><div class="res-sub">Original measurement</div>' +
+      (measBody ? '<div class="res-kv-grid res-ev-kv">' + measBody + '</div>'
+                : '<p class="res-ev-none muted">—</p>') + '</div>';
+
+    var mp = r.model_prediction;
+    var predCol;
+    if (mp && typeof mp === 'object' && _resV(mp.status).toLowerCase() === 'pending') {
+      predCol = '<div class="res-ev-col res-ev-predicted res-ev-pending">' +
+        '<div class="res-sub">Model prediction</div>' +
+        '<div class="res-ev-pending-mark">⏳ prediction pending</div></div>';
+    } else if (mp && typeof mp === 'object' && (mp.study || mp.output || mp.value != null)) {
+      var pval = _resV(mp.value);
+      if (pval !== '' && mp.units) pval += ' ' + _resV(mp.units);
+      var studyLine = mp.study
+        ? '<div class="res-kv"><span class="res-kv-k">Study</span><span class="res-kv-v">' +
+          _resStudyChip(mp.study) + '</span></div>'
+        : '';
+      predCol = '<div class="res-ev-col res-ev-predicted"><div class="res-sub">Model prediction</div>' +
+        '<div class="res-kv-grid res-ev-kv">' +
+          studyLine + _resKV('Output', mp.output) +
+          (pval !== '' ? _resKV('Value', pval) : '') +
+        '</div></div>';
+    } else {
+      predCol = '<div class="res-ev-col res-ev-predicted"><div class="res-sub">Model prediction</div>' +
+        '<p class="res-ev-none muted">—</p></div>';
+    }
+    var chain = '<div class="res-ev-chain">' + measCol + predCol + '</div>';
+
+    // Condition vector — compact key:value row, null/empty keys skipped.
+    var cond = '';
+    var cv = r.condition_vector;
+    if (cv && typeof cv === 'object') {
+      var CV_LABELS = {
+        pH: 'pH', T: 'T', P: 'P', ionic_strength: 'ionic strength',
+        mineral_comp: 'mineral', concentrations: 'conc.'
+      };
+      var bits = Object.keys(cv).map(function (k) {
+        var v = cv[k];
+        if (v === null || v === undefined || v === '') return '';
+        if (typeof v === 'object') { try { v = JSON.stringify(v); } catch (e) { v = String(v); } }
+        var lbl = CV_LABELS[k] || k;
+        return '<span class="res-ev-cvpair"><span class="res-ev-cvk">' + _esc(lbl) +
+          '</span>' + _esc(_resV(v)) + '</span>';
+      }).filter(Boolean).join('');
+      if (bits) cond = '<div class="res-ev-cond"><span class="res-sub">Condition vector</span>' +
+        '<div class="res-ev-cvrow">' + bits + '</div></div>';
+    }
+
+    // Species chips.
+    var species = (r.species && r.species.length)
+      ? '<div class="res-kv"><span class="res-kv-k">Species</span><span class="res-kv-v">' +
+        r.species.map(function (s) { return '<span class="res-tag res-ev-species">' + _esc(_resV(s)) + '</span>'; }).join(' ') +
+        '</span></div>'
+      : '';
+
+    // Secondary provenance metadata.
+    var metaKv = [
+      species,
+      _resKV('Source fig/table', r.source_figure_table),
+      _resKV('Control arm', r.control_arm),
+      _resKV('Digitization', r.digitization_provenance),
+      _resKV('License / access', r.license_access)
+    ].join('');
+    // source_asset_link: render DOI/URL as a link, otherwise plain text.
+    var asset = '';
+    if (r.source_asset_link) {
+      var sal = _resV(r.source_asset_link);
+      var href = /^(https?:)?\/\//.test(sal) ? sal
+        : (/^10\.\d/.test(sal) ? 'https://doi.org/' + sal : '');
+      asset = href
+        ? '<div class="res-kv"><span class="res-kv-k">Source asset</span><span class="res-kv-v">' +
+          '<a class="res-link" href="' + _esc(href) + '" target="_blank" rel="noopener">' + _esc(sal) + '</a></span></div>'
+        : _resKV('Source asset', sal);
+    }
+    var meta = (metaKv + asset)
+      ? '<div class="res-kv-grid res-ev-meta">' + metaKv + asset + '</div>' : '';
+
+    // feeds_into study chips.
+    var feeds = (r.feeds_into && r.feeds_into.length)
+      ? '<div class="res-ev-feeds"><span class="res-cites-lbl">Feeds into</span>' +
+        r.feeds_into.map(function (s) { return _resStudyChip(s); }).join('') + '</div>'
+      : '';
+
+    // caution — rendered PROMINENTLY and VERBATIM (like honesty_notes).
+    var caution = r.caution
+      ? '<div class="res-caveats res-ev-caution"><div class="res-caveats-lbl">⚠ Caution</div>' +
+        '<p class="res-ev-caution-text">' + _esc(_resV(r.caution)) + '</p></div>'
+      : '';
+
+    return '<div class="res-card res-evidence">' + head + cite + chain + cond + meta +
+      feeds + caution + _resRefChips(r.references, refsById) + '</div>';
+  }
+
+  // Generic fallback for an unknown resource type — never drop it silently.
+  function _resGenericCard(r, refsById) {
+    var kv = Object.keys(r).filter(function (k) {
+      return ['id', 'type', 'name', 'summary', 'references'].indexOf(k) < 0 &&
+        (typeof r[k] === 'string' || typeof r[k] === 'number');
+    }).map(function (k) { return _resKV(k, r[k]); }).join('');
+    return '<div class="res-card res-generic">' + _resCardHead(r) +
+      '<div class="res-kv-grid">' + kv + '</div>' +
+      _resRefChips(r.references, refsById) + '</div>';
+  }
+
+  function _resRenderCard(r, refsById) {
+    switch (r.type) {
+      case 'lipid-structure':  return _resLipidCard(r, refsById);
+      case 'reaction-pathway': return _resPathwayCard(r, refsById);
+      case 'evidence-dataset': return _resEvidenceCard(r, refsById);
+      case 'imported-engine':  return _resEngineCard(r, refsById);
+      case 'paper-reference':  return _resPaperCard(r);
+      default:                 return _resGenericCard(r, refsById);
+    }
+  }
+
+  function _resRenderPage(container, data) {
+    var order = data.type_order || [];
+    var groups = data.groups || {};
+    var refsById = data.references_by_id || {};
+    // No big "Resources" title here — the page already leads with one (from the
+    // inputs block above). Keep only the manifest description as a slim lead.
+    var header = (data.description)
+      ? '<div class="res-manifest-head"><p class="res-manifest-desc muted">' +
+        _esc(data.description) + '</p></div>'
+      : '';
+    // The evidence-dataset group carries a one-time QA-rule banner, rendered
+    // ONCE above its cards (never per-card).
+    var qaRule = _resV(data.evidence_dataset_qa_rule);
+    var sections = order.map(function (t) {
+      var items = groups[t] || [];
+      if (!items.length) return '';
+      var cards = items.map(function (r) { return _resRenderCard(r, refsById); }).join('');
+      var banner = (t === 'evidence-dataset' && qaRule)
+        ? '<div class="res-ev-qa-banner"><span class="res-ev-qa-lbl">QA rule</span>' +
+          '<span class="res-ev-qa-text">' + _esc(qaRule) + '</span></div>'
+        : '';
+      return '<section class="res-section" data-res-type="' + _esc(t) + '">' +
+        '<h3 class="res-section-title">' + _esc(_resTypeLabel(t)) +
+        ' <span class="res-count">' + items.length + '</span></h3>' +
+        banner +
+        '<div class="res-grid">' + cards + '</div></section>';
+    }).join('');
+    container.innerHTML = header + sections;
+  }
+
+  // The last-loaded structured-resources manifest, so _renderInputs can fold the
+  // manifest's paper-references into the unified References list (and resolve the
+  // lipid/reaction citation cross-links). null when the workspace ships none.
+  window._resStructured = null;
+
+  // Load the structured manifest, render the science gallery (lipid / reaction /
+  // evidence — paper-references and imported-engines are excluded server-side),
+  // then (re)render the inputs so paper-references fold into References. Always
+  // renders the inputs, manifest or not.
+  function _loadResources() {
+    var container = document.getElementById('resources-gallery');
+    var _base = _analysesBase();
+    var _url = _analysesSnapshot()
+      ? _base + '/api/structured-resources.json'
+      : '/api/structured-resources';
+    fetch(_url)
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var data = {};
+        try { data = t ? JSON.parse(t) : {}; } catch (e) { data = {}; }
+        return data;
+      })
+      .then(function (data) {
+        data = data || {};
+        var hasManifest = !!(data.available);
+        window._resStructured = hasManifest ? data : null;
+        if (container) {
+          if (hasManifest && data.type_order && data.type_order.length) {
+            _resRenderPage(container, data);
+          } else {
+            container.innerHTML = '';  // no science sections; inputs still render
+          }
+        }
+      })
+      .catch(function () {
+        window._resStructured = null;
+        if (container) container.innerHTML = '';
+      })
+      .then(function () {
+        // Render (or re-render) the inputs with whatever manifest we resolved so
+        // the References fold is consistent, regardless of fetch outcome.
+        if (typeof _loadInputs === 'function') _loadInputs();
+      });
+  }
+  window._loadResources = _loadResources;
+
   // Source-rank for picker sort: in_workspace classes are the ones the user
   // can act on directly (they live in this workspace's package or an
   // explicit `imports:` entry); framework comes next; environment-only is
@@ -1860,7 +2863,7 @@
 
   function _renderKindPicker(items, container, kind) {
     if (!items || items.length === 0) {
-      container.innerHTML = '<p class="empty-state">No ' + kind + 's registered. Install a pbg-* package that provides one (Registry tab &rarr; Available modules).</p>';
+      container.innerHTML = '<p class="empty-state">No ' + kind + 's registered. Install a pbg-* package that provides one (Catalog tab &rarr; Available modules).</p>';
       return;
     }
     // Sort: in_workspace → framework → environment_only, then alpha by name.
@@ -1910,8 +2913,9 @@
 
   function _useRegistryClass(kind, name) {
     if (kind === 'emitter') {
-      _switchPage('simulation-setup');
-      // Find the inline simulation form (inside a <details> in Simulation Setup)
+      _switchPage('modules');
+      // Legacy: the inline simulation form (once on Simulation Setup) is gone —
+      // this early-returns, leaving the Modules page shown.
       var form = document.getElementById('form-simulation');
       if (!form) return;
       var details = form.closest('details');
@@ -1963,31 +2967,22 @@
     if (v === null || v === undefined) return '';
     if (typeof v === 'string') return v;
     if (typeof v === 'object') {
-      if (v._type) return String(v._type);
+      // Show the physical unit beside the type ("float · volt") so a port /
+      // config param reads with its units, not a bare "float". _units is the
+      // schema metadata the processes declare.
+      if (v._type) return v._units ? String(v._type) + ' · ' + String(v._units) : String(v._type);
       var keys = Object.keys(v).filter(function (k) { return k.charAt(0) !== '_'; });
       if (keys.length) return '{' + keys.slice(0, 4).join(', ') + (keys.length > 4 ? ', …' : '') + '}';
       return 'store';
     }
     return String(v);
   }
+  // Exported: static/composite-card.js's _regPortColumn (moved out in the
+  // study-spine-reorg Task 6 extraction) calls this as a global.
+  window._regTypeLabel = _regTypeLabel;
 
-  // One port column (Inputs or Outputs): port name → type, from a schema dict.
-  function _regPortColumn(title, schema) {
-    var keys = schema && typeof schema === 'object' ? Object.keys(schema) : null;
-    var body;
-    if (keys === null) {
-      body = '<div class="reg-port-na" title="Ports depend on a configured instance and can\'t be introspected statically.">—</div>';
-    } else if (!keys.length) {
-      body = '<div class="reg-port-na">(none)</div>';
-    } else {
-      body = '<ul class="reg-port-list">' + keys.map(function (k) {
-        var t = _regTypeLabel(schema[k]);
-        return '<li><code class="reg-port-name">' + _esc(k) + '</code>' +
-          (t ? ' <span class="reg-port-type">' + _esc(t) + '</span>' : '') + '</li>';
-      }).join('') + '</ul>';
-    }
-    return '<div class="reg-port-col"><div class="reg-port-title">' + title + '</div>' + body + '</div>';
-  }
+  // _regPortColumn (one port column: Inputs or Outputs) moved to
+  // static/composite-card.js (study-spine-reorg Task 6).
 
   // ── Registry semantic zoom ──────────────────────────────────────────────
   // 'table' (dense sortable table) | 'grid' (card grid; config/ports on expand)
@@ -2157,6 +3152,15 @@
               : 'Temporal — a Process that advances state over a timestep') +
       '">' + (isStep ? 'Step' : 'Temporal') + '</span>';
   }
+  // Marks a vivarium-BRIDGE process: a vivarium-core Step injected into the
+  // whole-cell engine via the topology bridge (not a pbg-native process). Shown
+  // alongside the kind badge so it's clear it runs inside the WCM engine.
+  function _procBridgeBadge(p) {
+    if (!p || !p.bridge) return '';
+    return '<span class="proc-kind-badge proc-kind-other" ' +
+      'title="Bridge — a vivarium-core process injected into the whole-cell engine ' +
+      'via the topology bridge (not pbg-native; runs inside the WCM)">bridge</span>';
+  }
 
   // Config-schema + ports body, revealed by a per-card "config & ports" dropdown
   // in the grid view — keeps the grid dense but the contract one click away.
@@ -2214,37 +3218,8 @@
 
   // Grid card (middle zoom): name, use, one-line description, and the ports+types
   // shown inline. Double-click zooms to the runnable Full view.
-  // Usage stats chips — shared by grid + full cards, for processes AND
-  // composites: "used in N composites", "requires N processes" (composites),
-  // "N studies · X% passed". Returns '' when there's nothing to show.
-  function _regStatsHtml(p) {
-    var esc = _esc;
-    function stat(glyph, n, singular, plural, title) {
-      return '<span class="reg-stat" title="' + esc(title) + '"><span class="reg-stat-glyph">' + glyph +
-        '</span><strong>' + n + '</strong> ' + (n === 1 ? singular : plural) + '</span>';
-    }
-    var stats = [];
-    if (p.composite_uses) stats.push(stat('▦', p.composite_uses, 'composite', 'composites', 'Used in this many composite generators'));
-    if (p.requires && p.requires.processes && p.requires.processes.length)
-      stats.push(stat('⚙', p.requires.processes.length, 'process', 'processes', 'Requires this many process/step classes'));
-    // Study participation / % success is meaningful only for runnable process
-    // kinds and composites — not emitters/visualizations/analyses/types.
-    var noStudies = /^(emitter|visualization|analysis|type|report_card)$/.test(p.kind || '');
-    var sp = noStudies ? null : (p.study_participation || p.studies);   // composites carry `studies`
-    if (sp && sp.studies) {
-      var succ = (sp.success_pct != null && sp.total)
-        ? ' <span class="reg-succ-inline ' + (sp.success_pct >= 80 ? 'reg-succ-hi' : (sp.success_pct >= 50 ? 'reg-succ-mid' : 'reg-succ-lo')) + '">' + sp.success_pct + '%</span>'
-        : '';
-      stats.push('<span class="reg-stat reg-stat-part" title="Participates in ' + sp.studies +
-        ' stud' + (sp.studies === 1 ? 'y' : 'ies') + '; ' +
-        (sp.pass != null ? sp.pass + '/' + sp.total + ' report-card outcomes passed' : '') + '"><span class="reg-stat-glyph">◆</span><strong>' +
-        sp.studies + '</strong> stud' + (sp.studies === 1 ? 'y' : 'ies') + succ + '</span>');
-    } else if (p.study_uses) {
-      stats.push(stat('⌥', p.study_uses, 'study', 'studies', 'Referenced by this many study runner scripts'));
-    }
-    return stats.join('');
-  }
-  window._regStatsHtml = _regStatsHtml;
+  // _regStatsHtml (usage stats chips, shared by grid + full cards) moved to
+  // static/composite-card.js (study-spine-reorg Task 6).
 
   // Small info-box popup anchored under the clicked element; closes on outside
   // click / scroll. Shared by the clickable card stats.
@@ -2367,13 +3342,17 @@
       ? '<button type="button" class="reg-cfgports-btn" onclick="event.stopPropagation();_showConfigPorts(event,\'' + addr + '\')" title="See config &amp; ports">' +
         'config &amp; ports <span class="reg-mid-sum">' + nCfg + ' config · ' + nIn + ' in · ' + nOut + ' out</span></button>'
       : '';
+    var codeBtnGrid = (/^(process|step)$/.test(p.kind || 'process') && p.address)
+      ? '<button type="button" class="reg-cfgports-btn js-code-btn" title="View / edit this process\'s source"' +
+        ' onclick="event.stopPropagation();window.ProcessCode&&ProcessCode.open(\'' + addr + '\')">&lt;/&gt; Code</button>'
+      : '';
     var selCls = (window._registrySelected && window._registrySelected === p.address) ? ' reg-selected' : '';
     return '<div class="registry-card' + selCls + '"' + sourceAttr + ' data-address="' + addr + '"' +
         ' onclick="_selectRegistryEntry(\'' + addr + '\')" ondblclick="_zoomInOn(\'' + addr + '\')"' +
         ' title="Double-click to zoom in on this ' + (p.kind || 'process') + '">' +
       '<div class="reg-card-row">' +
         '<div class="reg-card-main">' +
-          '<div class="reg-card-head"><strong class="reg-card-name">' + esc(p.name) + '</strong>' + _procKindBadge(p.kind) + defaultBadge + _regUseBadge(p) + '</div>' +
+          '<div class="reg-card-head"><strong class="reg-card-name">' + esc(p.name) + '</strong>' + _procKindBadge(p.kind) + _procBridgeBadge(p) + defaultBadge + _regUseBadge(p) + _contractBadge(p.contract_audit) + '</div>' +
           '<code class="reg-card-addr">' + addr + '</code>' +
           (short ? '<p class="reg-card-desc">' + esc(short) + '</p>' : '') +
         '</div>' +
@@ -2381,6 +3360,7 @@
       '</div>' +
       _successBar(sp) +
       cfgPortsBtn +
+      codeBtnGrid +
       _runCmdChip(p.run_command) +
     '</div>';
   }
@@ -2410,7 +3390,7 @@
       }).join('');
     }
     var bodyHead =
-      '<div class="loom-body-head"><span class="loom-name">' + _esc(p.name) + '</span>' + _procKindBadge(kind) + _regUseBadge(p) + '</div>' +
+      '<div class="loom-body-head"><span class="loom-name">' + _esc(p.name) + '</span>' + _procKindBadge(kind) + _regUseBadge(p) + _contractBadge(p.contract_audit) + '</div>' +
       '<code class="loom-addr">' + _esc(p.address || kind) + '</code>' +
       (desc ? '<p class="loom-desc">' + _esc(desc) + '</p>' : '');
 
@@ -2431,53 +3411,16 @@
   }
 
   // ── Shared ProcessCard building blocks (used by process + composite cards) ──
-  // Left info-panel row → open + scroll the matching accordion section.
-  function _pcardInfoRow(target, label, n) {
-    return '<button type="button" class="pcard-info-row" data-target="' + target +
-      '" onclick="_pcardJumpSec(this)" title="Open the ' + label + ' section">' +
-      '<span class="pcard-info-label">' + _esc(label) + '</span>' +
-      '<span class="pcard-info-n">' + n + '</span></button>';
-  }
-  // One accordion section: header (caret · name · summary [· extra]) + body.
-  function _pcardSection(key, name, summary, body, opts) {
-    opts = opts || {};
-    var open = !!opts.open;
-    var caret = open ? '▾' : '▸';
-    var cls = 'pcard-sec pcard-sec-' + key + (open ? ' pcard-sec-open' : '') +
-      (opts.wide ? ' pcard-sec-wide' : '') + (opts.resizable ? ' pcard-sec-resizable' : '') +
-      (opts.feature ? ' pcard-sec-feature' : '');
-    // Resizable sections get a drag grip: drag to set height, double-click to fit.
-    var grip = opts.resizable
-      ? '<div class="pcard-sec-grip" title="Drag to resize · double-click to fit contents" ' +
-        'onmousedown="_pcardSecGripDown(event,this)" ontouchstart="_pcardSecGripDown(event,this)" ' +
-        'ondblclick="_pcardSecGripFull(event,this)"></div>'
-      : '';
-    return '<div class="' + cls + '" data-sec="' + key + '">' +
-      '<div class="pcard-sec-head" role="button" tabindex="0" onclick="_pcardToggleSec(this)" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();_pcardToggleSec(this);}">' +
-        '<span class="pcard-sec-caret">' + caret + '</span>' +
-        '<span class="pcard-sec-name">' + _esc(name) + '</span>' +
-        '<span class="pcard-sec-sum">' + summary + '</span>' +
-        (opts.headExtra || '') +
-      '</div>' +
-      '<div class="pcard-sec-body">' + body + '</div>' +
-      grip +
-    '</div>';
-  }
-  // Persistent (non-collapsible) Run bar — always visible at the card's top level.
-  function _pcardRunBar(inner) {
-    return '<div class="pcard-runbar">' + inner + '</div>';
-  }
-  // "Composite" kind pill (a composite IS a process — sits alongside Temporal/Step).
-  function _compositeBadge() {
-    return '<span class="proc-kind-badge proc-kind-composite" title="Composite — a Process assembled from other processes/steps; open Explore for its bigraph">Composite</span>';
-  }
+  // _pcardInfoRow / _pcardSection / _pcardRunBar / _compositeBadge /
+  // _cardPopoutBtn / _cardMaximizeBtn / _positionMaximizedCard /
+  // _toggleCardMaximize / _maximizeCardFromHeader / _compositeJsonBtn /
+  // _shareCompositeBtn moved to static/composite-card.js (study-spine-reorg
+  // Task 6 — shared with the Study Detail Model tab). composite-card.js loads
+  // before this file, so the bare references below still resolve globally.
 
-  // A card header "pop out" control — opens the whole card (Explore/loom and all)
-  // in its own focused window.
-  function _cardPopoutBtn(address, kind) {
-    return '<button class="pcard-popout" type="button" title="Pop out this card into its own window" ' +
-      'onclick="event.stopPropagation();_popoutCard(\'' + _esc(address) + '\',\'' + _esc(kind) + '\')">⤢</button>';
-  }
+  // A card header "pop out" control — opens the whole card (Explore/loom and
+  // all) in its own focused window. Stays here: its ?popcard= handshake is
+  // this page's own bootstrap (_enterPopcardMode below), not shared.
   function _popoutCard(address, kind) {
     var url = location.origin + location.pathname +
       '?popcard=' + encodeURIComponent(address) + '&kind=' + encodeURIComponent(kind || 'process');
@@ -2485,124 +3428,92 @@
   }
   window._popoutCard = _popoutCard;
 
-  // "⛶" — maximize this card into the content area (right of the left rail),
-  // in-place (unlike ⤢ pop-out which opens a new window). Toggles again / Esc
-  // to restore. Gives the Explore/loom graph the full pane to work in.
-  function _cardMaximizeBtn() {
-    return '<button class="pcard-maximize" type="button" title="Fill the pane — maximize (Esc to exit)" ' +
-      'onclick="event.stopPropagation();_toggleCardMaximize(this)">⛶</button>';
-  }
-  function _positionMaximizedCard(card) {
-    // The card's fixed geometry is CSS-driven (see .pcard-maximized) off a single
-    // CSS var so a card re-render can't strip inline positioning. Here we only
-    // (a) publish the rail's right edge so the card clears the menu bar, and
-    // (b) grow the embedded loom to fill from its top to the bottom of the pane.
-    var rail = document.querySelector('.viv-rail');
-    var railRight = rail ? rail.getBoundingClientRect().right : 240;
-    document.documentElement.style.setProperty('--vw-rail-right', railRight + 'px');
-    var frame = card.querySelector('.ccard-loom-frame');
-    if (frame) {
-      var fr = frame.getBoundingClientRect();
-      frame.style.height = Math.max(360, window.innerHeight - fr.top - 16) + 'px';
-      frame.style.maxHeight = 'none';
-    }
-  }
-  function _toggleCardMaximize(btn) {
+  function _shareCompositeFromHeader(btn) {
     var card = btn.closest('.registry-entry-full');
-    if (!card) return;
-    var on = card.classList.toggle('pcard-maximized');
-    document.body.classList.toggle('pcard-maximized', on);
-    if (on) {
-      btn.title = 'Restore (Esc)';
-      // Make sure the Explore section is open so the loom is actually visible.
-      var explore = card.querySelector('.pcard-sec-explore');
-      if (explore && !explore.classList.contains('pcard-sec-open')) {
-        var head = explore.querySelector('.pcard-sec-head');
-        if (head) head.click();
-      }
-      _positionMaximizedCard(card);
-      card._maxReposition = function () { _positionMaximizedCard(card); };
-      card._maxEsc = function (e) { if (e.key === 'Escape') _toggleCardMaximize(btn); };
-      window.addEventListener('resize', card._maxReposition);
-      document.addEventListener('keydown', card._maxEsc);
-      // Re-fit once the Explore section has finished expanding.
-      setTimeout(function () { if (card.classList.contains('pcard-maximized')) _positionMaximizedCard(card); }, 120);
-    } else {
-      btn.title = 'Fill the pane — maximize (Esc to exit)';
-      ['position', 'top', 'left', 'width', 'height', 'zIndex'].forEach(function (p) { card.style[p] = ''; });
-      var frame = card.querySelector('.ccard-loom-frame');
-      if (frame) { frame.style.height = ''; frame.style.maxHeight = ''; }
-      if (card._maxReposition) window.removeEventListener('resize', card._maxReposition);
-      if (card._maxEsc) document.removeEventListener('keydown', card._maxEsc);
-      card._maxReposition = card._maxEsc = null;
-      card.scrollIntoView({ block: 'nearest' });
-    }
+    var id = card ? card.getAttribute('data-address') : null;
+    if (!id) return;
+    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
+      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
+    // chrome=off → a view-only share: just the bigraph graph + toolbar, no tab
+    // strip / left Config panel / bottom run bar (matches the loom Share button).
+    var rel = (document.body.classList.contains('snapshot')
+      ? apiUrl('/bigraph-loom/index.html') + '?static=1&chrome=off&stateUrl=' + encodeURIComponent(_compositeStateUrl(id))
+      : apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off') + '&v=' + _LOOM_V;
+    var url;
+    try { url = new URL(rel, window.location.href).href; } catch (e) { url = rel; }
+    var flash = function () {
+      var old = btn.textContent; btn.textContent = '✓ Link copied'; btn.classList.add('active');
+      setTimeout(function () { btn.textContent = old; btn.classList.remove('active'); }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(flash).catch(function () { window.prompt('Copy this link:', url); });
+    } else { window.prompt('Copy this link:', url); }
   }
-  window._toggleCardMaximize = _toggleCardMaximize;
-
-  // Double-clicking a composite card's header also maximizes it (per user ask).
-  function _maximizeCardFromHeader(headerEl) {
-    var card = headerEl.closest('.registry-entry-full');
-    if (!card) return;
-    var btn = card.querySelector('.pcard-maximize');
-    if (btn) _toggleCardMaximize(btn);
-  }
-  window._maximizeCardFromHeader = _maximizeCardFromHeader;
-
-  // "{ } JSON" — reveal the composite's full resolved JSON spec (processes,
-  // wiring, visualizations…) at the top of the card, as a collapsible tree.
-  function _compositeJsonBtn() {
-    return '<button class="pcard-json-btn" type="button" title="View the full composite JSON spec" ' +
-      'onclick="event.stopPropagation();_toggleCompositeJson(this)">{ } JSON</button>';
-  }
-  function _toggleCompositeJson(btn) {
+  window._shareCompositeFromHeader = _shareCompositeFromHeader;
+  // _toggleCompositeJson / _copyCompositeJson now live in composite-card.js
+  // (loaded before this file) so the "{ } JSON" button works on every page the
+  // card mounts on, including the Study Detail Model tab. Bare references below
+  // resolve to those globals.
+  // Contract-audit panel toggle — mirrors _toggleCompositeJson. The REAL
+  // composite audit is expensive (it builds the composite's core), so it's
+  // fetched lazily on first open from /api/composite-contract-audit and the
+  // header badge is back-patched with the real status once it lands.
+  function _toggleCompositeContract(btn) {
     var card = btn.closest('.registry-entry-full'); if (!card) return;
-    var panel = card.querySelector('[data-role="composite-json"]'); if (!panel) return;
+    var panel = card.querySelector('[data-role="composite-contract"]'); if (!panel) return;
     var show = panel.hidden;
     panel.hidden = !show;
     btn.classList.toggle('active', show);
     if (!show || panel._loaded) return;
     panel._loaded = true;
     var id = card.getAttribute('data-address');
-    var body = panel.querySelector('.pcard-json-body');
-    if (body) body.innerHTML = '<span class="muted" style="font-size:0.85em">Resolving composite JSON…</span>';
-    var url = (typeof _compositeStateUrl === 'function')
-      ? _compositeStateUrl(id)
-      : '/api/composite-resolve?id=' + encodeURIComponent(id);
-    fetch(url).then(function (r) { return r.json(); }).then(function (j) {
-      var doc = (j && j.state) ? j.state : j;
-      if (body) {
-        body.innerHTML =
-          '<div class="pcard-json-toolbar">' +
-            '<button class="btn-mini" type="button" onclick="_copyCompositeJson(this)">⧉ Copy</button>' +
-            '<a class="btn-mini" href="' + _esc(url) + '" target="_blank" rel="noopener">Raw ↗</a>' +
-          '</div>' +
-          (typeof _jsonViewer === 'function' ? _jsonViewer(doc) : '<pre>' + _esc(JSON.stringify(doc, null, 2)) + '</pre>') +
-          '<pre class="pcard-json-raw" hidden>' + _esc(JSON.stringify(doc, null, 2)) + '</pre>';
-      }
-      panel._json = doc;
-    }).catch(function (e) {
-      if (body) body.innerHTML = '<span class="loom-run-err">Failed to load JSON: ' + _esc(String(e)) + '</span>';
-      panel._loaded = false;
-    });
+    var body = panel.querySelector('.pcard-contract-body');
+    if (body) body.innerHTML = '<span class="muted" style="font-size:0.85em">Auditing composite contracts… (building the core)</span>';
+    fetch('/api/composite-contract-audit?id=' + encodeURIComponent(id))
+      .then(function (r) { return r.json(); })
+      .then(function (a) {
+        if (body) {
+          body.innerHTML = (typeof _compositeContractPanelBody === 'function')
+            ? _compositeContractPanelBody(a)
+            : '<pre>' + _esc(JSON.stringify(a, null, 2)) + '</pre>';
+        }
+        panel._audit = a;
+        // Back-patch the header badge so the at-a-glance status is now real,
+        // not the coreless "contract n/a" stub.
+        try {
+          var badge = card.querySelector('.contract-badge');
+          if (badge && a && a.status && typeof _contractBadge === 'function') {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = _contractBadge(a);
+            if (tmp.firstChild) badge.replaceWith(tmp.firstChild);
+          }
+        } catch (e) { /* badge back-patch is best-effort */ }
+      })
+      .catch(function (e) {
+        if (body) body.innerHTML = '<span class="loom-run-err">Audit failed: ' + _esc(String(e)) + '</span>';
+        panel._loaded = false;
+      });
   }
-  window._toggleCompositeJson = _toggleCompositeJson;
-  function _copyCompositeJson(btn) {
-    var panel = btn.closest('[data-role="composite-json"]');
-    var pre = panel && panel.querySelector('.pcard-json-raw');
-    if (!pre) return;
-    var txt = pre.textContent || '';
-    var done = function () { var o = btn.textContent; btn.textContent = '✓ Copied'; setTimeout(function () { btn.textContent = o; }, 1200); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(done);
-    else done();
+  window._toggleCompositeContract = _toggleCompositeContract;
+  // Process-card contract toggle — the per-process audit is already inline on
+  // the card (pre-rendered into the panel), so this just reveals it. No fetch,
+  // no badge back-patch (the header badge is already the real status).
+  function _toggleProcessContract(btn) {
+    var card = btn.closest('.registry-entry-full'); if (!card) return;
+    var panel = card.querySelector('[data-role="process-contract"]'); if (!panel) return;
+    var show = panel.hidden;
+    panel.hidden = !show;
+    btn.classList.toggle('active', show);
   }
-  window._copyCompositeJson = _copyCompositeJson;
+  window._toggleProcessContract = _toggleProcessContract;
 
   // In a ?popcard= window: strip the shell to just the single requested card.
   function _enterPopcardMode(address, kind) {
     // focus-mode strips the rail/topbar (content-only window); popcard-mode
     // additionally hides the registry tabs + toolbar to leave just the card.
     document.body.classList.add('focus-mode', 'popcard-mode');
+    // "Pop back in" is injected into the card HEADER's action row (top-right,
+    // where the pop-out button was) after the card renders — see below.
     var isComposite = (kind === 'composite');
     if (typeof _switchPage === 'function') _switchPage('modules');
     window._registryZoom = 'full';
@@ -2622,10 +3533,22 @@
       if (host && html) {
         host.innerHTML = '<div class="reg-cards reg-cards-full popcard-single">' + html + '</div>';
         if (typeof _observeRunnableCards === 'function') _observeRunnableCards(host);
-        // For composites, auto-open Explore so the loom is visible immediately.
+        // "Pop back in" in the header action row (top-right, replacing the now-
+        // redundant ↗ pop-out button — hidden via .popcard-mode CSS).
+        var _hdr = host.querySelector('.pcard-header');
+        if (_hdr && !_hdr.querySelector('.popcard-backin-hdr')) {
+          var _bi = document.createElement('button');
+          _bi.className = 'popcard-backin-hdr'; _bi.type = 'button';
+          _bi.textContent = '◀ Pop back in';
+          _bi.title = 'Return to the workbench (with the side menu) and show this composite here';
+          _bi.onclick = function (ev) { ev.stopPropagation(); _popCardBackIn(address, kind); };
+          _hdr.appendChild(_bi);
+        }
+        // For composites (popped-out single card), auto-open the loom so it's
+        // visible immediately — via the single graph bar that toggles it.
         if (isComposite) {
-          var sec = host.querySelector('.pcard-sec-explore .pcard-sec-head');
-          if (sec) _pcardToggleSec(sec);
+          var expBtn = host.querySelector('.pcard-graph-bar');
+          if (expBtn && typeof _toggleLoomCard === 'function') _toggleLoomCard(expBtn);
         }
         return;
       }
@@ -2640,6 +3563,55 @@
     })();
   }
   window._enterPopcardMode = _enterPopcardMode;
+
+  // Open a composite in the FULL workbench (rail visible), maximized with Explore
+  // open — shared by the card-grid "Explore" button and the "pop back in" target.
+  function _enterMaxcardMode(address, kind) {
+    var isComposite = (kind !== 'process');
+    if (typeof _switchPage === 'function') _switchPage('modules');
+    window._registryZoom = 'full';
+    try { localStorage.setItem('viv.registryZoom', 'full'); } catch (e) { /* private mode */ }
+    if (typeof _setRegistryTab === 'function') _setRegistryTab(isComposite ? 'composite' : 'process');
+    var tries = 0;
+    (function attempt() {
+      var host = null, html = null;
+      if (isComposite) {
+        var c = (window._compositesById || {})[address];
+        if (c) { host = document.getElementById('registry-composites-container'); html = _renderCompositeCardFull(c); }
+      } else {
+        var e = _registryEntryByAddress(address);
+        if (e) { host = document.getElementById('registry-processes-container'); html = _renderRegistryEntryFull(e); }
+      }
+      if (host && html) {
+        host.innerHTML = '<div class="reg-cards reg-cards-full popcard-single">' + html + '</div>';
+        if (typeof _observeRunnableCards === 'function') _observeRunnableCards(host);
+        // Maximize (fills the pane, pins to top, and auto-opens Explore/loom).
+        var card = host.querySelector('.registry-entry-full');
+        var maxBtn = card && card.querySelector('.pcard-maximize');
+        if (maxBtn) setTimeout(function () { _toggleCardMaximize(maxBtn); }, 60);
+        return;
+      }
+      if (tries % 6 === 0) {
+        if (isComposite) { if (typeof _loadComposites === 'function') _loadComposites(); }
+        else { window._registryLoaded = false; if (typeof _loadRegistry === 'function') _loadRegistry(false); }
+      }
+      if (tries++ < 120) setTimeout(attempt, 200);
+    })();
+  }
+  window._enterMaxcardMode = _enterMaxcardMode;
+
+  // "Pop back in" from a pop-out window: return to the full workbench (rail
+  // visible) with this composite maximized. Prefer navigating the opener so the
+  // pop-out closes; fall back to navigating this window.
+  function _popCardBackIn(address, kind) {
+    var url = location.origin + location.pathname +
+      '?maxcard=' + encodeURIComponent(address) + '&kind=' + encodeURIComponent(kind || 'composite');
+    if (window.opener && !window.opener.closed) {
+      try { window.opener.location.href = url; window.opener.focus(); window.close(); return; } catch (e) { /* fall through */ }
+    }
+    window.location.href = url;
+  }
+  window._popCardBackIn = _popCardBackIn;
 
   // The unified ProcessCard renderer (§ unified-process-card design):
   //   header: name + kind badge + address
@@ -2710,8 +3682,10 @@
       '<div class="loom-card loom-card-stack loom-card-' + kind + '">' +
         '<div class="pcard-top">' +
           '<div class="pcard-header pcard-title" onclick="_pinCardTop(this)" title="Click to pin to top">' +
-            '<span class="loom-name">' + _esc(p.name) + '</span>' + kindBadge + _regUseBadge(p) +
+            '<span class="loom-name">' + _esc(p.name) + '</span>' + kindBadge + _regUseBadge(p) + _contractBadge(p.contract_audit) +
             '<code class="loom-addr">' + _esc(p.address || kind) + '</code>' +
+            (/^(process|step)$/.test(kind) ? _processCodeBtn(p.address) : '') +
+            (p.contract_audit ? _processContractBtn() : '') +
             _cardPopoutBtn(p.address || kind, kind) +
           '</div>' +
           '<div class="pcard-summary">' +
@@ -2721,6 +3695,14 @@
               (desc ? '<p class="loom-desc pcard-desc-clamp" onclick="_pcardToggleDesc(this)" title="Click to expand / collapse">' + _esc(desc) + '</p>' : '') +
             '</div>' +
           '</div>' +
+          // Contract-audit panel — hidden until the header "§ Contract" button
+          // toggles it (mirrors the composite card). The per-process audit is
+          // already inline on the card, so it's pre-rendered here, not fetched.
+          (p.contract_audit
+            ? '<div class="pcard-json-view pcard-contract-view" data-role="process-contract" hidden>' +
+                '<div class="pcard-contract-body">' + _contractPanelBody(p.contract_audit) + '</div>' +
+              '</div>'
+            : '') +
         '</div>' +
         '<div class="pcard-acc">' +
           section('configure', 'Configure', '<span class="pcard-sec-count">' + nCfg + '</span><span class="pcard-config-chips" data-role="config-chips" hidden></span>', configBody, { resizable: true }) +
@@ -2732,147 +3714,13 @@
     '</div>';
   }
 
-  // Expand / collapse a clamped description in place.
-  function _pcardToggleDesc(el) { if (el) el.classList.toggle('pcard-desc-open'); }
-  window._pcardToggleDesc = _pcardToggleDesc;
+  // _pcardToggleDesc / _pcardSecGripDown / _pcardSecGripFull / _pcardToggleSec /
+  // _pcardJumpSec / _compositeLoomExplore / _runCmdChip / _copyRunCmd /
+  // _renderCompositeCardGrid moved to static/composite-card.js
+  // (study-spine-reorg Task 6). composite-card.js's _pcardToggleSec still
+  // calls _loadFullRunFields (below, process-only) and
+  // _openCompositeLoomInline (this page's live-loom glue) as globals.
 
-  // Resize a section body by dragging its grip; double-click fits to contents.
-  function _pcardSecGripDown(e, grip) {
-    if (e && e.cancelable) e.preventDefault();
-    var sec = grip.closest('.pcard-sec'); if (!sec) return;
-    var body = sec.querySelector('.pcard-sec-body'); if (!body) return;
-    sec.classList.remove('pcard-sec-full');
-    var y0 = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-    var h0 = body.getBoundingClientRect().height;
-    document.body.classList.add('pcard-sec-resizing');
-    function move(ev) {
-      var y = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
-      body.style.setProperty('--pch', Math.max(56, h0 + (y - y0)) + 'px');
-      if (ev.cancelable) ev.preventDefault();
-    }
-    function up() {
-      document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up);
-      document.removeEventListener('touchmove', move); document.removeEventListener('touchend', up);
-      document.body.classList.remove('pcard-sec-resizing');
-    }
-    document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
-    document.addEventListener('touchmove', move, { passive: false }); document.addEventListener('touchend', up);
-  }
-  window._pcardSecGripDown = _pcardSecGripDown;
-  function _pcardSecGripFull(e, grip) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    var sec = grip.closest('.pcard-sec'); if (!sec) return;
-    var body = sec.querySelector('.pcard-sec-body'); if (body) body.style.removeProperty('--pch');
-    sec.classList.toggle('pcard-sec-full');
-  }
-  window._pcardSecGripFull = _pcardSecGripFull;
-
-  // Toggle one accordion section (Configure / Inputs / Run / Outputs). Opening
-  // Configure or Inputs makes sure the lazily-resolved fields are loaded.
-  function _pcardToggleSec(head) {
-    var sec = head.closest('.pcard-sec'); if (!sec) return;
-    var open = sec.classList.toggle('pcard-sec-open');
-    var caret = head.querySelector('.pcard-sec-caret'); if (caret) caret.textContent = open ? '▾' : '▸';
-    if (!open) return;
-    var card = head.closest('.registry-entry-full');
-    // Process cards lazy-load resolved config/input fields; composites don't.
-    if (card && !card.classList.contains('pcard-composite')) _loadFullRunFields(card);
-    // Explore section: mount the composite's loom bigraph on first open.
-    var embed = sec.querySelector('.ccard-loom-embed');
-    if (embed && typeof _openCompositeLoomInline === 'function') _openCompositeLoomInline(embed);
-    // Outputs section: lazy-fill the declared-observables checklist on first open.
-    if (card && card.classList.contains('pcard-composite') && sec.getAttribute('data-sec') === 'outputs') {
-      _loadCompositeObservables(card);
-    }
-  }
-  window._pcardToggleSec = _pcardToggleSec;
-
-  // Info-panel click → open the matching section and scroll it into view.
-  function _pcardJumpSec(btn) {
-    var target = btn.getAttribute('data-target');
-    var card = btn.closest('.registry-entry-full'); if (!card) return;
-    var sec = card.querySelector('.pcard-sec[data-sec="' + target + '"]'); if (!sec) return;
-    if (!sec.classList.contains('pcard-sec-open')) {
-      var head = sec.querySelector('.pcard-sec-head'); if (head) _pcardToggleSec(head);
-    }
-    try { sec.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { /* ignore */ }
-  }
-  window._pcardJumpSec = _pcardJumpSec;
-
-  // ── Composite ProcessCard ────────────────────────────────────────────────
-  // A composite IS a process (§ unified idea): same card, same accordion, plus
-  // an EXPLORE section (the wide loom bigraph) between Inputs and Run. A
-  // composite is mostly top-level, so Inputs/Outputs are informational; the
-  // value is Configure (its parameters) + Explore (its internal wiring).
-  function _compositeLoomExplore(c) {
-    // The loom is a read-only VIEWER: config is edited in the Configure section
-    // and running is the ▶ RUN bar below — so no "Enable running" / live toggle.
-    return '<div class="ccard-loom-embed pcard-loom" data-id="' + _esc(c.id) + '">' +
-      '<div class="ccard-loom-frame"><p class="muted" style="padding:10px;font-size:0.85em">Resolving composite &amp; rendering the bigraph…</p></div>' +
-    '</div>';
-  }
-
-  // Shared "how to run this in your terminal" chip: a copy-pasteable one-line
-  // command + a copy button, rendered on composite/process cards and the
-  // investigation graph. The canonical command strings come from the server
-  // (lib/run_commands.py, mirrored per surface); this only presents + copies
-  // them. Self-contained inline styles (no CSS-file dependency). A long command
-  // (e.g. the process one-liner) truncates with ellipsis; hover/copy give the
-  // full text. onclick stopPropagation so it never triggers the card's select.
-  function _runCmdChip(cmd) {
-    if (!cmd) return '';
-    var full = _esc(cmd);
-    return '<div class="run-cmd-chip" onclick="event.stopPropagation()" ' +
-        'style="display:flex;align-items:center;gap:6px;margin-top:8px;padding:4px 6px;' +
-        'background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;font-size:0.72em;min-width:0">' +
-      '<span aria-hidden="true" style="color:#94a3b8;flex:none;font-family:ui-monospace,monospace">$</span>' +
-      '<code title="' + full + '" style="flex:1 1 auto;min-width:0;overflow:hidden;' +
-        'text-overflow:ellipsis;white-space:nowrap;color:#334155;' +
-        'font-family:ui-monospace,SFMono-Regular,Menlo,monospace">' + full + '</code>' +
-      '<button type="button" class="run-cmd-copy" data-cmd="' + full + '" ' +
-        'onclick="event.stopPropagation();_copyRunCmd(this)" title="Copy command" ' +
-        'style="flex:none;font-size:0.95em;cursor:pointer;border:1px solid #cbd5e1;' +
-        'background:#fff;border-radius:4px;padding:1px 6px;color:#475569">copy</button>' +
-    '</div>';
-  }
-  window._runCmdChip = _runCmdChip;
-
-  function _copyRunCmd(btn) {
-    var cmd = btn && btn.getAttribute('data-cmd');
-    if (!cmd) return;
-    var done = function () {
-      var prev = btn.getAttribute('data-label') || 'copy';
-      btn.textContent = 'copied'; btn.style.color = '#047857';
-      setTimeout(function () { btn.textContent = prev; btn.style.color = '#475569'; }, 1200);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(cmd).then(done, done);
-    } else { done(); }
-  }
-  window._copyRunCmd = _copyRunCmd;
-
-  // Compact composite card (Cards / medium zoom) — mirrors the process grid
-  // card: name · badge · address · short desc · usage stats.
-  function _renderCompositeCardGrid(c) {
-    var addr = c.module ? (c.module + '.' + c.name) : c.id;
-    var desc = (c.description || '').trim(), short = desc ? desc.split('\n')[0] : '';
-    var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
-    var stats = _regStatsHtml(c);
-    var selCls = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
-    return '<div class="registry-card' + selCls + '" data-address="' + _esc(c.id) + '" data-kind="composite"' +
-        ' onclick="_selectRegistryEntry(\'' + _esc(c.id) + '\')" ondblclick="_setRegistryZoom(\'full\')"' +
-        ' title="Double-click to open the full card">' +
-      '<div class="reg-card-row">' +
-        '<div class="reg-card-main">' +
-          '<div class="reg-card-head"><strong class="reg-card-name">' + _esc(c.name) + '</strong>' + _compositeBadge() + wsPill + '</div>' +
-          '<code class="reg-card-addr">' + _esc(addr) + '</code>' +
-          (short ? '<p class="reg-card-desc">' + _esc(short) + '</p>' : '') +
-          _runCmdChip(c.run_command) +
-        '</div>' +
-        '<div class="reg-card-stats">' + stats + '</div>' +
-      '</div>' +
-    '</div>';
-  }
   // Composite table (Table / dense zoom).
   function _renderCompositeTableHtml(list) {
     var mod = function (c) { return (c.module || ''); };
@@ -2888,105 +3736,18 @@
         '<td class="num">' + nr + '</td>' +
         '<td class="num">' + (sp.studies || 0) + '</td>' +
         '<td class="num">' + _successCell(sp) + '</td>' +
+        '<td><button type="button" class="reg-cfgports-btn js-code-btn" title="View / edit this composite\'s source"' +
+          ' onclick="event.stopPropagation();_openCompositeCode(\'' + _esc(c.id) + '\')">&lt;/&gt; Code</button></td>' +
       '</tr>';
     }).join('');
     return '<div class="registry-table-wrap"><table class="registry-table"><thead><tr>' +
-      '<th>Name</th><th>Module</th><th class="num">Params</th><th class="num">Needs</th><th class="num">Studies</th><th class="num">Success</th>' +
+      '<th>Name</th><th>Module</th><th class="num">Params</th><th class="num">Needs</th><th class="num">Studies</th><th class="num">Success</th><th>Code</th>' +
       '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
-  // Outputs before any run this session.
-  function _compositeOutIdle() {
-    return '<div class="pcard-out-empty">' +
-      '<p class="pcard-out-empty-title">No run yet</p>' +
-      '<p class="muted">Set <strong>Steps</strong> and hit <strong>▶ Run</strong> above — this shows the run\'s progress, then its visualizations. Past runs live under ' +
-        '<a href="#simulations" onclick="_switchPage(\'simulations\');return false;">Runs</a>.</p>' +
-    '</div>';
-  }
-
-  // Outputs controls: the emitter (observation sink) + the observables to emit.
-  // The emitter mirrors the composite's `emitter` config param (choices), and
-  // on change syncs back to the Configure field so runs + Explore re-resolve
-  // stay consistent. The observables checklist is lazy-filled on first open
-  // (see _loadCompositeObservables) from the composite's declared emit paths.
-  function _compositeOutControls(c) {
-    var params = (c.parameters && typeof c.parameters === 'object') ? c.parameters : {};
-    var em = params.emitter || {};
-    var emVal = ('default' in em) ? em.default : null;
-    var emChoices = Array.isArray(em.choices) ? em.choices : null;
-    var emHint = em.description ? String(em.description).split('.')[0] : '';
-    var emitterRow = '';
-    if (emChoices) {
-      emitterRow =
-        '<div class="pcard-out-ctl-row">' +
-          '<span class="pcard-out-ctl-lbl">Emitter</span>' +
-          '<select class="pcard-out-emitter" data-role="out-emitter-sel" onchange="_syncOutEmitter(this)" title="Observation sink — where this run\'s outputs are written">' +
-            emChoices.map(function (ch) { return '<option value="' + _esc(String(ch)) + '"' + (ch === emVal ? ' selected' : '') + '>' + _esc(String(ch)) + '</option>'; }).join('') +
-          '</select>' +
-          (emHint ? '<span class="pcard-out-ctl-hint muted">' + _esc(emHint) + '</span>' : '') +
-        '</div>';
-    } else if (emVal != null) {
-      emitterRow =
-        '<div class="pcard-out-ctl-row">' +
-          '<span class="pcard-out-ctl-lbl">Emitter</span>' +
-          '<code class="pcard-out-emitter-static">' + _esc(String(emVal)) + '</code>' +
-          '<span class="pcard-out-ctl-hint muted">set in Configure</span>' +
-        '</div>';
-    }
-    return '<div class="pcard-out-controls" data-role="out-controls">' +
-      emitterRow +
-      '<div class="pcard-out-ctl-row pcard-out-obs-row">' +
-        '<span class="pcard-out-ctl-lbl">Observables</span>' +
-        '<div class="pcard-out-obs" data-role="out-observables">' +
-          '<span class="muted pcard-out-obs-hint">Loading declared observables…</span>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-
-  // Mirror the Outputs emitter <select> back to the Configure `emitter` field so
-  // there is a single authoritative value at run time (_collectCardConfig reads
-  // Configure) and the Explore re-resolve uses the same emitter.
-  function _syncOutEmitter(sel) {
-    var card = sel.closest('.registry-entry-full'); if (!card) return;
-    var cfg = card.querySelector('.loom-cfg-field[data-key="emitter"]');
-    if (cfg) cfg.value = sel.value;
-  }
-  window._syncOutEmitter = _syncOutEmitter;
-
-  // Lazy-fill the Outputs observables checklist from the composite's DECLARED
-  // emit paths (composite-resolve → state._declared_emit_paths). All checked by
-  // default; global_time is always emitted (time axis) so it's shown pinned/
-  // disabled, not a toggle. Runs pass a subset as emit_paths (see _runComposite).
-  function _loadCompositeObservables(card) {
-    if (!card || card._obsLoaded) return;
-    card._obsLoaded = true;
-    var box = card.querySelector('[data-role="out-observables"]'); if (!box) return;
-    var id = card.getAttribute('data-address');
-    fetch(_api('/api/composite-resolve?id=' + encodeURIComponent(id)))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var st = (d && d.state) ? d.state : d;
-        var paths = (st && Array.isArray(st._declared_emit_paths)) ? st._declared_emit_paths : [];
-        var toggles = paths.filter(function (p) { return p && p !== 'global_time'; });
-        if (!toggles.length) {
-          box.innerHTML = '<span class="muted">This composite declares no selectable observables — the run emits its default set.</span>';
-          return;
-        }
-        box.innerHTML =
-          (paths.indexOf('global_time') >= 0
-            ? '<label class="pcard-obs-item pcard-obs-fixed" title="Always emitted — the trajectory time axis"><input type="checkbox" checked disabled> global_time</label>'
-            : '') +
-          toggles.map(function (p) {
-            return '<label class="pcard-obs-item"><input type="checkbox" class="pcard-obs-cb" value="' + _esc(p) + '" checked> ' + _esc(p) + '</label>';
-          }).join('');
-      })
-      .catch(function () {
-        card._obsLoaded = false;  // allow a retry on next open
-        box.innerHTML = '<span class="muted pcard-apply-err">Could not load declared observables.</span>';
-      });
-  }
-  window._loadCompositeObservables = _loadCompositeObservables;
+  // _compositeOutIdle / _compositeOutControls / _syncOutEmitter /
+  // _loadCompositeObservables moved to static/composite-card.js
+  // (study-spine-reorg Task 6).
 
   // Poll a launched composite run and render its progress → visualizations into
   // the card's Outputs panel. /api/composite-run/<id>/status returns
@@ -3012,7 +3773,7 @@
     card._pollRun = runId;   // guard: a newer run supersedes this poll
     var tick = function () {
       if (card._pollRun !== runId) return;   // superseded
-      fetch(_api('/api/composite-run/' + encodeURIComponent(runId) + '/status'))
+      apiFetch('GET', '/api/composite-run/' + encodeURIComponent(runId) + '/status')
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (res) {
           if (card._pollRun !== runId) return;
@@ -3061,96 +3822,11 @@
   }
   window._pollCompositeRun = _pollCompositeRun;
 
-  function _renderCompositeCardFull(c) {
-    var params = (c.parameters && typeof c.parameters === 'object') ? c.parameters : {};
-    var pKeys = Object.keys(params), nCfg = pKeys.length;
-    var desc = (c.description || '').trim();
-    var sel = (window._registrySelected && window._registrySelected === c.id) ? ' reg-selected' : '';
-    var wsPill = c.workspace_local ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
-    var roPill = c.read_only ? '<span class="tag-pill" style="background:#fef2f2;color:#b91c1c;margin-left:6px">read-only</span>' : '';
-
-    var chip = function (k) { return '<code class="pcard-chip">' + _esc(k) + '</code>'; };
-    var cfgChips = nCfg
-      ? pKeys.slice(0, 6).map(chip).join('') + (nCfg > 6 ? ' <span class="muted pcard-chip-more">+' + (nCfg - 6) + '</span>' : '')
-      : '<span class="muted">none</span>';
-
-    // Editable config fields from each parameter's default; title carries its
-    // description so hovering a field explains the parameter.
-    var cfgFields = nCfg
-      ? pKeys.map(function (k) {
-          var pv = params[k] || {};
-          return _runField(k, ('default' in pv) ? pv.default : null, { type: pv.type, description: pv.description });
-        }).join('')
-      : '<p class="muted" style="font-size:0.82em">No parameters.</p>';
-
-    var infoPanel =
-      '<div class="pcard-infopanel">' +
-        _pcardInfoRow('configure', 'Config', nCfg) +
-        _pcardInfoRow('inputs', 'Inputs', 0) +
-        _pcardInfoRow('outputs', 'Outputs', 0) +
-      '</div>';
-
-    var configBody =
-      '<div class="cfg-list" data-role="cfg">' + cfgFields + '</div>' +
-      _cfgJsonTools() +
-      '<div class="pcard-config-actions">' +
-        '<button class="btn-mini pcard-apply" type="button" onclick="_applyCompositeConfig(this)" title="Apply parameters &amp; re-resolve the Explore bigraph">✓ Apply</button>' +
-        '<button class="btn-mini" type="button" onclick="_resetCompositeConfig(this)" title="Reset to declared defaults">↺ Reset</button>' +
-        _cfgJsonToggle() +
-        '<span class="pcard-apply-status muted" data-role="apply-status"></span>' +
-      '</div>';
-
-    var topNote = '<p class="muted pcard-toplevel-note">Top-level composite — its interface is the internal wiring (see Explore), not bridge ports.</p>';
-    var runBar = _pcardRunBar(
-      // The ▶ RUN label IS the run button (its whole side of the bar), with the
-      // Steps selector beside it — no separate Run button on the right.
-      c.read_only
-        ? '<span class="pcard-run-go pcard-run-go-disabled" aria-disabled="true">▶ Run</span>' +
-          '<span class="muted pcard-run-note">read-only composite — enable running inside Explore to run in place</span>'
-        : '<button class="pcard-run-go" type="button" onclick="_runComposite(this)">▶ Run</button>' +
-          '<label class="loom-run-field loom-run-interval-field">Steps <input type="number" step="1" min="1" class="pcard-run-time" placeholder="e.g. 10"></label>');
-
-    // Outputs = the launched run's live status → its visualizations. A composite
-    // run is detached; _runComposite stores the run_id and _pollCompositeRun
-    // fills this panel (progress → viz_html on completion).
-    var outputsBody =
-      _compositeOutControls(c) +
-      '<div class="pcard-out-panel" data-role="out-panel">' + _compositeOutIdle() + '</div>';
-    var addr = c.module ? (c.module + '.' + c.name) : c.id;
-
-    return '<div class="registry-entry registry-entry-full loom-runnable pcard pcard-accordion pcard-composite' + sel +
-        '" data-address="' + _esc(c.id) + '" data-kind="composite">' +
-      '<div class="loom-card loom-card-stack loom-card-composite">' +
-        '<div class="pcard-top">' +
-          '<div class="pcard-header pcard-title" onclick="_pinCardTop(this)" ondblclick="event.stopPropagation();_maximizeCardFromHeader(this)" title="Click to pin to top · double-click to maximize">' +
-            '<span class="loom-name">' + _esc(c.name) + '</span>' + _compositeBadge() + wsPill + roPill +
-            '<code class="loom-addr">' + _esc(addr) + '</code>' +
-            _compositeJsonBtn() +
-            _cardMaximizeBtn() +
-            _cardPopoutBtn(c.id, 'composite') +
-          '</div>' +
-          '<div class="pcard-summary">' +
-            '<div class="pcard-desc-col">' +
-              '<div class="pcard-contract-meta" data-role="contract-meta">composite · <strong>' + nCfg + '</strong> param' + (nCfg === 1 ? '' : 's') + '</div>' +
-              (function () { var s = _regStatsHtml(c); return s ? '<div class="reg-card-stats pcard-usage">' + s + '</div>' : ''; })() +
-              (desc ? '<p class="loom-desc pcard-desc-clamp" onclick="_pcardToggleDesc(this)" title="Click to expand / collapse">' + _esc(desc) + '</p>' : '') +
-            '</div>' +
-          '</div>' +
-          '<div class="pcard-json-view" data-role="composite-json" hidden>' +
-            '<div class="pcard-json-body"></div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="pcard-acc">' +
-          _pcardSection('explore', 'Explore', '<span class="pcard-sec-hint">◆ Interactive bigraph — click to open</span>', _compositeLoomExplore(c), { wide: true, feature: true }) +
-          _pcardSection('configure', 'Configure', '<span class="pcard-sec-count">' + nCfg + '</span><span class="pcard-config-chips" data-role="config-chips" hidden></span>', configBody, { resizable: true }) +
-          _pcardSection('inputs', 'Inputs', '<span class="pcard-sec-count">0</span>', topNote) +
-          runBar +
-          _pcardSection('outputs', 'Outputs', '', outputsBody) +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }
-  window._renderCompositeCardFull = _renderCompositeCardFull;
+  // _renderCompositeCardFull moved to static/composite-card.js
+  // (study-spine-reorg Task 6) — shared verbatim with the Study Detail Model
+  // tab. composite-card.js loads before this file and exports it on
+  // `window`, so callers below (_enterPopcardMode/_enterMaxcardMode/etc.)
+  // keep working unchanged.
 
   // Apply edited parameters → re-resolve the Explore bigraph with the overrides.
   function _applyCompositeConfig(btn) {
@@ -3176,6 +3852,11 @@
         if (status) { status.textContent = '✗ ' + msg; status.classList.add('pcard-apply-err'); }
         if (host) host.innerHTML = '<div class="loom-run-err" style="padding:10px">✗ ' + _esc(String(msg)) + '</div>';
         return;   // do NOT reload the loom — it would show a stale/default graph
+      }
+      // Update the card's "· N processes" meta from the re-resolved bigraph —
+      // if the applied config structurally changed the process set, it reflects it.
+      if (j.state && window._setCompositeProcCount && window._countCompositeProcs) {
+        try { window._setCompositeProcCount(card, window._countCompositeProcs(j.state)); } catch (e) {}
       }
       if (embed) {
         embed._overrides = JSON.stringify(cfg);
@@ -3210,6 +3891,32 @@
   }
   window._resetCompositeConfig = _resetCompositeConfig;
 
+  // item 20a: shared pre-dispatch gate for every live /api/composite-test-run
+  // launcher below (_runComposite's inline pcard Run bar, _ceTestRun's
+  // Composite Explorer Test Run panel) -- before a remote-pinned deployment
+  // dispatches to AWS Batch, fetch the server-resolved
+  // repo/branch/commit/simulator_id and require explicit confirmation
+  // (mirrors study-detail.js's _dispatchRemotePinned), so a workspace-
+  // identity mismatch is caught here, before money gets spent, not
+  // discovered afterward via aws batch describe-jobs. A plain local-engine
+  // run (unchanged, pre-existing behavior) fires with no confirm.
+  function _confirmRemoteDispatchThen(fireFn, cancelFn) {
+    apiFetch('GET', '/api/remote-run-config').then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (cfg) {
+      cfg = cfg || {};
+      if (cfg.pinned) {
+        var msg = 'Dispatch to AWS Batch:\n\n' +
+          '  repo:    ' + (cfg.repo_url || '(unknown)') + '\n' +
+          '  branch:  ' + (cfg.branch || '(unknown)') + '\n' +
+          '  commit:  ' + ((cfg.commit || '(unknown)').slice(0, 12)) + '\n' +
+          '  simulator id: ' + (cfg.simulator_id != null ? cfg.simulator_id : '(unknown)') + '\n\n' +
+          'Proceed?';
+        if (!confirm(msg)) { if (cancelFn) cancelFn(); return; }
+      }
+      fireFn();
+    });
+  }
+  window._confirmRemoteDispatchThen = _confirmRemoteDispatchThen;
+
   // Launch a composite run directly (no modal): POST /api/simulation with the
   // inline Time (t_end), the Configure params as overrides, and an auto name.
   // Detached run — feedback + a link to Runs; the "Configure & Run" modal is
@@ -3241,32 +3948,35 @@
         if (checked.length < obsCbs.length) payload.emit_paths = checked;
       }
     }
-    var orig = btn.textContent; btn.disabled = true; btn.textContent = 'Launching…';
-    if (status) { status.classList.remove('pcard-apply-err'); status.textContent = 'launching run…'; }
-    fetch(_api('/api/composite-test-run'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
-      .then(function (res) {
-        var rid = res.j && res.j.run_id;
-        if ((res.status === 202 || rid) && rid) {
-          // Keep the ▶ RUN button as a live "Running…" indicator until the poll
-          // resolves; the Outputs section auto-drops-down when results are READY
-          // (see _pollCompositeRun's completed / failed branches).
-          btn.disabled = true; btn.textContent = '⏳ Running…';
-          card._runBtn = btn; card._runBtnOrig = orig;
-          if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '<span class="pcard-run-live">● running…</span>'; }
-          _pollCompositeRun(card, rid);
-        } else if (res.status === 202 || rid) {
-          btn.disabled = false; btn.textContent = orig;
-          if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '✓ launched — tracking in Outputs'; }
-        } else if (res.status === 429) {
-          btn.disabled = false; btn.textContent = orig;
-          setErr('too many runs in progress — try again shortly');
-        } else {
-          btn.disabled = false; btn.textContent = orig;
-          setErr('✗ ' + ((res.j && res.j.error) || ('HTTP ' + res.status)));
-        }
-      })
-      .catch(function (e) { btn.disabled = false; btn.textContent = orig; setErr('network error: ' + String(e)); });
+    var orig = btn.textContent;
+    _confirmRemoteDispatchThen(function () {
+      btn.disabled = true; btn.textContent = 'Launching…';
+      if (status) { status.classList.remove('pcard-apply-err'); status.textContent = 'launching run…'; }
+      apiFetch('POST', '/api/composite-test-run', payload)
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+        .then(function (res) {
+          var rid = res.j && res.j.run_id;
+          if ((res.status === 202 || rid) && rid) {
+            // Keep the ▶ RUN button as a live "Running…" indicator until the poll
+            // resolves; the Outputs section auto-drops-down when results are READY
+            // (see _pollCompositeRun's completed / failed branches).
+            btn.disabled = true; btn.textContent = '⏳ Running…';
+            card._runBtn = btn; card._runBtnOrig = orig;
+            if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '<span class="pcard-run-live">● running…</span>'; }
+            _pollCompositeRun(card, rid);
+          } else if (res.status === 202 || rid) {
+            btn.disabled = false; btn.textContent = orig;
+            if (status) { status.classList.remove('pcard-apply-err'); status.innerHTML = '✓ launched — tracking in Outputs'; }
+          } else if (res.status === 429) {
+            btn.disabled = false; btn.textContent = orig;
+            setErr('too many runs in progress — try again shortly');
+          } else {
+            btn.disabled = false; btn.textContent = orig;
+            setErr('✗ ' + ((res.j && res.j.error) || ('HTTP ' + res.status)));
+          }
+        })
+        .catch(function (e) { btn.disabled = false; btn.textContent = orig; setErr('network error: ' + String(e)); });
+    }, function () { setErr('Cancelled.'); });
   }
   window._runComposite = _runComposite;
 
@@ -3365,6 +4075,10 @@
       })
       .catch(function () { apply({}, {}, {}); });
   }
+  // Exported: static/composite-card.js's _pcardToggleSec (moved out in the
+  // study-spine-reorg Task 6 extraction) calls this as a global for
+  // non-composite (process) cards.
+  window._loadFullRunFields = _loadFullRunFields;
 
   // Load resolved defaults for runnable Full cards as they scroll into view, so
   // the Full zoom doesn't fire N template fetches for every process at once.
@@ -3379,53 +4093,9 @@
     cards.forEach(function (c) { io.observe(c); });
   }
 
-  // One config parameter as an organized ROW: name · declared type · value
-  // field (prefilled with the default). `opts.type` is the declared type label,
-  // `opts.description` a hover/explainer line. The input carries the vtype the
-  // collectors (_collectCardConfig / run) read back.
-  function _runField(key, value, opts) {
-    opts = opts || {};
-    var t = (value === null) ? 'null' : (Array.isArray(value) ? 'json' : typeof value);
-    var attr = 'class="loom-cfg-field" data-key="' + _esc(key) + '" data-vtype="';
-    var input;
-    if (t === 'boolean') {
-      input = '<input type="checkbox" ' + attr + 'boolean"' + (value ? ' checked' : '') + '>';
-    } else if (t === 'number') {
-      input = '<input type="number" step="any" ' + attr + 'number" value="' + _esc(String(value)) + '">';
-    } else if (t === 'string') {
-      input = '<input type="text" ' + attr + 'string" value="' + _esc(value) + '">';
-    } else {
-      var jv = ''; try { jv = JSON.stringify(value); } catch (e) { jv = ''; }
-      input = '<input type="text" ' + attr + 'json" value="' + _esc(jv) + '" placeholder="JSON / null">';
-    }
-    var typeLabel = opts.type || '';
-    var desc = (opts.description || '').trim();
-    return '<div class="cfg-row"' + (desc ? ' title="' + _esc(desc) + '"' : '') + '>' +
-        '<div class="cfg-row-name">' +
-          '<span class="cfg-key">' + _esc(key) + '</span>' +
-          (typeLabel ? '<span class="cfg-type">' + _esc(typeLabel) + '</span>' : '') +
-        '</div>' +
-        '<div class="cfg-row-input">' + input + '</div>' +
-        (desc ? '<div class="cfg-row-desc">' + _esc(desc) + '</div>' : '') +
-      '</div>';
-  }
+  // _runField / _cfgJsonTools / _cfgJsonToggle moved to
+  // static/composite-card.js (study-spine-reorg Task 6).
 
-  // "Set via JSON" panel — paste a JSON object to override matching config
-  // fields in one shot. Shared by process + composite Configure sections.
-  function _cfgJsonTools() {
-    return '<div class="cfg-json" hidden data-role="cfg-json">' +
-        '<textarea class="cfg-json-box" spellcheck="false" rows="4" ' +
-          'placeholder=\'{ "param": value, … }  — overrides the matching fields above\'></textarea>' +
-        '<div class="cfg-json-actions">' +
-          '<button class="btn-mini" type="button" onclick="_applyConfigJson(this)">Load into fields</button>' +
-          '<span class="cfg-json-status muted"></span>' +
-        '</div>' +
-      '</div>';
-  }
-  function _cfgJsonToggle() {
-    return '<button class="btn-mini cfg-json-toggle" type="button" onclick="_toggleConfigJson(this)" ' +
-      'title="Paste a JSON object to set several parameters at once">{ } Set via JSON</button>';
-  }
   // Reveal/hide the JSON panel; on reveal, prefill it with the current values.
   function _toggleConfigJson(btn) {
     var body = btn.closest('.pcard-sec-body') || btn.closest('.pcard-region-body'); if (!body) return;
@@ -3847,21 +4517,50 @@
     var orig = btn.textContent;
     btn.disabled = true; btn.textContent = 'Running…';
     out.innerHTML = '<div class="muted" style="font-size:0.85em">Running…</div>';
-    fetch('/api/registry/run-process', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address: address, config: config, inputs: inputs, interval: interval }),
-    })
+    apiFetch('POST', '/api/registry/run-process', { address: address, config: config, inputs: inputs, interval: interval })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         btn.disabled = false; btn.textContent = orig;
         if (j && j.ok) {
           card._lastOutputs = j.outputs;
           if (typeof _ensureOutputsOpen === 'function') _ensureOutputsOpen(card);
-          var dl = card.querySelector('.pcard-dl'); if (dl) { dl.disabled = false; dl.title = 'Download outputs (JSON)'; }
-          out.innerHTML = '<div class="loom-run-ok">✓ ran — outputs' +
-            '<button class="btn-mini loom-copy-btn" onclick="_copyRunOutput(this)" title="Copy outputs JSON">⧉ Copy</button></div>' +
-            _jsonViewer(j.outputs) +
-            '<pre class="loom-run-raw" hidden>' + _esc(JSON.stringify(j.outputs, null, 2)) + '</pre>';
+          // Distinguish a run that produced actual VALUES from one that returned
+          // only structure. A single isolated update() on the default empty
+          // state is common for multi-entity processes: they return a delta
+          // keyed per agent/cell/field entry, so with zero agents/cells the
+          // output is a "shell" like {agents:{}} / {cells:{}} / {fields:{}} —
+          // ok:true, non-empty at the top level, but with no leaf data. A bare
+          // Object.keys()==0 check misses those shells, so walk for any leaf: a
+          // scalar (incl. 0 / false / "") is data; an empty container is not.
+          var _hasData = function (v) {
+            if (v === null || v === undefined) return false;
+            if (Array.isArray(v)) return v.some(_hasData);
+            if (typeof v === 'object') return Object.keys(v).some(function (k) { return _hasData(v[k]); });
+            return true;
+          };
+          var _o = j.outputs;
+          if (!_hasData(_o)) {
+            // Shell (e.g. {agents:{}}) vs literal {}/null/[] — show the shell's
+            // structure in a collapsible so the user sees WHAT came back empty.
+            var _literalEmpty = (_o === null || _o === undefined) ||
+              (Array.isArray(_o) ? _o.length === 0 :
+                (typeof _o === 'object' ? Object.keys(_o).length === 0 : false));
+            var _rawDetails = _literalEmpty ? '' :
+              '<details style="margin-top:4px"><summary style="cursor:pointer">raw output</summary>' +
+              '<pre style="font-size:0.8em;white-space:pre-wrap;margin:4px 0 0">' +
+              _esc(JSON.stringify(_o, null, 2)) + '</pre></details>';
+            out.innerHTML = '<div class="loom-run-ok">✓ ran — no data produced</div>' +
+              '<div class="muted" style="font-size:0.85em;margin-top:4px">The process ran but returned no values. ' +
+              'Many processes emit a delta keyed per agent/cell/field entry, so a single run on the default empty ' +
+              'state has nothing to populate — seed state (agents, a sized field) in Configure, or run it inside ' +
+              'its composite. This is expected, not an error.' + _rawDetails + '</div>';
+          } else {
+            var dl = card.querySelector('.pcard-dl'); if (dl) { dl.disabled = false; dl.title = 'Download outputs (JSON)'; }
+            out.innerHTML = '<div class="loom-run-ok">✓ ran — outputs' +
+              '<button class="btn-mini loom-copy-btn" onclick="_copyRunOutput(this)" title="Copy outputs JSON">⧉ Copy</button></div>' +
+              _jsonViewer(j.outputs) +
+              '<pre class="loom-run-raw" hidden>' + _esc(JSON.stringify(j.outputs, null, 2)) + '</pre>';
+          }
         } else {
           var stage = (j && j.stage) ? '[' + j.stage + '] ' : '';
           out.innerHTML = '<div class="loom-run-err">✗ ' + _esc(stage) + _esc((j && j.error) || 'run failed') + '</div>' +
@@ -3876,37 +4575,9 @@
   window._runRegistryProcess = _runRegistryProcess;
 
   // Copy the run output's JSON to the clipboard.
-  // Collapsible JSON viewer — objects/arrays are <details> nodes (top two
-  // levels open); scalars are typed leaves. Big/nested run outputs stay
-  // navigable instead of a wall of pretty-printed text.
-  function _jsonNode(key, val, depth) {
-    var keyHtml = (key !== null) ? '<span class="jt-key">' + _esc(key) + '</span><span class="jt-colon">:</span> ' : '';
-    if (val === null) return '<div class="jt-row">' + keyHtml + '<span class="jt-null">null</span></div>';
-    if (Array.isArray(val)) {
-      if (!val.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">[ ]</span></div>';
-      var ob = depth < 2 ? ' open' : '';
-      var ab = val.map(function (v, i) { return _jsonNode(String(i), v, depth + 1); }).join('');
-      return '<details class="jt-branch"' + ob + '><summary>' + keyHtml +
-        '<span class="jt-punct">[</span><span class="jt-count">' + val.length + '</span><span class="jt-punct">]</span></summary>' +
-        '<div class="jt-children">' + ab + '</div></details>';
-    }
-    if (typeof val === 'object') {
-      var keys = Object.keys(val);
-      if (!keys.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">{ }</span></div>';
-      var oo = depth < 2 ? ' open' : '';
-      var ob2 = keys.map(function (k) { return _jsonNode(k, val[k], depth + 1); }).join('');
-      return '<details class="jt-branch"' + oo + '><summary>' + keyHtml +
-        '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + '</span><span class="jt-punct">}</span></summary>' +
-        '<div class="jt-children">' + ob2 + '</div></details>';
-    }
-    var t = typeof val;
-    var cls = t === 'number' ? 'jt-num' : (t === 'boolean' ? 'jt-bool' : 'jt-str');
-    var disp = t === 'string' ? '"' + _esc(val) + '"' : _esc(String(val));
-    return '<div class="jt-row">' + keyHtml + '<span class="' + cls + '">' + disp + '</span></div>';
-  }
-  function _jsonViewer(value) {
-    return '<div class="json-viewer">' + _jsonNode(null, value, 0) + '</div>';
-  }
+  // _jsonNode / _jsonViewer (the collapsible JSON viewer) now live in
+  // composite-card.js (loaded before this file); _jsonViewer is exported as a
+  // global, so bare references here keep resolving.
 
   function _copyRunOutput(btn) {
     var out = btn.closest('.loom-run-output');
@@ -3948,10 +4619,10 @@
       return sortDir === 'desc' ? -c : c;
     });
     // Per-column widths (%), persisted across re-renders so a resize sticks.
-    var COLS = ['name', 'kind', 'module', 'use', 'studies', 'success', 'in', 'out', 'source'];
+    var COLS = ['name', 'kind', 'module', 'use', 'studies', 'success', 'in', 'out', 'source', 'code'];
     var W = (window._registryColWidths && window._registryColWidths.length === COLS.length)
       ? window._registryColWidths
-      : [30, 9, 13, 8, 9, 10, 6, 6, 9];
+      : [24, 9, 13, 8, 9, 10, 6, 6, 7, 8];
     window._registryColWidths = W;
     var colgroup = '<colgroup>' + W.map(function (w) { return '<col style="width:' + w + '%">'; }).join('') + '</colgroup>';
     function th(key, label, cls, idx) {
@@ -3970,7 +4641,7 @@
           '" onclick="_selectRegistryEntry(\'' + _esc(p.address || '') + '\')" ondblclick="_zoomInOn(\'' + _esc(p.address || '') + '\')"' +
           ' title="Click to select · double-click to zoom in on this process">' +
         '<td class="reg-td-name" title="' + _esc(p.address || p.name || '') + '"><strong>' + _esc(p.name) + '</strong> <code>' + _esc(p.address || '') + '</code></td>' +
-        '<td class="reg-td-kind">' + (_procKindBadge(p.kind) || _esc(_procKindLabel(p.kind))) + '</td>' +
+        '<td class="reg-td-kind">' + (_procKindBadge(p.kind) || _esc(_procKindLabel(p.kind))) + _procBridgeBadge(p) + '</td>' +
         '<td title="' + _esc(mod(p)) + '">' + _esc(mod(p)) + '</td>' +
         '<td class="num">' + (p.use_count || 0) + '</td>' +
         '<td class="num">' + ((p.study_participation || {}).studies || 0) + '</td>' +
@@ -3978,12 +4649,16 @@
         '<td class="num">' + _nPorts(p.inputs) + '</td>' +
         '<td class="num">' + _nPorts(p.outputs) + '</td>' +
         '<td class="reg-td-src">' + _esc(p.source || '') + '</td>' +
+        '<td>' + (/^(process|step)$/.test(p.kind || 'process') && p.address
+          ? '<button type="button" class="reg-cfgports-btn js-code-btn" title="View / edit this process\'s source"' +
+            ' onclick="event.stopPropagation();window.ProcessCode&&ProcessCode.open(\'' + _esc(p.address) + '\')">&lt;/&gt; Code</button>'
+          : '') + '</td>' +
       '</tr>';
     }).join('');
     el.innerHTML = '<div class="registry-table-wrap"><table class="registry-table reg-table-fill">' + colgroup + '<thead><tr>' +
       th('name', 'Name', '', 0) + th('kind', 'Type', '', 1) + th('module', 'Module', '', 2) + th('use', 'Uses', 'num', 3) +
       th('studies', 'Studies', 'num', 4) + th('success', 'Success', 'num', 5) +
-      th('in', 'In', 'num', 6) + th('out', 'Out', 'num', 7) + th('source', 'Source', '', 8) +
+      th('in', 'In', 'num', 6) + th('out', 'Out', 'num', 7) + th('source', 'Source', '', 8) + th('code', 'Code', '', 9) +
       '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
 
@@ -4016,15 +4691,7 @@
   }
   window._startColResize = _startColResize;
 
-  // Percent-success cell/chip from a study_participation stat (pass/total of
-  // report-card outcomes across participating studies). '—' when none ran.
-  function _successCell(sp) {
-    if (!sp || sp.success_pct == null || !sp.total) return '<span class="muted">—</span>';
-    var pct = sp.success_pct;
-    var cls = pct >= 80 ? 'reg-succ-hi' : (pct >= 50 ? 'reg-succ-mid' : 'reg-succ-lo');
-    return '<span class="reg-succ ' + cls + '" title="' + sp.pass + ' / ' + sp.total +
-      ' report-card outcomes passed across participating studies">' + pct + '%</span>';
-  }
+  // _successCell moved to static/composite-card.js (study-spine-reorg Task 6).
   function _setRegistryTableSort(key) {
     if (window._registryTableSort === key) {
       window._registryTableDir = (window._registryTableDir === 'desc') ? 'asc' : 'desc';
@@ -4140,24 +4807,37 @@
     var _sortKey = window._registrySort || 'use';
     var primary = inWs.concat(framework).sort(function(a, b) { return _registryGridCmp(a, b, _sortKey); });
     envOnly.sort(function(a, b) { return _registryGridCmp(a, b, _sortKey); });
+    var _hasEnv = envOnly.length > 0;
     if (primary.length) {
+      // Only label the workspace group when there's also an environment group to
+      // separate it from — a single group needs no header.
+      if (_hasEnv) {
+        html += '<div class="reg-section-header" style="margin:2px 0 8px;font-size:0.82em;' +
+          'font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#475569">' +
+          'Declared in this workspace <span style="color:#9ca3af;font-weight:600">' + primary.length + '</span></div>';
+      }
       html += '<div class="' + cardsCls + '">' + primary.map(_renderRegistryEntry).join('') + '</div>';
     } else {
       html += '<p class="empty-state muted" style="font-size:0.9em">No workspace-declared entries of this kind.</p>';
     }
 
-    // Environment-only entries: collapsible section, dimmed.
-    if (envOnly.length) {
+    // Environment entries: a clearly-labeled, always-visible section rendered at
+    // FULL opacity and equally interactive. (Previously dimmed via opacity:0.6
+    // AND collapsed behind a <details>, which hid e.g. EcoliWCM and made imported
+    // processes second-class.) Kept visually separated from the workspace-declared
+    // entries by a header + a top rule — not by fading them out.
+    if (_hasEnv) {
       html +=
-        '<details class="registry-env-section" style="margin-top:12px">' +
-        '<summary style="cursor:pointer;color:#6b7280;font-size:0.9em;padding:4px 0">' +
-        'Also available in environment (' + envOnly.length + ') — not declared in workspace.yaml' +
-        '</summary>' +
-        '<div class="' + cardsCls + '" style="opacity:0.6;margin-top:6px">' +
-        envOnly.map(_renderRegistryEntry).join('') +
-        '</div>' +
-        '<p style="font-size:0.8em;color:#9ca3af;margin:4px 0 0">Run <code>/pbg-install &lt;pkg&gt;</code> to add a package to this workspace\'s imports.</p>' +
-        '</details>';
+        '<div class="registry-env-section" style="margin-top:18px;padding-top:12px;' +
+        'border-top:1px solid var(--border,#e5e7eb)">' +
+        '<div class="reg-section-header" style="margin:0 0 8px;font-size:0.82em;font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:0.04em;color:#475569">' +
+        'Available in environment <span style="color:#9ca3af;font-weight:600">' + envOnly.length + '</span>' +
+        '<span style="font-weight:500;text-transform:none;letter-spacing:0;color:#9ca3af;font-size:0.92em">' +
+        ' — installed but not declared in this workspace’s <code>imports:</code></span></div>' +
+        '<div class="' + cardsCls + '">' + envOnly.map(_renderRegistryEntry).join('') + '</div>' +
+        '<p style="font-size:0.8em;color:#9ca3af;margin:8px 0 0">Run <code>/pbg-install &lt;pkg&gt;</code> to add a package to this workspace\'s imports.</p>' +
+        '</div>';
     }
 
     el.innerHTML = html;
@@ -4197,7 +4877,17 @@
     var entries = vizEntries || [];
     var analyses = entries.filter(function(c) { return c.kind === 'analysis'; })
       .map(function (c) { return { name: c.name, address: c.address, description: c.doc || '', kind: 'analysis', source: 'framework' }; });
-    var vizzes   = entries.filter(function(c) { return c.kind !== 'analysis'; });
+    // Merge the address-classified workspace analyses (kind=step under ….analyses.…,
+    // which /api/visualization-classes doesn't enumerate) so they render in the
+    // Analyses tab instead of Processes. Dedupe by name (viz-classes entry wins).
+    var _seenA = {};
+    analyses.forEach(function (a) { _seenA[(a.name || '').trim()] = true; });
+    (window._addrClassifiedAnalyses || []).forEach(function (a) {
+      var nm = (a.name || '').trim();
+      if (nm && !_seenA[nm]) { _seenA[nm] = true; analyses.push(a); }
+    });
+    var cards    = entries.filter(function(c) { return c.kind === 'report_card' || c.kind === 'test'; });
+    var vizzes   = entries.filter(function(c) { var k = c.kind; return k !== 'analysis' && k !== 'report_card' && k !== 'test'; });
 
     // Analyses tab — same card renderers as everything else (grid/full/table),
     // and registered so semantic-zoom re-renders pick them up.
@@ -4216,14 +4906,42 @@
       .map(function(c) {
         return { name: c.name, address: c.address, source: 'framework', aliases: [] };
       });
+    // Union of build_core viz entries + catalog-only ones. Re-render (source
+    // grouping) when there are extras, and — symmetrically with the Analyses
+    // count above — keep the Visualizations count badge in sync. The initial
+    // setCount ran off build_core's registry (byKind.visualization, often 0);
+    // the real viz classes arrive here via /api/visualization-classes.
+    var current = (window._registryVizEntries || []);
+    var union = current.concat(extra);
     if (extra.length) {
       var container = document.getElementById('registry-visualizations-container');
-      if (container) {
-        // Re-render with the union so source grouping stays correct.
-        var current = (window._registryVizEntries || []);
-        _renderRegistryGrid('registry-visualizations-container', current.concat(extra));
-      }
+      if (container) _renderRegistryGrid('registry-visualizations-container', union);
     }
+    window._registryVizEntries = union;
+    var vCount = document.getElementById('registry-visualization-count');
+    if (vCount) vCount.textContent = union.length;
+
+    // Tests tab (report cards) — merge the framework TEST_REGISTRY / report-card
+    // classes from the catalog with any build_core-registered ones, and keep the
+    // count in sync, symmetrically with Analyses + Visualizations above. Without
+    // this the report-card classes never surface (build_core's report_card kind
+    // is usually empty) and the "Tests" count stays 0.
+    var rcExisting = {};
+    document.querySelectorAll('#registry-report_cards-container .registry-entry strong')
+      .forEach(function(s) { rcExisting[(s.textContent || '').trim()] = true; });
+    var rcExtra = cards.filter(function(c) { return !rcExisting[(c.name || '').trim()]; })
+      .map(function(c) {
+        return { name: c.name, address: c.address, description: c.doc || '', source: 'framework', kind: 'report_card' };
+      });
+    var rcCurrent = ((window._registryByKind || {})['registry-report_cards-container'] || []);
+    var rcUnion = rcCurrent.concat(rcExtra);
+    if (rcExtra.length) {
+      (window._registryByKind = window._registryByKind || {})['registry-report_cards-container'] = rcUnion;
+      var rcContainer = document.getElementById('registry-report_cards-container');
+      if (rcContainer) _renderRegistryGrid('registry-report_cards-container', rcUnion);
+    }
+    var rcCount = document.getElementById('registry-report_card-count');
+    if (rcCount) rcCount.textContent = rcUnion.length;
   }
   window._enrichRegistryWithVizClasses = _enrichRegistryWithVizClasses;
 
@@ -4254,8 +4972,80 @@
     // Re-apply filter to the now-visible panel.
     var q = (document.getElementById('registry-search') || {value: ''}).value;
     _filterRegistry(q);
+    _renderRegistryNewActions(kind);
   }
   window._setRegistryTab = _setRegistryTab;
+
+  // <find-candidates>
+  // Registry "Find candidates" panel: enter a face, list registered processes
+  // that fit it via POST /api/find-candidates. The renderer is pure.
+  function _renderCandidateList(result) {
+    var r = result || {};
+    var note = function (t) { return '<div class="fc-note fc-muted">' + t + '</div>'; };
+    if (r.status === 'unavailable') return note('contract matching unavailable');
+    if (r.status === 'error') return note('Error: ' + _esc(r.error || 'request failed'));
+    var cands = Array.isArray(r.candidates) ? r.candidates : [];
+    if (!cands.length) return note('no matching processes');
+    return '<ul class="fc-list">' + cands.map(function (c) {
+      var full = c.match === 'full';
+      var tag = '<span class="fc-tag ' + (full ? 'fc-full' : 'fc-near') + '">' +
+        (full ? 'full' : 'near-miss') + '</span>';
+      var fails = (!full && Array.isArray(c.fails) && c.fails.length)
+        ? '<ul class="fc-fails">' + c.fails.map(function (f) {
+            return '<li><code>' + _esc(f && f.condition) + '</code> ' + _esc(f && f.reason) + '</li>';
+          }).join('') + '</ul>'
+        : '';
+      return '<li class="fc-item"><code class="fc-addr">' + _esc(c.address) + '</code> ' + tag + fails + '</li>';
+    }).join('') + '</ul>';
+  }
+  window._renderCandidateList = _renderCandidateList;
+
+  function _parsePortSpec(text) {
+    var out = {};
+    String(text || '').split(',').forEach(function (tok) {
+      tok = tok.trim();
+      if (!tok) return;
+      var i = tok.indexOf(':');
+      if (i < 0) out[tok] = 'any';
+      else out[tok.slice(0, i).trim()] = tok.slice(i + 1).trim() || 'any';
+    });
+    return out;
+  }
+
+  function _findCandidates() {
+    var inEl = document.getElementById('fc-inputs');
+    var outEl = document.getElementById('fc-outputs');
+    var res = document.getElementById('fc-results');
+    if (!res) return;
+    res.innerHTML = '<div class="fc-note fc-muted">Searching&hellip;</div>';
+    var body = { inputs: _parsePortSpec(inEl && inEl.value), outputs: _parsePortSpec(outEl && outEl.value) };
+    try {
+      apiFetch('POST', '/api/find-candidates', body)
+        .then(function (r) { return r.json(); })
+        .then(function (j) { res.innerHTML = _renderCandidateList(j); })
+        .catch(function (e) { res.innerHTML = _renderCandidateList({ status: 'error', error: String(e && e.message || e) }); });
+    } catch (e) {
+      res.innerHTML = _renderCandidateList({ status: 'error', error: String(e && e.message || e) });
+    }
+  }
+  window._findCandidates = _findCandidates;
+  // </find-candidates>
+
+
+  // Context-aware "+ New" buttons for the active sub-tab. Only process/step and
+  // composite/generator are authorable from here (emitters/viz/types/tests are
+  // framework- or discovery-defined).
+  function _renderRegistryNewActions(kind) {
+    var host = document.getElementById('registry-new-actions');
+    if (!host || !window.ProcessCode) { if (host) host.innerHTML = ''; return; }
+    var btn = function (k, label) {
+      return '<button type="button" class="reg-new-btn" onclick="ProcessCode.openNew(\'' + k + '\')">+ New ' + label + '</button>';
+    };
+    if (kind === 'process') host.innerHTML = btn('process', 'process') + btn('step', 'step');
+    else if (kind === 'composite') host.innerHTML = btn('spec', 'composite') + btn('generator', 'generator');
+    else host.innerHTML = '';
+  }
+  window._renderRegistryNewActions = _renderRegistryNewActions;
 
   // Data-driven filter: store the query and re-render so it works uniformly
   // across the Table / Cards / Full layouts (the old per-.registry-entry DOM
@@ -4299,19 +5089,26 @@
   }
 
   // Composite ordering for the Sort control. Composites carry study info under
-  // `studies` (an object with .studies/.success_pct) and `workspace_local`
-  // instead of a process's `study_participation`/`source`, and have no
-  // Temporal/Step kind or use-count — so they get their own comparator.
+  // `studies` (an object with .studies/.success_pct) instead of a process's
+  // `study_participation`, and have no Temporal/Step kind or use-count — so they
+  // get their own comparator.
+  //
+  // Workspace-vs-imported: `workspace_local` is unreliable (the API reports it
+  // False even for a workspace's own composite), so editable-vs-imported is read
+  // off `read_only` (imported modules are read-only) — with workspace_local as an
+  // OR fallback. "Most used" ranks by study count (ecoli_baseline, with the most
+  // studies, floats to the top) rather than merely keeping workspace entries first.
   function _compositeSortCmp(a, b, key) {
     function studies(c) { return ((c.study_participation || c.studies || {}).studies) || 0; }
     function succ(c) { var s = (c.study_participation || c.studies || {}).success_pct; return s == null ? -1 : s; }
+    function wsRank(c) { return ((c.workspace_local === true) || (c.read_only === false)) ? 0 : 1; }
     var byName = String(a.name || '').localeCompare(String(b.name || ''));
-    var wsFirst = (a.workspace_local ? 0 : 1) - (b.workspace_local ? 0 : 1);
+    var wsFirst = wsRank(a) - wsRank(b);   // workspace/editable composites before imported
     if (key === 'name') return byName;
-    if (key === 'studies') return (studies(b) - studies(a)) || byName;
-    if (key === 'success') return (succ(b) - succ(a)) || byName;
+    if (key === 'studies') return (studies(b) - studies(a)) || wsFirst || byName;
+    if (key === 'success') return (succ(b) - succ(a)) || wsFirst || byName;
     if (key === 'source') return wsFirst || byName;
-    return wsFirst || byName;   // 'use' (default) / 'kind' — keep workspace-first, then name
+    return (studies(b) - studies(a)) || wsFirst || byName;   // 'use' (default) — most-referenced (by studies) first
   }
 
   function _registryEntryMatches(p) {
@@ -4367,7 +5164,7 @@
     if (status) status.textContent = '';
     var _p = window.DataSource
       ? window.DataSource.loadRegistry(refresh)
-      : fetch('/api/registry' + (refresh ? '?refresh=1' : '')).then(function(r) { return r.json(); });
+      : apiFetch('GET', '/api/registry' + (refresh ? '?refresh=1' : '')).then(function(r) { return r.json(); });
     _p
       .then(function(data) {
         if (status) {
@@ -4394,14 +5191,38 @@
         // Processes and Steps share one "Processes" tab — both are Processes
         // (edges); each card/row is badged Temporal vs Step (_procKindBadge).
         var procsAndSteps = byKind.process.concat(byKind.step);
+        // Analysis/visualization classes are mechanically Steps (they subclass
+        // Step), so build_core reports them as kind=step and they'd otherwise pile
+        // into the Processes tab even though they each have their own tab. Route
+        // them by the module-path convention (….analyses.… / ….visualizations.…)
+        // so a class shows under exactly one tab; genuine processes/steps stay put.
+        // (/api/visualization-classes only enumerates framework analyses, not the
+        // workspace's own sms_modules.analyses.* — hence the path-based split here.)
+        var _addrCat = function (e) {
+          var s = '.' + String(e.address || '').toLowerCase() + '.';
+          if (s.indexOf('.analyses.') >= 0 || s.indexOf('.analysis.') >= 0) return 'analysis';
+          if (s.indexOf('.visualizations.') >= 0 || s.indexOf('.visualization.') >= 0) return 'visualization';
+          return 'process';
+        };
+        var realProcs = [], addrAnalyses = [], addrViz = [];
+        procsAndSteps.forEach(function (p) {
+          var c = _addrCat(p);
+          if (c === 'analysis') addrAnalyses.push(Object.assign({}, p, {kind: 'analysis'}));
+          else if (c === 'visualization') addrViz.push(p);
+          else realProcs.push(p);
+        });
+        byKind.visualization = byKind.visualization.concat(addrViz);
+        // Stashed for _enrichRegistryWithVizClasses to merge into the Analyses tab
+        // (deduped by name) alongside the /api/visualization-classes analyses.
+        window._addrClassifiedAnalyses = addrAnalyses;
         window._registryByKind = {
-          'registry-processes-container': procsAndSteps,
+          'registry-processes-container': realProcs,
           'registry-emitters-container': byKind.emitter,
           'registry-visualizations-container': byKind.visualization,
           'registry-report_cards-container': byKind.report_card,
         };
         // Render tabbed Registry browser (Registry page).
-        _renderRegistryGrid('registry-processes-container', procsAndSteps);
+        _renderRegistryGrid('registry-processes-container', realProcs);
         _renderRegistryGrid('registry-emitters-container', byKind.emitter);
         window._registryVizEntries = byKind.visualization;
         _renderRegistryGrid('registry-visualizations-container', byKind.visualization);
@@ -4430,7 +5251,7 @@
             ? total + ' total'
             : wsCount + ' from this workspace, ' + (total - wsCount) + ' from environment';
         };
-        setCount('registry-process-count', procsAndSteps);
+        setCount('registry-process-count', realProcs);
         setCount('registry-emitter-count', byKind.emitter);
         setCount('registry-visualization-count', byKind.visualization);
         setCount('registry-report_card-count', byKind.report_card);
@@ -4484,390 +5305,13 @@
   // -------------------------------------------------------------------------
 
   window._composites = [];
-  window._compositesFilter = { search: '', tags: new Set() };
-  window._compositesView = 'grid';
+  // Retained: read by the registry toolbar sync to default the composites view.
   window._compositesZoom = (function () {
     var z; try { z = localStorage.getItem('viv.compositesZoom'); } catch (e) { z = null; }
     return (z === 'table' || z === 'cards' || z === 'loom') ? z : 'cards';
   })();
-  // Default sort: workspace-local composites first, then alphabetical.
-  // Surfaces the composites the current investigation actually needs
-  // ahead of the full list of every installed pbg-* package's composites
-  // — the Composites tab grew unwieldy as more pbg-* packages came
-  // online. Other sorts (name / module / kind) remain available via the
-  // dropdown.
-  window._compositesSort = 'workspace-first';
 
-  function _buildCompositeChips() {
-    var chipsEl = document.getElementById('composite-tag-chips');
-    if (!chipsEl) return;
-    var allTags = [];
-    window._composites.forEach(function(c) {
-      (c.tags || []).forEach(function(t) {
-        if (allTags.indexOf(t) === -1) allTags.push(t);
-      });
-    });
-    allTags.sort();
-    chipsEl.innerHTML = allTags.map(function(t) {
-      return '<button class="card-browse-chip" onclick="_toggleCompositeChip(this,\'' + _esc(t) + '\')">' + _esc(t) + '</button>';
-    }).join('');
-  }
 
-  function _toggleCompositeChip(btn, tag) {
-    if (window._compositesFilter.tags.has(tag)) {
-      window._compositesFilter.tags.delete(tag);
-      btn.classList.remove('active');
-    } else {
-      window._compositesFilter.tags.add(tag);
-      btn.classList.add('active');
-    }
-    _renderComposites();
-  }
-  window._toggleCompositeChip = _toggleCompositeChip;
-
-  function _setCompositeView(view) {
-    window._compositesView = view;
-    var btns = document.querySelectorAll('#composite-toolbar .view-btn');
-    btns.forEach(function(b) {
-      b.classList.toggle('active', b.getAttribute('data-view') === view);
-    });
-    _renderComposites();
-  }
-  window._setCompositeView = _setCompositeView;
-
-  function _setCompositesSort(value) {
-    window._compositesSort = value || 'workspace-first';
-    _renderComposites();
-  }
-  window._setCompositesSort = _setCompositesSort;
-
-  // ---- Composite pinning (localStorage, keyed by composite id) -------------
-  // Pinned composites float to the top of the list, above the sort order. The
-  // pin control is hover-revealed on each card (mirrors the studies-rail pins).
-  function _loadPinnedComposites() {
-    try {
-      var raw = window.localStorage.getItem('viv.pinnedComposites');
-      window._pinnedComposites = raw ? JSON.parse(raw) : [];
-    } catch (e) { window._pinnedComposites = []; }
-    if (!Array.isArray(window._pinnedComposites)) window._pinnedComposites = [];
-    return window._pinnedComposites;
-  }
-  function _isCompositePinned(id) {
-    if (!window._pinnedComposites) _loadPinnedComposites();
-    return window._pinnedComposites.indexOf(id) !== -1;
-  }
-  function _toggleCompositePin(id) {
-    if (!window._pinnedComposites) _loadPinnedComposites();
-    var i = window._pinnedComposites.indexOf(id);
-    if (i === -1) window._pinnedComposites.push(id);
-    else window._pinnedComposites.splice(i, 1);
-    try { window.localStorage.setItem('viv.pinnedComposites', JSON.stringify(window._pinnedComposites)); } catch (e) { /* private mode */ }
-    _renderComposites();
-  }
-  window._toggleCompositePin = _toggleCompositePin;
-  // Hover-revealed pin toggle for a composite card / row. stopPropagation so it
-  // never triggers the card's double-click-to-zoom.
-  function _compositePinBtn(c) {
-    var pinned = _isCompositePinned(c.id);
-    return '<button class="ccard-pin' + (pinned ? ' pinned' : '') + '"' +
-      ' onclick="event.stopPropagation(); _toggleCompositePin(\'' + _esc(c.id) + '\')"' +
-      ' title="' + (pinned ? 'Unpin' : 'Pin to top') + '"' +
-      ' aria-label="' + (pinned ? 'Unpin composite' : 'Pin composite to top') + '">📌</button>';
-  }
-  window._compositePinBtn = _compositePinBtn;
-
-  function _renderComposites() {
-    var container = document.getElementById('composite-cards');
-    if (!container) return;
-    var f = window._compositesFilter;
-    var search = f.search.toLowerCase();
-    var activeTags = f.tags;
-    var composites = window._composites.filter(function(c) {
-      if (search) {
-        var haystack = (c.name + ' ' + (c.description || '') + ' ' + (c.tags || []).join(' ') + ' ' + (c.module || '')).toLowerCase();
-        if (haystack.indexOf(search) === -1) return false;
-      }
-      if (activeTags.size > 0) {
-        var cTags = c.tags || [];
-        var match = false;
-        activeTags.forEach(function(t) { if (cTags.indexOf(t) !== -1) match = true; });
-        if (!match) return false;
-      }
-      return true;
-    });
-
-    // Apply sort toggle (Workspace first / Name / Module / Kind). Ties
-    // break on name. Workspace-first puts composites whose `module` starts
-    // with the workspace's own package prefix (backend-annotated as
-    // `workspace_local: true` on each /api/composites record) at the top,
-    // followed by every-installed-pbg-* composites alphabetically. When
-    // grouping, _renderGroupedComposites below inserts a visual section
-    // divider between the two groups.
-    var sorted = composites.slice();
-    if (window._compositesSort === 'module') {
-      sorted.sort(function(a, b) {
-        return (a.module || '').localeCompare(b.module || '')
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else if (window._compositesSort === 'kind') {
-      sorted.sort(function(a, b) {
-        return (a.kind || '').localeCompare(b.kind || '')
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else if (window._compositesSort === 'passrate') {
-      // Highest report-card pass-rate first; ties → more studies → name.
-      sorted.sort(function(a, b) {
-        function rate(c) { var s = c.studies; return (s && s.total) ? s.pass / s.total : -1; }
-        function used(c) { var s = c.studies; return (s && s.studies) ? s.studies : 0; }
-        return (rate(b) - rate(a)) || (used(b) - used(a))
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else if (window._compositesSort === 'workspace-first') {
-      sorted.sort(function(a, b) {
-        var aw = a.workspace_local ? 0 : 1;
-        var bw = b.workspace_local ? 0 : 1;
-        return (aw - bw)
-          || (a.name || '').localeCompare(b.name || '');
-      });
-    } else {
-      sorted.sort(function(a, b) {
-        return (a.name || '').localeCompare(b.name || '');
-      });
-    }
-    // Pinned composites float to the top, preserving the sort order within the
-    // pinned and unpinned groups.
-    _loadPinnedComposites();
-    if (window._pinnedComposites.length) {
-      var _pins = [], _rest = [];
-      sorted.forEach(function (c) { (_isCompositePinned(c.id) ? _pins : _rest).push(c); });
-      sorted = _pins.concat(_rest);
-    }
-    composites = sorted;
-
-    if (!composites.length) {
-      container.innerHTML = '<p class="empty-state">No composites match the current filter.</p>';
-      container.className = '';
-      return;
-    }
-
-    // Semantic zoom: Table (dense sortable) → Cards (full-row) → Loom (bigraph
-    // embedded on demand per card). The old grid/list toggle is subsumed.
-    var _czoom = window._compositesZoom || 'cards';
-    document.querySelectorAll('#composite-toolbar .reg-zoom-btn').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-czoom') === _czoom);
-    });
-    if (_czoom === 'table') { _renderCompositesTable(container, composites); return; }
-
-    function _moduleLine(c) {
-      var mod = c.module || '';
-      var kind = c.kind || 'spec';
-      var kindBadge = (kind === 'generator')
-        ? ' <span class="kind-badge">generator</span>' : '';
-      if (!mod) return '';
-      return '<div class="composite-module"><small>Module:</small> ' +
-        '<code>' + _esc(mod) + '</code>' + kindBadge + '</div>';
-    }
-    function _wsTag(c) {
-      // Small "📦 workspace" pill on cards whose composite lives in the
-      // workspace's own package. Helps the user scan quickly even when
-      // the workspace-first sort isn't active.
-      return c.workspace_local
-        ? '<span class="composite-ws-tag">📦 workspace</span>' : '';
-    }
-    // Section-divider injector — emits a thin "Other modules" separator
-    // between the last workspace-local item and the first non-local item
-    // when the workspace-first sort is active and both groups are present.
-    // Returns '' otherwise so existing layouts are byte-identical.
-    var _otherCount = composites.filter(function(c) { return !c.workspace_local; }).length;
-    function _maybeDivider(prev, cur) {
-      if (window._compositesSort !== 'workspace-first') return '';
-      if (!prev || !cur) return '';
-      if (prev.workspace_local && !cur.workspace_local) {
-        return '<div class="composite-section-divider">'
-             + '<span>Other installed pbg-* modules'
-             + (_otherCount ? ' (' + _otherCount + ')' : '')
-             + '</span></div>';
-      }
-      return '';
-    }
-
-    var _isSnapshot = document.body.classList.contains('snapshot');
-    if (window._compositesView === 'list') {
-      container.className = 'composite-list';
-      var prevC = null;
-      var rows = composites.map(function(c) {
-        var tagPills = (c.tags || []).map(function(t) {
-          return '<span class="tag-pill">' + _esc(t) + '</span>';
-        }).join('');
-        var divider = _maybeDivider(prevC, c);
-        prevC = c;
-        var exploreBtn = _compositeCardActions(c, 'action-btn', 'action-btn');
-        return divider + '<div class="composite-list-row' + (c.read_only ? ' federated-readonly' : '') + '">' +
-          '<span class="name">' + _esc(c.name) + ' ' + _wsTag(c) + _originBadge(c.origin_repo) + '</span>' +
-          '<span class="desc">' + tagPills + ' ' + _esc(c.description || '(no description)') +
-            _moduleLine(c) +
-          '</span>' +
-          '<span>' + _compositePinBtn(c) + exploreBtn + '</span>' +
-          '</div>';
-      });
-      container.innerHTML = rows.join('');
-    } else {
-      container.className = 'ccard-rows' + (_czoom === 'loom' ? ' ccard-loom' : '');
-      var prevG = null;
-      var cards = composites.map(function(c) {
-        var kind = c.kind || 'spec';
-        // Marker 1 — KIND: generator (builds state from params) vs spec (static
-        // document). One clean pill instead of the old "Module: … generator" line.
-        var kindPill = '<span class="ccard-kind ccard-kind-' + kind + '" title="'
-          + (kind === 'generator'
-              ? 'Generator — builds its state from parameters'
-              : 'Spec — a static composite document') + '">' + kind + '</span>';
-        // Marker 2 — SOURCE: the workspace's own package (green) vs which
-        // installed package it came from (so imported composites name their origin).
-        var srcBadge;
-        if (c.workspace_local) {
-          srcBadge = '<span class="ccard-src ccard-src-ws" title="Defined in this workspace">workspace</span>';
-        } else {
-          var pkg = (c.module || '').split('.')[0].replace(/_/g, '-');
-          srcBadge = pkg
-            ? '<span class="ccard-src" title="From the ' + _esc(pkg) + ' package">' + _esc(pkg) + '</span>'
-            : '';
-        }
-        // Meta row — at-a-glance counts (params / tags / default steps).
-        var paramKeys = Object.keys(c.parameters || {});
-        var meta = [];
-        if (paramKeys.length) meta.push('<span title="configurable parameters">' + paramKeys.length + ' param' + (paramKeys.length === 1 ? '' : 's') + '</span>');
-        if (c.tags && c.tags.length) meta.push('<span title="topic tags">' + c.tags.length + ' tag' + (c.tags.length === 1 ? '' : 's') + '</span>');
-        if (c.default_n_steps) meta.push('<span title="default run length">' + c.default_n_steps + ' steps</span>');
-        var ep = (c.parameters || {}).emitter;
-        if (ep && ep.default) meta.push('<span title="observation sink (emitter)">emitter: ' + _esc(String(ep.default)) + '</span>');
-        var metaRow = meta.length ? '<div class="ccard-meta">' + meta.join('<i>·</i>') + '</div>' : '';
-        // Cross-study track record: usage count + pass/inconclusive/fail bar.
-        var trackRow = '';
-        var st = c.studies;
-        if (st && st.studies) {
-          var tot = st.total || (st.pass + st.inconclusive + st.fail);
-          var pw = tot ? Math.round(100 * st.pass / tot) : 0;
-          var iw = tot ? Math.round(100 * st.inconclusive / tot) : 0;
-          var fw = tot ? (100 - pw - iw) : 0;
-          trackRow = '<div class="ccard-track">' +
-            '<div class="ccard-track-top">used in <strong>' + st.studies + '</strong> stud' + (st.studies === 1 ? 'y' : 'ies') +
-              (tot ? '' : ' <span class="muted">· no report cards yet</span>') + '</div>' +
-            (tot ? '<div class="ccard-bar" title="' + st.pass + ' pass · ' + st.inconclusive + ' inconclusive · ' + st.fail + ' fail">' +
-              '<span class="seg pass" style="width:' + pw + '%"></span>' +
-              '<span class="seg inc" style="width:' + iw + '%"></span>' +
-              '<span class="seg fail" style="width:' + fw + '%"></span></div>' +
-              '<div class="ccard-track-counts">' +
-                '<span class="pass">' + st.pass + ' ✓</span>' +
-                (st.inconclusive ? '<span class="inc">' + st.inconclusive + ' ~</span>' : '') +
-                (st.fail ? '<span class="fail">' + st.fail + ' ✗</span>' : '') +
-              '</div>' : '') +
-          '</div>';
-        }
-        // Lazy structure (process / store counts) — fetched on first expand only.
-        var structRow = '<details class="ccard-struct" ontoggle="_loadCompositeStructure(this,\'' + _esc(c.id) + '\')">' +
-          '<summary>structure</summary>' +
-          '<div class="ccard-struct-body" data-loaded="0"></div></details>';
-        // Config — a collapsed <details> that expands to a per-parameter table
-        // (name · type · default · description). Collapsed keeps the card compact;
-        // expanded gives the full config surface with descriptions.
-        var paramPreview = '';
-        if (paramKeys.length) {
-          var cfgRows = paramKeys.map(function(k) {
-            var p = (c.parameters || {})[k] || {};
-            var t = p.type || '';
-            var dv = (p.default === undefined || p.default === null) ? ''
-              : (typeof p.default === 'object' ? JSON.stringify(p.default) : String(p.default));
-            var desc = p.description || '';
-            return '<div class="ccard-cfg-row">' +
-              '<div class="ccard-cfg-head">' +
-                '<code class="ccard-cfg-name">' + _esc(k) + '</code>' +
-                (t ? '<span class="ccard-cfg-type">' + _esc(t) + '</span>' : '') +
-                (dv !== '' ? '<span class="ccard-cfg-def" title="default">= ' + _esc(dv.length > 44 ? dv.slice(0, 44) + '…' : dv) + '</span>' : '') +
-              '</div>' +
-              (desc ? '<div class="ccard-cfg-desc">' + _esc(desc) + '</div>' : '') +
-            '</div>';
-          }).join('');
-          paramPreview = '<details class="ccard-cfg">' +
-            '<summary>' + paramKeys.length + ' config parameter' + (paramKeys.length === 1 ? '' : 's') + '</summary>' +
-            '<div class="ccard-cfg-body">' + cfgRows + '</div>' +
-          '</details>';
-        }
-        var tagRow = '';
-        if (c.tags && c.tags.length) {
-          tagRow = '<div class="ccard-tags">' + c.tags.slice(0, 5).map(function(t) {
-            return '<span class="ccard-tag">' + _esc(t) + '</span>';
-          }).join('') + (c.tags.length > 5 ? '<span class="ccard-more">+' + (c.tags.length - 5) + '</span>' : '') + '</div>';
-        }
-        var divider = _maybeDivider(prevG, c);
-        prevG = c;
-        var exploreBtn = _compositeCardActions(c, 'ccard-view', 'ccard-explore');
-        var _csel = (window._compositesSelected && window._compositesSelected === c.id) ? ' reg-selected' : '';
-        // Compact full-row card: identity | description | stats | actions across
-        // the bar; config/structure/tags collapse into a details strip below.
-        return divider + '<div class="ccard ccard-compact' + _csel + (c.workspace_local ? ' ccard-ws-card' : '') + (c.read_only ? ' federated-readonly' : '') + '"' +
-            ' data-id="' + _esc(c.id) + '" ondblclick="_compositeCardDblClick(\'' + _esc(c.id) + '\')" title="Double-click to zoom in on this composite">' +
-          '<div class="ccc-grid">' +
-            '<div class="ccc-identity">' +
-              '<div class="ccc-name-row"><span class="ccc-name" title="' + _esc(c.name) + '">' + _esc(c.name) + '</span> ' + kindPill + srcBadge + _originBadge(c.origin_repo) + '</div>' +
-              '<code class="ccc-addr" title="' + _esc(c.id) + '">' + _esc(c.id) + '</code>' +
-            '</div>' +
-            '<div class="ccc-desc" title="' + _esc(c.description || '') + '">' + _esc(c.description || 'No description') + '</div>' +
-            '<div class="ccc-stats">' + metaRow + trackRow + '</div>' +
-            '<div class="ccc-actions">' + _compositePinBtn(c) + exploreBtn + '</div>' +
-          '</div>' +
-          // Config-parameters / structure preview strips removed as low-signal;
-          // tags (if any) still show. Config lives in the loom's Config sidebar.
-          (tagRow ? '<div class="ccc-details-row">' + tagRow + '</div>' : '') +
-          (_czoom === 'loom' ? _compositeLoomEmbed(c) : '') +
-        '</div>';
-      });
-      container.innerHTML = cards.join('');
-      // Cards zoom (not loom): multi-column grid + column control.
-      _syncColsControls();
-      if (_czoom === 'cards') _applyCardCols(container, 'composites');
-      else { container.classList.remove('cards-grid-cols'); container.style.gridTemplateColumns = ''; }
-    }
-  }
-  window._renderComposites = _renderComposites;
-
-  function _setCompositeZoom(z) {
-    window._compositesZoom = z;
-    try { localStorage.setItem('viv.compositesZoom', z); } catch (e) { /* private mode */ }
-    document.querySelectorAll('#composite-toolbar .reg-zoom-btn').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-czoom') === z);
-    });
-    _renderComposites();
-    _updateColsSlotVisibility();   // slider only in Cards zoom (table/loom hidden)
-  }
-  window._setCompositeZoom = _setCompositeZoom;
-
-  // Double-click a composite → zoom in one level (table → cards → loom), focused.
-  function _zoomInComposite(id) {
-    var order = ['table', 'cards', 'loom'];
-    var i = order.indexOf(window._compositesZoom || 'cards');
-    window._compositesSelected = id;
-    _setCompositeZoom(order[Math.min(order.length - 1, i + 1)]);
-    setTimeout(function () {
-      var sel = document.querySelector('#composite-cards [data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
-      if (sel) { sel.classList.add('reg-selected'); try { sel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { /* ignore */ } }
-    }, 60);
-  }
-  window._zoomInComposite = _zoomInComposite;
-
-  // Loom (Full) zoom: an on-demand embed of the composite's bigraph. Resolving a
-  // composite can be ParCa-heavy, so it only loads when the card is expanded —
-  // read-only, via the loom's static stateUrl pointed at live composite-resolve.
-  function _compositeLoomEmbed(c) {
-    if (c.read_only && !c.has_wiring) return '';
-    // Read-only viewer only — config is edited in Configure, running is the
-    // external ▶ RUN bar; no in-place "Enable running" toggle.
-    return '<details class="ccard-loom-embed" data-id="' + _esc(c.id) + '" ontoggle="_openCompositeLoomInline(this)">' +
-      '<summary>Open loom</summary>' +
-      '<div class="ccard-loom-frame"><p class="muted" style="padding:10px;font-size:0.85em">Expand to resolve &amp; render the bigraph…</p></div>' +
-    '</details>';
-  }
-  window._compositeLoomEmbed = _compositeLoomEmbed;
 
   // Flip an inline loom embed from read-only preview to LIVE mode (editable
   // config + Run), reloading the iframe at the same URL the pop-out uses
@@ -4878,7 +5322,7 @@
     det._loomLive = true;
     var id = det.getAttribute('data-id');
     var apiUrl = (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    var liveUrl = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off';
+    var liveUrl = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) + '&chrome=off' + '&v=' + _LOOM_V;
     var iframe = det.querySelector('.ccard-loom-iframe');
     if (iframe) iframe.src = liveUrl;         // already open → swap in place
     else { det._loomLoaded = false; _openCompositeLoomInline(det); }  // not open yet → load live
@@ -4887,240 +5331,13 @@
   }
   window._enableInlineLoomRun = _enableInlineLoomRun;
 
-  // "View" — open the composite's loom inline at max detail. From a lower zoom
-  // (table/cards) this jumps to the loom (max semantic) zoom AND opens this
-  // composite's embed; at loom zoom it toggles the embed. Replaces the old
-  // "Explore →" hop to the standalone explorer page (now redundant).
-  function _viewCompositeLoom(id) {
-    var esc = (window.CSS && CSS.escape) ? CSS.escape(id) : id;
-    var find = function () { return document.querySelector('.ccard-loom-embed[data-id="' + esc + '"]'); };
-    var z = window._compositesZoom || 'cards';
-    if (z !== 'loom') {
-      // Jump to max semantic zoom, focus this composite, then open its loom.
-      window._compositesSelected = id;
-      _setCompositeZoom('loom');
-      setTimeout(function () {
-        var det = find();
-        if (det) {
-          if (!det.open) det.open = true;   // fires ontoggle → lazy-load
-          try { det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ }
-        }
-      }, 80);
-      return;
-    }
-    var det = find();
-    if (!det) return;
-    det.open = !det.open;                   // toggle at loom zoom
-    if (det.open) { try { det.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* ignore */ } }
-  }
-  window._viewCompositeLoom = _viewCompositeLoom;
 
-  // The static composite-state URL the loom fetches. In a PUBLISHED snapshot the
-  // live /api/composite-resolve endpoint doesn't exist — the pre-resolved state
-  // is a static file at /api/composite-state/<id>.json — so point there; in live
-  // mode use the resolve endpoint. (Without this, "View" 404'd in the snapshot.)
-  function _compositeStateUrl(id, overrides) {
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
-      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    if (document.body.classList.contains('snapshot')) {
-      return apiUrl('/api/composite-state/' + encodeURIComponent(id) + '.json');
-    }
-    return apiUrl('/api/composite-resolve?id=' + encodeURIComponent(id)) +
-      (overrides ? '&overrides=' + encodeURIComponent(overrides) : '');
-  }
+  // The loom embed glue — _compositeStateUrl / _openCompositeLoomInline /
+  // _wireLoomAutoHeight — is defined ONCE in loom-embed.js (loaded before this
+  // file in the SPA, and standalone in the study-detail iframe). It installs
+  // window globals; the bare calls in this file resolve to them. Keeping a
+  // single copy avoids the byte-identical-duplication drift this used to carry.
 
-  // "Pop out" — open this composite's loom in a separate window directly (live,
-  // full config + run), bypassing the standalone explorer page. In a published
-  // snapshot there's no live API, so open the static (?static=1&stateUrl=) URL.
-  function _popoutCompositeLoom(id) {
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl)
-      ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    var url;
-    if (document.body.classList.contains('snapshot')) {
-      url = apiUrl('/bigraph-loom/index.html') + '?static=1&stateUrl=' + encodeURIComponent(_compositeStateUrl(id));
-    } else {
-      url = apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id);
-    }
-    var w = window.open(url, '_blank',
-      'width=1280,height=860,menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes');
-    if (!w) alert('Popup blocked. Allow popups from this site to pop out the composite.');
-  }
-  window._popoutCompositeLoom = _popoutCompositeLoom;
-
-  // Card actions: View (inline loom) + Pop out (separate window). Shared by the
-  // table rows and the cards/loom zoom. Empty when the composite has no viewable
-  // wiring in this context (snapshot without pre-built wiring, or a read-only
-  // federated composite without wiring).
-  function _compositeCardActions(c, viewClass, popClass) {
-    if ((document.body.classList.contains('snapshot') && !c.has_wiring)) return '';
-    if (c.read_only && !c.has_wiring) return '';
-    var id = _esc(c.id);
-    return '<button class="' + viewClass + '" onclick="_viewCompositeLoom(\'' + id + '\')"' +
-        ' title="Open the loom inline at full detail">View</button>' +
-      '<button class="' + popClass + '" onclick="_popoutCompositeLoom(\'' + id + '\')"' +
-        ' title="Open the loom in a separate window">Pop out &#8599;</button>';
-  }
-  window._compositeCardActions = _compositeCardActions;
-
-  // Double-click a composite card: at the full (loom) semantic zoom there's no
-  // deeper level to zoom into, so open the loom inline instead — a quiet
-  // shortcut for the top-right "View" button. Lower zooms keep zooming in.
-  function _compositeCardDblClick(id) {
-    if ((window._compositesZoom || 'cards') === 'loom') _viewCompositeLoom(id);
-    else _zoomInComposite(id);
-  }
-  window._compositeCardDblClick = _compositeCardDblClick;
-
-  function _openCompositeLoomInline(det) {
-    if (!det || det._loomLoaded) return;
-    // <details> embeds only mount when open; a plain container (the ProcessCard
-    // Explore section) has no `.open` and mounts as soon as it's asked to.
-    if (det.tagName === 'DETAILS' && !det.open) return;
-    det._loomLoaded = true;
-    var id = det.getAttribute('data-id');
-    var host = det.querySelector('.ccard-loom-frame');
-    if (!host) return;
-    host.innerHTML = '<p class="muted" style="padding:10px;font-size:0.85em">Resolving composite (this can take a moment)…</p>';
-    var apiUrl = (window.DataSource && window.DataSource.apiUrl) ? window.DataSource.apiUrl.bind(window.DataSource) : function (p) { return p; };
-    // Live mode (user hit "Enable running") loads the same URL as the pop-out
-    // (?id=<ref>) so config is editable and Run works; otherwise a read-only
-    // static render pointed at live composite-resolve.
-    // chrome=off → embedded (no breadcrumb/tab strip). An optional data-view
-    // (e.g. "visualizations"/"results"/"document") selects which loom tab the
-    // embed shows — used by the card's Outputs section.
-    var tabParam = det.getAttribute('data-view') ? '&tab=' + encodeURIComponent(det.getAttribute('data-view')) : '';
-    // On a live dashboard the view-only loom still carries the composite id +
-    // live=1 so drilling into an inner Composite (a Composite Process like
-    // EcoliWCM) resolves via the live /api/composite-inner-state endpoint —
-    // static=1 alone (a published snapshot) would look for a pre-built file that
-    // only a snapshot ships. Omit both under body.snapshot (truly no server).
-    var liveInner = document.body.classList.contains('snapshot')
-      ? '' : '&id=' + encodeURIComponent(id) + '&live=1';
-    var loomUrl = det._loomLive
-      ? apiUrl('/bigraph-loom/index.html') + '?id=' + encodeURIComponent(id) +
-          (det._overrides ? '&overrides=' + encodeURIComponent(det._overrides) : '') + '&chrome=off' + tabParam
-      : apiUrl('/bigraph-loom/index.html') + '?static=1&stateUrl=' +
-          encodeURIComponent(_compositeStateUrl(id, det._overrides)) + liveInner + '&chrome=off' + tabParam;
-    var f = document.createElement('iframe');
-    f.className = 'ccard-loom-iframe';
-    f.setAttribute('title', 'Loom — ' + id);
-    f.src = loomUrl;
-    host.innerHTML = '';
-    // Restore a previously dragged height (shared across all loom embeds).
-    var savedH = 0;
-    try { savedH = parseInt(localStorage.getItem('viv.loomFrameH') || '', 10) || 0; } catch (e) { /* private mode */ }
-    if (savedH) host.style.height = Math.max(220, Math.min(Math.round(window.innerHeight * 0.92), savedH)) + 'px';
-    host.appendChild(f);
-    _wireLoomResize(host, f);
-  }
-  window._openCompositeLoomInline = _openCompositeLoomInline;
-
-  // Drag-to-resize the embedded loom panel. A full-width grip below the iframe
-  // grows/shrinks the frame; the card grows with it. Height persists across
-  // embeds via localStorage. Pointer events are disabled on the iframe mid-drag
-  // so the gesture keeps tracking when the cursor moves over the loom.
-  function _wireLoomResize(frame, iframe) {
-    var grip = document.createElement('div');
-    grip.className = 'ccard-loom-resize';
-    grip.title = 'Drag to resize';
-    frame.appendChild(grip);
-    var startY = 0, startH = 0;
-    function pointY(e) { return e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY; }
-    function onMove(e) {
-      var maxH = Math.round(window.innerHeight * 0.92);
-      var h = Math.max(220, Math.min(maxH, startH + (pointY(e) - startY)));
-      frame.style.height = h + 'px';
-      if (e.cancelable) e.preventDefault();
-      try { localStorage.setItem('viv.loomFrameH', String(Math.round(h))); } catch (err) { /* private mode */ }
-    }
-    function onUp() {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('touchend', onUp);
-      if (iframe) iframe.style.pointerEvents = '';
-      frame.classList.remove('is-resizing');
-    }
-    function onDown(e) {
-      startY = pointY(e);
-      startH = frame.getBoundingClientRect().height;
-      if (iframe) iframe.style.pointerEvents = 'none';
-      frame.classList.add('is-resizing');
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-      document.addEventListener('touchmove', onMove, { passive: false });
-      document.addEventListener('touchend', onUp);
-      if (e.cancelable) e.preventDefault();
-    }
-    grip.addEventListener('mousedown', onDown);
-    grip.addEventListener('touchstart', onDown, { passive: false });
-  }
-  window._wireLoomResize = _wireLoomResize;
-
-  // Composites Table view — sortable (Name / Module / Kind / Params / Steps / Used).
-  function _renderCompositesTable(container, composites) {
-    var sk = window._compositesTableSort || 'workspace';
-    var sd = window._compositesTableDir || (sk === 'workspace' ? 'asc' : 'asc');
-    var mod = function (c) { return (c.module || '').split('.')[0]; };
-    var used = function (c) { return (c.studies && c.studies.studies) ? c.studies.studies : 0; };
-    var nparam = function (c) { return Object.keys(c.parameters || {}).length; };
-    var rows = composites.slice().sort(function (a, b) {
-      var av, bv;
-      // Default view: this-workspace composites on top, then most-used in this
-      // workspace, then alphabetical. Returns directly (direction-agnostic).
-      if (sk === 'workspace') {
-        var aw = a.workspace_local ? 0 : 1, bw = b.workspace_local ? 0 : 1;
-        if (aw !== bw) return aw - bw;
-        var au = used(a), bu = used(b);
-        if (au !== bu) return bu - au;
-        return (a.name || '').localeCompare(b.name || '');
-      }
-      if (sk === 'module') { av = mod(a).toLowerCase(); bv = mod(b).toLowerCase(); }
-      else if (sk === 'kind') { av = (a.kind || ''); bv = (b.kind || ''); }
-      else if (sk === 'params') { av = nparam(a); bv = nparam(b); }
-      else if (sk === 'steps') { av = a.default_n_steps || 0; bv = b.default_n_steps || 0; }
-      else if (sk === 'used') { av = used(a); bv = used(b); }
-      else { av = (a.name || '').toLowerCase(); bv = (b.name || '').toLowerCase(); }
-      var c = av < bv ? -1 : (av > bv ? 1 : (a.name || '').localeCompare(b.name || ''));
-      return sd === 'desc' ? -c : c;
-    });
-    // Pinned composites float to the top of the table too, above the column sort.
-    _loadPinnedComposites();
-    if (window._pinnedComposites.length) {
-      var _tp = [], _tr = [];
-      rows.forEach(function (c) { (_isCompositePinned(c.id) ? _tp : _tr).push(c); });
-      rows = _tp.concat(_tr);
-    }
-    function th(key, label, cls) {
-      var on = sk === key;
-      return '<th class="reg-th' + (cls ? ' ' + cls : '') + (on ? ' active' : '') +
-        '" onclick="_setCompositesTableSort(\'' + key + '\')">' + label + (on ? (sd === 'desc' ? ' ▾' : ' ▴') : '') + '</th>';
-    }
-    var body = rows.map(function (c) {
-      return '<tr class="reg-tr" data-id="' + _esc(c.id || '') + '" ondblclick="_compositeCardDblClick(\'' + _esc(c.id || '') + '\')" title="Double-click to zoom in">' +
-        '<td class="reg-td-pin">' + _compositePinBtn(c) + '</td>' +
-        '<td class="reg-td-name"><strong>' + _esc(c.name) + '</strong> <code>' + _esc(c.id || '') + '</code></td>' +
-        '<td>' + _esc(mod(c)) + '</td>' +
-        '<td>' + _esc(c.kind || 'spec') + '</td>' +
-        '<td class="num">' + nparam(c) + '</td>' +
-        '<td class="num">' + (c.default_n_steps || '') + '</td>' +
-        '<td class="num">' + used(c) + '</td>' +
-        '<td class="reg-td-src">' + (c.workspace_local ? 'workspace' : _esc(mod(c))) + '</td>' +
-      '</tr>';
-    }).join('');
-    container.className = '';
-    container.innerHTML = '<div class="registry-table-wrap"><table class="registry-table"><thead><tr>' +
-      '<th class="reg-th reg-th-pin" title="Pin to top"></th>' +
-      th('name', 'Name') + th('module', 'Module') + th('kind', 'Kind') + th('params', 'Params', 'num') +
-      th('steps', 'Steps', 'num') + th('used', 'Used', 'num') + th('workspace', 'Source') +
-      '</tr></thead><tbody>' + body + '</tbody></table></div>';
-  }
-  function _setCompositesTableSort(key) {
-    if (window._compositesTableSort === key) window._compositesTableDir = (window._compositesTableDir === 'desc') ? 'asc' : 'desc';
-    else { window._compositesTableSort = key; window._compositesTableDir = (key === 'name' || key === 'module' || key === 'kind') ? 'asc' : 'desc'; }
-    _renderComposites();
-  }
-  window._setCompositesTableSort = _setCompositesTableSort;
 
   // Lazily fetch a composite's process/store counts when its "structure"
   // <details> is first opened (building a composite can be ParCa-heavy, so this
@@ -5131,7 +5348,7 @@
     if (!body || body.getAttribute('data-loaded') === '1') return;
     body.setAttribute('data-loaded', '1');
     body.textContent = 'building…';
-    fetch('/api/composite-state?ref=' + encodeURIComponent(id))
+    apiFetch('GET', '/api/composite-state?ref=' + encodeURIComponent(id))
       .then(function(r) { return r.json(); })
       .then(function(d) {
         var root = (d && d.state) ? (d.state.state || d.state) : null;
@@ -5152,13 +5369,33 @@
       .catch(function() { body.textContent = 'unavailable'; });
   };
 
-  function _loadComposites() {
+  function _loadComposites(_attempt) {
+    _attempt = _attempt || 0;
+    // Discovery re-imports the workspace package in a subprocess (~seconds cold),
+    // and a cold pooled worker can briefly answer empty / with an `error`. Show a
+    // "Loading…" state on the first attempt (rather than flashing "No composites
+    // registered.") and retry a cold/empty/errored response a few times before
+    // concluding the workspace genuinely has none.
+    if (_attempt === 0 && !(window._composites && window._composites.length)) {
+      var _el0 = document.getElementById('registry-composites-container');
+      if (_el0) _el0.innerHTML = '<p class="empty-state">Loading composites…</p>';
+    }
     var _p = window.DataSource
       ? window.DataSource.loadComposites()
-      : fetch('/api/composites').then(function(r) { return r.json(); });
+      : apiFetch('GET', '/api/composites').then(function(r) { return r.json(); });
+    var _retry = function () {
+      // ~error: definitely transient (cold/unavailable) → retry harder.
+      // ~empty, no error: probably genuine, but do one safety retry for a cold
+      // race. Non-empty → render.
+      setTimeout(function () { _loadComposites(_attempt + 1); }, 700 + _attempt * 900);
+    };
     _p
       .then(function(data) {
-        var composites = data.composites || [];
+        var composites = (data && data.composites) || [];
+        var hadError = !!(data && data.error);
+        var maxAttempts = hadError ? 5 : (composites.length ? 1 : 2);
+        if (!composites.length && _attempt + 1 < maxAttempts) { _retry(); return; }
+        if (hadError && !composites.length && _attempt + 1 < maxAttempts) { _retry(); return; }
         // Cache by id so onclick handlers pass just the id; _useComposite
         // looks the full object up. Inline JSON.stringify in onclick attrs
         // breaks when descriptions contain apostrophes / quotes.
@@ -5168,33 +5405,9 @@
 
         // (a) Registry/Processes-page "Composites" tab — accordion cards.
         _renderRegistryComposites(composites);
-
-        // (b) Standalone Composites page (simulation-setup), if present.
-        var container = document.getElementById('composite-cards');
-        var countBadge = document.getElementById('composite-count');
-        if (countBadge) countBadge.textContent = '(' + composites.length + ')';
-        var _cSearch = document.getElementById('composite-search');
-        if (_cSearch) _cSearch.placeholder = 'Filter ' + composites.length + ' composites…';
-        if (!container) return;
-        if (!composites.length) {
-          container.innerHTML =
-            '<p class="empty-state">No composite specs found yet. Add a <code>*.composite.yaml</code> file under ' +
-            '<code>pbg_&lt;slug&gt;/composites/</code> to register one. See ' +
-            '<a href="https://github.com/vivarium-collective/pbg-superpowers/blob/main/docs/conventions/composites.md" target="_blank">' +
-            'the composite spec convention</a> for the format.</p>';
-          return;
-        }
-        // Wire up search input
-        var searchEl = document.getElementById('composite-search');
-        if (searchEl && !searchEl._pbgWired) {
-          searchEl._pbgWired = true;
-          searchEl.oninput = function() {
-            window._compositesFilter.search = this.value.toLowerCase();
-            _renderComposites();
-          };
-        }
-        _buildCompositeChips();
-        _renderComposites();
+      })
+      .catch(function () {
+        if (_attempt + 1 < 5) { _retry(); }
       });
   }
   window._loadComposites = _loadComposites;
@@ -5224,12 +5437,29 @@
     // Honour the Sort control (default keeps workspace-local first, then name).
     var _sortKey = window._registrySort || 'use';
     list = list.slice().sort(function (a, b) { return _compositeSortCmp(a, b, _sortKey); });
+    // Group by figure (stable within each figure) so a figure's draft /
+    // executable / live-topology cards cluster together; non-figure composites
+    // keep to the end.
+    var _figNum = function (c) { var m = ((c && c.id) || '').match(/\.fig0*(\d+)/i); return m ? parseInt(m[1], 10) : 9999; };
+    list = list
+      .map(function (c, i) { return { c: c, i: i, n: _figNum(c) }; })
+      .sort(function (a, b) { return (a.n - b.n) || (a.i - b.i); })
+      .map(function (x) { return x.c; });
     // Semantic zoom: Table (dense) → Cards (grid + usage) → Full (accordion).
     var zoom = window._registryZoom || 'grid';
     if (zoom === 'table') { el.innerHTML = _renderCompositeTableHtml(list); return; }
     var cardsCls = 'reg-cards reg-cards-' + (zoom === 'full' ? 'full' : 'grid');
     var render = (zoom === 'full') ? _renderCompositeCardFull : _renderCompositeCardGrid;
-    el.innerHTML = '<div class="' + cardsCls + '">' + list.map(render).join('') + '</div>';
+    var _prevF = null;
+    var _cardsHtml = list.map(function (c) {
+      var n = _figNum(c), head = '';
+      if (n !== 9999 && (!_prevF || _figNum(_prevF) !== n)) {
+        head = '<div class="composite-figure-group"><span>Fig ' + n + '</span></div>';
+      }
+      _prevF = c;
+      return head + render(c);
+    }).join('');
+    el.innerHTML = '<div class="' + cardsCls + '">' + _cardsHtml + '</div>';
     if (zoom === 'grid') el.querySelectorAll('.reg-cards-grid').forEach(function (cc) { _applyCardCols(cc, 'registry'); });
   }
   window._renderRegistryComposites = _renderRegistryComposites;
@@ -5769,11 +5999,7 @@
 
   function _uninstallFromInstalled(name) {
     if (!confirm('Uninstall ' + name + '? This removes it from this workspace\'s dependencies.')) return;
-    fetch('/api/catalog-uninstall', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/catalog-uninstall', {name: name})
       .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, json: j}; }); })
       .then(function(p) {
         if (!p.ok) {
@@ -5795,7 +6021,7 @@
   window._uninstallFromInstalled = _uninstallFromInstalled;
 
   function _checkSystemDepsForInstalled(name) {
-    fetch('/api/system-deps-check?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/system-deps-check?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
@@ -5938,7 +6164,7 @@
     if (window._marketLoading) return;
     window._marketLoading = true;
     var host = document.getElementById('market-results');
-    if (host) host.innerHTML = '<p class="empty-state">Loading&hellip;</p>';
+    if (host) host.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>';
     window._marketByType = { composite: [], study: [], investigation: [], process: [] };
     window._marketItems = [];
     var rebuild = function () {
@@ -6185,9 +6411,9 @@
       return;
     }
     if (type === 'composite') {
-      _switchPage('simulation-setup');
-      var ci = document.getElementById('composite-search');
-      if (ci) { ci.value = name; ci.dispatchEvent(new Event('input', { bubbles: true })); }
+      _switchPage('modules');
+      var ci = document.getElementById('registry-search');
+      if (ci) { ci.value = name; if (typeof _filterRegistry === 'function') _filterRegistry(name); }
       return;
     }
     if (type === 'process') {
@@ -6528,15 +6754,18 @@
     Object.keys(byRepo).forEach(function (k) {
       var b = byRepo[k], c = b._cat;
       if (!b._fromArtifacts && c) {
+        b.process = c.n_processes || 0;
         b.composite = c.n_composites || 0;
         b.study = c.n_studies || 0;
         b.investigation = c.n_investigations || 0;
         b.total = b.process + b.composite + b.study + b.investigation;
         b.use = c.n_used || 0;
       }
-      // Affected studies = this workspace's OWN studies that depend on the repo
-      // (module_stats.n_used — deep, via composite→process usage). The real
-      // "what breaks if I uninstall" signal, distinct from total artifact uses.
+      // Affected studies = studies that depend on / use this repo — this
+      // workspace's OWN studies AND linked (federated) workspaces' studies
+      // (module_stats.n_used — deep, via composite→process usage + bare-name/
+      // alias attribution). The real "what breaks if I uninstall" signal,
+      // distinct from total artifact uses.
       b.affected = (c && typeof c.n_used === 'number') ? c.n_used : 0;
       if (!b.url) b.url = _marketRepoUrl(b.repo);
     });
@@ -6595,7 +6824,7 @@
   function _repoFoot(b) {
     var meta = [];
     if (b.total) meta.push(b.total + ' artifact' + (b.total === 1 ? '' : 's'));
-    if (b.affected) meta.push('<span title="studies in your investigations that depend on this repo"><b>' + b.affected + '</b> affected stud' + (b.affected === 1 ? 'y' : 'ies') + '</span>');
+    if (b.affected) meta.push('<span title="Studies that depend on / use this repository (in this workspace and linked workspaces)"><b>' + b.affected + '</b> affected stud' + (b.affected === 1 ? 'y' : 'ies') + '</span>');
     return '<div class="repo-card-foot"><span class="repo-meta">' + (meta.join(' · ') || '&nbsp;') + '</span>'
       + _repoActions(b) + '</div>';
   }
@@ -6633,11 +6862,11 @@
       + '<th class="repo-th" style="width:100px">Processes</th>'
       + '<th class="repo-th" style="width:100px">Composites</th>'
       + '<th class="repo-th" style="width:90px">Studies</th>'
-      + '<th class="repo-th" style="width:130px" title="Studies in your investigations that depend on this repo">Affected studies</th>'
+      + '<th class="repo-th" style="width:130px" title="Studies that depend on / use this repository (in this workspace and linked workspaces)">Affected studies</th>'
       + '<th class="repo-th" style="width:190px"></th></tr>';
     var body = repos.map(function (b) {
       var aff = b.affected
-        ? '<span class="repo-affected" title="studies in your investigations that depend on this repo">' + b.affected + '</span>'
+        ? '<span class="repo-affected" title="Studies that depend on / use this repository (in this workspace and linked workspaces)">' + b.affected + '</span>'
         : '<span class="repo-td-zero">—</span>';
       return '<tr class="repo-tr">'
         + '<td class="market-td-name">📦 ' + _esc(_vivaLabel(b.display_name || b.repo))
@@ -6668,7 +6897,7 @@
     });
     if (!repos.length) {
       var loaded = (window._marketItems && window._marketItems.length) || (window._marketCatalog && window._marketCatalog.length);
-      return loaded ? '<p class="empty-state">No repositories match.</p>' : '<p class="empty-state">Loading&hellip;</p>';
+      return loaded ? '<p class="empty-state">No repositories match.</p>' : (window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>');
     }
     if (zoom === 'list') return _marketRepoTable(repos);
     var render = zoom === 'detail' ? _marketRepoDetail : _marketRepoCard;
@@ -6777,7 +7006,7 @@
     // within-category order (e.g. processes by use). So "All" reads as grouped.
     filtered.sort(function (a, b) { return _MARKET_CAT_ORDER[_marketCatOf(a)] - _MARKET_CAT_ORDER[_marketCatOf(b)]; });
     if (!filtered.length) {
-      host.innerHTML = items.length ? '<p class="empty-state">No matches.</p>' : '<p class="empty-state">Loading&hellip;</p>';
+      host.innerHTML = items.length ? '<p class="empty-state">No matches.</p>' : (window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>');
       return;
     }
     var html = '';
@@ -6835,7 +7064,7 @@
     // If anything is missing, show the consent modal instead of jumping
     // straight to the pip-install path (which would fail with a cryptic
     // dlopen error at first Run).
-    fetch('/api/system-deps-check?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/system-deps-check?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var rOk = parts[0], j = parts[1];
@@ -6866,11 +7095,7 @@
     var body = {name: name};
     if (opts && opts.skip_system_deps_check) body.skip_system_deps_check = true;
     if (opts && opts.full_repo) body.full_repo = true;
-    fetch('/api/catalog-install', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', '/api/catalog-install', body)
       .then(function(r) { return r.json().then(function(j) { return [r.ok, r.status, j]; }); })
       .then(function(parts) {
         var ok = parts[0], status = parts[1], json = parts[2];
@@ -6898,7 +7123,7 @@
         var msg = "Installed " + name + ".\nCommit: " + (json.commit || 'n/a');
         alert(msg);
         window._registryLoaded = false;  // force registry reload on next switch
-        fetch('/api/render', {method: 'POST'}).finally(function() {
+        apiFetch('POST', '/api/render').finally(function() {
           location.reload();
         });
       })
@@ -7012,11 +7237,7 @@
     var btn = document.getElementById('sysdeps-install-btn');
     if (errEl) errEl.textContent = '';
     if (btn) { btn.disabled = true; btn.textContent = 'Installing…'; }
-    fetch('/api/system-deps-install', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name, check_names: checkNames}),
-    })
+    apiFetch('POST', '/api/system-deps-install', {name: name, check_names: checkNames})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
@@ -7147,11 +7368,7 @@
     var errEl = document.getElementById('uninstall-error');
     if (errEl) errEl.textContent = '';
     if (btn) { btn.disabled = true; btn.textContent = 'Uninstalling…'; }
-    fetch('/api/catalog-uninstall', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/catalog-uninstall', {name: name})
       .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, json: j}; }); })
       .then(function(p) {
         if (!p.ok) {
@@ -7206,15 +7423,11 @@
 
   function _deleteSimulation(name) {
     if (!confirm("Remove simulation '" + name + "'?")) return;
-    fetch('/api/simulation', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('DELETE', '/api/simulation', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         if (!parts[0]) { alert("Error: " + (parts[1].error || "unknown")); return; }
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
 
@@ -7231,11 +7444,7 @@
     var btn = event.target;
     btn.disabled = true;
     btn.textContent = "Installing…";
-    fetch('/api/import-install', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/import-install', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], json = parts[1];
@@ -7248,7 +7457,7 @@
         alert("Installed.\nBranch: " + json.branch + "\n\nRegistry will refresh; new processes may appear after pip-cached subprocess restarts.");
         // Drop registry cache, switch to Registry tab so user sees the change.
         window._registryLoaded = false;
-        fetch('/api/render', {method: 'POST'}).finally(function() {
+        apiFetch('POST', '/api/render').finally(function() {
           location.hash = '#modules';
           location.reload();
         });
@@ -7260,7 +7469,7 @@
   function _toggleDirtyPanel() {
     var panel = document.getElementById('ws-dirty-panel');
     if (panel) { panel.remove(); return; }
-    fetch('/api/dirty-status')
+    apiFetch('GET', '/api/dirty-status')
       .then(function(r){ return r.json(); })
       .then(_renderDirtyPanel)
       .catch(function(err){ console.warn('dirty-status failed:', err); });
@@ -7324,10 +7533,7 @@
     };
     var submitBtn = form.querySelector('button[type=submit]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Pushing…'; }
-    fetch('/api/work-link-branch', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/work-link-branch', body).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); })
       .then(function (pair) {
         var ok = pair[0], j = pair[1];
         if (!ok) {
@@ -7357,11 +7563,7 @@
   function _startWork() {
     var name = prompt("Investigation branch name (suggested: investigation/<short-slug>):", "investigation/");
     if (!name) return;
-    fetch('/api/work-start', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({branch: name.trim()}),
-    })
+    apiFetch('POST', '/api/work-start', {branch: name.trim()})
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         if (!parts[0]) { alert("Could not start investigation branch:\n" + (parts[1].error || 'unknown')); return; }
@@ -7372,7 +7574,7 @@
   window._startWork = _startWork;
 
   function _pushWork() {
-    fetch('/api/work-push', {method: 'POST'})
+    apiFetch('POST', '/api/work-push')
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         var ok = parts[0], json = parts[1];
@@ -7403,11 +7605,7 @@
     };
     var errEl = form.querySelector('.form-error');
     errEl.textContent = '';
-    fetch('/api/work-create-pr', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data),
-    })
+    apiFetch('POST', '/api/work-create-pr', data)
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         var ok = parts[0], json = parts[1];
@@ -7430,11 +7628,7 @@
     var input = form.elements[fieldName];
     btn.disabled = true;
     btn.textContent = "…";
-    fetch('/api/suggest', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({kind: kind}),
-    })
+    apiFetch('POST', '/api/suggest', {kind: kind})
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         var ok = parts[0], json = parts[1];
@@ -7453,7 +7647,7 @@
       return;
     }
     btn.textContent = "polling (" + attempts + ")";
-    fetch('/api/suggest-poll?id=' + encodeURIComponent(id))
+    apiFetch('GET', '/api/suggest-poll?id=' + encodeURIComponent(id))
       .then(function(r){ return r.json(); })
       .then(function(json){
         if (json.ready) {
@@ -7471,7 +7665,7 @@
 
   function _endWork() {
     if (!confirm("End this investigation branch? Switches you back to base; the branch is preserved.")) return;
-    fetch('/api/work-end', {method: 'POST'})
+    apiFetch('POST', '/api/work-end')
       .then(function(r){ return r.json().then(function(j){ return [r.ok, j]; }); })
       .then(function(parts){
         if (!parts[0]) { alert("Could not end investigation branch:\n" + (parts[1].error || 'unknown')); return; }
@@ -7492,11 +7686,7 @@
     if (spinner) spinner.style.display = "inline";
     if (out) out.textContent = "Running…";
 
-    fetch("/api/run-tests", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: model }),
-    })
+    apiFetch('POST', "/api/run-tests", { model: model })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (btn) btn.disabled = false;
@@ -7643,7 +7833,20 @@
     // no duplicate call needed here.
 
     // Populate the Investigations rail section (V4).
-    _vivRefreshInvestigationsRail();
+    var _railReady = _vivRefreshInvestigationsRail();
+
+    // Item 70 phase 3: dismiss the post-switch splash (index.html.j2's
+    // inline body script), if it was shown, the instant the rail's real
+    // fetch resolves — the first real post-reload content, not a fabricated
+    // timer. No-op on a normal load (the splash element never exists).
+    var _splash = document.getElementById('viv-switch-splash');
+    if (_splash) {
+      (function (splash, ready) {
+        var dismiss = function () { if (splash.parentNode) splash.parentNode.removeChild(splash); };
+        if (ready && typeof ready.then === 'function') ready.then(dismiss).catch(dismiss);
+        else dismiss();
+      })(_splash, _railReady);
+    }
 
     // (The GitHub Branches tab has been removed.)
   });
@@ -7661,26 +7864,42 @@
   }
 
   function _vivToggleRail() {
+    // The rail is permanently collapsed (icon bar); toggling is a no-op so no
+    // stray caller can expand it back out.
     var rail = document.getElementById('viv-rail');
-    if (!rail) return;
-    var collapsed = rail.classList.toggle('viv-rail-collapsed');
-    _vivSyncRailToggleLabel(collapsed);
-    try { localStorage.setItem('vivarium.rail-collapsed', collapsed ? '1' : '0'); } catch (e) {}
+    if (rail) rail.classList.add('viv-rail-collapsed');
   }
   window._vivToggleRail = _vivToggleRail;
 
-  function _vivRestoreRailState() {
-    var stored = null;
-    try { stored = localStorage.getItem('vivarium.rail-collapsed'); } catch (e) {}
-    var collapsed = stored === '1';
-    var rail = document.getElementById('viv-rail');
-    if (rail) {
-      // Apply the saved expanded width (the collapsed rule overrides it via
-      // higher CSS specificity, so this is safe even when collapsed).
-      _vivRailApplyWidth(rail, _vivRailSavedWidth());
-      if (collapsed) rail.classList.add('viv-rail-collapsed');
+  // Reveal / hide the study-search field (the header magnifier). `force` true/false
+  // sets it explicitly (Escape closes); otherwise it toggles. Closing clears the
+  // filter so the full list returns.
+  function _vivToggleRailSearch(force) {
+    var head = document.getElementById('viv-rail-studies-head');
+    var input = document.getElementById('viv-rail-study-search');
+    var btn = document.getElementById('viv-rail-search-btn');
+    if (!head || !input) return;
+    var show = (typeof force === 'boolean') ? force : head.hasAttribute('hidden');
+    if (show) {
+      head.removeAttribute('hidden');
+      if (btn) btn.classList.add('viv-rail-search-active');
+      input.focus();
+      input.select();
+    } else {
+      head.setAttribute('hidden', '');
+      if (btn) btn.classList.remove('viv-rail-search-active');
+      if (input.value) { input.value = ''; if (window._filterRailStudies) window._filterRailStudies(''); }
     }
-    _vivSyncRailToggleLabel(collapsed);
+  }
+  window._vivToggleRailSearch = _vivToggleRailSearch;
+
+  function _vivRestoreRailState() {
+    // The rail is now PERMANENTLY collapsed — a fixed icon bar. The expand/resize
+    // mechanism (drag handle + width restore) was removed, so always keep the
+    // collapsed class regardless of any stored width/choice from older builds.
+    var rail = document.getElementById('viv-rail');
+    if (rail) rail.classList.add('viv-rail-collapsed');
+    _vivSyncRailToggleLabel(true);
   }
   window._vivRestoreRailState = _vivRestoreRailState;
 
@@ -7703,29 +7922,69 @@
     rail.style.setProperty('--rail-w', w + 'px');
   }
   function _vivRailResizeStart(ev) {
+    if (ev.button !== undefined && ev.button !== 0) return;   // left button only
     ev.preventDefault();
     var rail = document.getElementById('viv-rail');
     if (!rail) return;
+    // CAPTURE the pointer on the handle so the drag keeps tracking (and ENDS on
+    // release) even while the pointer is over an iframe — the study porthole and
+    // native-viz iframes otherwise swallow the mousemove/mouseup, which left the
+    // rail "following the mouse after you let go" and unable to widen.
+    var handle = (ev.currentTarget && ev.currentTarget.setPointerCapture)
+      ? ev.currentTarget : document.getElementById('viv-rail-resize-handle');
+    var pointerId = (ev.pointerId != null) ? ev.pointerId : null;
+    try { if (handle && handle.setPointerCapture && pointerId != null) handle.setPointerCapture(pointerId); } catch (e) { /* unsupported */ }
     rail.classList.add('viv-rail-resizing');
     document.body.classList.add('viv-rail-resizing-active');
     var railLeft = rail.getBoundingClientRect().left;
     var lastW = _vivRailSavedWidth();
 
+    // mousemove fires far faster than the display refreshes; writing --rail-w on
+    // every event forces a synchronous reflow of the whole rail each time, which on
+    // a workspace with a large study list (e.g. sms-ecoli) makes the drag stutter.
+    // Coalesce to at most ONE style write per animation frame: mousemove only records
+    // the target state (cheap), and rAF applies it. lastW is tracked synchronously so
+    // the saved width on mouse-up is always the latest pointer position.
+    var _raf = 0, _pending = null;
+    function _flush() {
+      _raf = 0;
+      if (!_pending) return;
+      if (_pending.collapsed) { rail.classList.add('viv-rail-collapsed'); }
+      else { rail.classList.remove('viv-rail-collapsed'); _vivRailApplyWidth(rail, _pending.w); }
+    }
     function _move(e) {
       var raw = e.clientX - railLeft;         // desired width: left edge → pointer
-      if (raw < _RAIL_COLLAPSE_AT) {          // snap into the collapsed bar look
-        rail.classList.add('viv-rail-collapsed');
-        return;
+      // HYSTERESIS so the rail doesn't flicker at the threshold and has no dead
+      // zone: when collapsed, keep it collapsed until the pointer is pulled clearly
+      // OUT (past EXPAND_ABOVE); when expanded, keep it expanded until pushed
+      // clearly IN (below COLLAPSE_BELOW). The gap between the two is a stable hold
+      // band, so small jitter near the edge never toggles the state.
+      var EXPAND_ABOVE = 150, COLLAPSE_BELOW = 110;
+      var curCollapsed = rail.classList.contains('viv-rail-collapsed');
+      var collapsed = curCollapsed ? (raw < EXPAND_ABOVE) : (raw < COLLAPSE_BELOW);
+      if (collapsed) {
+        _pending = { collapsed: true };
+      } else {
+        var w = Math.min(_RAIL_MAX, Math.max(_RAIL_MIN, raw));
+        if (Math.abs(w - _RAIL_NORMAL) <= _RAIL_SNAP) w = _RAIL_NORMAL;  // snap to normal
+        lastW = w;
+        _pending = { collapsed: false, w: w };
       }
-      rail.classList.remove('viv-rail-collapsed');
-      var w = Math.min(_RAIL_MAX, Math.max(_RAIL_MIN, raw));
-      if (Math.abs(w - _RAIL_NORMAL) <= _RAIL_SNAP) w = _RAIL_NORMAL;  // snap to normal
-      lastW = w;
-      _vivRailApplyWidth(rail, w);
+      if (!_raf) _raf = requestAnimationFrame(_flush);
     }
+    var _ended = false;
     function _up() {
-      document.removeEventListener('mousemove', _move);
+      if (_ended) return; _ended = true;
+      if (handle) {
+        handle.removeEventListener('pointermove', _move);
+        handle.removeEventListener('pointerup', _up);
+        handle.removeEventListener('pointercancel', _up);
+        try { if (handle.releasePointerCapture && pointerId != null) handle.releasePointerCapture(pointerId); } catch (e) { /* ignore */ }
+      }
+      document.removeEventListener('mousemove', _move);   // legacy fallback, if bound
       document.removeEventListener('mouseup', _up);
+      if (_raf) { cancelAnimationFrame(_raf); _raf = 0; }
+      _flush();                               // apply the final pointer position now
       rail.classList.remove('viv-rail-resizing');
       document.body.classList.remove('viv-rail-resizing-active');
       var collapsed = rail.classList.contains('viv-rail-collapsed');
@@ -7735,8 +7994,16 @@
       } catch (e) { /* private mode */ }
       if (typeof _vivSyncRailToggleLabel === 'function') _vivSyncRailToggleLabel(collapsed);
     }
-    document.addEventListener('mousemove', _move);
-    document.addEventListener('mouseup', _up);
+    // Prefer pointer events on the captured handle; fall back to document mouse
+    // events if pointer capture is unavailable.
+    if (handle && handle.setPointerCapture && pointerId != null) {
+      handle.addEventListener('pointermove', _move);
+      handle.addEventListener('pointerup', _up);
+      handle.addEventListener('pointercancel', _up);
+    } else {
+      document.addEventListener('mousemove', _move);
+      document.addEventListener('mouseup', _up);
+    }
   }
   window._vivRailResizeStart = _vivRailResizeStart;
 
@@ -7768,15 +8035,18 @@
                  && document.getElementById('investigations-list');
     var p1 = (window.DataSource
       ? window.DataSource.loadInvestigationsFlat()
-      : fetch('/api/investigations').then(function(r) { return r.json(); })
+      : apiFetch('GET', '/api/investigations').then(function(r) { return r.json(); })
     ).catch(function() { return {investigations: []}; });
     var p2 = hasIsetUI
       ? (window.DataSource && window.DataSource.loadIsetList
           ? window.DataSource.loadIsetList()
-          : fetch('/api/investigation-summaries').then(function(r) { return r.json(); })
+          : apiFetch('GET', '/api/investigation-summaries').then(function(r) { return r.json(); })
         ).catch(function() { return {investigations: []}; })
       : Promise.resolve({investigations: []});
-    Promise.all([p1, p2]).then(function(arr) {
+    // Returned (item 70 phase 3): this is the first real post-page-load
+    // fetch to settle, so the post-switch splash dismiss hook (below, in the
+    // DOMContentLoaded handler) can wait on it instead of a timer.
+    return Promise.all([p1, p2]).then(function(arr) {
       window._investigations = arr[0].investigations || [];
       window._isetIndex      = arr[1].investigations || [];
       if (hasIsetUI && window._isetIndex.length) {
@@ -7811,10 +8081,15 @@
         }
       }
       if (!match) {
-        host.innerHTML =
-          '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">' +
-          'Loading study…' +
-          '</p>';
+        if (window.ProgressTrack) {
+          window.ProgressTrack.loading(host, 'Loading study…');
+          host.firstElementChild.classList.add('viv-loading-compact');
+        } else {
+          host.innerHTML =
+            '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">' +
+            'Loading study…' +
+            '</p>';
+        }
         return;
       }
       var topic = (match.topic && match.topic.trim()) ? match.topic.trim() : 'Ungrouped';
@@ -7889,7 +8164,13 @@
     if (!headerEl) return;
     var group = headerEl.closest ? headerEl.closest('.viv-rail-investigations-group')
                                  : headerEl.parentNode;
-    if (group) group.classList.toggle('collapsed');
+    if (!group) return;
+    group.classList.toggle('collapsed');
+    // Persist the user's choice so it survives the next rail re-render (opening a
+    // study, a data refresh, a pin toggle, …) instead of snapping back to the
+    // active-only default.
+    var _iset = group.getAttribute('data-iset');
+    if (_iset) _saveInvExpanded(_iset, !group.classList.contains('collapsed'));
   }
   window._vivToggleInvGroup = _vivToggleInvGroup;
 
@@ -7925,6 +8206,25 @@
     var mru = _loadInvMru();
     mru[name] = new Date().getTime();
     try { window.localStorage.setItem('viv.invMru', JSON.stringify(mru)); } catch (e) { /* private mode */ }
+  }
+  // Per-investigation rail expand/collapse state, persisted so a group the user
+  // opened (or collapsed) STAYS that way across rail re-renders — navigating to
+  // a study no longer re-collapses the other open investigations. Map is
+  // {invName: true(open)|false(collapsed)}; absent = use the default (the active
+  // investigation opens, the rest stay collapsed).
+  function _loadInvExpanded() {
+    if (!window._invExpanded || typeof window._invExpanded !== 'object') {
+      try { window._invExpanded = JSON.parse(window.localStorage.getItem('viv.invExpanded') || '{}') || {}; }
+      catch (e) { window._invExpanded = {}; }
+      if (!window._invExpanded || typeof window._invExpanded !== 'object') window._invExpanded = {};
+    }
+    return window._invExpanded;
+  }
+  function _saveInvExpanded(name, open) {
+    if (!name || name === '__ungrouped__') return;
+    var m = _loadInvExpanded();
+    m[name] = !!open;
+    try { window.localStorage.setItem('viv.invExpanded', JSON.stringify(m)); } catch (e) { /* private mode */ }
   }
   function _loadPinnedInvestigations() {
     if (!Array.isArray(window._pinnedInvestigations)) {
@@ -7976,7 +8276,7 @@
   // -------------------------------------------------------------------------
 
   function _vizRefreshStatus(name) {
-    fetch('/api/visualization-status?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/visualization-status?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json(); })
       .then(function(s) {
         var el = document.getElementById('viz-status-' + name);
@@ -7994,11 +8294,7 @@
   window._vizRefreshAll = _vizRefreshAll;
 
   function _vizCreate(name) {
-    fetch('/api/visualization-create', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/visualization-create', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
@@ -8015,7 +8311,7 @@
 
   function _vizPollUntilCreated(name, attempts) {
     if (attempts > 60) return;  // ~2 minutes
-    fetch('/api/visualization-status?name=' + encodeURIComponent(name))
+    apiFetch('GET', '/api/visualization-status?name=' + encodeURIComponent(name))
       .then(function(r) { return r.json(); })
       .then(function(s) {
         _vizRefreshStatus(name);
@@ -8025,11 +8321,7 @@
   }
 
   function _vizAddToProject(name) {
-    fetch('/api/visualization-add-to-project', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('POST', '/api/visualization-add-to-project', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
@@ -8041,33 +8333,25 @@
 
   function _vizCommit(names) {
     if (!confirm('Commit ' + names.length + ' visualization(s) to the active branch?')) return;
-    fetch('/api/visualization-commit-batch', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({names: names}),
-    })
+    apiFetch('POST', '/api/visualization-commit-batch', {names: names})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
         if (!ok) { alert('Commit failed: ' + (json.error || 'unknown')); return; }
         alert('Committed: ' + (json.committed || []).join(', '));
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
   window._vizCommit = _vizCommit;
 
   function _vizCommitAll() {
-    fetch('/api/visualization-commit-batch', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({}),
-    })
+    apiFetch('POST', '/api/visualization-commit-batch', {})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
         if (!ok) { alert('Commit-all failed: ' + (json.error || 'unknown')); return; }
         alert('Committed: ' + (json.committed || []).join(', '));
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
   window._vizCommitAll = _vizCommitAll;
@@ -8088,10 +8372,7 @@
     // Preview a registered workspace.yaml instance by name. The server
     // looks up its class+config and renders against demo data (or a real
     // investigation if source is set later via the modal).
-    fetch('/api/visualization-preview-instance', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name, source: 'demo'}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-preview-instance', {name: name, source: 'demo'}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -8105,10 +8386,7 @@
 
   function _vizClassPreview(address, className) {
     // Preview a raw Visualization class (no config) against demo data.
-    fetch('/api/visualization-preview', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({address: address, source: 'demo'}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-preview', {address: address, source: 'demo'}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -8122,16 +8400,12 @@
 
   function _vizRemove(name) {
     if (!confirm("Remove visualization '" + name + "'?")) return;
-    fetch('/api/visualization', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    })
+    apiFetch('DELETE', '/api/visualization', {name: name})
       .then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(pair) {
         var ok = pair[0], json = pair[1];
         if (!ok) { alert('Remove failed: ' + (json.error || 'unknown')); return; }
-        fetch('/api/render', {method: 'POST'}).finally(function() { location.reload(); });
+        apiFetch('POST', '/api/render').finally(function() { location.reload(); });
       });
   }
   window._vizRemove = _vizRemove;
@@ -8201,11 +8475,7 @@
     var name = id.indexOf('.') >= 0 ? id.split('.').pop() : id;
     var btn = document.getElementById('ce-begin-study-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Starting study…'; }
-    fetch('/api/study-create-from-composite', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({composite_name: name}),
-    })
+    apiFetch('POST', '/api/study-create-from-composite', {composite_name: name})
       .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, body: j}; }); })
       .then(function(res) {
         if (!res.ok) {
@@ -8225,7 +8495,7 @@
         if (typeof _openInvestigation === 'function') {
           _openInvestigation(newName);
         } else {
-          fetch('/api/investigation/' + encodeURIComponent(newName))
+          apiFetch('GET', '/api/investigation/' + encodeURIComponent(newName))
             .then(function(r) { return r.json(); })
             .then(function(data) {
               if (typeof _renderInvestigationDetail === 'function') {
@@ -8282,7 +8552,7 @@
     if (window._ceHistoryFetching) return;
     window._ceHistoryFetching = true;
     var id = window._ceCurrent.id;
-    fetch(_api('/api/composite-runs?spec_id=' + encodeURIComponent(id)))
+    apiFetch('GET', '/api/composite-runs?spec_id=' + encodeURIComponent(id))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var runs = data.runs || [];
@@ -8367,9 +8637,9 @@
     var ids = Array.from(window._ceCompareSet);
     if (ids.length < 2) return;
     var body = document.getElementById('ce-compare-body');
-    body.innerHTML = '<p class="empty-state">Loading&hellip;</p>';
+    body.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading&hellip;</p>';
     Promise.all(ids.map(function(id) {
-      return fetch(_api('/api/composite-run/' + encodeURIComponent(id)))
+      return apiFetch('GET', '/api/composite-run/' + encodeURIComponent(id))
         .then(function(r) { return r.json(); });
     })).then(function(results) {
       var runs = ids.map(function(id, i) {
@@ -8456,7 +8726,7 @@
       _ceShowState(run_id, step, cached);
       return;
     }
-    fetch(_api('/api/composite-run/' + encodeURIComponent(run_id)))
+    apiFetch('GET', '/api/composite-run/' + encodeURIComponent(run_id))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var trajectory = data.trajectory || [];
@@ -8713,8 +8983,8 @@
   function _legacyLoadCompositeSvg(ref) {
     var el = document.getElementById('composite-explore-svg-legacy');
     if (!el) return;
-    el.innerHTML = '<p style="color:#888">Loading SVG…</p>';
-    fetch(_api('/api/composite-resolve?id=' + encodeURIComponent(ref)))
+    el.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading SVG…') : '<p style="color:#888">Loading SVG…</p>';
+    apiFetch('GET', '/api/composite-resolve?id=' + encodeURIComponent(ref))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.svg) {
@@ -8885,55 +9155,53 @@
     var steps = parseInt(document.getElementById('ce-steps').value, 10) || 5;
     var overrides = _ceCollectOverrides();
     var resultsEl = document.getElementById('ce-test-results');
-    resultsEl.innerHTML = '<p class="empty-state">Starting run&hellip;</p>';
-    fetch(_api('/api/composite-test-run'), {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        id: window._ceCurrent.id,
-        overrides: overrides,
-        steps: steps,
-        emit_paths: window._explorerEmitPaths || [],
-      }),
-    })
-      .then(function(r) { return r.json().then(function(j) { return [r.status, j]; }); })
-      .then(function(parts) {
-        var code = parts[0], body = parts[1];
-        if (code !== 202) {
-          var errMsg = body && body.error
-            ? body.error
-            : ('HTTP ' + code);
+    _confirmRemoteDispatchThen(function () {
+      resultsEl.innerHTML = '<p class="empty-state">Starting run&hellip;</p>';
+      apiFetch('POST', '/api/composite-test-run', {
+          id: window._ceCurrent.id,
+          overrides: overrides,
+          steps: steps,
+          emit_paths: window._explorerEmitPaths || [],
+        })
+        .then(function(r) { return r.json().then(function(j) { return [r.status, j]; }); })
+        .then(function(parts) {
+          var code = parts[0], body = parts[1];
+          if (code !== 202) {
+            var errMsg = body && body.error
+              ? body.error
+              : ('HTTP ' + code);
+            resultsEl.innerHTML =
+              '<div style="color:#c00;"><strong>Could not start run:</strong> ' +
+              _esc(errMsg) + '</div>';
+            return;
+          }
+          // Successful 202 — server accepted the run, returned a run_id.
+          var run_id = body.run_id;
+          window._ceLastRunId = run_id;
+          // Bookmark the new run in the URL so refresh / share works.
+          try {
+            var url = new URL(window.location.href);
+            url.searchParams.set('run_id', run_id);
+            window.history.replaceState({}, '', url.toString());
+            if (window._ceCurrent) window._ceCurrent.run_id = run_id;
+          } catch (e) { /* non-critical */ }
+          // Invalidate the cached History list so the new run shows up the next
+          // time the Results tab is opened; refresh it now if it's already active.
+          window._ceHistoryLoaded = false;
+          var resultsPanel = document.querySelector('.ce-tab-panel[data-tab="results"]');
+          if (resultsPanel && resultsPanel.classList.contains('active')
+              && typeof _ceLoadHistory === 'function') {
+            _ceLoadHistory();
+          }
+          // Hand off to the shared loader — same render path as URL deep-link.
+          _ceLoadRunFromId(run_id);
+        })
+        .catch(function(err) {
           resultsEl.innerHTML =
-            '<div style="color:#c00;"><strong>Could not start run:</strong> ' +
-            _esc(errMsg) + '</div>';
-          return;
-        }
-        // Successful 202 — server accepted the run, returned a run_id.
-        var run_id = body.run_id;
-        window._ceLastRunId = run_id;
-        // Bookmark the new run in the URL so refresh / share works.
-        try {
-          var url = new URL(window.location.href);
-          url.searchParams.set('run_id', run_id);
-          window.history.replaceState({}, '', url.toString());
-          if (window._ceCurrent) window._ceCurrent.run_id = run_id;
-        } catch (e) { /* non-critical */ }
-        // Invalidate the cached History list so the new run shows up the next
-        // time the Results tab is opened; refresh it now if it's already active.
-        window._ceHistoryLoaded = false;
-        var resultsPanel = document.querySelector('.ce-tab-panel[data-tab="results"]');
-        if (resultsPanel && resultsPanel.classList.contains('active')
-            && typeof _ceLoadHistory === 'function') {
-          _ceLoadHistory();
-        }
-        // Hand off to the shared loader — same render path as URL deep-link.
-        _ceLoadRunFromId(run_id);
-      })
-      .catch(function(err) {
-        resultsEl.innerHTML =
-          '<div style="color:#c00;"><strong>Network error:</strong> ' +
-          _esc(String(err)) + '</div>';
-      });
+            '<div style="color:#c00;"><strong>Network error:</strong> ' +
+            _esc(String(err)) + '</div>';
+        });
+    }, function () { resultsEl.innerHTML = '<p class="empty-state">Cancelled.</p>'; });
   }
   window._ceTestRun = _ceTestRun;
 
@@ -8984,16 +9252,12 @@
     var submitBtn = document.querySelector('#form-save-as-study button[type="submit"]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating…'; }
 
-    fetch('/api/study-create-from-run', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+    apiFetch('POST', '/api/study-create-from-run', {
         name: name,
         objective: objective,
         description: description,
         source_run_id: sourceRunId,
-      }),
-    })
+      })
       .then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
       .then(function(res) {
         if (res.status === 200) {
@@ -9042,7 +9306,7 @@
     }
     // Cache not populated yet (user landed here without visiting
     // Simulation Setup). Fetch synchronously-as-possible, then open.
-    fetch('/api/composites')
+    apiFetch('GET', '/api/composites')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var composites = data.composites || [];
@@ -9068,7 +9332,7 @@
   function _loadInvestigations() {
     var _p = window.DataSource
       ? window.DataSource.loadInvestigationsFlat()
-      : fetch('/api/investigations').then(function(r) {
+      : apiFetch('GET', '/api/investigations').then(function(r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         });
@@ -9097,9 +9361,48 @@
   window._isetIndex = [];        // [{name, title, status, studies:[slug, ...]}]
   window._currentIset = null;    // name of the iset currently open in detail view
 
+  // ── Shared, identity-memoized indexes over the workspace's studies/isets ──
+  // Membership resolution used to be an Array.find per member slug inside render
+  // loops → O(N^2) on large workspaces (sms-ecoli). These maps make it O(1); they
+  // rebuild only when the underlying array is REPLACED (a data (re)load swaps the
+  // reference), so no load-site wiring is needed. Same idiom the rail uses.
+  var _sbnCache = null, _sbnSrc;
+  function _studyByName() {
+    var src = window._investigations || [];
+    if (src !== _sbnSrc) {
+      _sbnSrc = src; _sbnCache = {};
+      src.forEach(function(s) { if (s && s.name) _sbnCache[s.name] = s; });
+    }
+    return _sbnCache;
+  }
+  var _ibnCache = null, _ibnSrc;
+  function _isetByName() {
+    var src = window._isetIndex || [];
+    if (src !== _ibnSrc) {
+      _ibnSrc = src; _ibnCache = {};
+      src.forEach(function(i) { if (i && i.name) _ibnCache[i.name] = i; });
+    }
+    return _ibnCache;
+  }
+  var _ifsCache = null, _ifsSrc;
+  function _investigationForStudyMap() {
+    var src = window._isetIndex || [];
+    if (src !== _ifsSrc) {
+      _ifsSrc = src; _ifsCache = {};
+      // First iset wins (a study can belong to several; matches the old .find order).
+      src.forEach(function(iset) {
+        (iset.studies || []).forEach(function(slug) { if (!(slug in _ifsCache)) _ifsCache[slug] = iset.name; });
+      });
+    }
+    return _ifsCache;
+  }
+
   function _loadInvestigationSets() {
     var list = document.getElementById('investigations-list');
-    if (list) list.innerHTML = '<p class="empty-state">Loading…</p>';
+    if (list) {
+      if (window.ProgressTrack) window.ProgressTrack.loading(list);
+      else list.innerHTML = '<p class="empty-state">Loading…</p>';
+    }
     var _p = window.DataSource
       ? window.DataSource.loadIsetList()
       : fetch('/api/investigation-summaries', {headers: {Accept: 'application/json'}})
@@ -9277,36 +9580,58 @@
       var filterStatus = (closed ? 'closed' : effStatus);
 
       // Per-study status → a compact breakdown line + an expandable study list.
-      var _SD = { complete:['#16a34a','done'], running:['#2563eb','running'],
-                  in_progress:['#d97706','in progress'], failed:['#dc2626','failed'],
-                  planning:['#94a3b8','planned'] };
-      function _sMeta(st) { return _SD[st] || _SD[st === 'ran' ? 'complete' : 'planning'] || ['#94a3b8','planned']; }
+      // Keep the "done" vocabulary in sync with the backend roll-up
+      // (_STUDY_STATUS_DONE_ROLLUP): complete/ran/passed/evaluated/decided are all
+      // green "done" states, so a passed study never mislabels as "planned".
       var studyObjs = _isetStudyObjs(iset);
+      // Group the summary chips by the SAME canonical status the dots + graph use.
+      var _stOrder = ['Accepted', 'Investigating', 'Blocked', 'Planned', 'Refuted'];
       var byStatus = {};
       studyObjs.forEach(function(s) {
-        var st = (s && (s.effective_status || s.status)) || 'planning';
-        byStatus[st] = (byStatus[st] || 0) + 1;
+        var meta = _studyStatusMeta(s);
+        (byStatus[meta.label] = byStatus[meta.label] || {n: 0, color: meta.color}).n++;
       });
       var breakdown = Object.keys(byStatus).sort(function(a, b) {
-        return (_statusRank[a] ?? 9) - (_statusRank[b] ?? 9);
-      }).map(function(st) {
-        var m = _sMeta(st);
+        return _stOrder.indexOf(a) - _stOrder.indexOf(b);
+      }).map(function(lab) {
+        var e = byStatus[lab];
         return '<span style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap">' +
-          '<span style="width:8px;height:8px;border-radius:50%;background:' + m[0] + '"></span>' +
-          byStatus[st] + ' ' + _esc(m[1]) + '</span>';
+          '<span style="width:8px;height:8px;border-radius:50%;background:' + e.color + '"></span>' +
+          e.n + ' ' + _esc(lab) + '</span>';
       }).join('<span style="color:#cbd5e1">·</span>');
 
-      // Expandable study list (revealed by clicking the studies count).
+      // Expandable study list (revealed by clicking the studies count): each row
+      // pulls the study's objective text + the consistent action set — downloads
+      // (↓ figures / ↓ notebook, all modes) and, live only, ▶ run / ↻ reproduce.
+      var _isSnap = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
       var studyRows = studyObjs.map(function(s) {
-        var m = _sMeta((s && (s.effective_status || s.status)) || 'planning');
+        var m = _studyStatusMeta(s);
         var slug = (s && s.name) || '';
-        return '<a href="/studies/' + encodeURIComponent(slug) + '" onclick="event.stopPropagation()" ' +
-          'style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:5px;' +
-          'text-decoration:none;color:#334155;font-size:0.86em" ' +
+        var title = (s && s.title) ? String(s.title) : '';
+        var obj = (s && (s.objective || s.description)) ? String(s.objective || s.description) : '';
+        var objShort = obj ? (obj.length > 150 ? obj.slice(0, 150).replace(/\s+\S*$/, '') + '…' : obj) : '';
+        var lnk = 'font-size:0.82em;color:#3b82f6;text-decoration:none;white-space:nowrap;cursor:pointer';
+        // Card rows carry the DOWNLOADS only (↓ figures / ↓ notebook). The
+        // run/reproduce launch actions live on the study tab's header
+        // (▶ Run current spec / ↻ Reproduce), not here — so a card stays a
+        // browse+download surface.
+        var acts =
+          '<a href="#" style="' + lnk + '" title="Download this study\'s figures (and embedded HTML reports) as a zip" ' +
+            'onclick="window._vivStudyFiguresFromCard(event,\'' + _esc(slug) + '\');return false;">↓ figures</a>' +
+          '<a href="#" style="' + lnk + '" title="Download this study\'s own runnable notebook (composite + parameters + figures)" ' +
+            'onclick="window._vivStudyNotebookFromCard(event,\'' + _esc(slug) + '\',\'' + _esc(iset.name) + '\');return false;">↓ notebook</a>';
+        return '<div class="iset-study-row" style="padding:6px;border-radius:5px" ' +
           'onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">' +
-          '<span style="width:7px;height:7px;border-radius:50%;background:' + m[0] + '"></span>' +
-          '<code style="font-size:0.92em;color:#475569">' + _esc(slug) + '</code>' +
-          '<span style="margin-left:auto;color:#94a3b8">' + _esc(m[1]) + '</span></a>';
+          '<div style="display:flex;align-items:center;gap:8px">' +
+            '<span style="width:7px;height:7px;border-radius:50%;background:' + m.color + '"></span>' +
+            '<a href="' + (window.__BASE_PATH__ || '') + '/studies/' + encodeURIComponent(slug) + '" onclick="event.stopPropagation()" style="text-decoration:none">' +
+              '<code style="font-size:0.92em;color:#475569">' + _esc(slug) + '</code></a>' +
+            (title ? '<span style="font-size:0.86em;color:#334155">' + _esc(title) + '</span>' : '') +
+            '<span style="margin-left:auto;color:#94a3b8;font-size:0.82em">' + _esc(m.label) + '</span>' +
+          '</div>' +
+          (objShort ? '<div style="font-size:0.8em;color:#64748b;margin:2px 0 0 15px;line-height:1.35">' + _esc(objShort) + '</div>' : '') +
+          '<div style="display:flex;gap:14px;margin:4px 0 0 15px">' + acts + '</div>' +
+        '</div>';
       }).join('');
 
       var qFull = iset.question ? String(iset.question).split('\n')[0] : '';
@@ -9322,8 +9647,8 @@
              'data-iset-slug="' + _esc(String(iset.name).toLowerCase()) + '" ' +
              'data-iset-status="' + _esc(String(filterStatus).toLowerCase()) + '" ' +
              'style="' + cardStyle + '">' +
-        '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">' +
-          '<strong style="font-size:1.05em;flex:1">' + _esc(iset.title || iset.name) + '</strong>' +
+        '<div style="display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px;">' +
+          '<strong style="font-size:1.05em;flex:1 1 100%">' + _esc(iset.title || iset.name) + '</strong>' +
           currentPill +
           statusPill +
           _originBadge(iset.origin_repo) +
@@ -9340,6 +9665,9 @@
           '<a href="#" title="Download the runnable notebook for this investigation" ' +
             'onclick="window._vivNotebookFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
             'style="color:#3b82f6;text-decoration:none;white-space:nowrap">↓ notebook</a>' +
+          (iset.n_figures ? '<a href="#" title="Download all figures for this investigation (studies figures + post-study composites), as a zip" ' +
+            'onclick="window._vivFiguresFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
+            'style="color:#3b82f6;text-decoration:none;white-space:nowrap">↓ figures</a>' : '') +
         '</div>' +
         '<div class="iset-studies-detail" style="display:' + (full ? 'block' : 'none') + ';margin-top:8px;border-top:1px solid #f1f5f9;padding-top:6px">' + (studyRows || '<span class="muted" style="font-size:0.85em">No studies.</span>') + '</div>' +
         // "Run this investigation in your terminal" chip (like the composite/process card).
@@ -9411,11 +9739,9 @@
 
   // Member study objects for an investigation (from the client studies index).
   function _isetStudyObjs(iset) {
+    var byName = _studyByName();   // O(1) per slug (was Array.find → O(N) per slug)
     return ((iset && iset.studies) || [])
-      .map(function(slug) {
-        return (window._investigations || []).find(function(s) { return s.name === slug; })
-          || { name: slug };
-      });
+      .map(function(slug) { return byName[slug] || { name: slug }; });
   }
 
   function _setIsetSort(value) {
@@ -9436,10 +9762,7 @@
     });
     var createBtn = document.getElementById('iset-browse-create');
     if (createBtn) createBtn.textContent = (tab === 'studies') ? '+ Study' : '+ Investigation';
-    // The zoom toolbar (#iset-zoom-toolbar) is always visible on both tabs —
-    // only the "click a card's studies count" tip is Studies-only.
-    var tip = document.getElementById('iset-list-tip');
-    if (tip) tip.style.display = (tab === 'studies') ? 'none' : '';
+    // The zoom toolbar (#iset-zoom-toolbar) is always visible on both tabs.
     var invCount = document.getElementById('iset-tab-inv-count');
     var studyCount = document.getElementById('iset-tab-study-count');
     if (invCount) invCount.textContent = (window._isetIndex || []).length || '';
@@ -9505,45 +9828,209 @@
   }
   window._setInvestigationContextCollapsed = _setInvestigationContextCollapsed;
 
-  // Study-tabs manager: accumulating, closeable study tabs inside the
-  // investigation workspace (#ws-study-tabs bar -> #ws-study-panel/#ws-study-frame
-  // porthole). Opening a study collapses the investigation context down to the
-  // slim bar; closing the last open tab returns to graph-only.
-  window._wsStudyTabs = { investigation: null, openTabs: [], active: null };
+  // Embedded study view: a SINGLE study opens inline in the investigation
+  // workspace porthole (#ws-study-panel/#ws-study-frame) — opening another study
+  // REPLACES it. The old accumulating, closeable study-tab strip (#ws-study-tabs
+  // with × chips) was removed; `_wsStudyTabs` is now just {investigation, active}
+  // so `active` still drives the open-node highlight in the graph.
+  window._wsStudyTabs = { investigation: null, active: null };
 
   function _wsResetStudyTabs(investigation) {
-    window._wsStudyTabs = { investigation: investigation, openTabs: [], active: null };
-    _wsRenderStudyTabs();
+    window._wsStudyTabs = { investigation: investigation, active: null };
+    window._aigSelected = null;   // fresh investigation -> clear any selection
+    _wsHighlightActiveDagNode(null);
+    _aigStudyActive = false;   // no study open -> let the pane fill the screen again
     var panel = document.getElementById('ws-study-panel');
     if (panel) panel.style.display = 'none';
+    // No study open -> restore the inline investigation view, un-float the graph,
+    // hide the graph-bar navigator, and land GRAPH-PROMINENT: the prose collapsed
+    // behind the "▸ Investigation overview" toggle (so ⛶ "back to graph" shows the
+    // graph on top, not a wall of prose).
+    _setInvProseForStudy(false);
+    _aigExitDock();
+    _applyInvOverviewState();
+    _renderGraphBarNav();
     _setInvestigationContextCollapsed(false);   // fresh investigation -> graph expanded
+    try { _applyAigZoom(); _aigAutoFillInline(); } catch (e) { /* ignore */ }  // restore full-height pane
   }
   window._wsResetStudyTabs = _wsResetStudyTabs;
 
-  function _wsRenderStudyTabs() {
-    var bar = document.getElementById('ws-study-tabs');
-    if (!bar) return;
-    var st = window._wsStudyTabs;
-    if (!st.openTabs.length) { bar.style.display = 'none'; bar.innerHTML = ''; return; }
-    bar.style.display = '';
-    bar.innerHTML = st.openTabs.map(function (slug) {
-      var on = slug === st.active;
-      return '<span class="ws-study-tab" data-ws-tab="' + _esc(slug) + '" ' +
-        'style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;' +
-        'border-bottom:2px solid ' + (on ? '#3b82f6' : 'transparent') + ';' +
-        'color:' + (on ? '#0f172a' : '#64748b') + ';font-weight:' + (on ? '600' : '400') + ';margin-bottom:-1px">' +
-        '<span onclick="_wsOpenStudyTab(\'' + _esc(slug) + '\')">' + _esc(slug) + '</span>' +
-        '<span onclick="event.stopPropagation();_wsCloseStudyTab(\'' + _esc(slug) + '\')" ' +
-        'title="close" style="color:#94a3b8;font-weight:700">×</span></span>';
-    }).join('');
+  // Highlight the open study's node in the investigation graph (clearing any
+  // previously-open one), matching on the slug stamped on each node by
+  // _renderInvestigationDag. Called on every tab change AND re-applied after a
+  // graph re-render so the highlight survives. Node slug === the tab slug (both
+  // are s.name, the study slug the open handlers take).
+  function _wsHighlightActiveDagNode(slug) {
+    try {
+      var nodes = document.querySelectorAll('.iset-dag-node[data-study]');
+      for (var i = 0; i < nodes.length; i++) {
+        nodes[i].classList.toggle(
+          'aig-node-active', !!slug && nodes[i].getAttribute('data-study') === slug);
+      }
+    } catch (e) { /* graph not mounted yet — no-op */ }
   }
-  window._wsRenderStudyTabs = _wsRenderStudyTabs;
+  window._wsHighlightActiveDagNode = _wsHighlightActiveDagNode;
+
+  // ── Investigation-graph SELECTION (distinct from OPEN/active) ──────────────
+  // Two-stage interaction: one click SELECTS a study (a "selected" highlight +,
+  // at readable semantic-zoom bands, the full study info expanded in place); a
+  // second click on the already-selected study OPENS it (moves the "open" marker
+  // there — see _wsHighlightActiveDagNode). A node can be BOTH selected and open,
+  // showing both highlights. The selected slug lives on window so it survives the
+  // graph re-renders a band change triggers.
+  window._aigSelected = window._aigSelected || null;
+  function _aigCssEsc(s) {
+    try { if (window.CSS && CSS.escape) return CSS.escape(String(s)); } catch (e) {}
+    return String(s).replace(/["\\\]]/g, '\\$&');
+  }
+  // Expand/collapse ONE DAG node IN PLACE: the card's top-left stays anchored and
+  // the full detail block (Asks / Finds / plan + "Open study →") grows DOWNWARD,
+  // making the card taller where it already sits. The compact preview rows (clamped
+  // Asks/Finds + the band-2 inline plan) are hidden while expanded so nothing is
+  // duplicated. Pure DOM — NO relayout, so the card is never re-centered or
+  // repositioned; it may overlap the neighbours below it (a raised z-index keeps
+  // it on top) and the graph shell grows its scroll extent (see
+  // _aigAccommodateExpansion) so the user can scroll down to the added content.
+  function _aigSetNodeExpanded(node, want) {
+    if (!node) return;
+    var exp = !!want;
+    node.classList.toggle('aig-node-expanded', exp);
+    node.querySelectorAll('.aig-clamp, .aig-plan-inline').forEach(function (el) {
+      el.style.display = exp ? 'none' : '';
+    });
+    var full = node.querySelector('.aig-full-details');
+    if (full) full.style.display = exp ? 'block' : 'none';
+    var label = node.querySelector('.aig-more-label');
+    if (label) label.textContent = exp ? 'collapse' : (label.getAttribute('data-compact') || 'show full card');
+    var icon = node.querySelector('.aig-more-icon');
+    if (icon) icon.textContent = exp ? '⤡' : '⤢';
+    var btn = node.querySelector('.aig-more-findings');
+    if (btn) btn.setAttribute('aria-expanded', exp ? 'true' : 'false');
+    node.style.zIndex = exp ? '60' : '';
+    node.style.boxShadow = exp ? '0 8px 24px rgba(0,0,0,0.18)' : '';
+  }
+  window._aigSetNodeExpanded = _aigSetNodeExpanded;
+  // Re-assert the selected highlight after a (re-)render so it survives. Only the
+  // class — the full-info view expands IN PLACE inside the card (see
+  // _aigSetNodeExpanded), not in a floating panel.
+  function _aigApplySelection(slug) {
+    try {
+      var nodes = document.querySelectorAll('.iset-dag-node[data-study]');
+      for (var i = 0; i < nodes.length; i++) {
+        nodes[i].classList.toggle('aig-node-selected',
+          !!slug && nodes[i].getAttribute('data-study') === slug);
+      }
+    } catch (e) { /* graph not mounted — no-op */ }
+  }
+  window._aigApplySelection = _aigApplySelection;
+
+  // ── Selected-card FULL DETAIL (inline) ─────────────────────────────────────
+  // The full Asks / Finds / plan body, from the study DATA (not the band-limited
+  // inline preview) so it reads the same at any zoom. Rendered hidden inside each
+  // node and revealed in place by _aigSetNodeExpanded when the user expands the
+  // card — it is NOT a floating panel.
+  function _aigCardDetailHtml(s) {
+    var q = (s.question || '').replace(/\s+/g, ' ').trim();
+    var finds = _asFindings(s.findings);
+    var H = '';
+    if (q) H += '<div style="margin-top:4px"><span style="font-weight:700;color:#475569">Asks:</span> ' + _esc(q) + '</div>';
+    H += '<div style="margin-top:12px;font-weight:700;color:#475569">Finds:</div>';
+    if (finds && finds.length) {
+      H += finds.map(function (f) {
+        return '<div style="margin-top:6px;padding-left:10px;border-left:2px solid #e2e8f0">' +
+          _esc((f.summary || f.statement || f.id || '').replace(/\s+/g, ' ').trim()) + '</div>';
+      }).join('');
+    } else {
+      H += '<div style="margin-top:4px;color:#94a3b8"><em>pending evidence</em></div>';
+    }
+    try { var plan = _dagPlanHtml(s); if (plan) H += '<div style="margin-top:14px">' + plan + '</div>'; } catch (e) { /* no plan layer */ }
+    return H;
+  }
+  window._aigCardDetailHtml = _aigCardDetailHtml;
+
+  // Back-compat no-op: the floating popout was replaced by in-place expansion, but
+  // a few zoom/layout call sites still call this defensively. Nothing to close now.
+  function _aigCloseCardPopout() { /* popout removed — in-place expansion replaces it */ }
+  window._aigCloseCardPopout = _aigCloseCardPopout;
+
+  // After a card expands/collapses in place, grow (or shrink back) the graph
+  // shell's scroll extent so the taller card's extra content is reachable by
+  // scrolling the graph window — WITHOUT relaying out (node tops stay anchored).
+  // The shell scrolls against the .aig-spacer that _applyAigZoom sizes from
+  // shell.dataset.canvasH, so we extend canvasH to the lowest card bottom.
+  function _aigAccommodateExpansion() {
+    var shell = document.getElementById('investigation-dag-shell');
+    var nodes = document.getElementById('investigation-dag-nodes');
+    if (!shell || !nodes) return;
+    var base = parseFloat(shell.dataset.layoutCanvasH) || parseFloat(shell.dataset.canvasH) || 0;
+    var maxBottom = 0;
+    nodes.querySelectorAll('.iset-dag-node').forEach(function (n) {
+      var b = n.offsetTop + n.offsetHeight;
+      if (b > maxBottom) maxBottom = b;
+    });
+    var need = Math.max(base, Math.ceil(maxBottom) + 24);
+    nodes.style.height = need + 'px';
+    shell.dataset.canvasH = String(need);
+    try { _applyAigZoom(); } catch (e) { /* zoom not ready */ }
+  }
+  window._aigAccommodateExpansion = _aigAccommodateExpansion;
+
+  // The next study along this investigation's leads-to chain, for the study
+  // detail panel's "Next study →" button. Uses the server-computed studyEdges
+  // (source -> target == leads-to) captured in _lastDagArgs, falling back to the
+  // per-study children map. Returns the next slug, or null on a terminal study /
+  // when the graph isn't available. On a branch point, returns the first target.
+  function _nextStudySlug(current) {
+    if (!current) return null;
+    try {
+      var strip = function (n) { return String(n == null ? '' : n).trim(); };
+      var args = _lastDagArgs || [];
+      // Primary: server-computed studyEdges (source -> target == leads-to).
+      var edges = args[2] || [];
+      for (var i = 0; i < edges.length; i++) {
+        var e = edges[i] || {};
+        if (strip(e.source) === current && strip(e.target)) return strip(e.target);
+      }
+      // Fallback: a study whose parent_studies lists `current` is its child
+      // (current leads-to it) — covers investigations with no server edges.
+      var studies = args[0] || [];
+      for (var j = 0; j < studies.length; j++) {
+        var sj = studies[j] || {};
+        var parents = sj.parent_studies || [];
+        for (var k = 0; k < parents.length; k++) {
+          var pk = parents[k];
+          var pname = (pk && typeof pk === 'object') ? (pk.study || pk.name || pk.slug) : pk;
+          if (strip(pname) === current) return strip(sj.name || sj.slug);
+        }
+      }
+      // Final fallback: a terminal / off-chain node (e.g. an adversarial control
+      // that refutes rather than leads-to) has no successor in the leads-to chain.
+      // Rather than dead-end the "Next study →" button, follow the investigation's
+      // study order so it keeps advancing through every study. Null only on the
+      // genuinely last study.
+      var order = studies.map(function (s) { return strip((s || {}).name || (s || {}).slug); })
+                         .filter(function (n) { return n; });
+      var idx = order.indexOf(current);
+      if (idx !== -1 && idx + 1 < order.length) return order[idx + 1];
+      return null;
+    } catch (e) { return null; }
+  }
+  window._nextStudySlug = _nextStudySlug;
 
   function _wsOpenStudyTab(slug, tab) {
     var st = window._wsStudyTabs;
-    if (st.openTabs.indexOf(slug) === -1) st.openTabs.push(slug);
-    st.active = slug;
-    _wsRenderStudyTabs();
+    st.active = slug;                       // single open study — replaces any prior
+    _wsHighlightActiveDagNode(slug);        // mark the open node in the graph
+    // Opening a study collapses the investigation overview by default (it reopens
+    // via the header toggle, and re-opens automatically on return to the overview).
+    // Fully collapses (not just scrolled out of view) — click the toggle to show.
+    try { localStorage.setItem('inv-overview-collapsed', '1'); } catch (e) { /* ignore */ }
+    if (typeof _applyInvOverviewState === 'function') _applyInvOverviewState();
+    // The study opens INLINE below the investigation graph (the original behavior),
+    // with the graph↔study resize bar between them so the graph pane can be resized.
+    // The investigation carries its slim title bar and can be dragged to a side
+    // window manually; opening a study no longer forces that.
+    _renderGraphBarNav();
     var panel = document.getElementById('ws-study-panel');
     var frame = document.getElementById('ws-study-frame');
     if (panel) panel.style.display = '';
@@ -9552,80 +10039,61 @@
       if (tab) href += (href.indexOf('?') >= 0 ? '&' : '?') + 'tab=' + encodeURIComponent(tab);
       frame.src = href;
     }
-    // Keep the investigation context (overview + knowledge graph) EXPANDED above
-    // the study instead of collapsing it to the slim bar, and grow the study
-    // porthole to its content height, so the whole workspace is one continuous
-    // scroll: land on the study, scroll up into the graph and past it to the
-    // overview (user request).
+    // Remember the tab we opened on, so the next prev/next step keeps it (the
+    // iframe also re-asserts this via postMessage once it finishes loading).
+    window._wsStudyTabs = window._wsStudyTabs || {};
+    window._wsStudyTabs.tab = tab || 'overview';
+    // Shrink the graph pane (via _aigStudyActive in the height block) so the
+    // study card below rises up, and then bring the study panel clearly into
+    // view: docked at the very bottom it was easy to miss ("I didn't know it
+    // was showing"). scroll-margin-top on #ws-study-panel leaves a strip of the
+    // graph above so you can still scroll up into it; a brief flash cues the
+    // change. _embedLandingUntil shields the smooth scroll from the fit
+    // observer's height:0 measure + scroll-restore (would otherwise snap back).
     _setInvestigationContextCollapsed(false);
-    // Open a landing window BEFORE sizing: while active, content-driven refits
-    // skip their scroll-restore so they can't cancel the scroll-to-study below.
-    var _HOLD_MS = 1800;
-    window._embedLandingUntil = Date.now() + _HOLD_MS;
-    if (typeof _fitEmbedToContent === 'function') _fitEmbedToContent(frame, 560);
+    _aigStudyActive = true;
+    try { _applyAigZoom(); _aigAutoFillInline(); } catch (e) { /* ignore */ }
+    if (typeof _fitEmbedToContent === 'function') _fitEmbedToContent(frame);
     else if (typeof _fitEmbedToViewport === 'function') _fitEmbedToViewport(frame, panel, 560);
-    // Land on the study AND actively HOLD it there. A one-shot smooth scroll
-    // wasn't enough: the investigation graph / About block re-renders (and the
-    // iframe refits) AFTER the scroll, springing the view back up to the top.
-    // So for a short window we re-land whenever the study gets pushed back down
-    // the page — releasing immediately on the first genuine user scroll so the
-    // user can freely scroll up into the graph.
-    if (panel && panel.scrollIntoView) {
-      var _released = false, _lastAssert = 0, _holdUntil = Date.now() + _HOLD_MS;
-      var _release = function () { _released = true; };
-      window.addEventListener('wheel', _release, { passive: true, once: true });
-      window.addEventListener('touchmove', _release, { passive: true, once: true });
-      window.addEventListener('keydown', function (e) {
-        if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].indexOf(e.key) !== -1) _release();
-      }, { once: true });
-      var _tick = function () {
-        if (_released || !panel.isConnected) return;
-        var now = Date.now();
-        // panel.top well below the viewport top ⇒ the view sprang back up to the
-        // graph; re-land (throttled so smooth animations don't stack).
-        if (panel.getBoundingClientRect().top > 96 && now - _lastAssert > 240) {
-          _lastAssert = now;
-          try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {}
+    if (panel) {
+      // Reveal the study panel ONLY when it's crammed near the very bottom
+      // (mostly off-screen). If it's already reasonably visible — which includes
+      // stepping between studies, where the panel's position doesn't change — do
+      // NOT scroll: leave the view exactly where it is. The iframe sizes async,
+      // so wait until the panel has real height before judging its position.
+      if (panel._bringT) clearTimeout(panel._bringT);
+      var _maybeReveal = function () {
+        var r = panel.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        // Already visible enough (top in the upper ~80% of the viewport)? Leave it.
+        if (!vh || r.top <= vh * 0.80) return;
+        // It's at the very bottom — pop it up just enough to reveal a good chunk,
+        // not all the way to the top.
+        var delta = Math.round(r.top - vh * 0.45);
+        if (delta < 24) return;
+        var sc = panel.parentElement;
+        while (sc) {
+          var oy = getComputedStyle(sc).overflowY;
+          if ((oy === 'auto' || oy === 'scroll') && sc.scrollHeight - sc.clientHeight > 1) break;
+          sc = sc.parentElement;
         }
-        if (now < _holdUntil) requestAnimationFrame(_tick);
-        else {
-          window.removeEventListener('wheel', _release);
-          window.removeEventListener('touchmove', _release);
-        }
+        window._embedLandingUntil = Date.now() + 700;   // shield from the fit observer's scroll-restore
+        if (sc) { try { sc.scrollBy({ top: delta, behavior: 'smooth' }); } catch (e) { sc.scrollTop += delta; } }
+        else { try { window.scrollBy({ top: delta, behavior: 'smooth' }); } catch (e) { window.scrollBy(0, delta); } }
       };
-      var _landed = false;
-      var _land = function () {
-        if (_landed || !panel.isConnected) return;
-        _landed = true;
-        try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) {}
-        requestAnimationFrame(_tick);   // start the hold once we've landed
+      var _whenSized = function (left) {
+        if (panel.getBoundingClientRect().height > 120) { _maybeReveal(); }
+        else if (left > 0) panel._bringT = setTimeout(function () { _whenSized(left - 1); }, 160);
       };
-      if (frame) frame.addEventListener('load', function () { setTimeout(_land, 80); }, { once: true });
-      setTimeout(_land, 600);   // fallback if load already fired or never fires
-      // After the hold window, one final content-fit (suppressed during it) so
-      // the porthole ends at its true height, preserving the landed position.
-      if (frame) setTimeout(function () { if (frame._refit) frame._refit(); }, _HOLD_MS + 150);
+      panel._bringT = setTimeout(function () { _whenSized(44); }, 80);
+      panel.classList.remove('ws-study-panel-flash');
+      void panel.offsetWidth;                 // restart the flash animation
+      panel.classList.add('ws-study-panel-flash');
+      if (panel._flashT) clearTimeout(panel._flashT);
+      panel._flashT = setTimeout(function () { panel.classList.remove('ws-study-panel-flash'); }, 1500);
     }
   }
   window._wsOpenStudyTab = _wsOpenStudyTab;
-
-  function _wsCloseStudyTab(slug) {
-    var st = window._wsStudyTabs;
-    var wasActive = (st.active === slug);
-    var i = st.openTabs.indexOf(slug);
-    if (i !== -1) st.openTabs.splice(i, 1);
-    if (wasActive) st.active = st.openTabs[Math.max(0, i - 1)] || st.openTabs[0] || null;
-    _wsRenderStudyTabs();
-    if (!wasActive) return;                      // background tab closed -> porthole untouched
-    if (st.active) {
-      _wsOpenStudyTab(st.active);                // re-focus nearest remaining tab
-    } else {
-      var panel = document.getElementById('ws-study-panel');
-      if (panel) panel.style.display = 'none';
-      _setInvestigationContextCollapsed(false);  // last tab closed -> graph-only
-    }
-  }
-  window._wsCloseStudyTab = _wsCloseStudyTab;
 
   // Task 5: render an investigation's graph + objective into an arbitrary mount
   // (the workspace #ws-context). Reuses the v3 detail renderer verbatim by
@@ -9646,6 +10114,10 @@
       if (back) back.style.display = 'none';
       var titleEl = document.getElementById('investigation-detail-title');
       if (titleEl && titleEl.parentNode) titleEl.parentNode.style.display = 'none';
+      // Graph-prominent inline view: the investigation prose starts collapsed
+      // behind the "▸ Investigation overview" toggle (default), so the graph is
+      // top-aligned right after the title + toggle.
+      _applyInvOverviewState();
     }
     if (typeof _openInvestigationDetail === 'function') _openInvestigationDetail(name);
   }
@@ -9657,14 +10129,63 @@
     var actions = document.getElementById('ws-actions');
     if (!actions) return;
     var isSnapshot = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
+    var name = window._wsInvestigation || window._currentIset || '';
+    // Match the investigation CARD's ↓ actions (↓ report / ↓ notebook / ↓ figures)
+    // instead of the old emoji buttons. ↓ figures ALWAYS shows here (so the
+    // affordance is discoverable) but starts DISABLED/greyed; the async summary
+    // upgrades it to an active download when the investigation actually has
+    // figures (same n_figures signal as the card).
+    // Single "↓ Export ▾" dropdown consolidating report / notebook / figures
+    // (was three separate buttons). The figures item starts disabled and is
+    // upgraded async below when the investigation actually has figures.
+    //
+    // That async upgrade is snapshot-aware: DataSource.loadIsetList() maps to the
+    // baked /api/investigation-summaries.json in a published bundle. The `_api()`
+    // adapter only prefixes the base path (never appends `.json`), so it 404s in a
+    // snapshot — leaving the ↓ figures button greyed even when figures.zip is
+    // baked. DataSource is always present in a published bundle.
+    var _mi = 'class="btn-mini" role="menuitem" style="display:block;width:100%;text-align:left;border:none;background:transparent"';
+    var _figuresMenuItem =
+      '<span id="ws-actions-figures">' +
+        '<button class="btn-mini" role="menuitem" disabled ' +
+          'title="No figures yet — run this investigation\'s studies to generate them" ' +
+          'style="display:block;width:100%;text-align:left;border:none;background:transparent;opacity:0.5;cursor:not-allowed">Figures (none yet)</button>' +
+      '</span>';
+    var _exportDd =
+      '<span class="inv-report-wrap" style="position:relative;display:inline-flex">' +
+        '<button class="btn-mini" id="inv-report-btn" aria-haspopup="true" ' +
+          'aria-label="Export" title="Export — report, notebook, or figures" onclick="_toggleInvReportMenu(event)"><span aria-hidden="true">↓</span> Export ▾</button>' +
+        '<div id="inv-report-menu" role="menu" style="display:none;position:absolute;left:0;top:100%;margin-top:4px;' +
+          'background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.14);z-index:70;min-width:170px;padding:4px">' +
+          '<button ' + _mi + ' onclick="_closeInvReportMenu();_downloadInvestigationReport(null,\'html\')">HTML report</button>' +
+          '<button ' + _mi + ' onclick="_closeInvReportMenu();_downloadInvestigationReport(null,\'pdf\')">PDF report</button>' +
+          '<button ' + _mi + ' onclick="_closeInvReportMenu();_downloadInvestigationNotebook()">Notebook</button>' +
+          _figuresMenuItem +
+        '</div>' +
+      '</span> ';
     actions.innerHTML =
-      '<button class="btn-mini" onclick="_generateInvestigationReport()" ' +
-        'title="Generate a shareable HTML report">Report 📄</button> ' +
-      '<button class="btn-mini" onclick="_downloadInvestigationNotebook()" ' +
-        'title="Download a self-contained Jupyter notebook">Notebook 📓</button>' +
+      _exportDd +
       (isSnapshot ? '' :
       ' <button class="btn-mini" onclick="_rerunInvestigation()" ' +
-        'title="Re-run every member study\'s CURRENT baseline spec (re-derives from each study\'s study.yaml)">▶ Run current spec</button>');
+        'aria-label="Run current spec" ' +
+        'title="Run current spec — re-run every member study\'s CURRENT baseline (re-derives from each study.yaml)"><span aria-hidden="true">▶</span> Run</button>');
+    if (name) {
+      (window.DataSource
+        ? window.DataSource.loadIsetList()
+        : fetch('/api/investigation-summaries', {headers: {Accept: 'application/json'}})
+            .then(function (r) { return r.json(); }))
+        .then(function (j) {
+          var me = ((j && j.investigations) || []).filter(function (i) { return i.name === name; })[0];
+          var host = document.getElementById('ws-actions-figures');
+          if (me && me.n_figures && host) {
+            host.innerHTML = '<button class="btn-mini" role="menuitem" ' +
+              'style="display:block;width:100%;text-align:left;border:none;background:transparent" ' +
+              'onclick="_closeInvReportMenu();window._vivFiguresFromCard(event,\'' + _esc(name) + '\')" ' +
+              'title="Download all figures (studies figures + post-study composites) as a zip">Figures (zip)</button>';
+          }
+          // else: leave the disabled/greyed ↓ figures in place.
+        }).catch(function () {});
+    }
   }
   window._wsSetInvestigationActions = _wsSetInvestigationActions;
 
@@ -9676,14 +10197,41 @@
     window._wsInvestigation = name;
     _showWorkspace();
     var title = document.getElementById('ws-title');
-    if (title) title.textContent = 'Investigation: ' + name;
+    if (title) {
+      // Show the investigation's display title (fall back to the slug when
+      // there's no title). Routing/API still keys off `name` (the slug).
+      var _iset = (window._isetIndex || []).find(function (i) { return i.name === name; });
+      var _label = (_iset && _iset.title) || name;
+      title.textContent = _label; title.title = _label;
+    }
+    var kicker = document.getElementById('ws-title-kicker');
+    if (kicker) kicker.textContent = 'Investigation';
     var status = document.getElementById('ws-status');
     if (status) { status.textContent = ''; status.className = ''; }
+    // Entering an investigation (no study yet): show the overview OPEN at the top,
+    // the graph inline below it (scroll down). Study-open collapses the overview.
+    try { localStorage.setItem('inv-overview-collapsed', '0'); } catch (e) { /* ignore */ }
+    if (window.GraphPanel && GraphPanel.isOpen && GraphPanel.isOpen()) GraphPanel.close();
     // Always the graph + objective detail — NOT the legacy "Study:<inv>" icon view.
     var ctx = document.getElementById('ws-context');
     if (ctx) _renderInvestigationDetailInto(name, ctx);
     _wsResetStudyTabs(name);   // graph expanded, no study open
     _wsSetInvestigationActions();   // Report/Notebook actions in #ws-actions
+    if (typeof _applyInvOverviewState === 'function') _applyInvOverviewState();
+    // The investigation graph shows by DEFAULT (the standalone collapsed bar was
+    // removed, so a stale collapsed state would otherwise leave it invisible with
+    // no affordance). Expand it on open; the header "Graph" button toggles it.
+    if (typeof _aigExpandInline === 'function') {
+      var _fsG = document.getElementById('investigation-dag-fs');
+      if (_fsG && _fsG.classList.contains('aig-collapsed')) _aigExpandInline();
+    }
+    // Sync the header "Graph" button caret after the graph has had a chance to
+    // render + auto-fill (its height, hence "shown", is set asynchronously).
+    if (typeof _aigSyncGraphToggle === 'function') {
+      _aigSyncGraphToggle();
+      setTimeout(_aigSyncGraphToggle, 400);
+      setTimeout(_aigSyncGraphToggle, 1200);
+    }
   }
   window._showInvestigationWorkspace = _showInvestigationWorkspace;
 
@@ -9740,7 +10288,7 @@
     var errEl = form.querySelector('.form-error');
     if (!name) { errEl.textContent = 'Name required.'; return; }
     var post = function (url, body) {
-      return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      return apiFetch('POST', url, body)
         .then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
     };
     if (window._browseCreateMode === 'investigation') {
@@ -9759,7 +10307,7 @@
           if (!p[0]) { errEl.textContent = p[1].error || 'Create failed.'; return; }
           var created = (p[1] && p[1].name) || name;
           // Seed the question on the scaffolded study (best-effort).
-          post('/api/study-narrative-set', { study: created, path: 'purpose.question', value: prompt })
+          apiFetch('PATCH', '/api/study/' + encodeURIComponent(created), { narrative: { path: 'purpose.question', value: prompt } })
             .catch(function () {}).then(function () {
               closeModal('modal-browse-create');
               window._investigationsLoaded = false;
@@ -9772,17 +10320,10 @@
   window._submitBrowseCreate = _submitBrowseCreate;
 
   // Status dot vocab shared by the study cards + breakdowns.
-  var _STUDY_DOT = {
-    complete: ['#16a34a', 'done'], ran: ['#16a34a', 'done'],
-    running: ['#2563eb', 'running'], in_progress: ['#d97706', 'in progress'],
-    failed: ['#dc2626', 'failed'], planning: ['#94a3b8', 'planned'],
-    planned: ['#94a3b8', 'planned'],
-  };
-  function _studyDotMeta(st) { return _STUDY_DOT[st] || _STUDY_DOT.planned; }
 
   function _studyBrowseCardHtml(s, full) {
     var status = s.effective_status || s.status || 'planned';
-    var m = _studyDotMeta(status);
+    var m = _studyStatusMeta(s);  // unified status source (see _studyStatusMeta)
     var inv = _investigationForStudy(s.name);
     var q = s.question || s.objective || '';
     var qText = String(q).split('\n')[0];
@@ -9798,10 +10339,10 @@
            'data-iset-slug="' + _esc(String(s.name).toLowerCase()) + '" ' +
            'data-iset-status="' + _esc(String(status).toLowerCase()) + '" ' +
            'style="' + cardStyle + '">' +
-      '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">' +
-        '<strong style="font-size:1.02em;flex:1">' + _esc(s.title || s.name) + '</strong>' +
+      '<div style="display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;margin-bottom:6px;">' +
+        '<strong style="font-size:1.02em;flex:1 1 100%">' + _esc(s.title || s.name) + '</strong>' +
         '<span style="font-size:0.72em;border-radius:9999px;padding:1px 9px;white-space:nowrap;' +
-          'background:' + m[0] + '22;color:' + m[0] + ';border:1px solid ' + m[0] + '55">' + _esc(m[1]) + '</span>' +
+          'background:' + m.color + '22;color:' + m.color + ';border:1px solid ' + m.color + '55">' + _esc(m.label) + '</span>' +
         _originBadge(s.origin_repo) +
       '</div>' +
       (inv ? '<div style="font-size:0.78em;color:#94a3b8;margin:0 0 6px"><span style="color:#cbd5e1">▪</span> ' + _esc(inv) + '</div>' : '') +
@@ -9863,7 +10404,7 @@
   // Investigation title for a slug (Studies table's Investigation column).
   function _isetTitleForSlug(inv) {
     if (!inv) return 'Ungrouped';
-    var it = (window._isetIndex || []).find(function (i) { return i.name === inv; });
+    var it = _isetByName()[inv];   // O(1)
     return (it && (it.title || it.name)) || inv;
   }
   function _fmtStudyDate(iso) {
@@ -9908,7 +10449,7 @@
       var inv = _investigationForStudy(s.name) || '';
       var invTitle = _isetTitleForSlug(inv);
       var status = s.effective_status || s.status || 'planned';
-      var m = _studyDotMeta(status);
+      var m = _studyStatusMeta(s);  // unified status source (see _studyStatusMeta)
       var runs = runsOf(s);
       var rowText = (String(s.title || s.name) + ' ' + inv + ' ' + invTitle + ' ' + status + ' ' + (s.phase || '')).toLowerCase();
       return '<tr data-row-text="' + _esc(rowText) + '" onclick="_openStudyEmbeddedNewTab(\'' + _esc(s.name) + '\')" ' +
@@ -9916,7 +10457,7 @@
         'onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">' +
         '<td style="padding:7px 10px;font-weight:600;color:#1e293b">' + _esc(s.title || s.name) + '</td>' +
         '<td style="padding:7px 10px;color:#64748b">' + _esc(invTitle) + '</td>' +
-        '<td style="padding:7px 10px;white-space:nowrap"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + m[0] + ';margin-right:5px"></span>' + _esc(m[1]) + '</td>' +
+        '<td style="padding:7px 10px;white-space:nowrap"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + m.color + ';margin-right:5px"></span>' + _esc(m.label) + '</td>' +
         '<td style="padding:7px 10px;color:#64748b">' + _esc(s.phase || '—') + '</td>' +
         '<td style="padding:7px 10px;text-align:right;color:' + (runs ? '#1e293b' : '#cbd5e1') + '">' + runs + '</td>' +
         '<td style="padding:7px 10px;color:#64748b;white-space:nowrap">' + _fmtStudyDate(s.last_run) + '</td>' +
@@ -9984,6 +10525,9 @@
           '<a href="#" title="Download the runnable notebook for this investigation" ' +
             'onclick="window._vivNotebookFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
             'style="color:#3b82f6;text-decoration:none">↓ notebook</a>' +
+          (iset.n_figures ? '<a href="#" title="Download all figures for this investigation (studies figures + post-study composites), as a zip" ' +
+            'onclick="window._vivFiguresFromCard(event,\'' + _esc(iset.name) + '\');return false;" ' +
+            'style="color:#3b82f6;text-decoration:none;margin-left:10px">↓ figures</a>' : '') +
         '</td>' +
         '</tr>';
     }).join('');
@@ -10011,13 +10555,12 @@
     }
     var cards = document.querySelectorAll('#investigations-list .investigation-set-card');
 
-    // iset slug -> member study objects, for study-aware matching.
+    // iset slug -> member study objects, for study-aware matching (O(1) lookups).
+    var byName = _studyByName();
     var studiesByIset = {};
     (window._isetIndex || []).forEach(function(iset) {
       studiesByIset[iset.name] = (iset.studies || [])
-        .map(function(slug) {
-          return (window._investigations || []).find(function(s) { return s.name === slug; });
-        }).filter(Boolean);
+        .map(function(slug) { return byName[slug]; }).filter(Boolean);
     });
 
     function _cardMatches(card, requireAll) {
@@ -10054,17 +10597,21 @@
     if (empty) empty.style.display = anyVisible ? 'none' : '';
   }
   window._filterInvestigations = _filterInvestigations;
+  // Debounced input handler (the filter is show/hide, but still O(cards) per call —
+  // coalesce fast typing). _filterInvestigations stays immediate for programmatic use.
+  var _invFilterTimer = 0;
+  function _filterInvestigationsInput() {
+    if (_invFilterTimer) clearTimeout(_invFilterTimer);
+    _invFilterTimer = setTimeout(function() { _invFilterTimer = 0; _filterInvestigations(); }, 130);
+  }
+  window._filterInvestigationsInput = _filterInvestigationsInput;
 
   // Close/Reopen an investigation: POST the new status, then reload the list.
   // Resilient — never throws; surfaces a brief inline error on the button.
   function _setInvestigationStatus(btn, name, status) {
     var orig = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
-    fetch('/api/investigation-set-status', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: name, status: status}),
-    })
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(name), {status: status})
       .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function() {
         if (typeof _loadInvestigationSets === 'function') _loadInvestigationSets();
@@ -10293,6 +10840,7 @@
     function inline(s) {
       s = _escInv(s);
       s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');   // *italic* (after **bold**)
       s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
       return s;
     }
@@ -10376,6 +10924,71 @@
   // headline; the verdict answers it as a colored status line (not a box); depth
   // (how-to-read / biology / background / glossary) lives in one flat tab strip.
   // Reads the SAME canonical fields as the downloaded report's executive summary.
+  // Plan-progress board: the investigation's cumulative gates (A→E) with a LIVE
+  // status derived server-side (lib/plan_board) from member-study state — a
+  // campaign-level roadmap rendered directly under the brief. Empty when the
+  // investigation declares no plan_gates.
+  function _planBoardHtml(d, opts) {
+    var gates = (d && d.plan_board) || [];
+    if (!gates.length) return '';
+    // Honest status set: executed gates show their real verdict (met/qualified/
+    // refuted), not a cascaded "blocked". passed==met (clean); qualified = met
+    // with caveats; refuted = a tested-and-refuted (off-spine) branch.
+    opts = opts || {};
+    var compact = !!opts.compact;   // slim one-row chips for the "Plan progress" tab
+    var meta = {
+      passed:      { cls: 'passed',    label: 'passed' },
+      met:         { cls: 'passed',    label: 'met' },
+      qualified:   { cls: 'qualified', label: 'qualified' },
+      refuted:     { cls: 'refuted',   label: 'refuted' },
+      in_progress: { cls: 'progress',  label: 'in progress' },
+      blocked:     { cls: 'blocked',   label: 'blocked' },
+      pending:     { cls: 'pending',   label: 'pending' },
+    };
+    var H = ['<section class="inv-plan-board' + (compact ? ' inv-plan-board-compact' : '') + '">'];
+    // The tab label already says "Plan progress" — drop the redundant heading in compact mode.
+    if (!compact) H.push('<h3 class="inv-plan-board-title">Plan progress · cumulative gates</h3>');
+    // Honest at-a-glance tally by outcome — NOT a strict "passed" count (which reads 0
+    // against met/qualified/refuted verdicts and makes an evaluated board look idle).
+    var _tally = {};
+    gates.forEach(function (g) { _tally[g.status] = (_tally[g.status] || 0) + 1; });
+    var _tOrder = ['passed', 'met', 'qualified', 'refuted', 'in_progress', 'blocked', 'pending'];
+    var _tBits = [];
+    _tOrder.forEach(function (s) { if (_tally[s]) _tBits.push(_tally[s] + ' ' + (meta[s] ? meta[s].label : s)); });
+    if (_tBits.length)
+      H.push('<div class="inv-plan-tally" style="font-size:0.82em;color:#64748b;margin:' +
+             (compact ? '0 0 8px' : '2px 0 10px') + '">' + _escInv(_tBits.join(' · ')) + '</div>');
+    H.push('<ol class="inv-plan-gates">');
+    gates.forEach(function (g) {
+      var sm = meta[g.status] || meta.pending;
+      // Off-spine branch (e.g. a tested-and-refuted side-question) — doesn't gate
+      // the spine; marked distinctly so it doesn't read as spine progress.
+      var isBranch = !!(g.off_spine || g.branch);
+      var members = g.member_studies || [];
+      var pending = g.pending_studies || [];
+      var crit = String(g.criterion || '').replace(/\s+/g, ' ').trim();
+      var bits = [];
+      if (members.length) bits.push(members.length + ' stud' + (members.length === 1 ? 'y' : 'ies'));
+      if (pending.length) bits.push(pending.length + ' planned');
+      H.push('<li class="inv-plan-gate inv-gate-' + sm.cls +
+             (g.optional ? ' inv-gate-optional' : '') +
+             (isBranch ? ' inv-gate-branch' : '') +
+             '" title="' + _escInv(crit) + '">');
+      H.push('<div class="inv-gate-head">' +
+               '<span class="inv-gate-id">' + _escInv(String(g.id || '')) + '</span>' +
+               '<span class="inv-gate-name">' + _escInv(g.name || '') + '</span>' +
+               (isBranch ? '<span class="inv-gate-branch-tag">branch</span>' : '') +
+               (g.optional ? '<span class="inv-gate-opt">optional</span>' : '') +
+             '</div>');
+      H.push('<div class="inv-gate-status inv-gate-status-' + sm.cls + '">' + sm.label + '</div>');
+      if (bits.length) H.push('<div class="inv-gate-members">' + _escInv(bits.join(' · ')) + '</div>');
+      H.push('</li>');
+    });
+    H.push('</ol></section>');
+    return H.join('');
+  }
+  window._planBoardHtml = _planBoardHtml;
+
   function _renderInvOpening(d) {
     d = d || {};
     var ex = d.executive || {};
@@ -10412,54 +11025,177 @@
       var m = t.match(/^.*?[.!](?=\s)/);
       return m ? m[0] : t;
     };
-    var primary  = whatIs || q;
-    var headline = primary ? headlineOf(primary) : (d.title || d.name || '');
-    var framing  = primary ? oneline(primary).slice(headlineOf(primary).length).trim() : '';
+    var _invInline = function(s) {
+      s = _escInv(s);
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      return s;
+    };
+    // Headline = the investigation title (falls back to the driving question);
+    // the full what_is_this renders below as markdown prose (the introduction).
+    var headline = (d.title && d.title !== d.name) ? d.title
+                   : (q ? headlineOf(q) : (d.name || ''));
 
     var H = [];
     H.push('<div class="inv-brief inv-vs-' + vsClass + '">');
 
-    // Headline — the driving question, kept to one line.
-    if (headline) H.push('<h2 class="inv-brief-q">' + _esc(headline) + '</h2>');
+    // Headline. The chrome header (#ws-title) already shows the investigation
+    // title, so don't repeat it here — only render the brief headline when it's
+    // the driving-question fallback (title-less investigations), never a title dup.
+    if (headline && headline !== d.title) H.push('<h2 class="inv-brief-q">' + _invInline(headline) + '</h2>');
 
-    // Verdict — answers the question, as a colored status line.
-    if (verdict) {
-      H.push('<div class="inv-brief-verdict">' +
-        '<span class="inv-vs-pill">' + _esc(vs.toUpperCase()) + '</span>' +
-        '<span class="inv-brief-verdict-label">Current verdict</span> ' +
-        '<span class="inv-brief-verdict-text">' + _esc(verdict) + '</span></div>');
+    // Front stays lean — just the headline — so the investigation graph sits high
+    // on the page. The overview, verdict, background (with the question/hypothesis
+    // + evidence folded in), plan and decisions all live behind the tab strip
+    // below; only the short Overview tab shows on load.
+
+    // Canonical section set — a FIXED, ordered list of tabs so every
+    // investigation renders the SAME shape (reproducible across the workspace),
+    // not an ad-hoc union of whatever fields happen to be present. Each section
+    // maps to one canonical investigation.yaml field; a tab appears when its
+    // field is authored, always in this order. Add/remove a section in ONE place
+    // (here). Reader flow: the answer (Verdict) → context (Background, Biology) →
+    // argument (Hypothesis & evidence) → aids (How to read, Glossary) → the plan
+    // (Plan progress) → the open calls (Decisions).
+    var _refsMap = d.references_resolved || {};
+    function _invCite(keys) {
+      keys = Array.isArray(keys) ? keys : [];
+      if (!keys.length) return '';
+      return ' ' + keys.map(function(k) {
+        var r = _refsMap[k]; var lbl = (r && r.label) || k;
+        var ttl = (r && r.title) ? ' title="' + _escInv(r.title) + '"' : '';
+        return '<span class="inv-cite"' + ttl + ' style="display:inline-block;font-size:11px;' +
+          'font-weight:600;padding:1px 7px;border-radius:9px;margin:0 2px 2px 0;white-space:nowrap;' +
+          'background:' + (r ? '#eff6ff;color:#1d4ed8' : '#f1f5f9;color:#64748b') + '">' +
+          _escInv(lbl) + '</span>';
+      }).join('');
     }
 
-    // Framing — the rest of the opening sentence(s), muted.
-    if (framing) H.push('<p class="inv-brief-framing">' + _esc(framing) + '</p>');
-
-    // Meta — hypothesis.
-    if (hyp) H.push('<div class="inv-brief-meta"><span class="inv-brief-meta-item"><em>Hypothesis</em> ' + _esc(hyp) + '</span></div>');
-
-    // Depth — one flat tab strip; only tabs with content are shown.
     var tabs = [];
+
+    // Structured-argument (evidence) body — now folded INTO Background rather than
+    // its own tab (scientific_argument main_claim + key_claims as cited claims +
+    // competing frameworks). Citation chips resolve from references/papers.bib.
+    var kclaims    = Array.isArray(d.key_claims) ? d.key_claims : [];
+    var sciArg     = d.scientific_argument || {};
+    var frameworks = Array.isArray(d.competing_frameworks) ? d.competing_frameworks : [];
+    function _evidenceBody() {
+      var evBody = '';
+      if (sciArg.main_claim)
+        evBody += '<p class="inv-brief-prose" style="font-weight:600;margin:0 0 10px">' +
+          _escInv(sciArg.main_claim) + '</p>';
+      if (kclaims.length)
+        evBody += '<ul style="list-style:none;padding:0;margin:0;display:grid;gap:10px">' +
+          kclaims.map(function(c) {
+            c = c || {};
+            var counter = /contest|unfavorab|challenge|less favorab/i.test(c.claim || '');
+            return '<li style="padding-left:12px;border-left:2px solid ' +
+              (counter ? '#d97706' : '#cbd5e1') + '">' +
+              _escInv(c.claim || c.text || '') + _invCite(c.cites) + '</li>';
+          }).join('') + '</ul>';
+      if (frameworks.length)
+        evBody += '<div class="inv-brief-frameworks-fold">' +
+          '<div class="inv-brief-frameworks-label">Competing frameworks adjudicated</div>' +
+          '<ul class="inv-brief-frameworks">' + frameworks.map(function(f) {
+            f = f || {};
+            return '<li><strong>' + _escInv(f.name || '') + '</strong>' +
+              (f.relation ? ' <span class="muted">— ' + _escInv(f.relation) + '</span>' : '') + '</li>';
+          }).join('') + '</ul></div>';
+      return evBody;
+    }
+
+    // 1. Overview — the lean landing tab (DEFAULT): a one-paragraph what-is-this +
+    // the verdict in brief (status pill + opening sentence). Deliberately short so
+    // the investigation graph sits high on the page; depth lives in the tabs below.
+    var whatIsLede = whatIs ? whatIs.split(/\n\s*\n/)[0].trim() : '';
+    var ovParts = [];
+    if (whatIsLede)
+      ovParts.push('<div class="inv-brief-prose inv-brief-overview-lede">' +
+        _renderInvLeadMarkdown(whatIsLede) + '</div>');
+    if (verdict)
+      ovParts.push('<div class="inv-brief-overview-verdict inv-vs-' + vsClass + '" ' +
+        'style="margin-top:10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">' +
+        '<span class="inv-vs-pill">' + _esc(vs.toUpperCase()) + '</span> ' +
+        '<span class="inv-brief-overview-verdict-text" style="color:#475569">' +
+        _invInline(headlineOf(verdict)) + '</span></div>');
+    if (ovParts.length)
+      tabs.push({ id:'overview', label:'Overview', html: ovParts.join('') });
+
+    // 2. Verdict — the full campaign answer (executive.verdict); behind a click.
+    if (verdict)
+      tabs.push({ id:'verdict', label:'Verdict', badge: vs ? vs.toUpperCase() : '',
+        html: '<div class="inv-brief-verdict-tab inv-vs-' + vsClass + '">' +
+          '<span class="inv-vs-pill">' + _esc(vs.toUpperCase()) + '</span>' +
+          '<div class="inv-brief-verdict-text">' + _invInline(verdict) + '</div></div>' });
+
+    // 3. Background — the lead intro, the driving Question + Hypothesis, and the
+    // structured argument (Hypothesis & evidence folded in here per the owner).
+    var bgParts = [];
+    if (leadProse)
+      bgParts.push('<div class="inv-brief-prose">' + _renderInvLeadMarkdown(leadProse) + '</div>');
+    var _bgMeta = [];
+    if (q) _bgMeta.push('<span class="inv-brief-meta-item"><em>Question</em> ' + _invInline(oneline(q)) + '</span>');
+    if (hyp) _bgMeta.push('<span class="inv-brief-meta-item"><em>Hypothesis</em> ' + _invInline(hyp) + '</span>');
+    if (_bgMeta.length) bgParts.push('<div class="inv-brief-meta">' + _bgMeta.join('') + '</div>');
+    var _evBody = _evidenceBody();
+    if (_evBody)
+      bgParts.push('<div class="inv-brief-evidence">' +
+        '<div class="inv-brief-frameworks-label">Hypothesis &amp; evidence</div>' + _evBody + '</div>');
+    if (bgParts.length)
+      tabs.push({ id:'background', label:'Background', html: bgParts.join('') });
+
+    // 4. Biology — the plain-English mechanism narrative (biological_story).
+    if (bio)
+      tabs.push({ id:'biology', label:'Biology', html:
+        '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(bio) + '</div>' });
+
+    // 5. How to read — evaluator tips (string prose or a list of tips).
     if (hasHowto)
       tabs.push({ id:'howto', label:'How to read', html: Array.isArray(howto)
         ? '<ol class="inv-brief-howto">' + howto.map(function(x) {
             return '<li>' + _renderInvLeadMarkdown(String(typeof x === 'string' ? x : (x.text || x.tip || ''))).replace(/^<p>|<\/p>$/g, '') + '</li>';
           }).join('') + '</ol>'
         : '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(String(howto)) + '</div>' });
-    if (bio)
-      tabs.push({ id:'biology', label:'Biology', html:
-        '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(bio) + '</div>' });
-    if (leadProse)
-      tabs.push({ id:'background', label:'Background', html:
-        '<div class="inv-brief-prose">' + _renderInvLeadMarkdown(leadProse) + '</div>' });
+
+    // 6. Glossary — investigation-local term definitions.
     if (glossary.length)
       tabs.push({ id:'glossary', label:'Glossary', html:
         '<dl class="inv-brief-glossary">' + glossary.map(function(g) {
           return '<dt>' + _escInv(g.term || g.name || '') + '</dt><dd>' + _escInv(g.definition || g.def || '') + '</dd>';
         }).join('') + '</dl>' });
 
+    // 7. Plan progress — the campaign's cumulative gates (A→E), compacted behind
+    // a tab rather than a space-consuming always-open board under the brief.
+    var _planHtml = _planBoardHtml(d, { compact: true });
+    if (_planHtml) {
+      var _pb = d.plan_board || [];
+      // Count EVALUATED gates (any terminal verdict), not strict "passed" — honest
+      // met/qualified/refuted verdicts are real progress, so "0/N passed" misread an
+      // evaluated board as no progress. The per-outcome breakdown is in the board tally.
+      var _TERMINAL = { passed: 1, met: 1, qualified: 1, refuted: 1 };
+      var _evaluated = _pb.filter(function (g) { return _TERMINAL[g.status]; }).length;
+      tabs.push({ id:'plan', label:'Plan progress', html:_planHtml,
+        badge: _pb.length ? (_evaluated + '/' + _pb.length + ' evaluated') : '' });
+    }
+
+    // 8. Decisions — the open expert decisions, HIGHLIGHTED when any are open.
+    var _decHtml = _invDecisionTabHtml(d);
+    if (_decHtml) {
+      var _nDec = (((d.executive || {}).decisions_needed) || []).length;
+      tabs.push({ id: 'decisions', label: 'Decisions', html: _decHtml,
+        badge: _nDec ? (_nDec + ' needed') : 'all clear', attention: _nDec > 0 });
+    }
+
+    // Overview is pushed first, so it is the default (active) tab via the i===0
+    // rule below; every other tab (Verdict, Background, …) is reached by a click.
     if (tabs.length) {
       H.push('<div class="inv-brief-tabs" role="tablist">' + tabs.map(function(t, i) {
-        return '<button type="button" class="inv-brief-tab' + (i === 0 ? ' active' : '') +
-          '" onclick="_invBriefTab(this,\'' + t.id + '\')">' + _esc(t.label) + '</button>';
+        var _cls = 'inv-brief-tab' + (i === 0 ? ' active' : '') + (t.attention ? ' inv-brief-tab-attn' : '');
+        var _badge = t.badge ? '<span class="inv-brief-tab-badge' + (t.attention ? ' attn' : '') +
+          '">' + _esc(t.badge) + '</span>' : '';
+        return '<button type="button" class="' + _cls +
+          '" onclick="_invBriefTab(this,\'' + t.id + '\')">' + _esc(t.label) + _badge + '</button>';
       }).join('') + '</div>');
       H.push('<div class="inv-brief-panels">' + tabs.map(function(t, i) {
         return '<div class="inv-brief-panel" data-panel="' + t.id + '"' + (i === 0 ? '' : ' style="display:none"') + '>' + t.html + '</div>';
@@ -10469,6 +11205,162 @@
     H.push('</div>');
     return H.join('');
   }
+
+  // ---------------------------------------------------------------------------
+  // Decision cockpit — the open expert decisions (executive.decisions_needed)
+  // surfaced as a prominent, actionable card high on the investigation page.
+  // Each open decision shows its question + context, a resolution-note field and
+  // a Resolve button (POST /api/investigation-decision-resolve, which moves it
+  // into executive.decisions_resolved). The campaign-plan docs (d.campaign_docs,
+  // incl. the Scientific Enrichment Plan) link at the top; resolved decisions
+  // fold into a log below. Renders nothing when there's nothing to show.
+  // ---------------------------------------------------------------------------
+  // The open expert decisions, rendered as the body of the "Decisions" brief tab
+  // (added to the tabs[] array below), not a space-consuming always-open card.
+  // Returns '' when there is nothing to show.
+  function _invDecisionTabHtml(d) {
+    d = d || {};
+    var ex = d.executive || {};
+    var needed = Array.isArray(ex.decisions_needed) ? ex.decisions_needed : [];
+    var resolved = Array.isArray(ex.decisions_resolved) ? ex.decisions_resolved : [];
+    var docs = Array.isArray(d.campaign_docs) ? d.campaign_docs : [];
+    // Resolving writes to disk — hide the controls in a read-only federated view
+    // or a published snapshot (no live backend); the decisions still display.
+    var readOnly = !!d.read_only || (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
+    var invName = d.name || window._currentIset || '';
+
+    if (!needed.length && !resolved.length && !docs.length) return '';
+
+    var n = needed.length;
+    var accent = n ? '#b45309' : '#16a34a';      // amber when open, green when all clear
+    var H = [];
+    H.push('<div style="padding:2px 0 4px">');
+    H.push('<div class="muted" style="font-size:0.84em;margin:0 0 12px">Expert decisions steering this campaign</div>');
+
+    // Campaign-plan docs — the plan the decisions act on (links to e.g. the
+    // Scientific Enrichment Plan). Served at /<path> from the workspace root.
+    if (docs.length) {
+      H.push('<div style="margin:0 0 12px;font-size:0.9em">');
+      H.push('<span class="muted" style="font-weight:600">Campaign plan:</span> ');
+      H.push(docs.map(function (doc) {
+        doc = doc || {};
+        var label = _escInv(doc.name || doc.path || '(unnamed)');
+        if (doc.path) {
+          var href = '/' + String(doc.path).replace(/^\/+/, '');
+          var ttl = doc.description ? ' title="' + _escInv(doc.description) + '"' : '';
+          return '<a href="' + _esc(href) + '" target="_blank" rel="noopener"' + ttl +
+            ' style="display:inline-block;margin:2px 6px 2px 0;padding:2px 10px;border-radius:12px;' +
+            'background:#eff6ff;color:#1d4ed8;font-weight:600;text-decoration:none">📄 ' + label + '</a>';
+        }
+        return '<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 10px;border-radius:12px;' +
+          'background:#f1f5f9;color:#475569;font-weight:600">📄 ' + label + '</span>';
+      }).join(''));
+      H.push('</div>');
+    }
+
+    // Open decisions — each an actionable card.
+    if (n) {
+      H.push('<div style="display:grid;gap:10px">');
+      needed.forEach(function (dec, i) {
+        dec = dec || {};
+        var question = (typeof dec === 'string') ? dec : (dec.question || dec.title || '');
+        var context = (typeof dec === 'string') ? '' : (dec.context || dec.detail || '');
+        H.push('<div class="inv-decision" data-index="' + i + '" data-investigation="' + _esc(invName) +
+          '" data-question="' + _esc(question) + '"' +
+          ' style="background:#fff;border:1px solid #fde68a;border-radius:7px;padding:10px 12px">');
+        H.push('<div style="display:flex;gap:8px;align-items:flex-start">');
+        H.push('<span style="color:' + accent + ';font-weight:800;font-size:0.95em;line-height:1.5">' + (i + 1) + '.</span>');
+        H.push('<div style="flex:1;min-width:0">');
+        H.push('<div style="font-weight:650;color:#1e293b;line-height:1.4">' + _escInv(question) + '</div>');
+        if (context)
+          H.push('<div class="muted" style="font-size:0.86em;line-height:1.5;margin-top:4px">' +
+            _renderInvLeadMarkdown(context) + '</div>');
+        if (!readOnly) {
+          H.push('<div style="margin-top:8px">');
+          H.push('<textarea rows="2" placeholder="Resolution note — the call you made and why…" ' +
+            'style="width:100%;box-sizing:border-box;font:inherit;font-size:0.86em;padding:6px 8px;' +
+            'border:1px solid #cbd5e1;border-radius:6px;resize:vertical"></textarea>');
+          H.push('<div style="margin-top:6px;text-align:right">');
+          H.push('<button type="button" class="action-btn js-authoring" onclick="_resolveInvDecision(this,' + i + ')" ' +
+            'style="font-size:0.82em;padding:3px 12px;font-weight:600;background:' + accent + ';color:#fff;border:none">' +
+            '✓ Resolve</button>');
+          H.push('</div>');
+          H.push('</div>');
+        }
+        H.push('</div></div></div>');
+      });
+      H.push('</div>');
+    }
+
+    // Resolved-decision log — folded by default.
+    if (resolved.length) {
+      H.push('<details style="margin-top:' + (n ? '12px' : '0') + '">');
+      H.push('<summary style="cursor:pointer;font-size:0.88em;font-weight:600;color:#15803d">' +
+        '✓ Resolved decisions (' + resolved.length + ')</summary>');
+      H.push('<ul style="margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px">');
+      H.push(resolved.map(function (r) {
+        var txt = (typeof r === 'string') ? r : (r && (r.decision || r.question || r.text) || '');
+        return '<li style="font-size:0.86em;line-height:1.5;color:#334155;padding-left:12px;' +
+          'border-left:2px solid #86efac">' + _escInv(txt) + '</li>';
+      }).join(''));
+      H.push('</ul></details>');
+    }
+
+    H.push('</div>');
+    return H.join('');
+  }
+  // Back-compat: the cockpit moved into the "Decisions" brief tab; clear any
+  // legacy standalone host so nothing double-renders below the tabs.
+  function _renderInvDecisionCockpit(d) {
+    var host = document.getElementById('investigation-decision-cockpit');
+    if (host) host.innerHTML = '';
+  }
+  window._renderInvDecisionCockpit = _renderInvDecisionCockpit;
+  window._invDecisionTabHtml = _invDecisionTabHtml;
+
+  // Resolve one open decision: read the note from the card, POST, then refresh
+  // the investigation detail so the cockpit re-renders with the moved decision.
+  // Passes the question as an optimistic-concurrency guard (the server 409s if
+  // the list shifted under a concurrent resolve). CSRF is handled by the
+  // same-origin guard middleware, like every other mutating POST.
+  function _resolveInvDecision(btn, index) {
+    var card = btn.closest('.inv-decision');
+    if (!card) return;
+    var ta = card.querySelector('textarea');
+    var note = ((ta && ta.value) || '').trim();
+    if (!note) {
+      if (typeof _showToast === 'function') _showToast('Enter a resolution note before resolving.', { danger: true });
+      else alert('Enter a resolution note before resolving.');
+      if (ta) ta.focus();
+      return;
+    }
+    var question = card.getAttribute('data-question') || '';
+    var invName = card.getAttribute('data-investigation') || window._currentIset || '';
+    var prev = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Resolving…';
+    apiFetch('POST', '/api/investigation-decision-resolve', {
+      investigation: invName, index: index, resolution: note, question: question
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j, status: r.status }; }); })
+      .then(function (res) {
+        if (!res.ok || (res.j && res.j.error)) {
+          var msg = 'Could not resolve: ' + ((res.j && res.j.error) || ('HTTP ' + res.status));
+          if (typeof _showToast === 'function') _showToast(msg, { danger: true }); else alert(msg);
+          btn.disabled = false; btn.textContent = prev;
+          return;
+        }
+        var ok = 'Decision resolved — ' + ((res.j && res.j.remaining) || 0) + ' still open';
+        if (typeof _showToast === 'function') _showToast(ok);
+        // Refresh the detail so the cockpit, log and count badge re-render.
+        if (typeof _openInvestigationDetail === 'function') _openInvestigationDetail(invName);
+      })
+      .catch(function (err) {
+        var msg = 'Could not resolve: ' + err;
+        if (typeof _showToast === 'function') _showToast(msg, { danger: true }); else alert(msg);
+        btn.disabled = false; btn.textContent = prev;
+      });
+  }
+  window._resolveInvDecision = _resolveInvDecision;
 
   // Flat tab switcher for the inquiry brief (scoped to the clicked brief).
   function _invBriefTab(btn, id) {
@@ -10505,7 +11397,7 @@
     document.getElementById('investigations-list').style.display = 'none';
     document.getElementById('investigation-detail-view').style.display = '';
     document.getElementById('investigation-detail-title').textContent = name;
-    document.getElementById('investigation-detail-description').textContent = 'Loading…';
+    document.getElementById('investigation-detail-description').innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : 'Loading…';
 
     // Route through DataSource so snapshot mode reads api/investigation/<name>.json from
     // the static bundle instead of hitting the live /api/investigation/<name> endpoint
@@ -10531,9 +11423,16 @@
         // Lead paragraph: render lead (preferred) or fall back to description.
         // Light markdown: paragraph splits, * bullets, `code`, **bold**.
         var leadEl = document.getElementById('investigation-detail-description');
-        // The inquiry brief renders the full opening — headline, verdict, meta,
-        // and the how-to-read / biology / background / glossary tabs — from `d`.
+        // The inquiry brief renders the full opening — headline, intro, meta, and
+        // the fixed canonical tab strip (Verdict / Background / Biology /
+        // Hypothesis & evidence / How to read / Glossary / Plan progress /
+        // Decisions) — all from `d`. The plan-progress board now lives inside its
+        // own compact tab (not appended as a separate board below).
         leadEl.innerHTML = _renderInvOpening(d);
+
+        // Decision cockpit: the open expert decisions + campaign plan, surfaced
+        // prominently directly under the brief (built from d.executive).
+        try { _renderInvDecisionCockpit(d); } catch (_) { /* best-effort */ }
 
         // Phase B4: render today's study graph (unchanged), then layer each
         // study's typed evidence chain into its card. Falls back to the plain
@@ -10549,7 +11448,7 @@
           // the badges off; the graph still renders.
           var _isSnap = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
           var _statusP = _isSnap ? Promise.resolve(null) :
-            fetch('/api/investigation-trigger-status?investigation=' + encodeURIComponent(slug))
+            apiFetch('GET', '/api/investigation-trigger-status?investigation=' + encodeURIComponent(slug))
               .then(function (r) { return r.ok ? r.json() : null; })
               .catch(function () { return null; });
           // Snapshot-aware: DataSource resolves to /api/investigation-graph/<slug>.json
@@ -10557,7 +11456,7 @@
           // 404s there, dropping the evidence chains from every card).
           var _graphP = (window.DataSource && window.DataSource.loadInvestigationGraph
             ? window.DataSource.loadInvestigationGraph(slug)
-            : fetch('/api/investigation-graph?investigation=' + encodeURIComponent(slug))
+            : apiFetch('GET', '/api/investigation-graph?investigation=' + encodeURIComponent(slug))
                 .then(function (r) { if (!r.ok) throw new Error('graph ' + r.status); return r.json(); })
           );
           _statusP.then(function (status) {
@@ -10594,90 +11493,178 @@
     if (s === 'medium') return { dot: '#f59e0b', bg: '#fffbeb', bd: '#f59e0b', col: '#92400e' };
     return { dot: '#3b82f6', bg: '#eff6ff', bd: '#3b82f6', col: '#1e40af' };  // low / default
   }
+  // Needs-attention is a SINGLE surface now — the toolbar chip. Clicking it opens
+  // the same rich scan popover used for "all clear" (per-check pass counts + a
+  // drill-in link per flagged item). The old in-body banner that duplicated this
+  // below the header is gone. Kept as a named entry point for any caller: anchor
+  // the popover on the chip button.
+  function _aigShowNeedsAttention() {
+    var chip = document.querySelector('#aig-needs-attention-chip .aig-na-chip')
+            || document.getElementById('aig-needs-attention-chip');
+    if (chip && window._aigShowAllClearInfo) window._aigShowAllClearInfo(chip);
+  }
+  window._aigShowNeedsAttention = _aigShowNeedsAttention;
+
+  // "All clear" explainer popover: says what the deterministic needs-attention
+  // scan means and lists the checks behind it (all passing when all-clear), so
+  // the user can see there's nothing to act on — or what would be flagged.
+  function _aigCloseAllClearInfo() { var p = document.getElementById('aig-allclear-pop'); if (p) p.remove(); }
+  function _aigShowAllClearInfo(anchor) {
+    if (document.getElementById('aig-allclear-pop')) { _aigCloseAllClearInfo(); return; }   // toggle
+    var d = window._lastNeedsAttention || {};
+    var summary = d.summary || {};
+    var checks = d.checks || [];
+    var memberCount = (summary.member_count != null) ? summary.member_count : null;
+    var total = summary.total || 0;
+    // Group the live items by kind so a flagged check can list its actual refs.
+    var byKindItems = {};
+    (d.items || []).forEach(function (it) {
+      (byKindItems[it.kind] = byKindItems[it.kind] || []).push(it);
+    });
+    // Hover help per check — what the scan actually looks at (so the popover
+    // explains itself without a block of prose).
+    var HELP = {
+      uncovered_ac: 'Every acceptance criterion in the investigation is linked to a study that gates it.',
+      verdict_divergence: 'Each study’s computed verdict matches the gate its author declared (no silent divergence).',
+      hard_gate: 'No study has a failing hard gate in its latest run.',
+      test_regression: 'No behavior test that once passed is now failing.',
+      diagnostic_branch_needed: 'Any failed / needs-calibration verdict has a diagnostic study seeded to investigate why.',
+      invariant_regression: 'No declared invariant (invariant_check) has been invalidated or weakened.',
+      open_feedback: 'No expert feedback is left open (all applied or dismissed).',
+      param_drift: 'A run’s applied parameters still match the study’s enforced/pinned values.',
+      unregistered_confirmatory: 'Confirmatory studies are registered against the claim they confirm.',
+      stale_finding: 'No finding is stale relative to the run it was derived from.',
+      unresolved_composite: 'Every study\'s declared composite resolves to a registered composite id — so it can build and run.',
+      env_stale: 'Run environments (deps/image) are current, not stale.',
+      nondeterministic: 'Runs are reproducible (seeded / deterministic where required).',
+      phantom_observable: 'Every declared observable actually exists in the built composite’s structure.'
+    };
+    // One row per check, driven by the LIVE scan numbers (passing / examined),
+    // not prose. ✓ when nothing is flagged; amber with a drill-in list otherwise.
+    var rows = checks.map(function (c) {
+      var flagged = c.flagged || 0;
+      var examined = c.examined || 0;
+      var help = HELP[c.kind] || '';
+      var metric;
+      if (examined > 0) metric = '<span style="color:#64748b;font-variant-numeric:tabular-nums">' + (c.passing || 0) + ' / ' + examined + '</span>';
+      else metric = '<span class="muted" style="font-size:0.9em">none to check</span>';
+      var sub = '';
+      if (flagged > 0 && byKindItems[c.kind]) {
+        sub = '<ul style="margin:2px 0 0 17px;padding:0;list-style:none">'
+          + byKindItems[c.kind].map(function (it) {
+              var ref = (it.study || it.ref || '').toString();
+              var label = _esc((it.title || it.ref || it.kind || '').toString());
+              // Surface the CONCRETE issue (detail) + what to do (action_hint),
+              // not just a link — e.g. "composite not found in registry: <ref>".
+              var detail = it.detail ? _esc(it.detail.toString()) : '';
+              var hint = it.action_hint ? _esc(it.action_hint.toString()) : '';
+              var studyTag = (it.study && it.title && it.title.indexOf(it.study) < 0)
+                ? ' <span class="muted" style="font-size:0.85em">· ' + _esc(it.study) + '</span>' : '';
+              return '<li style="margin-top:4px;font-size:0.9em;line-height:1.28">'
+                + (ref
+                    ? '<a href="#" onclick="_openStudyInsideInvestigation(\'' + _esc(ref) + '\',\'conclusions\');return false;" style="color:#2563eb;text-decoration:none">' + label + ' →</a>'
+                    : label) + studyTag
+                + (detail ? '<span style="color:#475569;word-break:break-word"> — ' + detail + '</span>' : '')
+                + (hint ? '<span style="color:#aab4c0;font-size:0.92em"> · ' + hint + '</span>' : '')
+                + '</li>';
+            }).join('')
+          + '</ul>';
+      }
+      return '<li style="margin-top:5px"' + (help ? ' title="' + _esc(help) + '"' : '') + '>'
+        + '<div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between">'
+          + '<span style="display:flex;gap:8px;align-items:flex-start">'
+            + '<span style="color:' + (flagged ? '#b45309' : '#16a34a') + ';font-weight:700;flex:none">' + (flagged ? '•' : '✓') + '</span>'
+            + '<span style="border-bottom:1px dotted #cbd5e1;cursor:help">' + _esc(c.label || c.kind) + '</span>'
+          + '</span>'
+          + metric
+        + '</div>' + sub
+        + '</li>';
+    }).join('');
+    var clear = total === 0;
+    var pop = document.createElement('div');
+    pop.id = 'aig-allclear-pop';
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', 'Needs-attention scan');
+    pop.style.cssText = 'position:absolute;z-index:80;background:#fff;border:1px solid #e2e8f0;border-radius:8px;'
+      + 'box-shadow:0 8px 28px rgba(0,0,0,0.16);padding:10px 12px;min-width:320px;max-width:440px;text-align:left;'
+      + 'max-height:78vh;overflow:auto;font-size:0.85em;color:#334155;line-height:1.32';
+    pop.innerHTML =
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:2px">'
+        + '<span style="font-weight:700;color:' + (clear ? '#166534' : '#b45309') + '">'
+          + (clear ? '✓ All clear' : '⚠ ' + total + ' need' + (total === 1 ? 's' : '') + ' attention') + '</span>'
+        + (memberCount != null ? '<span class="muted" style="font-size:0.9em;white-space:nowrap">' + memberCount + ' member stud' + (memberCount === 1 ? 'y' : 'ies') + ' scanned</span>' : '')
+      + '</div>'
+      + '<ul style="margin:4px 0 0;padding:0;list-style:none">' + rows + '</ul>'
+      + '<div style="margin-top:9px;padding-top:7px;border-top:1px solid #f1f5f9">'
+        + '<a href="#" onclick="window._aigOpenDecisionsTab&&window._aigOpenDecisionsTab();return false;" '
+        + 'style="color:#2563eb;text-decoration:none;font-size:0.92em">What are these checks? Open the Decisions tab →</a>'
+      + '</div>';
+    document.body.appendChild(pop);
+    var r = anchor.getBoundingClientRect();
+    var top = Math.round(r.bottom + (window.scrollY || window.pageYOffset || 0) + 6);
+    var left = Math.round(Math.min(r.left + (window.scrollX || window.pageXOffset || 0),
+                                   (window.innerWidth - pop.offsetWidth - 8) + (window.scrollX || 0)));
+    pop.style.top = top + 'px';
+    pop.style.left = Math.max(8, left) + 'px';
+  }
+  window._aigShowAllClearInfo = _aigShowAllClearInfo;
+  // "What are these checks?" -> open the investigation's Decisions tab, where the
+  // needs-attention / decisions items live with their full context. Makes sure the
+  // investigation overview is expanded first so the brief tabs are visible.
+  window._aigOpenDecisionsTab = function () {
+    _aigCloseAllClearInfo();
+    try {
+      if (_invOverviewCollapsed && _invOverviewCollapsed()) _toggleInvOverview();
+    } catch (e) { /* ignore */ }
+    var open = function () {
+      var btn = document.querySelector('.inv-brief-tab[onclick*="decisions"]');
+      if (btn) { btn.click(); if (btn.scrollIntoView) { try { btn.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {} } }
+    };
+    // The brief tabs may need a beat to render after expanding the overview.
+    if (document.querySelector('.inv-brief-tab[onclick*="decisions"]')) open();
+    else setTimeout(open, 60);
+  };
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && (e.target.closest('#aig-allclear-pop') || e.target.closest('.aig-na-chip'))) return;
+    _aigCloseAllClearInfo();
+  }, true);
+
   function _renderInvNeedsAttention(name) {
     var container = document.getElementById('investigation-needs-attention');
-    if (!container) return;
-    container.innerHTML = '';
+    var chip = document.getElementById('aig-needs-attention-chip');
+    if (!container && !chip) return;
+    if (container) container.innerHTML = '';
+    if (chip) chip.innerHTML = '';
     var _fetch = fetch('/api/needs-attention?investigation=' + encodeURIComponent(name),
                        {headers: {Accept: 'application/json'}})
       .then(function(r) { return r.ok ? r.json() : null; });
     _fetch.then(function(d) {
       if (!d || !d.summary) return;
+      window._lastNeedsAttention = d;   // the all-clear popover reads this
       var lbl = '<span class="muted" style="font-size:0.85em">code-computed by the needs-attention scan (deterministic)</span>';
       var total = (d.summary.total) || 0;
       if (!total) {
-        // Quiet "nothing needs attention" state — not an empty dropdown.
-        container.innerHTML =
-          '<div class="needs-attention-banner" style="margin:10px 0 14px 0;padding:10px 14px;'
-          + 'background:#f0fdf4;border:1px solid #16a34a;border-left-width:5px;border-radius:6px;color:#166534">'
-          + '<strong>✓ Nothing needs attention</strong> ' + lbl + '</div>';
+        // All-clear: a compact chip — now CLICKABLE to explain what it means and
+        // show the (passing) checks behind it.
+        if (chip) chip.innerHTML =
+          '<button type="button" class="aig-na-chip aig-na-clear" onclick="window._aigShowAllClearInfo(this)" '
+          + 'title="Click to see what the needs-attention scan checked">✓ All clear</button>';
         return;
       }
       var bySev = d.summary.by_severity || {};
       var high = bySev.high || 0;
-      var head = '⚠ Needs attention — ' + high + ' high, ' + total + ' total';
-      // Human-readable name + which study tab a click should land on, per kind.
-      // These are follow-ups the deterministic scan flags — NOT app updates.
-      var _naKindMeta = {
-        diagnostic_branch_needed: {label: 'Diagnostic study needed', tab: 'conclusions'},
-        next_action_ready:        {label: 'Next action ready',        tab: 'conclusions'},
-        invariant_regression:     {label: 'Invariant regression',     tab: 'conclusions'},
-        uncovered_ac:             {label: 'Acceptance criterion uncovered', tab: 'tests'},
-        open_feedback:            {label: 'Open expert feedback',      tab: 'overview'}
-      };
-      var items = (d.items || []).map(function(it) {
-        var st = _naSeverityStyle(it.severity);
-        var ref = (it.study || it.ref || '').toString();
-        var kindRaw = (it.kind || '').toString();
-        var meta = _naKindMeta[kindRaw] || {label: kindRaw.replace(/_/g, ' '), tab: 'conclusions'};
-        var refHtml = ref ? '<code>' + _esc(ref) + '</code>' : '<span class="muted">—</span>';
-        var hint = it.action_hint ? ' &nbsp;·&nbsp; ' + _esc(it.action_hint.toString()) : '';
-        var titleLine = it.title
-          ? '<div style="font-size:0.9em;margin-top:2px">' + _esc(it.title.toString()) + '</div>'
-          : '';
-        // Clickable when the item names a study: open it at the relevant tab
-        // (verdict-based items → the conclusions/Decide tab).
-        var open = ref
-          ? ' role="button" tabindex="0" onclick="_openStudyInsideInvestigation(\'' + _esc(ref) + '\',\'' + meta.tab + '\')"'
-            + ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();this.click();}"'
-            + ' title="Open study &quot;' + _esc(ref) + '&quot; at its verdict"'
-          : '';
-        var arrow = ref ? '<span style="float:right;opacity:.55;font-size:0.9em">open →</span>' : '';
-        return '<li class="na-item' + (ref ? ' na-item-click' : '') + '"' + open
-          + ' style="margin-top:7px;padding:5px 8px 6px 10px;border-left:3px solid ' + st.bd + ';border-radius:4px'
-          + (ref ? ';cursor:pointer' : '') + '">'
-          + arrow
-          + '<span style="color:' + st.dot + ';font-weight:700">●</span> '
-          + '<strong style="font-size:0.9em">' + _esc(meta.label) + '</strong> &nbsp;·&nbsp; ' + refHtml + hint
-          + titleLine + '</li>';
-      }).join('');
-      var byKind = d.summary.by_kind || {};
-      var breakdown = Object.keys(byKind).sort(function(a, b) {
-        return (byKind[b] || 0) - (byKind[a] || 0);
-      }).map(function(k) {
-        var m = _naKindMeta[k];
-        return (byKind[k] || 0) + '× ' + _esc(m ? m.label : k.replace(/_/g, ' '));
-      }).join(' &nbsp;·&nbsp; ');
-      var sev = _naSeverityStyle(high ? 'high' : 'medium');
-      // Plain-language explainer so the panel is self-describing (the user asked
-      // "what ARE these?"): they're automated follow-ups, and each is clickable.
-      var explain = '<div class="muted" style="font-size:0.84em;margin:2px 14px 4px;line-height:1.45">'
-        + 'Automated checks (no AI) that flag studies needing a follow-up — e.g. a study whose '
-        + 'verdict is <em>failed</em> or <em>needs-calibration</em> but has no diagnostic study seeded '
-        + 'to investigate why. Not app updates. <strong>Click any item</strong> to open that study at the verdict.</div>';
-      container.innerHTML =
-        '<details class="needs-attention-banner" style="margin:10px 0 14px 0;background:' + sev.bg
-        + ';border:1px solid ' + sev.bd + ';border-left-width:5px;border-radius:6px;color:' + sev.col + '">'
-        + '<summary style="padding:10px 14px;cursor:pointer;list-style:none;outline:none">'
-        + '<strong>' + head + '</strong>'
-        + '<span class="na-toggle-hint" style="opacity:.6;font-style:italic;font-size:0.85em;margin-left:8px">— click to expand</span>'
-        + (breakdown ? '<div class="muted" style="font-size:0.82em;margin-top:5px">' + breakdown + '</div>' : '')
-        + '</summary>'
-        + explain
-        + '<ul style="margin:4px 0 12px 0;padding:0 14px 0 18px;list-style:none;font-size:0.92em">'
-        + items + '</ul>'
-        + '</details>';
-    }).catch(function() { /* tolerant — leave the panel empty */ });
+      // Compact clickable chip in the toolbar — the SOLE needs-attention surface.
+      // Clicking it opens the rich scan popover (per-check counts + drill-in per
+      // flagged item); there is no longer a duplicate in-body banner.
+      if (chip) chip.innerHTML =
+        '<button type="button" class="aig-na-chip aig-na-flag' + (high ? ' aig-na-high' : '') + '" '
+        + 'onclick="window._aigShowAllClearInfo(this)" '
+        + 'title="' + high + ' high · ' + total + ' total — click for details">⚠ ' + total
+        + ' need' + (total === 1 ? 's' : '') + ' attention</button>';
+      // The flagged items + per-check breakdown render inside the chip's popover
+      // (window._aigShowAllClearInfo, which reads window._lastNeedsAttention set
+      // above). No in-body banner is drawn — the chip is the single surface.
+    }).catch(function() { /* tolerant — leave the chip empty */ });
   }
   window._renderInvNeedsAttention = _renderInvNeedsAttention;
 
@@ -10694,11 +11681,7 @@
     var panel = document.getElementById('investigation-run-progress');
     if (btn) { btn.disabled = true; btn.textContent = '… queuing'; }
     if (panel) { panel.style.display = ''; panel.innerHTML = '<div class="inv-run-progress-banner">Queuing run-unblocked job…</div>'; }
-    fetch('/api/investigation-run-unblocked', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: name}),
-    }).then(function(r) {
+    apiFetch('POST', '/api/investigation-run-unblocked', {investigation: name}).then(function(r) {
       return r.json().then(function(j) { return {ok: r.ok, body: j, status: r.status}; });
     }).then(function(res) {
       if (!res.ok) {
@@ -10754,17 +11737,13 @@
     var panel = document.getElementById('investigation-run-progress');
     if (btn) { btn.disabled = true; btn.textContent = '… launching'; }
     if (panel) { panel.style.display = ''; panel.innerHTML = '<div class="inv-run-progress-banner">Launching reruns…</div>'; }
-    fetch('/api/investigation-rerun', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ investigation: name }),
-    }).then(function(r) {
+    apiFetch('POST', '/api/investigation-rerun', { investigation: name }).then(function(r) {
       return r.json().then(function(j) { return { ok: r.ok, body: j, status: r.status }; });
     }).then(function(res) {
-      if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
+      if (btn) { btn.disabled = false; btn.textContent = '▶'; }
       if (!res.ok) {
         var errMsg = 'Rerun failed: ' + ((res.body && res.body.error) || res.status);
-        if (typeof _showToast === 'function') _showToast(errMsg); else alert(errMsg);
+        if (typeof _showToast === 'function') _showToast(errMsg, { danger: true }); else alert(errMsg);
         if (panel) panel.innerHTML = '<div class="inv-run-progress-banner inv-run-error">' + _h(errMsg) + '</div>';
         return;
       }
@@ -10791,9 +11770,9 @@
         setTimeout(function() { _openInvestigationDetail(name); }, 500);
       }
     }).catch(function(err) {
-      if (btn) { btn.disabled = false; btn.textContent = '▶ Run current spec'; }
+      if (btn) { btn.disabled = false; btn.textContent = '▶'; }
       var netMsg = 'Network error: ' + err;
-      if (typeof _showToast === 'function') _showToast(netMsg); else alert(netMsg);
+      if (typeof _showToast === 'function') _showToast(netMsg, { danger: true }); else alert(netMsg);
       if (panel) panel.innerHTML = '<div class="inv-run-progress-banner inv-run-error">' + _h(netMsg) + '</div>';
     });
   }
@@ -10801,8 +11780,28 @@
 
   function _vivPollRunProgress(jobId) {
     if (_vivRunUnblockedTimer) clearTimeout(_vivRunUnblockedTimer);
+    // Plan §A3′ option (c): an item gated behind an unfinished prerequisite is
+    // parked `waiting` and its worker RETURNS, rather than holding a thread for
+    // the life of a Batch job. Something has to come back and release it once
+    // the prerequisite lands, and this poll is the natural caller — it is
+    // already here, already watching the same job.
+    //
+    // Fired on CHANGE, not every tick. The status GET resolves `submitted`
+    // items against viva-api, so a prerequisite completing on Batch shows up
+    // here as `progress.done` increasing; that edge is exactly when a redrive
+    // can accomplish something. Polling it blindly every 2s would spawn a
+    // worker thread per tick for the whole life of a multi-hour campaign, each
+    // one re-parking the same items.
+    var lastDone = -1;
+    function maybeRedrive(job) {
+      var prog = job.progress || {};
+      if (!prog.waiting) { lastDone = (prog.done || 0); return; }
+      if ((prog.done || 0) === lastDone) return;   // nothing settled since last look
+      lastDone = (prog.done || 0);
+      apiFetch('POST', '/api/investigation-run-redrive', { job_id: jobId }).catch(function() { /* best-effort: the next change re-tries */ });
+    }
     function tick() {
-      fetch('/api/investigation-run-unblocked-status?job_id=' + encodeURIComponent(jobId))
+      apiFetch('GET', '/api/investigation-run-unblocked-status?job_id=' + encodeURIComponent(jobId))
         .then(function(r) { return r.json().then(function(j) { return {ok: r.ok, body: j}; }); })
         .then(function(res) {
           if (!res.ok) return;
@@ -10816,6 +11815,7 @@
             }
             return;
           }
+          maybeRedrive(res.body);
           _vivRunUnblockedTimer = setTimeout(tick, 2000);
         });
     }
@@ -10827,8 +11827,11 @@
     if (!panel) return;
     var items = (job.items || []).map(function(it) {
       var statusCls = 'inv-run-item inv-run-' + (it.status || 'queued');
+      // `submitted` (A2′) and `waiting` (A3′) both post-date this map, so both
+      // rendered as '?' — a dispatched Batch run and a gated dependent looked
+      // like a bug rather than the two normal states they are.
       var icon = ({queued: '⋯', running: '▶', done: '✓', failed: '✗',
-                   blocked: '⛔', skipped: '—'})[it.status] || '?';
+                   blocked: '⛔', skipped: '—', submitted: '☁', waiting: '⏸'})[it.status] || '?';
       var err = it.error ? ' <span class="inv-run-err">' + _h(it.error) + '</span>' : '';
       return '<div class="' + statusCls + '">'
         + '<span class="inv-run-icon">' + icon + '</span>'
@@ -10846,7 +11849,9 @@
       headline = '<strong>✗ Job failed.</strong> ' + prog.done + ' / ' + prog.total + ' attempted.';
     } else {
       headline = '<strong>Running…</strong> ' + prog.done + ' / ' + prog.total + ' complete' +
-                 (prog.running ? ' · ' + prog.running + ' in flight' : '');
+                 (prog.running ? ' · ' + prog.running + ' in flight' : '') +
+                 (prog.submitted ? ' · ' + prog.submitted + ' on Batch' : '') +
+                 (prog.waiting ? ' · ' + prog.waiting + ' waiting on prerequisites' : '');
     }
     panel.innerHTML = '<div class="inv-run-progress-banner">' + headline + '</div>'
                     + '<div class="inv-run-list">' + items + '</div>';
@@ -10899,28 +11904,499 @@
         for (var k in entry) { if (entry.hasOwnProperty(k)) e[k] = entry[k]; }
         if (!e.condition) e.condition = 'tests-passed';
         if (!e.relation) {
-          e.relation = (e.outputs_used && e.outputs_used.length) ? 'model-input' : 'leads-to';
+          // A synthesized dependency edge (interface input / prerequisite) is a
+          // "builds on" relation by default; an authored parent_relations entry
+          // can retype it to tests / motivates / alternative-to.
+          e.relation = 'builds-on';
         }
         out.push(e);
       }
     });
     return out;
   }
-  // W13 — edge-relation vocabulary → stroke styling + legend label.
+  // Four canonical edge relations → stroke styling + legend label. `arrow:false`
+  // renders undirected (alternative-to is a symmetric "competing approaches" tie,
+  // not a direction). Legacy relations are alias-mapped in _dagRelStyle.
   var _DAG_REL_STYLE = {
-    'leads-to':             { color: '#94a3b8', dash: null,  label: 'leads to' },
-    'model-input':          { color: '#2563eb', dash: null,  label: 'model input' },
-    'evidence':             { color: '#0d9488', dash: '5 3', label: 'evidence' },
-    'calibrates-threshold': { color: '#ca8a04', dash: '2 3', label: 'calibrates threshold' },
-    'refutes-alternative':  { color: '#dc2626', dash: '5 3', label: 'refutes alternative' },
+    'builds-on':      { color: '#2563eb', dash: null,  label: 'builds on',      arrow: true },
+    'tests':          { color: '#9333ea', dash: '7 3', label: 'tests',          arrow: true },
+    'motivates':      { color: '#d97706', dash: '2 4', label: 'motivates',      arrow: true },
+    'alternative-to': { color: '#64748b', dash: '1 4', label: 'alternative to', arrow: false },
+  };
+  var _DAG_REL_ALIASES = {
+    'leads-to': 'builds-on', 'leads to': 'builds-on',
+    'model-input': 'builds-on', 'model input': 'builds-on',
+    'evidence': 'builds-on', 'calibrates-threshold': 'builds-on', 'regulatory': 'builds-on',
+    'refutes': 'tests', 'refutes-alternative': 'tests',
+    'precedes': 'motivates', 'alternative': 'alternative-to',
   };
   function _dagRelStyle(rel) {
-    // Map legacy aliases onto the canonical vocabulary.
-    if (rel === 'regulatory') rel = 'calibrates-threshold';
-    if (rel === 'refutes')    rel = 'refutes-alternative';
-    if (rel === 'leads to')   rel = 'leads-to';
-    return _DAG_REL_STYLE[rel] || _DAG_REL_STYLE['leads-to'];
+    rel = String(rel || '').trim().toLowerCase();
+    rel = _DAG_REL_ALIASES[rel] || rel;
+    return _DAG_REL_STYLE[rel] || _DAG_REL_STYLE['builds-on'];
   }
+
+  // The investigation-graph legend (Progress / Verdict / Evidence / Edges),
+  // built from the same ontology tables the graph uses. Used to fill the "?"
+  // info-chip popover (it was previously an always-visible strip below the
+  // graph). Static content, so it can be rendered once.
+  function _buildDagLegendHtml() {
+    var _lg = function (color, icon, label) {
+      return '<span style="display:inline-flex;align-items:center;gap:4px;margin-right:14px">' +
+        '<span style="color:' + color + ';font-size:1em">' + icon + '</span>' +
+        '<span>' + label + '</span></span>';
+    };
+    var _edgeLg = function (rel) {
+      var st = _dagRelStyle(rel);
+      var line = 'border-bottom:2px ' + (st.dash ? 'dashed' : 'solid') + ' ' + st.color;
+      return '<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px">' +
+        '<span style="width:18px;' + line + ';display:inline-block;line-height:0">&nbsp;</span>' +
+        '<span>' + st.label + '</span></span>';
+    };
+    var _tierLg = function (tv) {
+      var m = _TIER_META[tv], pips = '';
+      for (var i = 0; i < 3; i++) pips += '<span style="color:' + (i < m.pips ? '#334155' : '#cbd5e1') + '">●</span>';
+      return '<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px">' +
+        '<span style="font-size:0.85em;letter-spacing:1px">' + pips + '</span><span>' + m.label + '</span></span>';
+    };
+    var row = function (label, items) {
+      return '<div style="margin-top:8px"><div style="font-weight:600;color:#475569;margin-bottom:3px">' +
+        label + '</div><div style="display:flex;flex-wrap:wrap;align-items:center">' + items + '</div></div>';
+    };
+    return '<div style="font-size:0.78em;color:#64748b;line-height:1.5">' +
+      row('Progress', Object.keys(_EXEC_META).map(function (k) { var m = _EXEC_META[k]; return _lg(m.color, m.icon, m.label); }).join('')) +
+      row('Verdict', Object.keys(_VERDICT_META).map(function (k) { var m = _VERDICT_META[k]; return _lg(m.color, m.icon, m.label); }).join('')) +
+      row('Evidence', Object.keys(_TIER_META).map(_tierLg).join('')) +
+      row('Edges', Object.keys(_DAG_REL_STYLE).map(_edgeLg).join('')) +
+      '</div>';
+  }
+
+  // Fill the "?" info-chip popover with the legend (once) and wire the chip to
+  // toggle it, closing on outside click — same dropdown pattern as the study
+  // navigator's jump menu.
+  function _wireDagLegendPopover() {
+    var chip = document.getElementById('dag-legend-chip');
+    var pop = document.getElementById('dag-legend-popover');
+    if (!chip || !pop) return;
+    if (!pop.dataset.filled) { pop.innerHTML = _buildDagLegendHtml(); pop.dataset.filled = '1'; }
+    if (chip.dataset.wired) return;
+    chip.dataset.wired = '1';
+    chip.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var open = pop.style.display !== 'none' && pop.style.display !== '';
+      pop.style.display = open ? 'none' : 'block';
+      chip.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('.dag-legend-wrap')) {
+        pop.style.display = 'none'; chip.setAttribute('aria-expanded', 'false');
+      }
+    }, true);
+  }
+  window._wireDagLegendPopover = _wireDagLegendPopover;
+
+  // ── Collapse / expand the graph SHELL (persistent nav pane) ───────────────
+  // Hides #investigation-dag-shell (the DAG canvas) while keeping the toolbar +
+  // study navigator visible, so the user can still navigate and re-expand.
+  // Persisted per viewer in localStorage. Independent of the sticky pinning and
+  // of _setInvestigationContextCollapsed (which slims the whole context).
+  // The investigation graph is a DOCKABLE view while a study is embedded (CSS
+  // classes on #investigation-dag-fs, transitions in style.css):
+  //   collapsed — a slim corner bar (lead + study navigator), graph hidden;
+  //   docked    — a draggable/resizable floating window, top-right (the default),
+  //               with the navigator + Zoom/Detail/Width graph controls.
+  // The third control button (⛶) is an ACTION, not a state: it EXITS the study
+  // and returns to the full inline investigation graph. When NO study is open the
+  // graph is the normal full-width inline view (no dock class). The chosen state
+  // + the user's dragged position/size are remembered in localStorage.
+  var _AIG_DOCK_STATES = ['collapsed', 'docked'];
+  function _aigDockStateStored() {
+    try { var v = localStorage.getItem('aig-dock-state'); return _AIG_DOCK_STATES.indexOf(v) >= 0 ? v : null; }
+    catch (e) { return null; }
+  }
+  function _aigStudyOpen() { return !!(window._wsStudyTabs && window._wsStudyTabs.active); }
+
+  // Remembered dragged position + resized size of the docked window.
+  function _aigDockRectStored() {
+    try { return JSON.parse(localStorage.getItem('aig-dock-rect') || 'null'); } catch (e) { return null; }
+  }
+  function _aigSaveDockRect(fs) {
+    if (!fs || !fs.classList.contains('aig-dock-docked')) return;
+    try {
+      var r = fs.getBoundingClientRect();
+      localStorage.setItem('aig-dock-rect', JSON.stringify({
+        left: Math.round(r.left), top: Math.round(r.top),
+        width: Math.round(r.width), height: Math.round(r.height),
+      }));
+    } catch (e) { /* ignore */ }
+  }
+  // Apply the stored rect to the docked window, clamped inside the viewport.
+  function _aigApplyDockRect(fs) {
+    var rect = _aigDockRectStored();
+    if (!rect) return;
+    var vw = window.innerWidth || 1024, vh = window.innerHeight || 768;
+    var w = Math.max(260, Math.min(rect.width || 400, vw - 24));
+    var h = Math.max(140, Math.min(rect.height || 360, vh - 80));
+    var left = Math.max(8, Math.min(rect.left, vw - w - 8));
+    var top = Math.max(8, Math.min(rect.top, vh - h - 8));
+    fs.style.right = 'auto';
+    fs.style.left = left + 'px'; fs.style.top = top + 'px';
+    fs.style.width = w + 'px'; fs.style.height = h + 'px';
+  }
+  // Clear the inline rect so a non-docked state falls back to the CSS size/pos.
+  function _aigClearDockRect(fs) {
+    fs.style.left = ''; fs.style.top = ''; fs.style.right = '';
+    fs.style.width = ''; fs.style.height = '';
+  }
+
+  function _aigSetDockState(state, opts) {
+    // PREVIEW-ONLY: the bespoke floating inlay is superseded by the VivPanelDock
+    // Graph panel (graph-panel.js). Neuter the old auto-float so the two don't
+    // fight; the graph stays inline and the ◧ side-panel button drives docking.
+    return;
+    if (_AIG_DOCK_STATES.indexOf(state) < 0) state = 'docked';
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs || !_aigStudyOpen()) return;   // docking only applies while embedded
+    fs.classList.add('aig-dock');
+    _AIG_DOCK_STATES.forEach(function (s) { fs.classList.toggle('aig-dock-' + s, s === state); });
+    // Docked: honor the user's dragged/resized rect; collapsed: use the CSS size.
+    if (state === 'docked') { _aigApplyDockRect(fs); _aigWireDockDrag(); _aigWireDockResize(); }
+    else { _aigClearDockRect(fs); }
+    var ctl = document.getElementById('aig-dock-ctl');
+    if (ctl) {
+      ctl.style.display = 'inline-flex';
+      ctl.querySelectorAll('button[data-dock]').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-dock') === state);
+      });
+    }
+    if (!(opts && opts.noPersist)) { try { localStorage.setItem('aig-dock-state', state); } catch (e) { /* ignore */ } }
+    // Docked: show the graph at a READABLE zoom (names legible) and let the panel
+    // scroll — do NOT fit-all (which shrinks everything to tiny). A bigger window
+    // then shows more of the graph at the same readable size, rather than shrinking.
+    if (state === 'docked') {
+      setTimeout(function () { _aigDockReadable(); }, 210);
+    }
+  }
+  window._aigSetDockState = _aigSetDockState;
+
+  // Readable docked zoom: keep names legible (zoom = 1, the inline default) and
+  // scroll for the rest, instead of fit-all. The Zoom −/⤢/+ controls still let
+  // the user fit-all or zoom as they choose. (aigZoom / _applyAigZoom are defined
+  // later in this IIFE; this runs at interaction time, so they're available.)
+  function _aigDockReadable() {
+    try { aigZoom = 1; _applyAigZoom(); } catch (e) { /* ignore */ }
+  }
+
+  // Exit the embedded study and return to the full inline investigation graph —
+  // the ⛶ control's action (what closing the study / _wsResetStudyTabs restores).
+  function _aigExitToGraph() {
+    var inv = window._wsInvestigation || window._currentIset
+      || (window._wsStudyTabs && window._wsStudyTabs.investigation) || null;
+    _wsResetStudyTabs(inv);
+  }
+  window._aigExitToGraph = _aigExitToGraph;
+
+  // Float the graph on study open at the remembered state (default docked).
+  function _aigEnterDock() { _aigSetDockState(_aigDockStateStored() || 'docked', { noPersist: true }); }
+  // Restore the graph to the normal inline view on study close.
+  function _aigExitDock() {
+    var fs = document.getElementById('investigation-dag-fs');
+    if (fs) { fs.classList.remove('aig-dock', 'aig-dock-collapsed', 'aig-dock-docked'); _aigClearDockRect(fs); }
+    var ctl = document.getElementById('aig-dock-ctl');
+    if (ctl) ctl.style.display = 'none';
+  }
+  // Re-assert the dock state after a graph (re-)render: keep floating if a study
+  // is open, else ensure it's inline.
+  function _applyDockState() {
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs) return;
+    if (!_aigStudyOpen()) { _aigExitDock(); return; }
+    var cur = _AIG_DOCK_STATES.filter(function (s) { return fs.classList.contains('aig-dock-' + s); })[0]
+      || _aigDockStateStored() || 'docked';
+    _aigSetDockState(cur, { noPersist: true });
+  }
+  window._applyDockState = _applyDockState;
+
+  // Collapsible "Investigation overview" (inline view, no study open). The prose
+  // blocks (#investigation-intro + #investigation-decision-cockpit) hide behind
+  // #inv-overview-toggle so the graph is prominent + top-aligned. DEFAULT
+  // COLLAPSED; the user's choice is remembered. Only governs the inline view —
+  // the study-open state hides the prose regardless.
+  function _invOverviewCollapsed() {
+    // Default OPEN: entering an investigation shows the overview at the top; it
+    // collapses when a study is opened.
+    try { var v = localStorage.getItem('inv-overview-collapsed'); return v === null ? false : v === '1'; }
+    catch (e) { return false; }
+  }
+  function _applyInvOverviewState() {
+    var view = document.getElementById('investigation-detail-view');
+    if (!view) return;
+    // Safeguard: the investigation overview (intro + decision cockpit) must sit
+    // ABOVE the graph. The template already orders them that way, but enforce it
+    // defensively so no state (or a stale cached fragment) can leave the graph
+    // rendered above the overview — the overview opens below the graph otherwise.
+    // Idempotent: a no-op when the order is already correct.
+    var _graph = document.getElementById('investigation-dag-fs');
+    var _intro = document.getElementById('investigation-intro');
+    var _cockpit = document.getElementById('investigation-decision-cockpit');
+    if (_graph && _intro && _intro.parentNode === view && _graph.parentNode === view &&
+        (_intro.compareDocumentPosition(_graph) & Node.DOCUMENT_POSITION_PRECEDING)) {
+      view.insertBefore(_intro, _graph);
+      if (_cockpit && _cockpit.parentNode === view) view.insertBefore(_cockpit, _graph);
+    }
+    var collapsed = _invOverviewCollapsed();
+    view.classList.toggle('inv-overview-collapsed', collapsed);
+    var btn = document.getElementById('inv-overview-toggle');
+    if (btn) {
+      // Keep the "Overview" text label beside the caret (iTerm-style labeled
+      // control); only the caret direction reflects collapsed/expanded.
+      btn.innerHTML = '<span class="inv-ov-caret" aria-hidden="true">' + (collapsed ? '▸' : '▾') + '</span> Overview';
+      btn.setAttribute('title', collapsed ? 'Show overview' : 'Hide overview');
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+  }
+  function _toggleInvOverview() {
+    var willOpen = _invOverviewCollapsed();   // currently collapsed -> this click opens it
+    try { localStorage.setItem('inv-overview-collapsed', willOpen ? '0' : '1'); } catch (e) { /* ignore */ }
+    _applyInvOverviewState();
+    // On open, bring the revealed overview (which sits ABOVE the graph in the DOM)
+    // into view — it works whether or not a study is open (the CSS un-hides the
+    // intro/cockpit in the study-open state when expanded).
+    if (willOpen) {
+      var intro = document.getElementById('investigation-intro');
+      if (intro && intro.scrollIntoView) { try { intro.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { /* ignore */ } }
+    }
+  }
+  window._toggleInvOverview = _toggleInvOverview;
+  window._applyInvOverviewState = _applyInvOverviewState;
+
+  // Drag the docked window by its TOOLBAR (the popup has no title bar now): drag
+  // empty toolbar space, not the buttons/sliders/menus. Persists position/size
+  // (resize uses the corner grips; a document mouseup saves the final rect).
+  // Wired once; only acts in the docked state. Kept inside the viewport.
+  var _aigDockDragWired = false;
+  function _aigWireDockDrag() {
+    if (_aigDockDragWired) return;
+    _aigDockDragWired = true;
+    var fs = document.getElementById('investigation-dag-fs');
+    var bar = fs && fs.querySelector('.aig-toolbar');
+    if (!fs || !bar) return;
+    // Transform-based drag: translate() is a compositor-only transform, so the
+    // heavy graph panel is NOT re-laid-out or repainted on every mousemove the
+    // way writing left/top each event was (that was the drag lag). We batch the
+    // transform write into one rAF per frame, then commit to left/top on release.
+    var drag = null, raf = 0, pending = null;
+    function flush() {
+      raf = 0;
+      if (drag && pending) { fs.style.transform = 'translate(' + pending.x + 'px,' + pending.y + 'px)'; }
+    }
+    bar.addEventListener('mousedown', function (e) {
+      if (!fs.classList.contains('aig-dock-docked')) return;      // only docked
+      // Ignore the interactive controls — drag only on empty toolbar space.
+      if (e.target.closest && e.target.closest('button, input, select, a, .aig-tb-seg, .aig-study-jump-wrap, #aig-dock-ctl, #aig-study-nav')) return;
+      var r = fs.getBoundingClientRect();
+      // Pin left/top to the current numeric position so the transform offsets
+      // from a known origin (the panel may still be on its CSS right:16px).
+      fs.style.right = 'auto'; fs.style.left = r.left + 'px'; fs.style.top = r.top + 'px';
+      drag = { sx: e.clientX, sy: e.clientY, left: r.left, top: r.top, w: r.width, h: r.height };
+      pending = { x: 0, y: 0 };
+      fs.classList.add('aig-dragging');          // suppress transition while dragging
+      fs.style.willChange = 'transform';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!drag) return;
+      var vw = window.innerWidth, vh = window.innerHeight;
+      // Clamp the DESTINATION (base + delta) to the viewport, express as a delta.
+      var destLeft = Math.max(8, Math.min(drag.left + (e.clientX - drag.sx), vw - drag.w - 8));
+      var destTop = Math.max(8, Math.min(drag.top + (e.clientY - drag.sy), vh - drag.h - 8));
+      pending = { x: destLeft - drag.left, y: destTop - drag.top };
+      if (!raf) raf = requestAnimationFrame(flush);
+    });
+    document.addEventListener('mouseup', function () {
+      if (!drag) return;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      // Commit the transform offset into left/top, then drop the transform.
+      fs.style.left = (drag.left + pending.x) + 'px';
+      fs.style.top = (drag.top + pending.y) + 'px';
+      fs.style.transform = ''; fs.style.willChange = '';
+      drag = null; pending = null;
+      fs.classList.remove('aig-dragging');
+      if (fs.classList.contains('aig-dock-docked')) _aigSaveDockRect(fs);
+    });
+  }
+
+  // Resize the docked window by dragging a corner grip (custom, since CSS
+  // `resize` was unreliable on this fixed+transitioned panel and the grip sat
+  // under the graph shell). Sets inline width/height (and left on the SW grip),
+  // clamped to a sane minimum and within the viewport; persists + re-fits on
+  // release. Wired once; only acts in the docked state.
+  var _aigDockResizeWired = false;
+  function _aigWireDockResize() {
+    if (_aigDockResizeWired) return;
+    _aigDockResizeWired = true;
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs) return;
+    var grips = fs.querySelectorAll('.aig-dock-grip');
+    if (!grips.length) return;
+    var rz = null;
+    var MINW = 320, MINH = 240;
+    grips.forEach(function (g) {
+      g.addEventListener('mousedown', function (e) {
+        if (!fs.classList.contains('aig-dock-docked')) return;
+        e.preventDefault(); e.stopPropagation();
+        var r = fs.getBoundingClientRect();
+        rz = { dir: g.getAttribute('data-grip'), x: e.clientX, y: e.clientY, left: r.left, top: r.top, w: r.width, h: r.height };
+        fs.classList.add('aig-resizing');
+        fs.style.right = 'auto';
+      });
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (!rz) return;
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var dx = e.clientX - rz.x, dy = e.clientY - rz.y;
+      var w, h = rz.h + dy, left = rz.left;
+      if (rz.dir === 'sw') { w = rz.w - dx; left = rz.left + dx; }
+      else { w = rz.w + dx; }                     // 'se'
+      if (w < MINW) { if (rz.dir === 'sw') left = rz.left + (rz.w - MINW); w = MINW; }
+      if (h < MINH) h = MINH;
+      left = Math.max(8, left);
+      if (left + w > vw - 8) w = vw - 8 - left;
+      var top = Math.max(56, rz.top);
+      if (top + h > vh - 8) h = vh - 8 - top;
+      fs.style.left = left + 'px'; fs.style.top = top + 'px';
+      fs.style.width = w + 'px'; fs.style.height = h + 'px';
+    });
+    document.addEventListener('mouseup', function () {
+      if (!rz) return;
+      rz = null; fs.classList.remove('aig-resizing');
+      if (fs.classList.contains('aig-dock-docked')) _aigSaveDockRect(fs);
+      // Keep the current (readable) zoom — a bigger window just shows MORE graph,
+      // it does not shrink. (No fit-all here.)
+    });
+  }
+
+  // Graph-only vs full investigation detail. When a study is open, the relocated
+  // #investigation-detail-view is reduced to its graph region (#investigation-dag-fs)
+  // via the .inv-study-open class (CSS hides every other direct child) so the
+  // sticky pane is compact and the study stays reachable. Restoring removes the
+  // class — each child returns to its own inline/default display.
+  var _invStripPrevBand = null;
+  function _setInvProseForStudy(studyOpen) {
+    var view = document.getElementById('investigation-detail-view');
+    if (!view) return;
+    view.classList.toggle('inv-study-open', !!studyOpen);
+    // Compact navigation strip when a study is open: the graph shell is capped
+    // to a short height by CSS (.inv-study-open #investigation-dag-shell), which
+    // beats the inline height + the auto-refit. Here we only drop the semantic
+    // zoom to the lowest band (just study names) and restore the prior band on
+    // close, so the strip reads as a nav menu rather than a tall section.
+    if (studyOpen) {
+      if (_invStripPrevBand === null) _invStripPrevBand = aigBand;
+      _setAigBand(0);   // lowest detail — names only
+    } else if (_invStripPrevBand !== null) {
+      _setAigBand(_invStripPrevBand);
+      _invStripPrevBand = null;
+    }
+  }
+  window._setInvProseForStudy = _setInvProseForStudy;
+
+  // ── Graph-bar study navigator ─────────────────────────────────────────────
+  // ← prev / ⇄ jump / next → that navigates the EMBEDDED study, driven from the
+  // graph's OWN data (_lastDagArgs = [studies, chainsBySlug, studyEdges]) — no
+  // re-fetch. Mirrors study-detail.js _wireStudyNav's chain logic (prev/next
+  // along the leads-to chain + a grouped jump menu), but swaps the embedded
+  // study via _openStudyEmbeddedNewTab. Shown only while a study is open.
+  var _aigJumpWired = false;
+  function _renderGraphBarNav() {
+    var nav = document.getElementById('aig-study-nav');
+    if (!nav) return;
+    var current = (window._wsStudyTabs && window._wsStudyTabs.active) || null;
+    var studies = (_lastDagArgs && _lastDagArgs[0]) || [];
+    var edges = (_lastDagArgs && _lastDagArgs[2]) || [];
+    if (!current || !studies.length) { nav.style.display = 'none'; return; }
+
+    var strip = function (n) { return String(n == null ? '' : n).trim(); };
+    var nameOf = function (s) { return (typeof s === 'string') ? s : (s && (s.name || s.slug || s.study)); };
+    var titleOf = function (s) { return (s && typeof s === 'object' && s.title) ? s.title : nameOf(s); };
+    var order = studies.map(nameOf).filter(Boolean);
+    if (!order.length) { nav.style.display = 'none'; return; }
+    var byName = {}; studies.forEach(function (s) { var n = nameOf(s); if (n) byName[n] = s; });
+
+    // Parents/children from the graph edges (source -> target == leads-to),
+    // falling back to each study's parent_studies — same chain the graph draws.
+    var parentsOf = function (n) {
+      var out = [];
+      edges.forEach(function (e) { if (e && strip(e.target) === n && strip(e.source)) out.push(strip(e.source)); });
+      var s = byName[n], ps = (s && s.parent_studies) || [];
+      ps.forEach(function (pk) {
+        var pn = (pk && typeof pk === 'object') ? (pk.study || pk.name || pk.slug) : pk;
+        if (pn && out.indexOf(strip(pn)) === -1) out.push(strip(pn));
+      });
+      return out.filter(function (x) { return byName[x]; });
+    };
+    var childrenOf = function (n) {
+      var out = [];
+      edges.forEach(function (e) { if (e && strip(e.source) === n && strip(e.target) && byName[strip(e.target)]) out.push(strip(e.target)); });
+      order.forEach(function (m) { if (parentsOf(m).indexOf(n) >= 0 && out.indexOf(m) === -1) out.push(m); });
+      return out;
+    };
+
+    var curParents = parentsOf(current);
+    var curChildren = childrenOf(current);
+    var idx = order.indexOf(current);
+    var prev = (idx > 0) ? order[idx - 1] : (curParents[0] || null);
+    var next = curChildren[0] || ((idx >= 0 && idx < order.length - 1) ? order[idx + 1] : null);
+
+    var prevBtn = document.getElementById('aig-study-prev');
+    var nextBtn = document.getElementById('aig-study-next');
+    var jumpBtn = document.getElementById('aig-study-jump-btn');
+    var jumpMenu = document.getElementById('aig-study-jump-menu');
+    nav.style.display = '';
+
+    var go = function (slug) { if (slug && slug !== current && window._openStudyEmbeddedNewTab) window._openStudyEmbeddedNewTab(slug, (typeof _currentStudyTab === 'function' ? _currentStudyTab() : undefined)); };
+    if (prevBtn) {
+      prevBtn.disabled = !prev; prevBtn.title = prev ? ('Previous: ' + prev) : 'No previous study';
+      prevBtn.onclick = prev ? function () { go(prev); } : null;
+    }
+    if (nextBtn) {
+      nextBtn.disabled = !next; nextBtn.title = next ? ('Next: ' + next) : 'No next study';
+      nextBtn.onclick = next ? function () { go(next); } : null;
+    }
+
+    if (jumpMenu && jumpBtn) {
+      var _item = function (n) {
+        return '<button type="button" class="aig-study-jump-item' + (n === current ? ' current' : '') +
+          '" data-slug="' + _esc(n) + '">' + _esc(titleOf(byName[n]) || n) + '</button>';
+      };
+      var html = '';
+      if (curParents.length) html += '<div class="aig-study-jump-group">Builds on</div>' + curParents.map(_item).join('');
+      if (curChildren.length) html += '<div class="aig-study-jump-group">Leads to</div>' + curChildren.map(_item).join('');
+      html += '<div class="aig-study-jump-group">All studies</div>' + order.map(_item).join('');
+      jumpMenu.innerHTML = html;
+      jumpMenu.querySelectorAll('.aig-study-jump-item').forEach(function (b) {
+        b.addEventListener('click', function () {
+          jumpMenu.style.display = 'none'; jumpBtn.setAttribute('aria-expanded', 'false');
+          go(b.getAttribute('data-slug'));
+        });
+      });
+      jumpBtn.onclick = function (ev) {
+        ev.stopPropagation();
+        var open = jumpMenu.style.display !== 'none' && jumpMenu.style.display !== '';
+        jumpMenu.style.display = open ? 'none' : 'block';
+        jumpBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      };
+      if (!_aigJumpWired) {
+        _aigJumpWired = true;
+        document.addEventListener('click', function (e) {
+          if (!e.target.closest || !e.target.closest('.aig-study-jump-wrap')) {
+            jumpMenu.style.display = 'none'; jumpBtn.setAttribute('aria-expanded', 'false');
+          }
+        }, true);
+      }
+    }
+  }
+  window._renderGraphBarNav = _renderGraphBarNav;
 
   // Layout + render the DAG of study nodes for the active investigation.
   // Two orientations, chosen by chooseGraphOrientation() (aig-graph.js) or a
@@ -10938,51 +12414,87 @@
   // with the node as target. The buttons carry class `js-authoring` so they
   // hide automatically in the published snapshot and live read-only modes.
 
+  // Full-magnification "Plan" layer (semantic-zoom band 2 / _opts.plan): the
+  // design a study DECLARES before any composite is built — declared contract
+  // (typed-ports summary + conservation predicates), proposed mechanisms,
+  // proposed models & methods, and the success criteria. Each sub-block is
+  // omitted when empty; lists are capped (+ "…") so a node can't explode.
+  function _dagPlanHtml(s) {
+    var _cl = function (n) {
+      return 'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:' + n +
+        ';line-clamp:' + n + ';overflow:hidden;';
+    };
+    var mech = Array.isArray(s.proposed_mechanisms) ? s.proposed_mechanisms : [];
+    var meth = Array.isArray(s.proposed_models_methods) ? s.proposed_models_methods : [];
+    var tests = Array.isArray(s.behavior_test_names) ? s.behavior_test_names : [];
+    var contract = s.contract || {};
+    var face = contract.face || {};
+    var ins = face.inputs || {}, outs = face.outputs || {};
+    var nIn = Object.keys(ins).length, nOut = Object.keys(outs).length;
+    var conds = Array.isArray(contract.conditions) ? contract.conditions : [];
+    var parts = [];
+    if (nIn || nOut || conds.length) {
+      var portBits = [];
+      Object.keys(ins).concat(Object.keys(outs)).forEach(function (n) {
+        var ports = ins[n] ? ins : outs;
+        var u = (ports[n] || {})._units;
+        portBits.push(n + (u ? ' (' + u + ')' : ''));
+      });
+      var portStr = portBits.slice(0, 5).map(_esc).join(', ') + (portBits.length > 5 ? ', …' : '');
+      var summary = nIn + ' in → ' + nOut + ' out · ' + conds.length +
+        ' predicate' + (conds.length === 1 ? '' : 's');
+      parts.push('<div><span style="font-weight:600;color:#475569">Contract:</span> ' + _esc(summary) +
+        (portStr ? '<div class="muted" style="' + _cl(2) + '">' + portStr + '</div>' : '') + '</div>');
+    }
+    var listBlock = function (label, arr, cap) {
+      if (!arr.length) return '';
+      var shown = arr.slice(0, cap).map(function (x) { return _esc(String(x)); }).join('; ');
+      return '<div style="margin-top:3px;' + _cl(3) + '"><span style="font-weight:600;color:#475569">' +
+        label + ':</span> ' + shown + (arr.length > cap ? ' …' : '') + '</div>';
+    };
+    parts.push(listBlock('Mechanisms', mech, 4));
+    parts.push(listBlock('Models &amp; methods', meth, 4));
+    parts.push(listBlock('Success criteria', tests, 5));
+    var body = parts.filter(Boolean).join('');
+    if (!body) return '';
+    return '<div class="dag-plan-layer" style="font-size:0.7em;margin-top:7px;padding-top:6px;' +
+      'border-top:1px dashed #e2e8f0;color:#64748b;line-height:1.35">' + body + '</div>';
+  }
+
   function _dagCacheBadgeHtml(slug) {
-    var st = _dagTriggerBySlug[slug];
-    if (!st) return '';
-    var cached = !!st.cached;
-    var bg = cached ? '#dcfce7' : '#f1f5f9';
-    var fg = cached ? '#166534' : '#475569';
-    var label = cached ? '● cached' : '○ compute';
-    var tip = cached
-      ? 'Output artifact is in the store — this study is pulled, not recomputed'
-      : 'No cached artifact — this study computes when triggered';
-    return '<span class="dag-cache-badge" title="' + _esc(tip) + '" ' +
-      'style="display:inline-block;font-size:0.62em;font-weight:700;padding:1px 7px;' +
-      'border-radius:9999px;background:' + bg + ';color:' + fg + '">' + label + '</span>';
+    // The cached/compute badge ("● cached" / "○ compute") was removed from the
+    // graph cards — it carried no useful signal for browsing. Kept as a no-op so
+    // existing call sites need no change.
+    return '';
   }
 
   function _dagTriggerControlsHtml(slug) {
-    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return '';
-    if ((window._uiConfig || {}).readonly) return '';
-    var st = _dagTriggerBySlug[slug];
-    var hasUpstream = !!(st && st.ancestors && st.ancestors.length);
-    var btn = 'font-size:0.66em;padding:2px 8px;border-radius:6px;cursor:pointer;' +
-      'border:1px solid #cbd5e1;background:#fff;color:#334155';
-    var out = '<div class="js-authoring dag-trigger-controls" ' +
-      'style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' +
-      '<button type="button" class="dag-trigger-run" data-slug="' + _esc(slug) + '" ' +
-      'style="' + btn + '">▷ Run this study</button>';
-    if (hasUpstream) {
-      out += '<button type="button" class="dag-trigger-continue" data-slug="' + _esc(slug) + '" ' +
-        'title="Reuse cached upstream results; recompute only this study" ' +
-        'style="' + btn + '">⏵ Continue from here</button>';
-    }
-    return out + '</div>';
+    // Launch actions (Run this study / Continue from here) intentionally do NOT
+    // appear on the graph study cards — running lives on the full study tab
+    // (▶ Run current spec / ↻ Reproduce), matching the download group below and
+    // the investigation card study rows. The cards stay a browse + download
+    // surface. (Kept as a no-op so existing call sites need no change.)
+    return '';
+  }
+
+  // The graph study cards intentionally carry NO download affordances anymore
+  // (↓ figures / ↓ notebook). Downloads now live prominently at the top of the
+  // full study tab (study-detail.html's header: ↓ figures / ↓ notebook) — one
+  // easy-access place instead of one per node, so the investigation graph stays
+  // clean. The run/continue launch actions were likewise moved to the study tab
+  // (see _dagTriggerControlsHtml). Kept as a no-op so existing call sites need
+  // no change.
+  function _dagDownloadControlsHtml(slug) {
+    return '';
   }
 
   function _triggerStudy(slug, onMissing, btnEl) {
     if (!_dagInvSlug) return;
     var original = btnEl ? btnEl.textContent : '';
     if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'triggering…'; }
-    fetch('/api/investigation-trigger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    apiFetch('POST', '/api/investigation-trigger', {
         investigation: _dagInvSlug, target_study: slug, on_missing: onMissing,
-      }),
-    }).then(function (r) {
+      }).then(function (r) {
       return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; });
     }).then(function (res) {
       if (btnEl) { btnEl.disabled = false; btnEl.textContent = original; }
@@ -11015,7 +12527,7 @@
 
   function _refreshDagTriggerStatus() {
     if (!_dagInvSlug) return;
-    fetch('/api/investigation-trigger-status?investigation=' + encodeURIComponent(_dagInvSlug))
+    apiFetch('GET', '/api/investigation-trigger-status?investigation=' + encodeURIComponent(_dagInvSlug))
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (status) {
         if (!status) return;
@@ -11029,6 +12541,9 @@
 
   function _renderInvestigationDag(studies, chainsBySlug, studyEdges) {
     _lastDagArgs = [studies, chainsBySlug, studyEdges];
+    // Assigned to _layoutAndDraw below; each card's expand toggle calls it to
+    // re-measure + re-stack its column after the card grows/shrinks.
+    var _relayoutDag = null;
     // Prefer the server's computed study_edges for dependency layout: in the
     // member-interface model the per-study `parent_studies` / `pipeline_gate`
     // (what _dagEdges reads) is empty because prerequisites are declared as
@@ -11042,7 +12557,7 @@
       (_edgesByChild[tgt] = _edgesByChild[tgt] || []).push({
         study: src,
         condition: e.condition || 'tests-passed',
-        relation: e.artifact ? 'model-input' : 'leads-to',
+        relation: e.relation || (e.artifact ? 'model-input' : 'leads-to'),
         artifact: e.artifact,
       });
     });
@@ -11054,6 +12569,9 @@
     var _opts = window._layoutOptsForBand(aigBand);
     var shellEl = document.getElementById('investigation-dag-shell');
     if (shellEl) { shellEl.classList.remove('aig-zoom-far','aig-zoom-mid','aig-zoom-near'); shellEl.classList.add(_opts.cls); }
+    // Keep the card-width slider showing the persisted scale on (re-)render.
+    var _wsl = document.getElementById('aig-width-slider');
+    if (_wsl && String(_wsl.value) !== String(aigWidthScale)) _wsl.value = String(aigWidthScale);
 
 
     var nodesHost = document.getElementById('investigation-dag-nodes');
@@ -11111,16 +12629,25 @@
       byDepth[d].sort(function(a, b) { return a.name.localeCompare(b.name); });
     });
 
-    // Orientation: auto-pick from the graph's shape (wide/shallow -> TB,
-    // deep/narrow -> LR) unless the user manually toggled it for this
-    // investigation, in which case the stored choice wins.
+    // Orientation. A transient MANUAL override (the ⇄/⇅ buttons, in-memory, held
+    // only within the current dock) wins; otherwise AUTO from the container aspect
+    // (_aigAutoOrient: dock side when docked, else the inline area's width≥height).
+    // The shape heuristic (chooseGraphOrientation) is a last-resort fallback for
+    // when nothing can be measured (e.g. a headless/test render). Auto is recomputed
+    // every render, so an initial load and every dock switch re-auto; a manual pick
+    // survives zoom/band re-renders because _aigManualOrient holds until the next
+    // dock switch clears it.
     var depthCounts = {};
     Object.keys(byDepth).forEach(function(d) { depthCounts[d] = byDepth[d].length; });
-    var _storedOrient = _getStoredGraphOrientation(window._currentIset);
-    var orient = _storedOrient ||
-      (window.chooseGraphOrientation ? window.chooseGraphOrientation(depthCounts) : 'LR');
+    var orient;
+    if (_aigManualOrient === 'LR' || _aigManualOrient === 'TB') {
+      orient = _aigManualOrient;
+    } else {
+      orient = _aigAutoOrient(depthCounts)
+        || (window.chooseGraphOrientation ? window.chooseGraphOrientation(depthCounts) : 'LR');
+    }
     if (shellEl) { shellEl.classList.remove('aig-orient-lr', 'aig-orient-tb'); shellEl.classList.add(orient === 'TB' ? 'aig-orient-tb' : 'aig-orient-lr'); }
-    _syncGraphOrientToggleUI(orient, !!_storedOrient);
+    _syncGraphOrientToggleUI(orient, _aigUserLayout);
 
     // Card HEIGHT is NOT fixed: each card grows to fit its full text. We render
     // once, measure each card, then stack + center by the measured heights
@@ -11129,8 +12656,12 @@
     //     dependency-depth axis — horizontal columns in LR, vertical rows in TB.
     //   - BREADTH_GAP (fixed): gap along the same-depth axis — vertical stack in
     //     LR, horizontal row in TB.
-    var CARD_W = _opts.cardW;
-    var DEPTH_GAP = _opts.xGap, BREADTH_GAP = 22;
+    // Card width is the band's cardW scaled by the viewer's width control, so
+    // cards can be widened/narrowed to read the Asks/Finds text independently of
+    // the zoom band. DEPTH_GAP widens a little with the cards so columns don't
+    // crowd; BREADTH_GAP (same-depth stacking) stays fixed.
+    var CARD_W = Math.round(_opts.cardW * aigWidthScale);
+    var DEPTH_GAP = Math.round(_opts.xGap * (1 + (aigWidthScale - 1) * 0.5)), BREADTH_GAP = 22;
     var PAD_X = 24, PAD_Y = 16;
     var svgNS = 'http://www.w3.org/2000/svg';
     var pos = {};
@@ -11166,26 +12697,23 @@
     //    top TBD, append, measure --
     studies.forEach(function(s) {
       var liveStatus = s.effective_status || s.status || 'planned';
-      // Derive confidence from the spine's gate_status VERDICT first, so the badge
-      // tracks the computed verdict rather than the drift-prone hand-set `status`
-      // (a stale `status: in_progress` on a passed study used to mis-show
-      // "Investigating"). Fall back to lifecycle status only when no gate verdict.
-      var gateV = String(s.gate_status || '').trim().toLowerCase();
-      var confidence = s.confidence || (function() {
-        if (gateV === 'passed' || gateV === 'pass') return 'Accepted';
-        if (gateV === 'partial' || gateV === 'needs_calibration') return 'Investigating';
-        if (gateV === 'failed' || gateV === 'failed_evaluation' || gateV === 'refuted' || gateV === 'blocked') return 'Refuted';
-        if (liveStatus === 'completed' || liveStatus === 'complete' || liveStatus === 'ran') return 'Accepted';
-        if (liveStatus === 'in_progress' || liveStatus === 'running') return 'Investigating';
-        if (liveStatus === 'failed' || liveStatus === 'invalid') return 'Refuted';
-        return 'Planned';
-      })();
-      var ss = ({
-        Accepted:      {color: '#16a34a', icon: '✓'},
-        Investigating: {color: '#ca8a04', icon: '◐'},
-        Planned:       {color: '#2563eb', icon: '○'},
-        Refuted:       {color: '#dc2626', icon: '✗'},
-      })[confidence] || {color: '#9ca3af', icon: '○'};
+      // Unified status source (see _studyStatusMeta): gate_status VERDICT first, then
+      // the hand-set confidence, then lifecycle status -- the SAME derivation the
+      // spine sidebar dot and the legend use, so the card badge can never disagree
+      // with the sidebar. Fixes the prior bug where `s.confidence || derive(...)` let
+      // a drift-prone hand-set `confidence: Investigating` mask a `blocked` gate.
+      // `Blocked` renders as its own state (slate ⊘), not as Refuted (red ✗).
+      // Two-axis ontology: PROGRESS (execution) and VERDICT (what the evidence
+      // supports) are shown as two prominent pills. The card color/border is the
+      // verdict color once the study is completed (the finding is the headline),
+      // else the execution-progress color.
+      var execMeta = _execMeta(s);
+      var isCompleted = _execState(s) === 'completed';
+      var verdictMeta = _verdictMeta(s);              // null → pending
+      var headColor = (isCompleted && verdictMeta) ? verdictMeta.color : execMeta.color;
+      var confidence = execMeta.label + (verdictMeta ? ' · ' + verdictMeta.label : '');
+      // Overview (far) band collapses the pills to glyphs only to stay readable.
+      var _pillCompact = !_opts.asks;
       var followUps = s.follow_up_studies || [];
 
       // Single display name everywhere: authored title:, else the shared
@@ -11195,7 +12723,10 @@
       // paragraph (e.g. pdmp-01), which blows the card up to fill the canvas —
       // so it's CSS line-clamped to a few lines below; the full text lives one
       // click away on the study page (and on hover via the node title).
-      var asks = (s.question || '').replace(/\s+/g, ' ').split(/[.?]/)[0].trim();
+      // At full magnification (_opts.asksFull) show the WHOLE question; at
+      // lower bands keep the first-sentence teaser so cards stay compact.
+      var _qFull = (s.question || '').replace(/\s+/g, ' ').trim();
+      var asks = _opts.asksFull ? _qFull : _qFull.split(/[.?]/)[0].trim();
       var findings = _asFindings(s.findings);
       var claim = (s.claim ||
         (findings[0] && (findings[0].summary || findings[0].statement || findings[0].id)) || ''
@@ -11210,20 +12741,56 @@
 
       var node = document.createElement('div');
       node.className = 'iset-dag-node';
-      // Single click opens the full study view directly — no quick-look
-      // side-card, no double-click.
-      node.onclick = function() {
-        _openStudyInsideInvestigation(s.name);
+      // Stamp the slug so _wsHighlightActiveDagNode can mark the node whose
+      // study is open in the detail panel below.
+      node.dataset.study = s.name;
+      // Three distinct gestures:
+      //   • first click on the card → SELECT only (highlight; no expand, no open).
+      //   • "… show full card" (the +N-more affordance) → EXPAND the card IN PLACE:
+      //     its top stays anchored and the full Asks/Finds/plan grow downward so
+      //     the card gets taller where it sits. Just a reader — it does NOT move
+      //     the "open" marker. Click again to collapse.
+      //   • second click on the selected card → OPEN it as the open study.
+      // A study can be both selected and open (then the "open" marker wins).
+      var _namesOnly = (aigBand === 0);
+      var _selectThis = function () {
+        if (window._aigSelected === s.name) return;
+        if (window._aigSelected) {
+          var prev = nodesHost.querySelector(
+            '.iset-dag-node[data-study="' + _aigCssEsc(window._aigSelected) + '"]');
+          if (prev) prev.classList.remove('aig-node-selected');
+        }
+        window._aigSelected = s.name;
+        node.classList.add('aig-node-selected');
       };
-      node.title = s.name + ' — ' + confidence + (claim ? '\n\nFinds: ' + claim : '') +
-        '\n\nClick to open the study';
+      var _aigNodeClick = function () {
+        if (window._aigSelected === s.name) {
+          _openStudyInsideInvestigation(s.name);   // second click opens
+          return;
+        }
+        _selectThis();                             // first click: select only
+      };
+      // "show full card" → select (if needed) + toggle the card's in-place
+      // expansion. Explicitly NOT an open: this gesture only reveals/hides the
+      // full detail, it never moves the open marker. The card's top-left stays
+      // anchored; the detail grows downward and the shell's scroll extent grows
+      // to match (see _aigAccommodateExpansion).
+      var _toggleExpandInPlace = function (ev) {
+        ev.stopPropagation();
+        _selectThis();
+        _aigSetNodeExpanded(node, !node.classList.contains('aig-node-expanded'));
+        _aigAccommodateExpansion();
+      };
+      node.onclick = _aigNodeClick;
+      node.title = s.name + ' — ' + confidence +
+        '\n\nClick to select · click again to open the study · "show full card" expands it in place';
       var x = (orient === 'TB')
         ? rowStartX[depth[s.name]] + breadthIndex[s.name] * (CARD_W + BREADTH_GAP)
         : PAD_X + depth[s.name] * (CARD_W + DEPTH_GAP);
       node.style.cssText =
         'position:absolute;left:' + x + 'px;top:0px;' +
         'width:' + CARD_W + 'px;' +
-        'background:#fff;border:1px solid #e5e7eb;border-top:3px solid ' + ss.color + ';' +
+        'background:#fff;border:1px solid #e5e7eb;border-top:3px solid ' + headColor + ';' +
         'border-radius:8px;padding:10px 12px;cursor:pointer;box-sizing:border-box;' +
         'box-shadow:0 1px 2px rgba(0,0,0,0.05);transition:box-shadow 0.1s,border-color 0.1s;';
 
@@ -11237,41 +12804,77 @@
           '</button>';
       }
       node.innerHTML =
-        // Meta row: icon (left) + status badge (right). The badge is alone on
-        // this row with space-between, so a nowrap label can never overflow the
-        // card. The title then spans the FULL card width on its own line below
-        // (no longer squeezed into a thin flex column beside the badge).
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px">' +
-          '<span style="color:' + ss.color + ';font-size:1.05em;line-height:1;flex:none">' + ss.icon + '</span>' +
-          '<span class="aig-status-badge" role="button" tabindex="0" title="Why: open this study\'s finding & evidence" ' +
-            'style="font-size:0.62em;font-weight:700;color:' + ss.color + ';white-space:nowrap;cursor:pointer;text-decoration:underline dotted;flex:none">' +
-            _esc(confidence) + '</span>' +
+        // Meta row — two prominent, equally-weighted pills on the left (PROGRESS
+        // = execution status, VERDICT = what the evidence supports) + evidence
+        // pips on the right. Two parallel facts: how far it got, and what it
+        // found. The pills wrap under each other on a narrow card. (The ↗
+        // open-study button was removed — a second click on the selected card
+        // opens it.)
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:6px">' +
+          '<span style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">' +
+            _aigPill(execMeta, 'Progress (execution): ' + execMeta.label, 'aig-progress-pill aig-status-badge', _pillCompact) +
+            _aigPill(verdictMeta || _VERDICT_PENDING,
+                     verdictMeta ? ('Verdict: ' + verdictMeta.label) : 'Verdict: pending — not yet concluded',
+                     'aig-verdict-pill', _pillCompact) +
+          '</span>' +
+          '<span style="display:flex;align-items:center;gap:6px;flex:none">' +
+            _tierPipsHtml(s) +
+          '</span>' +
         '</div>' +
         '<strong style="display:block;font-size:0.85em;line-height:1.3;color:#1e293b">' + _esc(prettyTitle) + '</strong>' +
         (_opts.asks && asks
-          ? '<div style="font-size:0.72em;margin-top:7px;line-height:1.35;color:#64748b;' + _clamp(2) + '">' +
+          ? '<div class="aig-clamp" data-clamp="' + (_opts.asksFull ? 10 : 2) + '" style="font-size:0.72em;margin-top:7px;line-height:1.35;color:#64748b;' + _clamp(_opts.asksFull ? 10 : 2) + '">' +
               '<span style="font-weight:600;color:#475569">Asks:</span> ' + _esc(asks) + '</div>'
           : '') +
         (_opts.finds
-          ? '<div style="font-size:0.72em;margin-top:5px;line-height:1.35;color:#64748b;' + _clamp(5) + '">' +
+          ? '<div class="aig-clamp" data-clamp="5" style="font-size:0.72em;margin-top:5px;line-height:1.35;color:#64748b;' + _clamp(5) + '">' +
               '<span style="font-weight:600;color:#475569">Finds:</span> ' +
               (claim ? _esc(claim) : '<em style="color:#94a3b8">pending evidence</em>') +
             '</div>'
           : '') +
-        (_opts.finds && moreN
-          ? '<div title="' + _esc(findings.slice(1).map(function (f) {
-                return '• ' + ((f.summary || f.statement || f.id || '').replace(/\s+/g, ' ').trim());
-              }).join('\n')) + '" ' +
-            'style="font-size:0.72em;margin-top:2px;color:#94a3b8;cursor:help">+' + moreN +
-            ' more finding' + (moreN === 1 ? '' : 's') + '</div>'
-          : '') +
+        // Universal "show full card" affordance: expands the card IN PLACE so ANY
+        // card's details are readable the same way — at EVERY zoom band, including
+        // the lowest (names-only, band 0) where the card shows nothing but its
+        // title. The full Asks/Finds/plan live in .aig-full-details below, hidden
+        // until expanded (then the compact preview rows + inline plan are hidden).
+        ('<div class="aig-more-wrap" style="margin-top:6px">' +
+            '<button type="button" class="aig-more-findings" tabindex="-1" aria-expanded="false" ' +
+              'title="Expand the full card in place (a separate action from click-to-select / double-click-to-open)">' +
+              '<span class="aig-more-icon" aria-hidden="true">⤢</span>' +
+              '<span class="aig-more-label" data-compact="' +
+                (moreN ? ('+' + moreN + ' more finding' + (moreN === 1 ? '' : 's')) : 'show full card') + '">' +
+                (moreN ? ('+' + moreN + ' more finding' + (moreN === 1 ? '' : 's')) : 'show full card') +
+              '</span>' +
+            '</button>' +
+          '</div>') +
+        // In-place full detail (hidden until expanded): full Asks / Finds / plan.
+        // Grows the card downward from its anchored top; replaces the removed
+        // floating pop-out. (The redundant inline "Open study →" button was
+        // removed — a second click on the selected card opens the study.)
+        ('<div class="aig-full-details" style="display:none;margin-top:8px;padding-top:8px;' +
+            'border-top:1px solid #eef2f7;font-size:0.78em;line-height:1.5;color:#1e293b">' +
+            _aigCardDetailHtml(s) +
+          '</div>') +
+        // Full-magnification Plan layer: declared contract + mechanisms +
+        // models/methods + success criteria (semantic-zoom band 2 only). Wrapped
+        // so the in-place expansion can hide this compact preview (the full plan
+        // lives inside .aig-full-details above).
+        (_opts.plan ? ('<div class="aig-plan-inline">' + _dagPlanHtml(s) + '</div>') : '') +
         (_opts.followups ? followUpsChip : '') +
         (_opts.chain && chainsBySlug && typeof window._chainBlockHtml === 'function'
           ? window._chainBlockHtml(chainsBySlug[s.name]) : '') +
-        // Layer-4: cached/compute badge + run/continue buttons (live only).
+        // "Methods · Simulations" block (band-2 near zoom only). Reads the
+        // backend projection fields on the study node `s`.
+        (_opts.methods && typeof window._methodsBlockHtml === 'function'
+          ? window._methodsBlockHtml(s) : '') +
+        // Layer-4: cached/compute badge + downloads (↓figures/↓notebook, all
+        // modes) + run/continue buttons (live only).
         _dagCacheBadgeHtml(s.name) +
+        _dagDownloadControlsHtml(s.name) +
         _dagTriggerControlsHtml(s.name);
       node._followUps = followUps;
+      node._study = s;                       // the in-place expanded detail reads this
+      node.dataset.headColor = headColor;    // card's top accent
       nodesHost.appendChild(node);
       // Wire the pull-or-compute buttons (stopPropagation so the card's own
       // click-to-open handler doesn't also fire).
@@ -11289,22 +12892,38 @@
       });
       var _badge = node.querySelector('.aig-status-badge');
       if (_badge) {
-        var _openReason = function (ev) {
-          ev.stopPropagation();
-          // The quick-look side-card is gone — the verdict badge opens the full
-          // study (its findings/evidence live there).
-          _openStudyInsideInvestigation(s.name);
-        };
-        _badge.addEventListener('click', _openReason);
-        _badge.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); _openReason(ev); } });
+        // Clicking the status pill behaves like clicking the card: select (then
+        // a second click opens), so the interaction is consistent everywhere.
+        var _onBadge = function (ev) { ev.stopPropagation(); _aigNodeClick(); };
+        _badge.addEventListener('click', _onBadge);
+        _badge.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); _onBadge(ev); } });
       }
+      // "+N more … show full card" → expand the card in place (reader only, no open).
+      node.querySelectorAll('.aig-more-findings').forEach(function (el) {
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.addEventListener('click', _toggleExpandInPlace);
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); _toggleExpandInPlace(ev); }
+        });
+      });
+      // (The inline "Open study →" button was removed — opening is the card's own
+      // second-click gesture, _aigNodeClick → _openStudyInsideInvestigation.)
       if (chainsBySlug && window._groupClaims && window._openInvestigationDrawer) {
         (function (study, chain) {
           var claims = window._groupClaims(chain);
           node.querySelectorAll('.aig-claim-row').forEach(function (row) {
             row.addEventListener('click', function (ev) {
               ev.stopPropagation();
-              _openStudyInsideInvestigation(study.name);
+              // Open the claim drawer — it shows the full claim text and each
+              // chain stage labelled (● Finding, ◆ Evidence, ▣ Decision,
+              // ★ Conclusion), with its own "Open full study →" button. This is
+              // what "click to read the evidence" should do, instead of silently
+              // navigating away to the study card.
+              var ci = parseInt(row.getAttribute('data-claim-index'), 10);
+              var claim = claims[ci];
+              if (claim) window._openInvestigationDrawer('claim', { claim: claim, study: study });
+              else _openStudyInsideInvestigation(study.name);
             });
           });
         })(s, chainsBySlug[s.name]);
@@ -11312,6 +12931,14 @@
       pos[s.name] = { x: x, node: node, depth: depth[s.name] };
     });
 
+    // Measure + position + draw, wrapped in a closure so it can RE-RUN. The
+    // first offsetHeight read can UNDER-measure a card before web fonts finish
+    // laying out its text; the column then stacks the cards too tightly and they
+    // overlap. Expanding a card in place also changes its height. Re-running
+    // this on the next frame, on document.fonts.ready, and on expand/collapse
+    // re-measures and re-stacks so neighbours never overlap. isInitial is true
+    // only for the first synchronous pass (it alone resets the scroll position).
+    function _layoutAndDraw(isInitial) {
     // Measure now that content is in the DOM (container is already visible).
     studies.forEach(function(s) { pos[s.name].h = pos[s.name].node.offsetHeight || 120; });
 
@@ -11373,14 +13000,33 @@
     edgesSvg.setAttribute('height', canvasH);
     edgesSvg.style.width = canvasW + 'px';
     edgesSvg.style.height = canvasH + 'px';
+    // Loom-like viewport: remember the canvas dims and apply the current zoom.
+    // _applyAigZoom auto-fits the shell height to the content (capped at 88vh)
+    // so the DAG isn't vertically cramped; the user can still drag the
+    // resize:vertical handle to override (double-click the background re-fits).
     var shellSize = document.getElementById('investigation-dag-shell');
-    if (shellSize) shellSize.style.height = canvasH + 'px';
+    if (shellSize) {
+      shellSize.dataset.canvasW = canvasW; shellSize.dataset.canvasH = canvasH;
+      // The layout's natural canvas height, so _aigAccommodateExpansion can grow
+      // the scroll extent for an expanded card and shrink back to this baseline.
+      shellSize.dataset.layoutCanvasH = canvasH;
+      // Band-INVARIANT structural dims (same regardless of detail band) so the
+      // smart default can pick the band from the available space without
+      // oscillating: columns = depth levels, rows = widest column's card count.
+      var _cols = depths.length || 1;
+      var _rows = 1;
+      depths.forEach(function (d) { var n = (byDepth[d] || []).length; if (n > _rows) _rows = n; });
+      shellSize.dataset.cols = String(_cols);
+      shellSize.dataset.rows = String(_rows);
+    }
+    _applyAigZoom();            // sizes the inline pane to the full viewport height
+    _aigAutoFillInline();       // then picks a readable detail band + fits the zoom
 
     // Edges (drawn after positions are known), using measured heights.
     edgesSvg.innerHTML =
       '<defs><marker id="dag-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" ' +
       'markerWidth="7" markerHeight="7" orient="auto-start-reverse">' +
-      '<path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker></defs>';
+      '<path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>';
     studies.forEach(function(s) {
       dagEdgesFor(s).forEach(function(p) {
         var pn = p.study;
@@ -11412,19 +13058,21 @@
                    ', ' + (x2 - dx) + ' ' + y2 +
                    ', ' + x2 + ' ' + y2;
         }
-        var rel = p.relation || 'leads-to';
+        var rel = p.relation || 'builds-on';
         var st = _dagRelStyle(rel);
         var path = document.createElementNS(svgNS, 'path');
         path.setAttribute('d', path_d);
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke', st.color);
         path.setAttribute('stroke-width', '1.5');
-        path.setAttribute('marker-end', 'url(#dag-arrowhead)');
+        // Directed relations get an arrowhead; alternative-to is symmetric and
+        // rendered as a plain connector (no direction implied).
+        if (st.arrow !== false) path.setAttribute('marker-end', 'url(#dag-arrowhead)');
         if (st.dash) path.setAttribute('stroke-dasharray', st.dash);
         edgesSvg.appendChild(path);
         var labelText = st.label;
-        // model-input edges name the consumed upstream outputs when present.
-        if (rel === 'model-input' && p.outputs_used && p.outputs_used.length) {
+        // A builds-on edge names the consumed upstream outputs when present.
+        if (p.outputs_used && p.outputs_used.length) {
           labelText += ' (' + p.outputs_used.join(', ') + ')';
         }
         var label = document.createElementNS(svgNS, 'text');
@@ -11447,46 +13095,803 @@
       });
     });
 
-    // Auto-scroll the shell so the top of the DAG is in view.
+    // Auto-scroll the shell so the top of the DAG is in view (first pass only —
+    // a re-layout from a font-settle or an expand must not yank scroll to top).
+    // Skip when docked in the side panel: a zoom there re-renders, and yanking the
+    // scroll to the top each time made the docked graph "jump back to the top".
     var shell = document.getElementById('investigation-dag-shell');
-    if (shell) shell.scrollTop = 0;
+    if (shell && isInitial && !(shell.closest && shell.closest('#viv-graph-panel'))) shell.scrollTop = 0;
 
-    // Legend (status colors + edge types) — created once below the shell.
-    var legendHost = document.getElementById('investigation-dag-legend');
-    if (!legendHost && shell && shell.parentNode) {
-      legendHost = document.createElement('div');
-      legendHost.id = 'investigation-dag-legend';
-      shell.parentNode.insertBefore(legendHost, shell.nextSibling);
+    // Legend moved behind the "?" info-chip popover (no longer an always-visible
+    // strip below the graph). Fill + wire it here so it's ready on first render.
+    _wireDagLegendPopover();
+    // Re-assert the dock state (float while a study is open, inline otherwise) +
+    // (re)build the graph-bar study navigator against the fresh graph data.
+    _applyDockState();
+    _renderGraphBarNav();
+    // Re-apply the open-study highlight after a (re-)render so it survives.
+    _wsHighlightActiveDagNode(window._wsStudyTabs && window._wsStudyTabs.active);
+    // Re-apply the SELECTED highlight after a (re-)render so it survives.
+    if (window._aigSelected) _aigApplySelection(window._aigSelected);
     }
-    if (legendHost) {
-      var _lg = function(color, icon, label) {
-        return '<span style="display:inline-flex;align-items:center;gap:4px;margin-right:14px">' +
-          '<span style="color:' + color + ';font-size:1em">' + icon + '</span>' +
-          '<span>' + label + '</span></span>';
-      };
-      legendHost.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;' +
-        'font-size:0.74em;color:#64748b;padding:8px 4px 0;border-top:1px solid #f1f5f9;margin-top:8px';
-      // W13 — edge-relation legend swatches (colored solid/dashed lines).
-      var _edgeLg = function(rel) {
-        var st = _dagRelStyle(rel);
-        var line = 'border-bottom:2px ' + (st.dash ? 'dashed' : 'solid') + ' ' + st.color;
-        return '<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px">' +
-          '<span style="width:18px;' + line + ';display:inline-block;line-height:0">&nbsp;</span>' +
-          '<span>' + st.label + '</span></span>';
-      };
-      legendHost.innerHTML =
-        '<span style="font-weight:600;color:#475569;margin-right:10px">Confidence:</span>' +
-        _lg('#16a34a', '✓', 'Accepted') + _lg('#ca8a04', '◐', 'Investigating') +
-        _lg('#2563eb', '○', 'Planned') + _lg('#dc2626', '✗', 'Refuted') +
-        '<span style="flex-basis:100%;height:0"></span>' +
-        '<span style="font-weight:600;color:#475569;margin:6px 10px 0 0">Edges:</span>' +
-        '<span style="margin-top:6px">' +
-          _edgeLg('leads-to') + _edgeLg('model-input') + _edgeLg('evidence') +
-          _edgeLg('calibrates-threshold') + _edgeLg('refutes-alternative') +
-        '</span>';
+    // Run once synchronously, then correct once final layout settles: the next
+    // animation frame catches post-innerHTML reflow, and document.fonts.ready
+    // catches web fonts that change text metrics (the usual cause of the
+    // column-overlap). In-place card expansion does NOT relayout — it anchors the
+    // card's top and grows the shell's scroll extent (see _aigAccommodateExpansion).
+    _relayoutDag = _layoutAndDraw;
+    _layoutAndDraw(true);
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(function () { _layoutAndDraw(false); });
     }
+    try {
+      if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+        document.fonts.ready.then(function () { _layoutAndDraw(false); });
+      }
+    } catch (e) { /* document.fonts unsupported — initial + rAF passes stand */ }
   }
   window._renderInvestigationDag = _renderInvestigationDag;
+  // Re-run the last DAG render (same data) — used after the graph is relocated
+  // into / out of the dockable Graph panel so it re-measures + re-lays-out at the
+  // new container width. No-op if the graph hasn't been rendered yet.
+  window._reflowInvestigationDag = function () {
+    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
+  };
+
+  // ── Investigation-graph viewport: continuous zoom / pan / fit / fullscreen ──
+  var aigZoom = 1;
+
+  // ── Unified zoom: ONE slider that drives semantic detail (band) AND view zoom
+  // together, from a zoomed-out overview (band 0, small) on the left up to the
+  // single-card level (band 2, large) on the right. The fine-grained Detail /
+  // Width / Zoom sliders live in the ⚙ Display popover and stay in sync. The map
+  // is segmented per band so crossing a detail threshold doesn't lurch in size:
+  // each band restarts its view-zoom range a little lower (bigger cards ⇒ less
+  // magnification) for a smooth ramp. u ∈ [0,100].
+  var _aigUserZoomed = false;         // once the user drives zoom, stop auto-fill
+  var _aigApplyingUnified = false;    // reentrancy guard (band change re-renders)
+  var _aigStudyActive = false;        // a study is open below -> shrink the pane
+  var _aigBandDeferred = false;       // a smart-band re-render is already queued
+  // Band 0 (names only) is reserved for the far-zoomed-out overview — a small
+  // slice of the slider. By the time the cards are any size to read, we're at
+  // band 1 (Question + Finds) already, and the top of the slider is band 2 (full
+  // study cards). Each band restarts its view-zoom a little lower so crossing a
+  // detail threshold keeps the on-screen card size roughly continuous.
+  var _AIG_UZ = [
+    { uLo: 0,  uHi: 12,  band: 0, zLo: 0.45, zHi: 0.70 },
+    { uLo: 13, uHi: 55,  band: 1, zLo: 0.60, zHi: 1.10 },
+    { uLo: 56, uHi: 100, band: 2, zLo: 0.75, zHi: 2.00 },
+  ];
+  function _aigSegForUnified(v) {
+    for (var i = 0; i < _AIG_UZ.length; i++) { if (v <= _AIG_UZ[i].uHi) return _AIG_UZ[i]; }
+    return _AIG_UZ[_AIG_UZ.length - 1];
+  }
+  function _aigUnifiedToBandZoom(u) {
+    var v = Math.max(0, Math.min(100, Number(u) || 0));
+    var seg = _aigSegForUnified(v);
+    var t = (v - seg.uLo) / (seg.uHi - seg.uLo);
+    return { band: seg.band, zoom: seg.zLo + Math.max(0, Math.min(1, t)) * (seg.zHi - seg.zLo) };
+  }
+  function _aigBandZoomToUnified(band, z) {
+    var seg = _AIG_UZ[Math.max(0, Math.min(2, band | 0))];
+    var t = Math.max(0, Math.min(1, (z - seg.zLo) / (seg.zHi - seg.zLo)));
+    return Math.round(seg.uLo + t * (seg.uHi - seg.uLo));
+  }
+  // Reflect the current (band, zoom) on the unified slider + the fine sliders,
+  // without stomping a control the user is actively dragging.
+  function _aigSyncZoomUI(band, z, u) {
+    if (u == null) u = _aigBandZoomToUnified(band, z);
+    var us = document.getElementById('aig-unified-zoom');
+    if (us && document.activeElement !== us) us.value = String(Math.round(u));
+    var ds = document.getElementById('aig-zoom-slider');
+    if (ds && document.activeElement !== ds) ds.value = String(band);
+    var vs = document.getElementById('aig-view-zoom-slider');
+    if (vs && document.activeElement !== vs) vs.value = String((Math.round(z * 100) / 100));
+  }
+  // ── Zoom anchored on the SELECTED study ───────────────────────────────────
+  // Zooming should keep the study you're looking at (the selected one, else the
+  // open one) in the same spot on screen, so you don't have to chase it around.
+  // Capture its on-screen centre before zoom, re-measure after, and scroll the
+  // shell by the delta. Falls back to no anchoring when nothing is selected/open.
+  function _aigNodeCentreInShell(shell, slug) {
+    var node = shell.querySelector('.iset-dag-node[data-study="' + _aigCssEsc(slug) + '"]');
+    if (!node) return null;
+    var sr = shell.getBoundingClientRect();
+    var nr = node.getBoundingClientRect();
+    return { x: (nr.left + nr.width / 2) - sr.left, y: (nr.top + nr.height / 2) - sr.top };
+  }
+  // The node to hold fixed while zooming: the SELECTED one if it's on screen,
+  // otherwise the node nearest the current viewport centre — i.e. whatever the
+  // user is looking at. Anchoring on the open node (which may be anywhere, even
+  // off-screen) is what made a docked zoom yank the view back to the top.
+  function _aigCaptureAnchor() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return null;
+    var nodes = shell.querySelectorAll('.iset-dag-node[data-study]');
+    if (!nodes.length) return null;
+    var sr = shell.getBoundingClientRect();
+    var cxV = sr.width / 2, cyV = sr.height / 2;
+    var measure = function (n) {
+      var r = n.getBoundingClientRect();
+      return {
+        x: (r.left + r.width / 2) - sr.left,
+        y: (r.top + r.height / 2) - sr.top,
+        vis: r.bottom > sr.top && r.top < sr.bottom && r.right > sr.left && r.left < sr.right,
+      };
+    };
+    // Prefer the selected node when it's actually visible.
+    if (window._aigSelected) {
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].getAttribute('data-study') === window._aigSelected) {
+          var so = measure(nodes[i]);
+          if (so.vis) return { slug: window._aigSelected, x: so.x, y: so.y };
+          break;
+        }
+      }
+    }
+    // Otherwise the visible node closest to the viewport centre.
+    var best = null, bestO = null, bestD = Infinity;
+    for (var j = 0; j < nodes.length; j++) {
+      var o = measure(nodes[j]);
+      if (!o.vis) continue;
+      var d = (o.x - cxV) * (o.x - cxV) + (o.y - cyV) * (o.y - cyV);
+      if (d < bestD) { bestD = d; best = nodes[j]; bestO = o; }
+    }
+    return best ? { slug: best.getAttribute('data-study'), x: bestO.x, y: bestO.y } : null;
+  }
+  function _aigRestoreAnchor(a) {
+    if (!a) return;
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    var apply = function () {
+      var c = _aigNodeCentreInShell(shell, a.slug);
+      if (!c) return;
+      shell.scrollLeft += (c.x - a.x);
+      shell.scrollTop  += (c.y - a.y);
+    };
+    apply();                                            // after the synchronous layout
+    if (typeof requestAnimationFrame === 'function')    // and again after the rAF relayout
+      requestAnimationFrame(apply);
+  }
+
+  function _setAigUnifiedZoom(u, isUser) {
+    if (_aigApplyingUnified) return;
+    var _anchor = _aigCaptureAnchor();
+    _aigApplyingUnified = true;
+    try {
+      if (isUser) _aigUserZoomed = true;
+      var m = _aigUnifiedToBandZoom(u);
+      aigZoom = Math.max(0.3, Math.min(2, m.zoom));   // set zoom first so a band
+      _setAigBand(m.band);                            // re-render uses it
+      _applyAigZoom();                                // apply when band unchanged
+      _aigSyncZoomUI(m.band, aigZoom, u);
+    } finally { _aigApplyingUnified = false; }
+    _aigRestoreAnchor(_anchor);
+  }
+  window._setAigUnifiedZoom = _setAigUnifiedZoom;
+  // Fine-grained controls (in the ⚙ popover) call this so the auto-fill default
+  // steps aside and they own the zoom from then on.
+  window._aigMarkUserZoomed = function () { _aigUserZoomed = true; };
+
+  function _applyAigZoom() {
+    var shell = document.getElementById('investigation-dag-shell');
+    var nodes = document.getElementById('investigation-dag-nodes');
+    var edges = document.getElementById('investigation-dag-edges');
+    if (!shell || !nodes || !edges) return;
+    var z = aigZoom;
+    var cw = parseFloat(shell.dataset.canvasW) || nodes.offsetWidth || 0;
+    var ch = parseFloat(shell.dataset.canvasH) || nodes.offsetHeight || 0;
+    [nodes, edges].forEach(function (el) {
+      el.style.transformOrigin = '0 0';
+      el.style.transform = 'scale(' + z + ')';
+    });
+    // A spacer sized to the SCALED content so the shell's scroll extent matches
+    // (transforms don't affect scrollWidth/Height on their own).
+    var spacer = shell.querySelector('.aig-spacer');
+    if (!spacer) {
+      spacer = document.createElement('div');
+      spacer.className = 'aig-spacer';
+      spacer.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none';
+      shell.appendChild(spacer);
+    }
+    spacer.style.width = (cw * z) + 'px';
+    spacer.style.height = (ch * z) + 'px';
+
+    // Auto-fit the shell's HEIGHT to the (scaled) content so every study is
+    // visible without an internal vertical scrollbar — the long study chain
+    // still scrolls horizontally, but the graph is never vertically cramped.
+    // Capped at 88vh; honored until the user manually drags the resize handle
+    // (resize:vertical), after which their height sticks. Double-click the
+    // graph background clears the override and re-fits (see the pan handler).
+    if (!shell.dataset.userResized) {
+      // Default INLINE view (not docked / not in the side panel / not collapsed):
+      // make the pane the FULL screen height — from the shell's top down to the
+      // bottom of the viewport — so the graph has the whole screen before a study
+      // is opened. _aigAutoFillInline then zooms the graph up to fill it. Docked /
+      // panelled views keep the content-fit height (capped at 88vh).
+      var _fs = document.getElementById('investigation-dag-fs');
+      var _inline = _fs && !_fs.classList.contains('aig-dock') && !_fs.classList.contains('aig-collapsed')
+                    && !(shell.closest && shell.closest('#viv-graph-panel'));
+      var fitH;
+      if (_inline) {
+        var _vh = window.innerHeight || 900;
+        var _top = shell.getBoundingClientRect().top;
+        if (_aigStudyActive) {
+          // A study is open below: keep the graph's TOP where it is but shrink the
+          // pane to ~42% of the viewport so the study card below rises into view
+          // without scrolling. The graph still scrolls inside the shorter pane.
+          fitH = Math.max(Math.round(_vh * 0.42), 220);
+        } else {
+          // No study open: fill the screen from the pane's top down.
+          fitH = Math.max(Math.min(Math.round(_vh - _top - 16), Math.round(_vh * 0.94)), 360);
+        }
+      } else {
+        var maxH = Math.round((window.innerHeight || 900) * 0.88);
+        fitH = Math.min(Math.max(Math.ceil(ch * z) + 20, 260), maxH);
+      }
+      shell._aigProgrammaticResize = true;
+      shell.style.height = fitH + 'px';
+      setTimeout(function () { shell._aigProgrammaticResize = false; }, 60);
+    }
+    // One-time: watch for a genuine user resize (drag of the resize handle) so
+    // auto-fit steps aside once they've set a height themselves.
+    if (!shell._aigResizeObserved && typeof ResizeObserver !== 'undefined') {
+      shell._aigResizeObserved = true;
+      try {
+        new ResizeObserver(function () {
+          if (shell._aigProgrammaticResize) return;
+          shell.dataset.userResized = '1';
+          // Drag the graph↔study divider all the way up (shell shrinks past the
+          // threshold) → collapse the inline graph to the "Investigation graph" bar.
+          var fs = document.getElementById('investigation-dag-fs');
+          if (fs && !fs.classList.contains('aig-collapsed') && !fs.classList.contains('aig-dock')
+              && !(shell.closest && shell.closest('#viv-graph-panel'))
+              && shell.offsetParent !== null && shell.clientHeight > 0 && shell.clientHeight < 72) {
+            _aigCollapseInline();
+          }
+        }).observe(shell);
+      } catch (_e) { /* ResizeObserver unavailable — auto-fit still works */ }
+    }
+    // Keep the Zoom slider in sync when zoom changes programmatically (e.g. fit).
+    var _zs = document.getElementById('aig-view-zoom-slider');
+    if (_zs && document.activeElement !== _zs) _zs.value = String(aigZoom);
+  }
+  function _aigZoomBy(f) {
+    var _anchor = _aigCaptureAnchor();
+    aigZoom = Math.max(0.3, Math.min(2.2, aigZoom * f));
+    _applyAigZoom();
+    _aigRestoreAnchor(_anchor);
+  }
+  // Absolute zoom from the Zoom slider (same control style as Detail/Width).
+  function _setAigZoom(v) {
+    var _anchor = _aigCaptureAnchor();
+    aigZoom = Math.max(0.3, Math.min(2, Number(v) || 1));
+    _applyAigZoom();
+    if (!_aigApplyingUnified) _aigSyncZoomUI(aigBand, aigZoom);
+    _aigRestoreAnchor(_anchor);
+  }
+  window._setAigZoom = _setAigZoom;
+  // Collapse the inline investigation graph to a thin "Investigation graph" bar
+  // (triggered by dragging the graph↔study divider all the way up, or a control),
+  // and expand it back (click the bar) to a normal height.
+  function _aigCollapseInline() {
+    var fs = document.getElementById('investigation-dag-fs');
+    if (fs) fs.classList.add('aig-collapsed');
+    _aigSyncGraphToggle();
+  }
+  function _aigExpandInline() {
+    var fs = document.getElementById('investigation-dag-fs');
+    if (fs) fs.classList.remove('aig-collapsed');
+    var shell = document.getElementById('investigation-dag-shell');
+    if (shell) {
+      shell._aigProgrammaticResize = true;
+      shell.style.height = '460px';
+      delete shell.dataset.userResized;   // let auto-fit resume
+      setTimeout(function () { shell._aigProgrammaticResize = false; }, 80);
+    }
+    try { if (typeof window._aigFit === 'function') window._aigFit(); } catch (e) { /* ignore */ }
+    _aigSyncGraphToggle();
+  }
+  // Is the inline investigation graph actually VISIBLE right now? It can be hidden
+  // either by the collapsed class OR by having zero height (no study / fresh
+  // render before auto-fill), so judge by real visibility, not just the class.
+  function _aigGraphShown() {
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs || fs.classList.contains('aig-collapsed')) return false;
+    if (fs.classList.contains('aig-dock')) return true;   // docked window counts as shown
+    var sh = document.getElementById('investigation-dag-shell');
+    return !!(sh && sh.offsetParent !== null && sh.getBoundingClientRect().height > 8);
+  }
+  window._aigGraphShown = _aigGraphShown;
+  // Toggle the inline investigation graph from the header-nav "Graph" button
+  // (next to Overview). The standalone slim "Investigation graph" bar was removed;
+  // this header button is the always-available toggle. Expanding always gives the
+  // graph a visible height (_aigExpandInline sets it + fits).
+  function _aigToggleInline() {
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs) return;
+    if (_aigGraphShown()) _aigCollapseInline();
+    else _aigExpandInline();
+  }
+  // Keep the header "Graph" button's caret + state in sync with the graph,
+  // whatever toggles it (this button, the graph↔study divider drag, the dock
+  // control). Caret ▾ = graph shown, ▸ = graph hidden.
+  function _aigSyncGraphToggle() {
+    var btn = document.getElementById('inv-graph-toggle');
+    if (!btn) return;
+    var shown = _aigGraphShown();
+    btn.innerHTML = '<span class="inv-graph-caret" aria-hidden="true">' + (shown ? '▾' : '▸') + '</span> Graph';
+    btn.setAttribute('aria-expanded', shown ? 'true' : 'false');
+    btn.setAttribute('title', shown ? 'Hide investigation graph' : 'Show investigation graph');
+  }
+  window._aigCollapseInline = _aigCollapseInline;
+  window._aigExpandInline = _aigExpandInline;
+  window._aigToggleInline = _aigToggleInline;
+  window._aigSyncGraphToggle = _aigSyncGraphToggle;
+  function _aigFit() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    var cw = parseFloat(shell.dataset.canvasW) || 1, ch = parseFloat(shell.dataset.canvasH) || 1;
+    var z = Math.min((shell.clientWidth - 10) / cw, (shell.clientHeight - 10) / ch);
+    aigZoom = Math.max(0.3, Math.min(1.5, z || 1));
+    _applyAigZoom();
+    shell.scrollLeft = 0; shell.scrollTop = 0;
+  }
+  // Reflow the graph viewport at the CURRENT zoom — re-apply the transform and
+  // resize the scroll spacer to match the (unchanged) scale, WITHOUT recomputing
+  // the zoom to fit. Relocating or resizing the dockable Graph panel then pans /
+  // reflows the view but never changes the zoom level the user set. This is the
+  // fix for "resize or re-dock snaps the graph to fit": the dock callbacks used to
+  // call _aigFit (which overwrites aigZoom); they now call this.
+  function _aigReflowKeepZoom() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    _applyAigZoom();   // re-apply the current aigZoom + re-size the scroll extent
+  }
+  window._aigReflowKeepZoom = _aigReflowKeepZoom;
+  // Fit to the container UNLESS the user has taken the zoom over (_aigUserZoomed),
+  // in which case keep their zoom and just reflow. Used when the graph ENTERS or
+  // LEAVES the dock (an initial-ish fit) so the first dock view is sized sensibly,
+  // while still honoring the user's zoom intent lever.
+  function _aigFitOrKeep() {
+    if (_aigUserZoomed) { _aigReflowKeepZoom(); return; }
+    _aigFit();
+  }
+  window._aigFitOrKeep = _aigFitOrKeep;
+  // Fill the DOCKED Graph panel cleanly: zoom the graph to fill the panel's
+  // CONSTRAINED dimension so it doesn't sit small in a mostly-empty box (the
+  // top-dock "graph floats at the top, dead space below → Overview shoved down"
+  // bug). A top/bottom BAND is short, so fill its HEIGHT (the long chain scrolls
+  // horizontally); a left/right COLUMN is narrow, so fill its WIDTH (scrolls
+  // vertically). The panel itself is a bounded CSS band (--viv-graph-h) — this
+  // only sizes the GRAPH to it, it never grows the panel. Honors the zoom-intent
+  // lever: once the user has driven the zoom (_aigUserZoomed) we keep it. Used on
+  // dock enter / dock-position switch / expand, not on edge-resize (that reflows).
+  function _aigFitDockPanel() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs || !fs.closest || !fs.closest('#viv-graph-panel')) { _aigReflowKeepZoom(); return; }
+    if (_aigUserZoomed) { _aigReflowKeepZoom(); return; }   // respect a manual zoom
+    var cw = parseFloat(shell.dataset.canvasW) || 1, ch = parseFloat(shell.dataset.canvasH) || 1;
+    var gp = document.getElementById('viv-graph-panel');
+    var dock = gp && gp.dataset ? gp.dataset.dock : '';
+    var availW = shell.clientWidth || 1, availH = shell.clientHeight || 1;
+    var z;
+    if (dock === 'left' || dock === 'right') z = (availW - 16) / cw;       // fill column width
+    else if (dock === 'top' || dock === 'bottom') z = (availH - 16) / ch;  // fill band height
+    else z = Math.min((availW - 16) / cw, (availH - 16) / ch);             // fallback: fit both
+    aigZoom = Math.max(0.3, Math.min(2, z || 1));
+    _applyAigZoom();
+    shell.scrollLeft = 0; shell.scrollTop = 0;
+    try { _aigSyncZoomUI(aigBand, aigZoom); } catch (e) { /* ignore */ }
+  }
+  window._aigFitDockPanel = _aigFitDockPanel;
+  // Default pre-study INLINE view: after _applyAigZoom has sized the pane to the
+  // full viewport height, zoom the graph UP to fill that height (as large as it
+  // goes, capped at 2×). The wide study chain scrolls horizontally. Skipped when
+  // docked / in the side panel / collapsed, or once the user has resized the pane.
+  function _aigAutoFillInline() {
+    if (_aigUserZoomed || _aigApplyingUnified) return;   // user owns zoom now
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell || shell.dataset.userResized) return;
+    var fs = document.getElementById('investigation-dag-fs');
+    if (!fs || fs.classList.contains('aig-dock') || fs.classList.contains('aig-collapsed')) return;
+    if (shell.closest && shell.closest('#viv-graph-panel')) return;
+    var ch = parseFloat(shell.dataset.canvasH) || 0;
+    var h = shell.clientHeight || 0;
+    if (ch < 1 || h < 40) return;
+
+    // SMART default detail: pick the semantic band from how much VERTICAL room
+    // each row of cards would get when the graph fills the pane height. A wide,
+    // zoomed-out graph gives each card little room, so paragraph text would be
+    // unreadable — show names only (band 0). More room -> Asks/Finds (band 1) ->
+    // full cards (band 2). This uses the BAND-INVARIANT row count so switching
+    // the band doesn't change the decision (no oscillation).
+    var rows = parseInt(shell.dataset.rows, 10) || 1;
+    var rowPx = (h - 24) / rows;                     // px budget per card row at fill
+    var targetBand = rowPx < 110 ? 0 : (rowPx < 175 ? 1 : 2);
+    if (targetBand !== aigBand) {
+      // DEFER the re-render: _aigAutoFillInline runs from inside _layoutAndDraw,
+      // BEFORE this pass draws its edges. Re-rendering synchronously here would
+      // let the current (stale) pass finish drawing edges on top of the new
+      // layout — misaligned edges. A 0ms timeout lets this pass complete, then
+      // re-renders cleanly at the readable band (its own pass fits the zoom).
+      if (!_aigBandDeferred) {
+        _aigBandDeferred = true;
+        setTimeout(function () { _aigBandDeferred = false; _setAigBand(targetBand); }, 0);
+      }
+      return;
+    }
+
+    // Band is right for the space -> fit the view zoom to the pane. Fit BOTH
+    // dimensions (like the Fit button) so a WIDE multi-study network shows the
+    // whole graph on first paint instead of overflowing horizontally (filling
+    // height alone left a wide chain zoomed-in, needing a horizontal scroll to
+    // see it). Fall back to the height fit when the canvas width isn't measured.
+    var cw = parseFloat(shell.dataset.canvasW) || 0;
+    var w = shell.clientWidth || 0;
+    var zH = (h - 16) / ch;
+    var zFit = (cw > 1 && w > 40) ? Math.min(zH, (w - 16) / cw) : zH;
+    var z = Math.max(0.3, Math.min(2, zFit));
+    if (Math.abs(z - aigZoom) < 0.02) { _aigSyncZoomUI(aigBand, aigZoom); return; }
+    aigZoom = z;
+    _applyAigZoom();
+    _aigSyncZoomUI(aigBand, aigZoom);
+    shell.scrollTop = 0;
+  }
+  window._aigAutoFillInline = _aigAutoFillInline;
+  function _aigFullscreen() {
+    // Fullscreen the WRAPPER (toolbar + shell), not the shell alone, so the
+    // graph controls (semantic zoom, +/− view zoom, fit, orientation, download)
+    // stay on screen in fullscreen. Fall back to the shell if the wrapper is
+    // absent (older markup), and to the webkit-prefixed API (Safari).
+    var fs = document.getElementById('investigation-dag-fs')
+          || document.getElementById('investigation-dag-shell');
+    if (!fs) return;
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) {
+      (document.exitFullscreen || document.webkitExitFullscreen || function () {}).call(document);
+      return;
+    }
+    var req = fs.requestFullscreen || fs.webkitRequestFullscreen;
+    if (!req) return;
+    var p = req.call(fs);
+    if (p && p.then) p.then(function () { setTimeout(_aigFit, 150); });
+    else setTimeout(_aigFit, 200);
+  }
+  // Expand (snap-to-top): grow the graph pane to nearly the full viewport height
+  // and scroll it to the top of the screen, WITHOUT going fullscreen — so the whole
+  // workbench interface (rail, tabs) stays available. Toggles back to the normal
+  // pane height. A taller alternative to the browser-fullscreen (⛶) button.
+  function _aigExpand() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    var expanded = shell.classList.toggle('aig-expanded');
+    var btn = document.getElementById('aig-expand-btn');
+    if (btn) {
+      btn.textContent = expanded ? '⤓' : '⤒';
+      btn.title = expanded ? 'Collapse graph to the normal pane height'
+                           : 'Expand graph — snap to top and grow it tall (workbench stays)';
+    }
+    if (expanded) {
+      // Snap the graph to the top of the viewport, then fit it to the taller area.
+      try { shell.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+      catch (_) { shell.scrollIntoView(true); }
+      setTimeout(_aigFit, 220);
+    } else {
+      setTimeout(_aigFit, 60);
+    }
+  }
+  window._aigZoomBy = _aigZoomBy;
+  window._aigFit = _aigFit;
+  // Fill to screen (toolbar ⤢ Fit): fit the WHOLE graph to the viewport in both
+  // dimensions and CENTRE it — the on-demand "re-fit + centre now" control. Unlike
+  // the passive auto-fill, it runs even after the user has taken over the view.
+  function _aigFillToScreen() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell) return;
+    var cw = parseFloat(shell.dataset.canvasW) || 1, ch = parseFloat(shell.dataset.canvasH) || 1;
+    var z = Math.min((shell.clientWidth - 16) / cw, (shell.clientHeight - 16) / ch);
+    aigZoom = Math.max(0.3, Math.min(2, z || 1));
+    _applyAigZoom();
+    // Centre the now-fully-visible graph in the viewport.
+    shell.scrollLeft = Math.max(0, (cw * aigZoom - shell.clientWidth) / 2);
+    shell.scrollTop  = Math.max(0, (ch * aigZoom - shell.clientHeight) / 2);
+    try { _aigSyncZoomUI(aigBand, aigZoom); } catch (_e) { /* ignore */ }
+  }
+  window._aigFillToScreen = _aigFillToScreen;
+  window._aigFullscreen = _aigFullscreen;
+  window._aigExpand = _aigExpand;
+
+  // ── Download the investigation graph as PNG / PDF ────────────────────────
+  // The DAG is bespoke HTML (positioned cards + an SVG edge layer), not a loom
+  // graph, so we rasterize it with html-to-image. Both that and jsPDF are
+  // lazy-loaded from a CDN only when the user actually downloads — keeping the
+  // page light and not breaking offline use of the rest of the toolbar.
+  function _aigLoadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error('Could not load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  var _htiP = null, _jspdfP = null;
+  function _ensureHtmlToImage() {
+    if (window.htmlToImage) return Promise.resolve(window.htmlToImage);
+    if (!_htiP) _htiP = _aigLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js')
+      .then(function () { return window.htmlToImage; });
+    return _htiP;
+  }
+  function _ensureJsPdf() {
+    if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+    if (!_jspdfP) _jspdfP = _aigLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+      .then(function () { return window.jspdf.jsPDF; });
+    return _jspdfP;
+  }
+  function _aigNotify(msg) {
+    if (typeof window._notify === 'function') { try { window._notify(msg); return; } catch (_e) {} }
+    try { window.alert(msg); } catch (_e) {}
+  }
+  function _aigExport(fmt) {
+    var shell = document.getElementById('investigation-dag-shell');
+    var nodes = document.getElementById('investigation-dag-nodes');
+    var edges = document.getElementById('investigation-dag-edges');
+    if (!shell || !nodes) { _aigNotify('Investigation graph is not ready to export yet.'); return; }
+    var cw = Math.ceil(parseFloat(shell.dataset.canvasW) || nodes.offsetWidth || shell.scrollWidth || 0);
+    var ch = Math.ceil(parseFloat(shell.dataset.canvasH) || nodes.offsetHeight || shell.scrollHeight || 0);
+    if (!cw || !ch) { _aigNotify('Investigation graph has no measured size yet — try again after it renders.'); return; }
+    // Snapshot live view state, then lay the whole canvas out unscaled so the
+    // export captures the FULL graph (not just the scrolled/zoomed viewport).
+    var prev = {
+      zoom: aigZoom, sl: shell.scrollLeft, st: shell.scrollTop,
+      height: shell.style.height, width: shell.style.width,
+      overflow: shell.style.overflow, maxH: shell.style.maxHeight,
+      resize: shell.style.resize, cursor: shell.style.cursor,
+      userResized: shell.dataset.userResized,
+    };
+    shell.dataset.userResized = '1';            // stop auto-fit from fighting us
+    aigZoom = 1;
+    [nodes, edges].forEach(function (el) { if (el) el.style.transform = 'scale(1)'; });
+    shell.style.overflow = 'visible'; shell.style.maxHeight = 'none';
+    shell.style.height = ch + 'px'; shell.style.width = cw + 'px';
+    shell.style.resize = 'none'; shell.scrollLeft = 0; shell.scrollTop = 0;
+    function _restore() {
+      shell.style.height = prev.height; shell.style.width = prev.width;
+      shell.style.overflow = prev.overflow; shell.style.maxHeight = prev.maxH;
+      shell.style.resize = prev.resize; shell.style.cursor = prev.cursor;
+      if (prev.userResized === undefined) delete shell.dataset.userResized;
+      else shell.dataset.userResized = prev.userResized;
+      aigZoom = prev.zoom; _applyAigZoom();
+      shell.scrollLeft = prev.sl; shell.scrollTop = prev.st;
+    }
+    var base = (typeof _dagInvSlug === 'string' && _dagInvSlug) ? _dagInvSlug : 'investigation';
+    var opts = { backgroundColor: '#ffffff', width: cw, height: ch, pixelRatio: 2, style: { transform: 'none' } };
+    _ensureHtmlToImage().then(function (hti) {
+      return hti.toPng(shell, opts).then(function (dataUrl) {
+        if (fmt === 'pdf') {
+          return _ensureJsPdf().then(function (JsPDF) {
+            var pdf = new JsPDF({ orientation: cw >= ch ? 'landscape' : 'portrait', unit: 'px', format: [cw, ch] });
+            pdf.addImage(dataUrl, 'PNG', 0, 0, cw, ch);
+            pdf.save(base + '-investigation-graph.pdf');
+          });
+        }
+        var a = document.createElement('a');
+        a.href = dataUrl; a.download = base + '-investigation-graph.png';
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+    }).catch(function (e) {
+      _aigNotify('Graph download failed: ' + (e && e.message ? e.message : e));
+    }).then(_restore, _restore);
+  }
+  function _aigCloseDownloadMenu() {
+    var menu = document.getElementById('aig-dl-menu');
+    var btn = document.getElementById('aig-dl-btn');
+    if (menu) menu.style.display = 'none';
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  function _aigToggleDownloadMenu(ev) {
+    if (ev) ev.stopPropagation();
+    var menu = document.getElementById('aig-dl-menu');
+    var btn = document.getElementById('aig-dl-btn');
+    if (!menu) return;
+    var open = menu.style.display !== 'none' && menu.style.display !== '';
+    menu.style.display = open ? 'none' : 'block';
+    if (btn) btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+  }
+  function _aigDownloadMenuPick(fmt) {
+    _aigCloseDownloadMenu();
+    _aigExport(fmt);
+  }
+  // Close the download menu on any outside click (capture so card handlers that
+  // stopPropagation don't swallow it).
+  document.addEventListener('click', function (e) {
+    var ctl = e.target.closest && e.target.closest('.aig-dl-ctl');
+    if (!ctl) _aigCloseDownloadMenu();
+  }, true);
+  window._aigExport = _aigExport;
+  window._aigToggleDownloadMenu = _aigToggleDownloadMenu;
+  window._aigDownloadMenuPick = _aigDownloadMenuPick;
+  // ⚙ Display settings popover (Detail / Width / Zoom sliders), same pattern as
+  // the Export menu — click to toggle, outside-click to close.
+  function _aigCloseSettings() {
+    var m = document.getElementById('aig-settings-menu'), b = document.getElementById('aig-settings-btn');
+    if (m) m.style.display = 'none';
+    if (b) b.setAttribute('aria-expanded', 'false');
+  }
+  function _aigToggleSettings(ev) {
+    if (ev) ev.stopPropagation();
+    var m = document.getElementById('aig-settings-menu'), b = document.getElementById('aig-settings-btn');
+    if (!m) return;
+    var open = m.style.display === 'block';
+    m.style.display = open ? 'none' : 'block';
+    if (b) b.setAttribute('aria-expanded', open ? 'false' : 'true');
+  }
+  window._aigToggleSettings = _aigToggleSettings;
+  document.addEventListener('click', function (e) {
+    var ctl = e.target.closest && e.target.closest('.aig-settings-ctl');
+    if (!ctl) _aigCloseSettings();
+  }, true);
+  // Drag anywhere on the shell background to pan (card clicks still work).
+  document.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'touch') return;   // touch pan + pinch is owned by _aigWireTouch
+    var shell = e.target.closest && e.target.closest('#investigation-dag-shell');
+    if (!shell || (e.target.closest && e.target.closest('.iset-dag-node'))) return;
+    var sx = e.clientX, sy = e.clientY, sl = shell.scrollLeft, st0 = shell.scrollTop, moved = false;
+    shell.style.cursor = 'grabbing';
+    function mv(ev) { moved = true; shell.scrollLeft = sl - (ev.clientX - sx); shell.scrollTop = st0 - (ev.clientY - sy); }
+    function up() {
+      document.removeEventListener('pointermove', mv);
+      document.removeEventListener('pointerup', up);
+      shell.style.cursor = '';
+      // A real pan means the user now owns the view — stop auto-fit from snapping
+      // it back to the fit on the next re-render / resize / poll.
+      if (moved) { try { window._aigMarkUserZoomed(); } catch (_e) { /* ignore */ } }
+    }
+    document.addEventListener('pointermove', mv);
+    document.addEventListener('pointerup', up);
+  });
+  // Double-click the graph background clears a manual resize and re-fits the
+  // shell height to the content.
+  document.addEventListener('dblclick', function (e) {
+    var shell = e.target.closest && e.target.closest('#investigation-dag-shell');
+    if (!shell || (e.target.closest && e.target.closest('.iset-dag-node'))) return;
+    delete shell.dataset.userResized;
+    _applyAigZoom();
+  });
+
+  // Full-width resize bar below the graph: grab anywhere on it (not just a corner
+  // grip) to drag the graph height up/down. Dragging all the way up collapses the
+  // graph to its "Investigation graph" bar. Uses pointer capture so the drag
+  // keeps tracking even over the study iframe below.
+  var _AIG_RESIZE_COLLAPSE_AT = 72;
+  function _aigWireResizeBar() {
+    var bar = document.getElementById('aig-resize-bar');
+    if (!bar || bar._aigWired) return;
+    bar._aigWired = true;
+    bar.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      var shell = document.getElementById('investigation-dag-shell');
+      if (!shell) return;
+      e.preventDefault();
+      var startY = e.clientY;
+      var startH = shell.getBoundingClientRect().height;
+      var maxH = Math.round((window.innerHeight || 900) * 0.92);
+      var done = false;
+      bar.classList.add('dragging');
+      document.body.style.cursor = 'row-resize';
+      try { bar.setPointerCapture(e.pointerId); } catch (_) { /* older browsers */ }
+      function finish() {
+        if (done) return; done = true;
+        bar.removeEventListener('pointermove', mv);
+        bar.removeEventListener('pointerup', up);
+        bar.removeEventListener('pointercancel', up);
+        bar.classList.remove('dragging');
+        document.body.style.cursor = '';
+      }
+      function mv(ev) {
+        var h = startH + (ev.clientY - startY);
+        if (h < _AIG_RESIZE_COLLAPSE_AT) {
+          // Dragged all the way up -> collapse to the "Investigation graph" bar.
+          shell.dataset.userResized = '1';
+          if (typeof window._aigCollapseInline === 'function') window._aigCollapseInline();
+          finish();
+          return;
+        }
+        h = Math.max(_AIG_RESIZE_COLLAPSE_AT, Math.min(h, maxH));
+        shell._aigProgrammaticResize = false;
+        shell.dataset.userResized = '1';   // a manual height sticks; auto-fit steps aside
+        shell.style.height = h + 'px';
+      }
+      function up() { finish(); }
+      bar.addEventListener('pointermove', mv);
+      bar.addEventListener('pointerup', up);
+      bar.addEventListener('pointercancel', up);
+    });
+  }
+  window._aigWireResizeBar = _aigWireResizeBar;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _aigWireResizeBar);
+  else _aigWireResizeBar();
+
+  // Ctrl/⌘ + mouse-wheel (and trackpad pinch, which the browser delivers as a
+  // wheel event with ctrlKey=true) zooms the investigation graph via the UNIFIED
+  // zoom — so it adjusts semantic detail (band) AND magnification together, just
+  // like the Zoom slider. A plain wheel still scrolls the page normally (we only
+  // hijack it with the modifier). The zoom is anchored on the cursor.
+  function _aigWireWheelZoom() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell || shell._aigWheelWired) return;
+    shell._aigWheelWired = true;
+    shell.addEventListener('wheel', function (e) {
+      if (!(e.ctrlKey || e.metaKey)) return;     // only with a modifier / pinch
+      e.preventDefault();
+      var us = document.getElementById('aig-unified-zoom');
+      var curU = us ? parseFloat(us.value) : _aigBandZoomToUnified(aigBand, aigZoom);
+      if (isNaN(curU)) curU = _aigBandZoomToUnified(aigBand, aigZoom);
+      var d = e.deltaY;
+      if (e.deltaMode === 1) d *= 16;            // line mode -> ~pixels
+      else if (e.deltaMode === 2) d *= 400;      // page mode
+      var newU = Math.max(0, Math.min(100, curU - d * 0.06));   // up = zoom in
+      if (Math.abs(newU - curU) < 0.01) return;
+      // Scroll anchoring is handled inside _setAigUnifiedZoom (it holds the
+      // viewport-centre study fixed, docked or inline, across both the scale and
+      // any band re-render) — no separate math here, which previously fought it.
+      _setAigUnifiedZoom(newU, true);
+    }, { passive: false });
+  }
+  window._aigWireWheelZoom = _aigWireWheelZoom;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _aigWireWheelZoom);
+  else _aigWireWheelZoom();
+
+  // Touch: one-finger PAN + two-finger PINCH-zoom on the graph shell, so the
+  // investigation graph is navigable on a phone. touch-action:none on the shell
+  // (template) keeps these gestures from scrolling / zooming the PAGE instead; the
+  // mouse/pen pan path (pointerdown above) ignores touch so the two never fight.
+  // Both gestures mark the view user-owned, so auto-fit won't snap it back.
+  function _aigWireTouch() {
+    var shell = document.getElementById('investigation-dag-shell');
+    if (!shell || shell._aigTouchWired) return;
+    shell._aigTouchWired = true;
+    var mode = 0, sx = 0, sy = 0, sl = 0, st = 0, startDist = 1, startZoom = 1;
+    function dist(t) {
+      var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+    shell.addEventListener('touchstart', function (e) {
+      if (e.target.closest && e.target.closest('.iset-dag-node')) return;   // let node taps through
+      if (e.touches.length === 1) {
+        mode = 1; sx = e.touches[0].clientX; sy = e.touches[0].clientY; sl = shell.scrollLeft; st = shell.scrollTop;
+      } else if (e.touches.length >= 2) {
+        mode = 2; startDist = dist(e.touches) || 1; startZoom = aigZoom;
+      }
+    }, { passive: true });
+    shell.addEventListener('touchmove', function (e) {
+      if (mode === 1 && e.touches.length === 1) {
+        e.preventDefault();
+        shell.scrollLeft = sl - (e.touches[0].clientX - sx);
+        shell.scrollTop  = st - (e.touches[0].clientY - sy);
+      } else if (mode === 2 && e.touches.length >= 2) {
+        e.preventDefault();
+        aigZoom = Math.max(0.3, Math.min(2, startZoom * (dist(e.touches) / startDist)));
+        _applyAigZoom();
+        try { _aigSyncZoomUI(aigBand, aigZoom); } catch (_e) { /* ignore */ }
+      }
+    }, { passive: false });
+    function end(e) {
+      if (mode) { try { window._aigMarkUserZoomed(); } catch (_e) { /* ignore */ } }
+      if (!e.touches || e.touches.length === 0) { mode = 0; }
+      else if (e.touches.length === 1) {
+        mode = 1; sx = e.touches[0].clientX; sy = e.touches[0].clientY; sl = shell.scrollLeft; st = shell.scrollTop;
+      }
+    }
+    shell.addEventListener('touchend', end, { passive: true });
+    shell.addEventListener('touchcancel', end, { passive: true });
+  }
+  window._aigWireTouch = _aigWireTouch;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _aigWireTouch);
+  else _aigWireTouch();
 
   function _setAigBand(b) {
     var nb = Math.max(0, Math.min(2, b | 0));
@@ -11494,10 +13899,29 @@
     if (sl && String(sl.value) !== String(nb)) sl.value = String(nb);
     // No band change → keep the slider synced (above) but skip the re-render.
     if (nb === aigBand) return;
+    var _anchor = _aigCaptureAnchor();   // keep the selected study fixed on screen (same as zoom)
     aigBand = nb;
+    if (!_aigApplyingUnified) _aigSyncZoomUI(aigBand, aigZoom);
     if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
+    _aigRestoreAnchor(_anchor);
   }
   window._setAigBand = _setAigBand;
+
+  // Card-width control (independent of the zoom band). Scales the study cards so
+  // the viewer can widen them to read the Asks/Finds text, or narrow them to fit
+  // more of the graph. Persisted per viewer; re-lays-out the DAG on change.
+  function _setAigWidthScale(scale) {
+    var s = Math.max(AIG_WIDTH_MIN, Math.min(AIG_WIDTH_MAX, Number(scale) || 1));
+    var sl = document.getElementById('aig-width-slider');
+    if (sl && String(sl.value) !== String(s)) sl.value = String(s);
+    if (s === aigWidthScale) return;
+    var _anchor = _aigCaptureAnchor();   // keep the selected study fixed on screen (same as zoom)
+    aigWidthScale = s;
+    try { localStorage.setItem('aig-width-scale', String(s)); } catch (e) {}
+    if (_lastDagArgs) _renderInvestigationDag(_lastDagArgs[0], _lastDagArgs[1], _lastDagArgs[2]);
+    _aigRestoreAnchor(_anchor);
+  }
+  window._setAigWidthScale = _setAigWidthScale;
 
   // Semantic zoom is driven ONLY by the top-right zoom slider (_setAigBand).
   // Scroll-to-zoom-into-a-card was removed intentionally — hijacking the wheel
@@ -11612,11 +14036,7 @@
   // surfaces converge on the same backend.
   function _seedFollowupAndOpen(parentName, idx) {
     if (!confirm('Seed a new study from this follow-up?\n\nA new study.yaml will be created under studies/<new-name>/.')) return;
-    fetch('/api/study-seed-followup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({parent: parentName, followup_idx: idx}),
-    }).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
+    apiFetch('POST', '/api/study-seed-followup', {parent: parentName, followup_idx: idx}).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
       .then(function(res) {
         if (res.status !== 200 || res.body.error) {
           alert('Seed failed: ' + (res.body.error || res.status));
@@ -11625,7 +14045,8 @@
         var pop = document.getElementById('dag-followups-popover');
         if (pop) pop.remove();
         alert('Created: ' + res.body.new_study_name + '\nOpening it now.');
-        window.location.href = '/studies/' + encodeURIComponent(res.body.new_study_name);
+        window.location.href = (window.__BASE_PATH__ || '') + '/studies/' +
+          encodeURIComponent(res.body.new_study_name);
       });
   }
   window._seedFollowupAndOpen = _seedFollowupAndOpen;
@@ -11644,11 +14065,7 @@
     var payload = {parent: parentName};
     if (proposalId) payload.proposal_id = proposalId;
     payload.proposal_idx = proposalIdx;
-    fetch('/api/study-seed-followup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
+    apiFetch('POST', '/api/study-seed-followup', payload).then(function(r) { return r.json().then(function(d) { return {status: r.status, body: d}; }); })
       .then(function(res) {
         if (res.status !== 200 || res.body.error) {
           alert('Seed failed: ' + (res.body.error || res.status));
@@ -11759,189 +14176,124 @@
   // (over email) BEFORE simulations run — so it surfaces the predictions,
   // assumptions, and gaps in a form that lets the expert validate the
   // design without needing the dashboard.
-  function _generateInvestigationReport() {
-    var name = window._currentIset;
+  // The investigation report is generated server-side (GET
+  // /api/investigation-report/<slug>) — a deterministic, data-only, fully
+  // self-contained document. In a static bundle (no server) publish.py
+  // pre-renders it to reports/investigation-<slug>.html and this opens that
+  // file instead. (Replaced the old client-side fan-out builder, now removed.)
+  function _investigationReportUrl(name) {
+    var cfg = window.__DASH_CONFIG__ || {};
+    var base = cfg.basePath || '';
+    return (cfg.mode === 'snapshot')
+      ? base + '/reports/investigation-' + encodeURIComponent(name) + '.html'
+      : '/api/investigation-report/' + encodeURIComponent(name);
+  }
+  // The pre-baked PDF in a static bundle (publish.py renders it with headless
+  // Chromium when available). Only meaningful in snapshot mode.
+  function _investigationReportPdfUrl(name) {
+    var cfg = window.__DASH_CONFIG__ || {};
+    var base = cfg.basePath || '';
+    return base + '/reports/investigation-' + encodeURIComponent(name) + '.pdf';
+  }
+  // In-flight exports keyed by `${name}|${fmt}`. We guard only against firing the
+  // SAME export twice (the "downloaded it 3×" bug) — different exports can run
+  // concurrently, and the Export dropdown stays enabled so you can pick another
+  // item while one is still rendering. Progress is surfaced via toasts, not by
+  // disabling the menu.
+  var _invReportInflight = {};
+  function _downloadInvestigationReport(name, fmt) {
+    name = name || window._wsInvestigation || window._currentIset;
     if (!name) {
-      console.warn('_generateInvestigationReport: no current investigation');
+      console.warn('_downloadInvestigationReport: no current investigation');
       return;
     }
-    var btn = event && event.target;
-    var orig = btn ? btn.textContent : null;
-    if (btn) { btn.textContent = 'Generating…'; btn.disabled = true; }
-    // Use window.DataSource.loadInvestigation if available (client-fetch seam,
-    // sub-project #1).  Falls back to a direct fetch so local mode is unchanged.
-    var _isetFetch = (window.DataSource && window.DataSource.loadInvestigation)
-      ? window.DataSource.loadInvestigation(name)
-      : fetch('/api/investigation/' + encodeURIComponent(name), {headers: {Accept: 'application/json'}})
-          .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-    _isetFetch
-      .then(function(iset) {
-        var studyFetches = (iset.studies || []).map(function(s) {
-          return ((window.DataSource && window.DataSource.loadStudy)
-            ? window.DataSource.loadStudy(s.name)
-            : fetch('/api/study/' + encodeURIComponent(s.name))
-                .then(function(r) { return r.ok ? r.json() : {spec: {name: s.name, error: 'load-failed'}}; })
-                .then(function(j) { return j.spec || j; })
-          );
-        });
-        var bibFetch = fetch((window.DataSource && window.DataSource.referencesBibUrl)
-            ? window.DataSource.referencesBibUrl() : '/api/references-bib')
-          .then(function(r) { return r.ok ? r.json() : {entries: []}; })
-          .then(function(j) { return j.entries || []; })
-          .catch(function() { return []; });
-        var chartFetches = (iset.studies || []).map(function(s) {
-          // Via DataSource so snapshot mode reads api/study-charts/<slug>.json at
-          // the bundle basePath; raw fetch would 404 on a hosted read-only site.
-          return ((window.DataSource && window.DataSource.loadStudyCharts)
-            ? window.DataSource.loadStudyCharts(s.name)
-            : fetch('/api/study-charts/' + encodeURIComponent(s.name))
-                .then(function(r) { return r.ok ? r.json() : {charts: []}; }))
-            .then(function(j) { return {name: s.name, charts: (j && j.charts) || []}; })
-            .catch(function() { return {name: s.name, charts: []}; });
-        });
-        // Current coordinated generation — stamps the report's provenance
-        // banner (expert-feedback A.3). Best-effort: null when none active.
-        var genFetch = fetch('/api/generation')
-          .then(function(r) { return r.ok ? r.json() : {generation: null}; })
-          .then(function(j) { return (j && j.generation) || null; })
-          .catch(function() { return null; });
-        // Workspace GitHub repo (owner/name) — injected into the exported
-        // report's inline-feedback widget so its "Open GitHub issue" button
-        // pre-fills against the right repo with no reviewer prompt. Best-
-        // effort: null when the workspace has no GitHub origin (widget then
-        // falls back to host-detection / a one-time prompt).
-        var ghRepoFetch = fetch('/api/github-repo')
-          .then(function(r) { return r.ok ? r.json() : {repo: null}; })
-          .then(function(j) { return (j && j.repo) || null; })
-          .catch(function() { return null; });
-        // Evidence & rigor roll-up — deterministic skeptic-feedback computed
-        // by pbg_superpowers.rigor (replication, controls, alternatives,
-        // claim discipline, falsifiability, adversarial coverage).
-        var rigorFetch = fetch('/api/investigation-rigor?investigation=' + encodeURIComponent(iset.name))
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .catch(function() { return null; });
-        // Wave 3a #26 — framework-self metrics across every study + investigation
-        // (deterministic, pbg_superpowers.rigor.framework_metrics). Renders the
-        // "Framework scorecard" section. Best-effort: null → section omitted.
-        var fmFetch = fetch('/api/framework-metrics')
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .catch(function() { return null; });
-        // Wave 3b #6/#16 — competing hypotheses with the COMPUTED support_log
-        // (pbg_superpowers.hypotheses.rollup_support, via the report-data path).
-        // Best-effort: [] → the panel falls back to authored iset.hypotheses.
-        var hypFetch = fetch('/api/investigation-hypotheses?investigation=' + encodeURIComponent(iset.name))
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .then(function(j) { return (j && j.hypotheses) || null; })
-          .catch(function() { return null; });
-        return Promise.all([Promise.all(studyFetches), bibFetch,
-                            Promise.all(chartFetches), genFetch,
-                            ghRepoFetch, rigorFetch, fmFetch, hypFetch]).then(function(arr) {
-          var chartsByStudy = {};
-          arr[2].forEach(function(c) { chartsByStudy[c.name] = c.charts; });
-          var generation = arr[3];
-          var ghRepo = arr[4];
-          var rigor = arr[5];
-          var frameworkMetrics = arr[6];
-          var hypotheses = arr[7];
-          // Second pass: now that we have the specs, fetch each study's
-          // embed_visualizations URLs so the downloaded report can inline
-          // them as <iframe srcdoc="...">. This makes the file truly
-          // self-contained — works offline because the full preview HTML
-          // (incl. its Plotly CDN <script src>) is embedded inline.
-          var specs = arr[0];
-          var embedFetches = specs.map(function(spec) {
-            var embeds = (spec && spec.embed_visualizations) || [];
-            var perStudy = embeds.map(function(embed) {
-              if (!embed || !embed.url) return Promise.resolve(null);
-              return fetch(embed.url, {headers: {Accept: 'text/html'}})
-                .then(function(r) { return r.ok ? r.text() : null; })
-                .then(function(text) {
-                  return text ? {
-                    name: embed.name || '',
-                    description: embed.description || '',
-                    url: embed.url,
-                    html: text,
-                    stale: embed.stale === true,
-                  } : null;
-                })
-                .catch(function() { return null; });
-            });
-            return Promise.all(perStudy).then(function(results) {
-              return {name: spec && spec.name, embeds: results.filter(Boolean)};
-            });
-          });
-          // Parallel to the embeds: fetch each study's report-card modules
-          // (viz/report_card/<card>.html, surfaced as spec.report_card_urls)
-          // and inline their HTML so the downloaded report shows them offline
-          // as <iframe srcdoc>. The live study-detail view uses <iframe src=url>
-          // (server-backed); the exported report must inline, like the embeds.
-          var reportCardFetches = specs.map(function(spec) {
-            var rcUrls = (spec && spec.report_card_urls) || {};
-            var perStudy = Object.keys(rcUrls).map(function(card) {
-              var rc = rcUrls[card];
-              if (!rc || !rc.url) return Promise.resolve(null);
-              return fetch(rc.url, {headers: {Accept: 'text/html'}})
-                .then(function(r) { return r.ok ? r.text() : null; })
-                .then(function(text) {
-                  return text ? {
-                    card: card,
-                    verdict: rc.verdict || 'ungraded',
-                    html: text,
-                  } : null;
-                })
-                .catch(function() { return null; });
-            });
-            return Promise.all(perStudy).then(function(results) {
-              return {name: spec && spec.name, cards: results.filter(Boolean)};
-            });
-          });
-          return Promise.all([Promise.all(embedFetches),
-                              Promise.all(reportCardFetches)]).then(function(both) {
-            var embedsByStudy = {};
-            both[0].forEach(function(e) {
-              if (e && e.name) embedsByStudy[e.name] = e.embeds;
-            });
-            var reportCardsByStudy = {};
-            both[1].forEach(function(e) {
-              if (e && e.name) reportCardsByStudy[e.name] = e.cards;
-            });
-            return {iset: iset, specs: specs, bibEntries: arr[1],
-                    chartsByStudy: chartsByStudy, embedsByStudy: embedsByStudy,
-                    reportCardsByStudy: reportCardsByStudy,
-                    generation: generation, ghRepo: ghRepo, rigor: rigor,
-                    frameworkMetrics: frameworkMetrics, hypotheses: hypotheses};
-          });
-        });
+    fmt = (fmt === 'pdf') ? 'pdf' : 'html';
+    var cfg = window.__DASH_CONFIG__ || {};
+    var _save = function (href, dl) {
+      var a = document.createElement('a');
+      a.href = href; a.download = dl; a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+    // Static snapshot: both the HTML and the (pre-baked) PDF report are plain files
+    // in the bundle — serve the requested one directly, no server render. The PDF
+    // is baked at publish time only when headless Chromium was available there; if
+    // it's missing, fall back to the HTML rather than downloading a 404 page named
+    // ".pdf" (which the OS then rejects as a corrupt file).
+    if (cfg.mode === 'snapshot') {
+      if (fmt === 'pdf') {
+        var _pdfUrl = _investigationReportPdfUrl(name);
+        fetch(_pdfUrl, { method: 'HEAD' })
+          .then(function (r) {
+            if (r && r.ok) { _save(_pdfUrl, 'investigation-' + name + '.pdf'); return; }
+            if (typeof _showToast === 'function') _showToast('PDF isn’t available in this read-only snapshot — downloading the HTML report instead');
+            _save(_investigationReportUrl(name), 'investigation-' + name + '.html');
+          })
+          .catch(function () { _save(_investigationReportUrl(name), 'investigation-' + name + '.html'); });
+        return;
+      }
+      _save(_investigationReportUrl(name), 'investigation-' + name + '.html');
+      return;
+    }
+    // Live report (HTML or PDF): the server renders a LARGE self-contained file
+    // (every figure inlined; PDF also goes through headless Chromium), which
+    // takes several seconds. Only block a duplicate of the SAME export.
+    var key = name + '|' + fmt;
+    var isPdf = (fmt === 'pdf');
+    if (_invReportInflight[key]) {
+      if (typeof _showToast === 'function') _showToast((isPdf ? 'PDF' : 'Report') + ' is still being prepared — one moment…');
+      return;
+    }
+    _invReportInflight[key] = true;
+    var ext = isPdf ? '.pdf' : '.html';
+    if (typeof _showToast === 'function')
+      _showToast(isPdf ? 'Rendering PDF… this can take ~20s (you can start another export meanwhile)' : 'Preparing report… (a large self-contained file)');
+    fetch(_investigationReportUrl(name) + (isPdf ? '?format=pdf' : ''))
+      .then(function (r) {
+        if (!r.ok) return r.text().then(function (t) { throw new Error(t || ('HTTP ' + r.status)); });
+        return r.blob();
       })
-      .then(function(bundle) {
-        var html = _buildInvestigationReportHtml(bundle.iset, bundle.specs,
-                                                  bundle.bibEntries, bundle.chartsByStudy,
-                                                  bundle.embedsByStudy, bundle.generation,
-                                                  bundle.ghRepo, bundle.rigor,
-                                                  bundle.frameworkMetrics, bundle.hypotheses,
-                                                  bundle.reportCardsByStudy);
-        var dateStr = new Date().toISOString().slice(0, 10);
-        var filename = 'investigation-' + name + '-' + dateStr + '.html';
-        _triggerDownload(filename, html, 'text/html');
+      .then(function (blob) {
+        var u = URL.createObjectURL(blob);
+        _save(u, 'investigation-' + name + ext);
+        setTimeout(function () { URL.revokeObjectURL(u); }, 8000);
+        if (typeof _showToast === 'function') _showToast((isPdf ? 'PDF' : 'Report') + ' downloaded.');
       })
-      .catch(function(err) {
-        console.error('report generation failed', err);
-        alert('Report generation failed: ' + err);
+      .catch(function (e) {
+        var m = (e && e.message) || String(e);
+        if (typeof _showToast === 'function') _showToast((isPdf ? 'PDF export' : 'Report') + ' failed: ' + m, { danger: true });
+        else alert((isPdf ? 'PDF export' : 'Report download') + ' failed:\n' + m);
       })
-      .finally(function() {
-        if (btn) { btn.textContent = orig; btn.disabled = false; }
+      .then(function () {   // finally — clear this export's in-flight flag
+        delete _invReportInflight[key];
       });
   }
-  window._generateInvestigationReport = _generateInvestigationReport;
+  window._downloadInvestigationReport = _downloadInvestigationReport;
+
+  // "↓ report ▾" chooser (HTML / PDF) in the investigation header.
+  function _toggleInvReportMenu(ev) {
+    if (ev) ev.stopPropagation();
+    var m = document.getElementById('inv-report-menu');
+    if (!m) return;
+    var open = m.style.display !== 'none';
+    m.style.display = open ? 'none' : 'block';
+    if (!open) {
+      setTimeout(function () {
+        document.addEventListener('click', _closeInvReportMenu, { once: true, capture: true });
+      }, 0);
+    }
+  }
+  function _closeInvReportMenu() {
+    var m = document.getElementById('inv-report-menu');
+    if (m) m.style.display = 'none';
+  }
+  window._toggleInvReportMenu = _toggleInvReportMenu;
+  window._closeInvReportMenu = _closeInvReportMenu;
 
   // Per-card actions on the Investigations LIST (don't require opening the
-  // investigation). _generateInvestigationReport captures the name synchronously
-  // from _currentIset, so we set/restore it around the call.
+  // investigation) — open the report for the named investigation directly.
   window._vivReportFromCard = function (ev, name) {
     if (ev) ev.stopPropagation();
-    var prev = window._currentIset;
-    window._currentIset = name;
-    try { _generateInvestigationReport(); } finally { window._currentIset = prev; }
+    _downloadInvestigationReport(name);
   };
   window._vivNotebookFromCard = function (ev, name) {
     if (ev) ev.stopPropagation();
@@ -11953,6 +14305,101 @@
     var a = document.createElement('a');
     a.href = url; a.download = name + '.ipynb';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
+  // A SINGLE study's runnable notebook (just that study's cells). Live: the
+  // server generates it on demand at /api/study/<slug>/notebook. Snapshot: a
+  // static export has no per-study artifact, so fall back to the investigation
+  // notebook (which includes this study) via _vivNotebookFromCard.
+  window._vivStudyNotebookFromCard = function (ev, slug, invName) {
+    if (ev) ev.stopPropagation();
+    var c = window.__DASH_CONFIG__ || {};
+    if (c.mode === 'snapshot') {
+      return window._vivNotebookFromCard(ev, invName || slug);
+    }
+    var url = '/api/study/' + encodeURIComponent(slug) + '/notebook';
+    var a = document.createElement('a');
+    a.href = url; a.download = slug + '.ipynb';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
+  // Download the FULL figure archive for an investigation (every study's figures
+  // + the post-study composites) as a zip. Snapshot: a prebuilt static zip under
+  // figures/<slug>/; live: the server builds it on demand.
+  window._vivFiguresFromCard = function (ev, name) {
+    if (ev) ev.stopPropagation();
+    var c = window.__DASH_CONFIG__ || {};
+    var base = c.basePath || '';
+    var url = (c.mode === 'snapshot')
+      ? base + '/figures/' + encodeURIComponent(name) + '/figures.zip'
+      : '/api/investigation/' + encodeURIComponent(name) + '/figures.zip';
+    var a = document.createElement('a');
+    a.href = url; a.download = name + '-figures.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  };
+  // A single study's OUTPUTS (its image figures + any embedded HTML report /
+  // dashboard and its viz assets) as a zip.
+  window._vivStudyFiguresFromCard = function (ev, slug) {
+    if (ev) ev.stopPropagation();
+    var c = window.__DASH_CONFIG__ || {};
+    var base = c.basePath || '';
+    var url = (c.mode === 'snapshot')
+      ? base + '/figures/studies/' + encodeURIComponent(slug) + '.zip'
+      : '/api/study/' + encodeURIComponent(slug) + '/outputs.zip';
+    // Probe before downloading. The ↓ visualizations button renders whenever a
+    // study declares any `visualizations`, but the figures zip only contains
+    // declared IMAGE files (svg/png/gif). A study whose visualizations are all
+    // native/embed panels therefore has no zip — and in a snapshot the file is
+    // simply absent (404). A bare `<a download>` to a 404 silently does nothing,
+    // which reads as a broken button. Fetch first: download the blob when it
+    // exists, otherwise tell the user why there's nothing to grab.
+    function _notify(msg, opts) {
+      if (typeof _showToast === 'function') _showToast(msg, opts); else window.alert(msg);
+    }
+    fetch(url).then(function (r) {
+      if (!r.ok) {
+        _notify('No downloadable figures for "' + slug + '" '
+          + '(no figures or embedded HTML reports).');
+        return null;
+      }
+      return r.blob();
+    }).then(function (blob) {
+      if (!blob) return;
+      var href = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = href; a.download = slug + '-figures.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      window.setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
+    }).catch(function (e) {
+      _notify('Figures download failed: ' + e, { danger: true });
+    });
+  };
+  // ▶ run — launch a study's CURRENT baseline spec as a new run (live only).
+  window._vivRunStudyFromRow = function (ev, slug) {
+    if (ev) ev.stopPropagation();
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;
+    if (!confirm("Run this study's current baseline spec as a new run?")) return;
+    apiFetch('POST', '/api/study-run-baseline', {study: slug}).then(function (r) { return r.json(); }).then(function (j) {
+      var id = j && (j.run_id || j.simulation_id);
+      var msg = id ? ('Run launched — ' + id) : ('Run: ' + ((j && j.error) || 'done'));
+      if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
+    }).catch(function (e) { alert('Run failed: ' + e); });
+  };
+  // ↻ reproduce — replay a study's most recent run's recorded manifest (live
+  // only). Resolves the latest run id from /api/simulations first.
+  window._vivReproduceStudyFromRow = function (ev, slug) {
+    if (ev) ev.stopPropagation();
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;
+    apiFetch('GET', '/api/simulations?study=' + encodeURIComponent(slug))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var rows = (j && (j.simulations || j.runs)) || [];
+        var latest = rows[0] && (rows[0].run_id || rows[0].id || rows[0].name);
+        if (!latest) { alert('No run to reproduce yet for ' + slug + '.'); return; }
+        return apiFetch('POST', '/api/study-reproduce', {study: slug, run_id: latest}).then(function (r) { return r.json(); }).then(function (res) {
+          var id = res && res.run_id;
+          var msg = id ? ('Reproduce launched — ' + id) : ('Reproduce: ' + ((res && res.error) || 'done'));
+          if (typeof _showToast === 'function') _showToast(msg); else alert(msg);
+        });
+      }).catch(function (e) { alert('Reproduce failed: ' + e); });
   };
 
   // Download the coder-facing notebook for the current investigation. In a
@@ -12080,7 +14527,7 @@
     var setStatus = function(txt) { if (statusEl) statusEl.textContent = txt || ''; };
     btn.disabled = true;
     setStatus('refreshing…');
-    fetch('/api/study-refresh-viz/' + encodeURIComponent(study), {method: 'POST'})
+    apiFetch('POST', '/api/study-refresh-viz/' + encodeURIComponent(study))
       .then(function(r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
@@ -12090,7 +14537,7 @@
         var errs = results.filter(function(x) { return x && x.status === 'error'; }).length;
         var ok = results.filter(function(x) { return x && x.status === 'rendered'; }).length;
         // Re-fetch the freshly-stamped charts and rebuild the section body.
-        return fetch('/api/study-charts/' + encodeURIComponent(study))
+        return apiFetch('GET', '/api/study-charts/' + encodeURIComponent(study))
           .then(function(r) { return r.ok ? r.json() : {charts: []}; })
           .then(function(j) {
             var container = document.getElementById('study-' + study + '-charts');
@@ -12183,6 +14630,11 @@
   // "needs work" verdict pill are wrong for them.
   function _isInformationalStudy(s) {
     if (!s || typeof s !== 'object') return false;
+    // Canonical marker first (study_type / kind), so a study need not carry a
+    // report block to be flagged informational; report.verdict is kept below only
+    // for back-compat with studies authored before the report.* collapse.
+    var kind = String(s.study_type || s.kind || '').trim().toLowerCase();
+    if (kind === 'informational' || kind === 'descriptive' || kind === 'reference') return true;
     var verdict = String(((s.report || {}).verdict) || s.verdict || '').trim().toLowerCase();
     if (verdict === 'informational' || verdict === 'descriptive') return true;
     var gate = String(s.gate_status || '').trim().toLowerCase();
@@ -12835,4584 +15287,6 @@
     return html;
   }
 
-  function _buildInvestigationReportHtml(iset, specs, bibEntries, chartsByStudy, embedsByStudy, generation, ghRepo, rigor, frameworkMetrics, hypotheses, reportCardsByStudy) {
-    bibEntries = bibEntries || [];
-    chartsByStudy = chartsByStudy || {};
-    embedsByStudy = embedsByStudy || {};
-    reportCardsByStudy = reportCardsByStudy || {};
-    generation = generation || null;
-    ghRepo = ghRepo || null;
-    // Wave 3b #6/#16 — prefer the report-data-path enriched hypotheses (with the
-    // computed support_log); fall back to the authored iset.hypotheses so the
-    // panel still renders (un-enriched) when the fetch is unavailable.
-    hypotheses = hypotheses || (iset && iset.hypotheses) || [];
-    var bibByKey = {};
-    bibEntries.forEach(function(e) { bibByKey[e.key] = e; });
-    var now = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
-
-    // Task 9: render a canonical `vdash …` command as a copy-to-run chip. The
-    // command strings come PRECOMPUTED off each study's `run_commands` payload
-    // (the single source of truth — server lib/run_commands.study_run_commands),
-    // never hand-built here. Returns '' for a falsy command so older payloads /
-    // the published bundle degrade to no chip rather than "undefined".
-    function _runChip(cmd) {
-      if (!cmd) return '';
-      return '<code class="run-chip" title="Copy to run">' + _h(cmd) + '</code>';
-    }
-
-    // ── Coordinated-generation banner (expert-feedback A.3) ──────────────
-    // One prominent provenance stamp so the reviewer knows every panel below
-    // reflects a single (git_sha, params) state — and a loud warning when
-    // displayed runs span more than one generation (the "results are mixed,
-    // some 5/17 some 5/19" complaint). Built once, here, so live + exported
-    // reports stamp identically.
-    function _genBannerHtml() {
-      // Gather the distinct generation ids actually present in displayed runs.
-      var seen = {};
-      specs.forEach(function(s) {
-        (s.runs || []).forEach(function(r) {
-          var g = r && r.generation_id;
-          if (g) seen[g] = true;
-        });
-      });
-      var distinct = Object.keys(seen);
-      var curId = generation && generation.generation_id;
-      var bits = [];
-      if (curId) bits.push('<code>' + _h(curId) + '</code>');
-      if (generation && generation.git_sha) bits.push('git <code>' + _h(generation.git_sha) + '</code>');
-      if (generation && generation.param_set_hash) bits.push('params <code>' + _h(generation.param_set_hash) + '</code>');
-      if (generation && generation.created_at) bits.push(_h(String(generation.created_at).replace('T', ' ').slice(0, 16)));
-      // A report mixes generations if displayed runs carry >1 distinct id, or
-      // any displayed run's generation differs from the current one.
-      var mixes = distinct.length > 1
-        || (curId && distinct.some(function(g) { return g !== curId; }));
-      var head, body, bg, border, fg;
-      if (!curId && !distinct.length) {
-        return '';  // no generation model in play — say nothing
-      }
-      if (mixes) {
-        bg = '#fffbeb'; border = '#f59e0b'; fg = '#92400e';
-        head = '⚠ This report mixes results from more than one generation';
-        body = 'Panels below do not all reflect the same code + parameter state. '
-             + 'Re-run the whole investigation as one generation, then re-export, '
-             + 'so every result is coordinated.'
-             + (distinct.length ? ' Generations present: '
-                 + distinct.map(function(g){return '<code>'+_h(g)+'</code>';}).join(', ') + '.' : '');
-      } else {
-        bg = '#f0fdf4'; border = '#16a34a'; fg = '#166534';
-        head = 'Coordinated generation';
-        body = 'Every result below reflects one snapshot: ' + bits.join(' · ') + '.';
-      }
-      return '<div class="generation-banner" id="generation-banner" '
-        + 'style="margin:16px 0;padding:12px 16px;background:' + bg + ';border:1px solid '
-        + border + ';border-left-width:5px;border-radius:6px;color:' + fg + '">'
-        + '<strong>' + head + '</strong>'
-        + '<div class="small" style="margin-top:4px">' + body + '</div>'
-        + '</div>';
-    }
-    var generationBannerHtml = _genBannerHtml();
-
-    // Topological depth ordering of the studies (same as the dashboard DAG).
-    var depthMap = {};
-    var children = {};
-    specs.forEach(function(s) {
-      depthMap[s.name] = 0;
-      children[s.name] = [];
-    });
-    specs.forEach(function(s) {
-      (s.parent_studies || []).forEach(function(p) {
-        var pn = (typeof p === 'string') ? p : p.study;
-        if (children[pn]) children[pn].push(s.name);
-      });
-    });
-    var queue = [];
-    specs.forEach(function(s) {
-      if (!(s.parent_studies || []).length) queue.push(s.name);
-    });
-    var guard = specs.length * 4;
-    while (queue.length && guard-- > 0) {
-      var n = queue.shift();
-      (children[n] || []).forEach(function(c) {
-        if (depthMap[c] < (depthMap[n] || 0) + 1) {
-          depthMap[c] = depthMap[n] + 1;
-          queue.push(c);
-        }
-      });
-    }
-    var ordered = specs.slice().sort(function(a, b) {
-      return (depthMap[a.name] || 0) - (depthMap[b.name] || 0)
-          || a.name.localeCompare(b.name);
-    });
-
-    // ── Spine C2: investigation verdict DAG + acceptance narrative ──────────
-    // A compact, dependency-true map of the member studies, each badged with
-    // its code-computed gate verdict, plus a one-paragraph acceptance roll-up.
-    // Reuses the `ordered` / `depthMap` topology above (no second sort) and the
-    // spine-computed verdicts/acceptance (no recompute). Mirrors the
-    // param-enforcement banner: surfaced, connected (nodes/criteria link to the
-    // per-study sections), labeled code-computed.
-    function _spineVerdictBadge(result, study) {
-      var r = (result || '').toString().toLowerCase();
-      // Descriptive/informational reference (not_applicable gate) → neutral
-      // "reference" badge, NOT ⚠ "needs work".
-      if (r === 'not_applicable' || r === 'n/a' || r === 'na' || r === 'informational'
-          || r === 'descriptive' || (study && _isInformationalStudy(study))) {
-        return { glyph: '📄', cls: 'none', bd: '#94a3b8' };
-      }
-      if (r === 'passed' || r === 'pass') return { glyph: '✅', cls: 'pass', bd: '#16a34a' };
-      if (r === 'failed' || r === 'fail') return { glyph: '⛔', cls: 'fail', bd: '#dc2626' };
-      if (!r) return { glyph: '◽', cls: 'none', bd: '#cbd5e1' };
-      // needs_calibration / blocked / stale → needs work
-      return { glyph: '⚠', cls: 'warn', bd: '#f59e0b' };
-    }
-    function _verdictDagHtml() {
-      if (!ordered.length) return '';
-      var hasEdges = specs.some(function(s) { return (s.parent_studies || []).length; });
-      var byDepth = {};
-      ordered.forEach(function(s) {
-        var d = depthMap[s.name] || 0;
-        (byDepth[d] = byDepth[d] || []).push(s);
-      });
-      var depths = Object.keys(byDepth).map(Number).sort(function(a, b) { return a - b; });
-      var ranks = depths.map(function(d) {
-        var nodes = byDepth[d].map(function(s) {
-          var b = _spineVerdictBadge((s.computed_gate_verdict || {}).result, s);
-          var parents = (s.parent_studies || []).map(function(p) {
-            return (typeof p === 'string') ? p : p.study;
-          }).filter(Boolean);
-          var dep = parents.length
-            ? ' <span class="sdag-dep muted small">← ' + parents.map(function(p) {
-                return '<a href="#study-' + _h(p) + '">' + _h(p) + '</a>';
-              }).join(', ') + '</span>'
-            : '';
-          return '<li class="sdag-node sdag-' + b.cls + '" '
-            + 'style="margin:3px 0;padding:2px 8px;border-left:3px solid ' + b.bd + '">'
-            + '<span class="sdag-badge" title="code-computed gate verdict">' + b.glyph + '</span> '
-            + '<a href="#study-' + _h(s.name) + '"><strong>' + _h(s.name) + '</strong></a>'
-            + dep + '</li>';
-        }).join('');
-        return '<div class="sdag-rank" style="margin:4px 0">'
-          + (hasEdges ? '<span class="sdag-rank-lbl muted small" style="display:inline-block;min-width:64px">depth ' + d + '</span>' : '')
-          + '<ul class="sdag-list" style="list-style:none;margin:0;padding:0;display:inline-block;vertical-align:top">' + nodes + '</ul></div>';
-      }).join('');
-      return '<div class="study-verdict-dag" id="study-verdict-dag" '
-        + 'style="margin:14px 0;padding:12px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left-width:5px;border-radius:6px">'
-        + '<strong>Study verdict map</strong> '
-        + '<span class="muted small">code-computed gate verdicts (✅ passed · ⚠ needs work · ⛔ blocked)'
-        + (hasEdges ? '; edges = pipeline prerequisites (← depends on)' : '') + '</span>'
-        + ranks + '</div>';
-    }
-    function _acceptanceNarrativeHtml() {
-      var ca = iset.computed_acceptance;
-      if (!ca || !ca.criteria || !ca.criteria.length) return '';
-      var total = ca.criteria.length;
-      function _is(r, set) { return set.indexOf((r || '').toString().toLowerCase()) >= 0; }
-      var nPass = ca.criteria.filter(function(c) { return _is(c.result, ['passing', 'pass']); }).length;
-      var blocked = ca.criteria.filter(function(c) {
-        return _is(c.result, ['failing', 'fail', 'blocked']);
-      }).map(function(c) { return c.study; }).filter(Boolean);
-      var vs = ca.verdict_status || (nPass === total ? 'passing' : 'in-progress');
-      return '<p class="acceptance-narrative" id="acceptance-narrative" '
-        + 'style="margin:10px 0;padding:10px 16px;background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:4px">'
-        + '<strong>Investigation acceptance: ' + _h(vs) + '.</strong> '
-        + nPass + ' of ' + total + ' acceptance criteria passing'
-        + (blocked.length
-            ? '; blocked by ' + blocked.map(function(n) {
-                return '<a href="#study-' + _h(n) + '">' + _h(n) + '</a>';
-              }).join(', ')
-            : '')
-        + '. <span class="muted small">code-computed from member-study verdicts</span></p>';
-    }
-    // ── SP4a: AC → study gating-matrix panel ───────────────────────────────
-    // Rows = acceptance criteria; columns = the gating study (linked to its
-    // section) + the computed result. Acceptance criteria with NO `study:` link
-    // are FLAGGED red ("no study linked — gap") — this is what surfaces e.g.
-    // chromosome-cycle-calibration's 5 unlinked criteria. Built synchronously
-    // from iset.acceptance_criteria (so the gap is visible even in a static
-    // snapshot), then ENRICHED from /api/linkage-index?investigation=<name>
-    // when the live endpoint is reachable. Tolerates the endpoint failing.
-    function _acResultBadge(result) {
-      var r = (result || '').toString().toLowerCase();
-      if (r === 'passing' || r === 'pass' || r === 'passed') return { glyph: '✅', bd: '#16a34a', bg: '#f0fdf4' };
-      if (r === 'failing' || r === 'fail' || r === 'failed') return { glyph: '⛔', bd: '#dc2626', bg: '#fef2f2' };
-      if (r === 'passing-with-caveats') return { glyph: '⚠', bd: '#f59e0b', bg: '#fffbeb' };
-      return { glyph: '◐', bd: '#94a3b8', bg: '#f8fafc' };  // in-progress / pending
-    }
-    // What an acceptance criterion IS — shown once, above the acceptance tables,
-    // so a reviewer knows these are computed metrics, not assertions.
-    var _acceptanceExplainer =
-      '<p class="muted small" style="margin:2px 0 10px 0;line-height:1.5;color:#475569">'
-      + 'Each <strong>acceptance criterion</strong> is a <em>behaviour test</em> declared in a study: a '
-      + 'measured field from the run (e.g. <code>closure_gap_size</code>) compared against an explicit '
-      + '<code>pass_if</code> band (a numeric threshold/range). The per-criterion result, each study’s '
-      + 'gate verdict, and this roll-up are <strong>computed in code from the run outcomes</strong> '
-      + '(deterministic) — not human judgement. Expand a row to see the field, the passing band, and the '
-      + 'observed value.</p>';
-    // Map study slug -> spec, to look up each criterion's underlying behaviour
-    // test (the actual metric) from the gating study.
-    var _specBySlug = {};
-    (specs || []).forEach(function(s) { if (s && s.name) _specBySlug[s.name] = s; });
-    function _passIfText(p) {
-      if (p == null || p === '') return '';
-      if (typeof p !== 'object') return String(p);
-      // {op, value} — the common shape (e.g. {op:">", value:0} -> "> 0").
-      if (p.op !== undefined && p.value !== undefined) {
-        var sym = {'>=': '≥', '<=': '≤', '>': '>', '<': '<', '==': '=', '!=': '≠',
-                   'in_range': 'in range'}[p.op] || p.op;
-        return sym + ' ' + p.value;
-      }
-      // {low, high} band.
-      if (p.low !== undefined || p.high !== undefined) {
-        return 'in [' + (p.low !== undefined ? p.low : '−∞') + ', '
-          + (p.high !== undefined ? p.high : '∞') + ']';
-      }
-      var bits = [];
-      if (p.min !== undefined || p.max !== undefined)
-        bits.push((p.min !== undefined ? ('≥ ' + p.min) : '') +
-                  (p.max !== undefined ? ((p.min !== undefined ? ' and ' : '') + '≤ ' + p.max) : ''));
-      ['gte', 'lte', 'gt', 'lt', 'equals', 'eq', 'min_fraction', 'at_least', 'at_most'].forEach(function(k) {
-        if (p[k] !== undefined) bits.push(k.replace(/_/g, ' ') + ' ' + p[k]);
-      });
-      return bits.length ? bits.join(', ') : JSON.stringify(p);
-    }
-    // A measure ({kind, field/path}) as readable text, e.g. "broken_network_gap (derived_scalar)".
-    function _measureText(m) {
-      if (!m) return '';
-      if (typeof m !== 'object') return String(m);
-      var f = m.field || m.path || '';
-      var k = m.kind || '';
-      if (f && k) return '<code>' + _h(f) + '</code> <span class="muted small">(' + _h(k) + ')</span>';
-      return f ? '<code>' + _h(f) + '</code>' : (k ? '<span class="muted small">' + _h(k) + '</span>' : _h(JSON.stringify(m)));
-    }
-    // Returns {field, passIf, observed, description} for a (study, behavior),
-    // or null if the gating study / test can't be resolved.
-    function _critMetric(study, behavior) {
-      var s = _specBySlug[study];
-      if (!s) return null;
-      var tests = s.behavior_tests || s.expected_behavior || [];
-      var t = null;
-      for (var i = 0; i < tests.length; i++) {
-        if (tests[i] && tests[i].name === behavior) { t = tests[i]; break; }
-      }
-      if (!t) return null;
-      var field = (t.measure && (t.measure.field || t.measure.kind)) || '';
-      var observed = null;
-      var runs = s.runs || [];
-      var ocRun = _runWithOutcomes(runs);
-      if (ocRun) {
-        var oc = _normOutcome((ocRun.outcomes || {})[behavior]);
-        if (oc && oc.observed !== undefined) observed = oc.observed;
-      }
-      return { field: field, passIf: _passIfText(t.pass_if), observed: observed,
-               description: t.description || '' };
-    }
-    // A compact "field · pass-if · observed" detail line for a criterion row.
-    function _critMetricDetail(study, behavior) {
-      var m = _critMetric(study, behavior);
-      if (!m) return '';
-      var bits = [];
-      if (m.field) bits.push('field <code>' + _h(m.field) + '</code>');
-      if (m.passIf) bits.push('passes if <code>' + _h(m.passIf) + '</code>');
-      if (m.observed !== null && m.observed !== undefined)
-        bits.push('observed <strong>' + _fmtObserved(m.observed) + '</strong>');
-      if (!bits.length && !m.description) return '';
-      return '<div class="crit-metric muted small" style="margin:2px 0 0 0;color:#475569">'
-        + bits.join(' &middot; ')
-        + (m.description ? '<div style="margin-top:2px">' + _h(m.description.replace(/\s+/g, ' ').trim()) + '</div>' : '')
-        + '</div>';
-    }
-    function _acGatingMatrixHtml() {
-      var crits = (iset.acceptance_criteria || []).filter(function(c) {
-        return c && typeof c === 'object';
-      });
-      if (!crits.length) return '';
-      var computed = ((iset.computed_acceptance || {}).criteria) || [];
-      var nGap = 0;
-      var rows = crits.map(function(c, i) {
-        var study = (c.study || '').toString().trim();
-        var gap = !study;
-        if (gap) nGap += 1;
-        var result = (computed[i] && computed[i].result) || c.status || '';
-        var b = _acResultBadge(result);
-        var behavior = c.behavior || c.name || '(criterion ' + (i + 1) + ')';
-        var studyCell = gap
-          ? '<td style="color:#b91c1c;font-weight:600">⚠ no study linked — gap</td>'
-          : '<td><a href="#study-' + _h(study) + '">' + _h(study) + '</a></td>';
-        var resultCell = '<td id="acg-result-' + i + '" '
-          + 'style="white-space:nowrap"><span class="acg-pill" '
-          + 'style="display:inline-block;padding:1px 8px;border-radius:10px;border:1px solid '
-          + b.bd + ';background:' + b.bg + '">' + b.glyph + ' ' + _h(result || 'pending') + '</span></td>';
-        return '<tr id="acg-row-' + i + '" data-gap="' + (gap ? '1' : '0') + '" '
-          + 'style="' + (gap ? 'background:#fef2f2' : '') + '">'
-          + '<td style="padding-right:10px;vertical-align:top">' + _h(behavior)
-            + _critMetricDetail(study, behavior) + '</td>'
-          + studyCell + resultCell + '</tr>';
-      }).join('');
-      var gapNote = nGap
-        ? '<p class="muted small" style="margin:6px 0 0 0;color:#b91c1c">'
-          + nGap + ' of ' + crits.length + ' acceptance criteria have no study linked (gaps) — '
-          + 'nothing gates them.</p>'
-        : '<p class="muted small" style="margin:6px 0 0 0">All ' + crits.length
-          + ' acceptance criteria are linked to a gating study.</p>';
-      return '<div class="ac-gating-matrix" id="ac-gating-matrix" '
-        + 'data-investigation="' + _h(iset.name || '') + '" '
-        + 'style="margin:12px 0;padding:12px 16px;background:#f0f9ff;'
-        + 'border:1px solid #bae6fd;border-left:4px solid #3b82f6;border-radius:6px">'
-        + '<strong>AC → study gating matrix</strong> '
-        + '<span class="muted small">which study gates each acceptance criterion · '
-        + '⚠ = no study linked (gap)</span>'
-        + _acceptanceExplainer
-        + '<table class="acg-table" style="width:100%;border-collapse:collapse;margin-top:8px;font-size:0.92em">'
-        + '<thead><tr style="text-align:left;border-bottom:1px solid #cbd5e1">'
-        + '<th style="padding:2px 10px 4px 0">Acceptance criterion</th>'
-        + '<th style="padding:2px 0 4px 0">Gating study</th>'
-        + '<th style="padding:2px 0 4px 0">Result</th></tr></thead>'
-        + '<tbody>' + rows + '</tbody></table>' + gapNote
-        + '</div>'
-        // Enrich from the live linkage-index endpoint when reachable. The panel
-        // already renders the gaps synchronously, so a failed/absent endpoint
-        // (e.g. a static snapshot) is harmless — we just keep the skeleton.
-        + '<script>(function(){try{'
-        + 'var panel=document.getElementById("ac-gating-matrix");'
-        + 'if(!panel)return;var inv=panel.getAttribute("data-investigation");if(!inv)return;'
-        + 'fetch("/api/linkage-index?investigation="+encodeURIComponent(inv))'
-        + '.then(function(r){return r.ok?r.json():null;})'
-        + '.then(function(d){if(!d||!d.ac_matrix||!d.ac_matrix.criteria)return;'
-        + 'd.ac_matrix.criteria.forEach(function(c,i){'
-        + 'var cell=document.getElementById("acg-result-"+i);if(!cell)return;'
-        + 'var res=(c.result||"pending");'
-        + 'var span=cell.querySelector(".acg-pill");if(span)span.textContent="• "+res;'
-        + '});})'
-        + '.catch(function(){});'
-        + '}catch(e){}})();</script>';
-    }
-
-    // ── SP5: "Decisions needed" report section ─────────────────────────────
-    // A compact list of the same needs-attention items shown in the live panel.
-    // Built as a placeholder that an inline script fills from the deterministic
-    // /api/needs-attention scan (mirrors the AC-gating-matrix enrich pattern):
-    // the section hydrates in the live report and stays quiet/hidden in a static
-    // snapshot where the endpoint is unreachable. The report computes nothing.
-    function _needsAttentionReportHtml() {
-      var inv = (iset.name || '').toString();
-      if (!inv) return '';
-      return '<section class="needs-attention-report" id="needs-attention-report" '
-        + 'data-investigation="' + _h(inv) + '" style="display:none;margin:12px 0;'
-        + 'padding:12px 16px;background:#fffbeb;border:1px solid #fcd34d;'
-        + 'border-left:4px solid #f59e0b;border-radius:6px">'
-        + '<strong>Decisions needed</strong> '
-        + '<span class="muted small">items the deterministic scan flags for triage · code-computed</span>'
-        + '<div id="needs-attention-report-body" style="margin-top:8px;font-size:0.92em"></div>'
-        + '</section>'
-        + '<script>(function(){try{'
-        + 'var sec=document.getElementById("needs-attention-report");'
-        + 'if(!sec)return;var inv=sec.getAttribute("data-investigation");if(!inv)return;'
-        + 'fetch("/api/needs-attention?investigation="+encodeURIComponent(inv))'
-        + '.then(function(r){return r.ok?r.json():null;})'
-        + '.then(function(d){if(!d||!d.summary||!(d.summary.total>0))return;'
-        + 'var sevcol={high:"#dc2626",medium:"#f59e0b",low:"#3b82f6"};'
-        + 'var body=document.getElementById("needs-attention-report-body");if(!body)return;'
-        + 'var esc=function(s){var e=document.createElement("span");e.textContent=(s==null?"":String(s));return e.innerHTML;};'
-        + 'var rows=(d.items||[]).map(function(it){'
-        + 'var c=sevcol[(it.severity||"low")]||"#3b82f6";'
-        + 'var ref=esc(it.study||it.ref||"");'
-        + 'var hint=it.action_hint?(" &middot; "+esc(it.action_hint)):"";'
-        + 'return "<li style=\\"margin-top:5px;padding-left:9px;border-left:3px solid "+c+"\\">"'
-        + '+"<code style=\\"font-size:0.85em\\">"+esc(it.kind||"")+"</code> &middot; <code>"+ref+"</code>"+hint+"</li>";'
-        + '}).join("");'
-        + 'body.innerHTML="<div class=\\"muted small\\">"+((d.summary.by_severity||{}).high||0)+" high &middot; "'
-        + '+d.summary.total+" total</div><ul style=\\"margin:6px 0 0 0;padding:0 0 0 4px;list-style:none\\">"+rows+"</ul>";'
-        + 'sec.style.display="";'
-        + '}).catch(function(){});'
-        + '}catch(e){}})();</script>';
-    }
-
-    var verdictDagHtml = _verdictDagHtml();
-    var acceptanceNarrativeHtml = _acceptanceNarrativeHtml();
-    var acGatingMatrixHtml = _acGatingMatrixHtml();
-    var needsAttentionReportHtml = _needsAttentionReportHtml();
-    var rigorSectionHtml = _rigorSectionHtml(rigor, specs);
-    var frameworkScorecardHtml = _frameworkScorecardHtml(frameworkMetrics);  // #26
-    var competingHypothesesHtml = _competingHypothesesHtml(hypotheses);      // #6/#16
-
-    // Reader-centered reorder: precomputed booleans gate the new top-nav links
-    // so we only emit a nav anchor when that section will actually render.
-    var _hasOpenQuestions = !!(((iset.executive || {}).decisions_needed || []).length
-      || (needsAttentionReportHtml && needsAttentionReportHtml.trim()));
-    var _hasRoadmap = !!(verdictDagHtml && verdictDagHtml.trim());
-    var _hasAppendices = !!((acGatingMatrixHtml && acGatingMatrixHtml.trim())
-      || (rigorSectionHtml && rigorSectionHtml.trim())
-      || (frameworkScorecardHtml && frameworkScorecardHtml.trim())
-      || (competingHypothesesHtml && competingHypothesesHtml.trim())
-      || ((iset.proposed_inputs || {}).items || []).length);
-
-    // Data-driven flags so the "How to read" guide describes only what this
-    // investigation actually contains — no workspace-specific boilerplate.
-    var hasDag = specs.some(function(s) {
-      return (s.parent_studies || []).length > 0;
-    });
-
-    // --- v3-shape per-study section ----------------------------------
-    // Render a sweep table (e.g. {1x: {dnaA_median: 115}, ...}) as a small
-    // inline-SVG bar chart. Used in finding cards when evidence.sweep or
-    // evidence.sweep_table is present.
-    function _renderSweepChart(sweep) {
-      if (!sweep || typeof sweep !== 'object') return '';
-      var keys = Object.keys(sweep);
-      if (!keys.length) return '';
-      var metrics = {};
-      keys.forEach(function(k) {
-        var v = sweep[k];
-        if (v && typeof v === 'object') {
-          Object.keys(v).forEach(function(m) {
-            var n = v[m];
-            if (typeof n === 'number') {
-              (metrics[m] = metrics[m] || {})[k] = n;
-            }
-          });
-        }
-      });
-      var metricNames = Object.keys(metrics);
-      if (!metricNames.length) return '';
-      // Render the most numeric-rich metric (max count of non-null values).
-      var metric = metricNames.sort(function(a, b) {
-        return Object.keys(metrics[b]).length - Object.keys(metrics[a]).length;
-      })[0];
-      var data = metrics[metric];
-      var entries = keys.map(function(k){return [k, data[k]];}).filter(function(e){return e[1] != null;});
-      if (!entries.length) return '';
-      var maxV = Math.max.apply(null, entries.map(function(e){return Math.abs(e[1]);}));
-      var minV = Math.min.apply(null, entries.map(function(e){return e[1];}));
-      var W = 480, H = 160, barW = Math.max(40, (W - 80) / entries.length - 8);
-      var x0 = 56, baseY = (minV < 0) ? H / 2 : H - 32;
-      var bars = entries.map(function(e, i) {
-        var x = x0 + i * (barW + 8);
-        var pixels = maxV ? Math.abs(e[1]) / maxV * (H - 60) : 0;
-        var y = e[1] >= 0 ? baseY - pixels : baseY;
-        var color = e[1] >= 0 ? '#3b82f6' : '#dc2626';
-        return '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + pixels + '" fill="' + color + '" rx="2"/>'
-             + '<text x="' + (x + barW/2) + '" y="' + (y - 4) + '" font-size="10" text-anchor="middle" fill="#0f172a">' + e[1] + '</text>'
-             + '<text x="' + (x + barW/2) + '" y="' + (H - 10) + '" font-size="10" text-anchor="middle" fill="#475569">' + _h(e[0]) + '</text>';
-      }).join('');
-      return '<div class="sweep-chart"><svg viewBox="0 0 ' + W + ' ' + H + '" style="display:block;width:100%;max-width:' + W + 'px;margin:8px 0">'
-        + '<text x="' + W/2 + '" y="16" font-size="11" font-weight="600" text-anchor="middle" fill="#0f172a">Sweep comparison — ' + _h(metric) + '</text>'
-        + '<line x1="' + x0 + '" y1="' + baseY + '" x2="' + (W - 16) + '" y2="' + baseY + '" stroke="#94a3b8" stroke-width="0.5"/>'
-        + bars
-        + '</svg></div>';
-    }
-
-    // Decision-status helper — returns the data the decision box renders.
-    function _decideDecision(s) {
-      var runs = s.runs || [];
-      // Read outcomes from the run that actually carries them (canonical/grade),
-      // NOT blindly runs[last] (a later composite/sim run with no outcomes).
-      var latest = _runWithOutcomes(runs);
-      var followUps = s.follow_up_studies || [];
-      var openFollowups = followUps.filter(function(f) {
-        return f.status !== 'done' && f.kind !== 'existing';
-      });
-      var phase = s.phase || '';
-      var status = s.status || 'planned';
-
-      // Descriptive/informational reference: no hypothesis test, no pass/fail
-      // gate. Render it as a completed reference, not a pending run.
-      if (_isInformationalStudy(s)) {
-        return {
-          label: 'Reference', cls: 'dec-passed',
-          passed: [], failed: [], blocks: [],
-          next: 'Descriptive reference — no pass/fail gate.'
-        };
-      }
-
-      // No runs yet
-      if (!latest) {
-        if (phase === 'Design' || status === 'planned') {
-          return {
-            label: 'Not started',
-            cls:   'dec-notstarted',
-            passed: [], failed: [], blocks: [],
-            next: 'Run the baseline simulation to begin evaluation.'
-          };
-        }
-        return {
-          label: 'Ready to run',
-          cls:   'dec-ready',
-          passed: [], failed: [], blocks: [],
-          next: 'Execute the simulation_set to gather evidence.'
-        };
-      }
-
-      // Decide from BOTH the authored outcomes AND the run/outcome-spine
-      // computed_outcomes (authored wins), normalizing bare-string outcomes, and
-      // falling back to each test's authored tests[].status, so the panel
-      // reflects recorded results — not a stale "In progress".
-      var outcomes = Object.assign({}, latest.computed_outcomes || {});
-      Object.keys(latest.outcomes || {}).forEach(function(k) { outcomes[k] = latest.outcomes[k]; });
-      var passed = [], failed = [], partial = [], seen = {};
-      function _classify(name, res) {
-        if (res === 'PASS') passed.push(name);
-        else if (res === 'FAIL') failed.push(name);
-        else if (res === 'PARTIAL') partial.push(name);
-        else return;
-        seen[name] = true;
-      }
-      Object.keys(outcomes).forEach(function(name) {
-        var o = _normOutcome(outcomes[name]);
-        _classify(name, o && o.result);
-      });
-      _studyTests(s).forEach(function(t) {
-        if (!t || !t.name || seen[t.name]) return;
-        _classify(t.name, _testStatusToResult(t.status));
-      });
-      var calibration = openFollowups.filter(function(f){return f.kind === 'calibration_task';});
-      var infra       = openFollowups.filter(function(f){return f.kind === 'infrastructure_fix';});
-      var newWork     = openFollowups.filter(function(f){return f.kind === 'new';});
-
-      // The authored/spine gate_status is the verdict of record. A study can carry
-      // intended-negative results (controls, productive-negative diagnostics) whose
-      // raw test FAILs must NOT read as "Blocked". An explicit pass/partial gate wins
-      // over the raw-outcome classification below.
-      var gateAuthored = String((s && s.gate_status) || '').trim().toLowerCase();
-      if (gateAuthored === 'passed' || gateAuthored === 'pass') {
-        var enP = (s.pipeline_gate && s.pipeline_gate.enables) || [];
-        return {
-          label: 'Passed', cls: 'dec-passed',
-          passed: passed, failed: failed, partial: partial, blocks: [],
-          next: enP.length ? 'Gate cleared. Next: ' + enP.join(', ') : 'Gate cleared.'
-        };
-      }
-      if (gateAuthored === 'partial') {
-        return {
-          label: 'Partial', cls: 'dec-inprogress',
-          passed: passed, failed: failed, partial: partial, blocks: [],
-          next: 'Gate is PARTIAL — core objective met with a noted caveat (see findings); not a blocker.'
-        };
-      }
-
-      if (failed.length === 0 && partial.length === 0 && passed.length > 0) {
-        var enables = (s.pipeline_gate && s.pipeline_gate.enables) || [];
-        return {
-          label: 'Passed',
-          cls:   'dec-passed',
-          passed: passed, failed: [], partial: [], blocks: [],
-          next: enables.length
-            ? 'Gate cleared. Next: ' + enables.join(', ')
-            : 'Gate cleared. No declared downstream studies — review pipeline_gate.enables.'
-        };
-      }
-      if (failed.length > 0) {
-        var label = calibration.length ? 'Needs calibration' : 'Blocked';
-        var cls   = calibration.length ? 'dec-needscal'      : 'dec-blocked';
-        var nextItem = calibration[0] || infra[0] || newWork[0] || null;
-        var nextStr;
-        if (nextItem) {
-          nextStr = 'Resolve: ' + nextItem.title;
-        } else {
-          nextStr = 'Investigate why ' + failed.length + ' test(s) failed.';
-        }
-        return {
-          label: label, cls: cls,
-          passed: passed, failed: failed,
-          blocks: openFollowups.map(function(f){return f.title;}),
-          next: nextStr
-        };
-      }
-      if (partial.length > 0) {
-        return {
-          label: 'Partial', cls: 'dec-inprogress',
-          passed: passed, failed: failed, partial: partial, blocks: [],
-          next: partial.length + ' test(s) ran but did not meet the gate threshold — see findings.'
-        };
-      }
-      return {
-        label: 'In progress', cls: 'dec-inprogress',
-        passed: passed, failed: failed, partial: partial, blocks: [],
-        next: 'Continue analysing run outcomes.'
-      };
-    }
-
-    // Plain-English study summary — 2-4 sentences, no code identifiers.
-    function _studySummary(s, dec) {
-      var purpose = s.purpose || {};
-      var question = (purpose.question || '').trim().split('\n')[0];
-      var findings = _asFindings(s.findings);
-      var sentences = [];
-
-      if (question) {
-        var q = question.charAt(0).toLowerCase() + question.slice(1);
-        if (q.charAt(q.length - 1) === '.') q = q.slice(0, -1);
-        sentences.push('This study asks whether ' + q + '.');
-      } else if (s.objective) {
-        // Minimal study (no purpose.question): lead with the objective.
-        sentences.push(_firstSentence(s.objective));
-      }
-      if (findings.length) {
-        var confirms     = findings.filter(function(f){return f.status === 'confirms';}).length;
-        var contradicts  = findings.filter(function(f){return f.status === 'contradicts';}).length;
-        var novel        = findings.filter(function(f){return f.status === 'novel';}).length;
-        var parts = [];
-        if (confirms)    parts.push(confirms + ' finding' + (confirms === 1 ? '' : 's') + ' confirm the expected biology');
-        if (contradicts) parts.push(contradicts + ' contradict it');
-        if (novel)       parts.push(novel + ' novel computational result' + (novel === 1 ? '' : 's'));
-        if (parts.length) sentences.push('We recorded ' + parts.join(', ') + '.');
-      } else if ((s.runs || []).length === 0) {
-        sentences.push('No simulations have run yet — the study is still in its design phase.');
-      }
-      sentences.push('Gate decision: ' + dec.label + '. ' + dec.next);
-      return sentences.join(' ');
-    }
-
-    // First sentence of a (possibly multi-line) prose blob — used to derive a
-    // one-liner for the collapsed control panel when no explicit one-liner was
-    // authored. Collapses whitespace/newlines first.
-    function _firstSentence(text) {
-      if (!text) return '';
-      var t = String(text).replace(/\s+/g, ' ').trim();
-      var m = /^(.*?[.!?])(\s|$)/.exec(t);
-      return m ? m[1] : t;
-    }
-
-    // Word-boundary preview (collapse whitespace, cut at a space, ellipsis).
-    // Unlike _firstSentence it never breaks mid-abbreviation ("E. coli").
-    function _previewText(text, maxLen) {
-      var t = String(text || '').replace(/\s+/g, ' ').trim();
-      if (t.length <= maxLen) return t;
-      var cut = t.slice(0, maxLen);
-      var sp = cut.lastIndexOf(' ');
-      if (sp > maxLen * 0.6) cut = cut.slice(0, sp);
-      return cut + '\u2026';
-    }
-
-    // Verdict vocabulary for the collapsed control panel. An authored
-    // `report.verdict` (one of the keys below) wins; otherwise we derive it
-    // from the gate decision class so older studies still get a sensible badge.
-    var VERDICT_MAP = {
-      'passing':              {emoji: '✅', label: 'Passing',                       cls: 'v-pass'},
-      'passing-with-caveats': {emoji: '⚠️', label: 'Passing with caveats',          cls: 'v-warn'},
-      'blocked':              {emoji: '⛔', label: 'Blocked',                       cls: 'v-block'},
-      'preliminary':          {emoji: '🧪', label: 'Preliminary',                   cls: 'v-prelim'},
-      'failing-bio':          {emoji: '❌', label: 'Failing biological validation', cls: 'v-fail'},
-      'calibrating':          {emoji: '🔄', label: 'Calibration in progress',       cls: 'v-cal'},
-      'not-started':          {emoji: '📋', label: 'Not started',                   cls: 'v-none'},
-      'informational':        {emoji: '📄', label: 'Reference',                     cls: 'v-none'},
-      'descriptive':          {emoji: '📄', label: 'Reference',                     cls: 'v-none'}
-    };
-    function _verdictBadge(s, decision) {
-      var key = ((s.report || {}).verdict || s.verdict || '').trim().toLowerCase();
-      if (VERDICT_MAP[key]) return VERDICT_MAP[key];
-      if (_isInformationalStudy(s)) return VERDICT_MAP['informational'];
-      switch (decision.cls) {
-        case 'dec-passed':     return VERDICT_MAP['passing'];
-        case 'dec-needscal':   return VERDICT_MAP['calibrating'];
-        case 'dec-blocked':    return VERDICT_MAP['blocked'];
-        case 'dec-notstarted': return VERDICT_MAP['not-started'];
-        default:               return VERDICT_MAP['preliminary'];
-      }
-    }
-
-    // The reviewer-facing "Ran · Tests · Verdict" clarity strip. Prefers the
-    // server-computed `s.clarity_summary` (single-sourced from
-    // pbg_superpowers.study_status.study_clarity_summary) and falls back to an
-    // equivalent client-side computation so the strip renders even against an
-    // older server. Answers, at a glance: did this study run? were the tests
-    // run (pass/fail)? did it pass? (dnaa-replication reviewer feedback.)
-    function _clarityStrip(s) {
-      var cs = (s || {}).clarity_summary;
-      // Descriptive/informational reference: override the (possibly server-
-      // supplied) clarity strip so it reads as a completed reference rather than
-      // "○ Not run" / "Tests pending" — there is no hypothesis to run.
-      if (_isInformationalStudy(s)) {
-        cs = {
-          ran: { status: 'ran', label: 'Complete' },
-          tests: { label: 'Descriptive reference', total: 0, pending: 0 },
-          verdict: { label: 'Reference', glyph: '📄', cls: 'v-none' },
-          ambiguities: (cs && cs.ambiguities) || []
-        };
-      }
-      if (!cs) {
-        var runs = (s && s.runs) || [];
-        var done = function (r) {
-          var st = ((r && r.status) || '').toLowerCase();
-          return st === 'completed' || st === 'complete' || st === 'ran' || st === 'done';
-        };
-        var nC = runs.filter(done).length;
-        var ranStatus = nC ? 'ran'
-          : (runs.some(function (r) { return ((r && r.status) || '').toLowerCase() === 'running'; }) ? 'running' : 'not_run');
-        var tests = _studyTests(s);
-        // Read outcomes from the run that carries them (canonical/grade), not
-        // blindly runs[last]; fall back to authored tests[].status.
-        var latest = _runWithOutcomes(runs);
-        var outc = (latest && latest.outcomes) || {};
-        var c = { pass: 0, fail: 0, skip: 0, pending: 0, total: tests.length };
-        tests.forEach(function (t) {
-          var o = outc[t.name];
-          var r = (((o && o.result) != null ? o.result : o) || '').toString().toLowerCase();
-          if (!r) r = (_testStatusToResult(t.status) || '').toLowerCase();
-          if (r === 'pass' || r === 'passed' || r === 'ok') c.pass++;
-          else if (r === 'fail' || r === 'failed' || r === 'error') c.fail++;
-          else if (r === 'skip' || r === 'skipped' || r === 'inconclusive' || r === 'partial') c.skip++;
-          else c.pending++;
-        });
-        var gate = ((s && s.gate_status) || '').toLowerCase();
-        var verd;
-        if (_isInformationalStudy(s)) {
-          // Descriptive reference: no pass/fail gate; render as complete, not
-          // "Not run" / "Tests pending".
-          ranStatus = 'ran';
-          verd = { label: 'Reference', glyph: '📄', cls: 'v-none' };
-        }
-        else if (gate === 'passed' || gate === 'pass') verd = { label: 'Passed', glyph: '✅', cls: 'v-pass' };
-        else if (gate === 'partial') verd = { label: 'Partial', glyph: '◐', cls: 'v-warn' };
-        else if (gate === 'failed' || gate === 'failed_evaluation' || gate === 'refuted') verd = { label: 'Failing', glyph: '❌', cls: 'v-fail' };
-        else if (gate === 'blocked') verd = { label: 'Blocked', glyph: '⛔', cls: 'v-block' };
-        else if (gate === 'needs_calibration') verd = { label: 'Needs calibration', glyph: '🔄', cls: 'v-cal' };
-        else if (gate === 'in_progress') verd = { label: 'In progress', glyph: '🔶', cls: 'v-warn' };
-        else if (ranStatus !== 'ran') verd = { label: 'Not run', glyph: '○', cls: 'v-none' };
-        else if (c.fail) verd = { label: 'Failing', glyph: '❌', cls: 'v-fail' };
-        else if (c.pending && c.total) verd = { label: 'Tests pending', glyph: '⏳', cls: 'v-warn' };
-        else if (c.pass) verd = { label: 'Passed', glyph: '✅', cls: 'v-pass' };
-        else verd = { label: 'In progress', glyph: '🔶', cls: 'v-warn' };
-        var parts = [];
-        if (c.pass) parts.push(c.pass + '✓');
-        if (c.fail) parts.push(c.fail + '✗');
-        if (c.skip) parts.push(c.skip + '⏭');
-        if (c.pending) parts.push(c.pending + '⏳');
-        var _info = _isInformationalStudy(s);
-        var _ranLabel = _info
-          ? 'Complete'
-          : (ranStatus === 'ran' ? ('Ran · ' + nC + ' run' + (nC !== 1 ? 's' : ''))
-             : (ranStatus === 'running' ? 'Running…' : 'Not run'));
-        cs = {
-          ran: { status: ranStatus, label: _ranLabel },
-          tests: { label: c.total ? ('Tests: ' + parts.join(' · ')) : (_info ? 'Descriptive reference' : 'No tests declared'), total: c.total, pending: _info ? 0 : c.pending },
-          verdict: verd, ambiguities: []
-        };
-      }
-      var ranOn = cs.ran.status === 'ran';
-      var pill = 'display:inline-block;padding:2px 9px;border-radius:9999px;font-size:0.78em;font-weight:600;margin-right:6px;';
-      var ranBg = ranOn ? 'background:#dbeafe;color:#1e40af' : (cs.ran.status === 'running' ? 'background:#fef3c7;color:#92400e' : 'background:#f1f5f9;color:#475569');
-      var tBg = (cs.tests.pending && cs.tests.total) ? 'background:#fef3c7;color:#92400e' : 'background:#f1f5f9;color:#334155';
-      var amb = (cs.ambiguities && cs.ambiguities.length)
-        ? '<span style="' + pill + 'background:#fef3c7;color:#92400e" title="' + _h(cs.ambiguities.join(' | ')) + '">⚠ ' + cs.ambiguities.length + ' clarity note' + (cs.ambiguities.length > 1 ? 's' : '') + '</span>'
-        : '';
-      // Spine A2: code-vs-authored gate divergence chip. The spine's
-      // study_verdict writes pipeline_gate.gate_evaluator (computed_gate_verdict)
-      // carrying diverges_from_authored. Mirrors the param-enforcement banner:
-      // surfaced beside the verdict, connected to its source (the coded
-      // evaluator), and labeled code-computed vs authored. Only shown on divergence.
-      var cgv = s && s.computed_gate_verdict;
-      var divChip = (cgv && cgv.diverges_from_authored)
-        ? '<span class="sp-gate-divergence" style="' + pill + 'background:#fffbeb;color:#92400e;border:1px solid #f59e0b" title="Code-computed verdict (spine study_verdict, not human-authored) disagrees with the authored gate_status.">⚠ code: ' + _h(cgv.result || '?') + ' · authored: ' + _h((s && s.gate_status) || '—') + '</span>'
-        : '';
-      return '<div class="sp-clarity" style="margin:6px 0 2px 0">'
-        + '<span style="' + pill + ranBg + '">' + (ranOn ? '▶' : (cs.ran.status === 'running' ? '…' : '○')) + ' ' + _h(cs.ran.label) + '</span>'
-        + '<span style="' + pill + tBg + '">' + _h(cs.tests.label) + '</span>'
-        + '<span class="sp-verdict ' + cs.verdict.cls + '" style="' + pill + '">' + cs.verdict.glyph + ' ' + _h(cs.verdict.label) + '</span>'
-        + divChip
-        + amb
-        + '</div>';
-    }
-
-    // The collapsed study header — a scannable "scientific control panel".
-    // Ordering follows the spec: identity → verdict → confidence/evidence →
-    // objective → conclusion → metrics → insight → caveat. Every field is
-    // optional; an absent field simply doesn't render. Authored one-liners
-    // (report.objective/conclusion/main_insight/caveat) win; otherwise we
-    // derive from the longer report prose so nothing is silently blank.
-    function _studyControlPanel(s, i, decision) {
-      var rep = s.report || {};
-      var v = _verdictBadge(s, decision);
-      var title = s.title || rep.title || _humanizeStudyName(s.name).title;
-      var objective  = rep.objective    || _firstSentence(rep.purpose)
-                        || _firstSentence((s.purpose || {}).question);
-      var conclusion = rep.conclusion   || _firstSentence(rep.result);
-      var insight    = rep.main_insight || _firstSentence(rep.interpretation);
-      var caveat = rep.caveat;
-      if (!caveat && Array.isArray(s.limitations) && s.limitations.length) {
-        var l0 = s.limitations[0];
-        caveat = (typeof l0 === 'string') ? l0 : (l0 && (l0.text || l0.limitation)) || '';
-      }
-
-      // Metadata: keep machine ids visually secondary.
-      var runs = s.runs || [];
-      var latest = runs.length ? runs[runs.length - 1] : null;
-      var updated = (latest && (latest.created_at || latest.timestamp)) || s.last_run || '';
-      if (updated) updated = String(updated).replace('T', ' ').slice(0, 16);
-      var sha = (generation && generation.git_sha) ? String(generation.git_sha).slice(0, 7) : '';
-      var meta = ['<code>' + _h(s.name) + '</code>', 'depth ' + (depthMap[s.name] || 0)];
-      if (updated) meta.push('updated ' + _h(updated));
-      if (sha) meta.push('git <code>' + _h(sha) + '</code>');
-
-      var conf = (rep.confidence || '').trim();
-      var ev   = (rep.evidence_quality || '').trim();
-
-      // Metrics strip: authored key_metrics (strings or {label,value,status})
-      // plus an auto-derived test pass ratio and literature-match chip.
-      var chips = [];
-      (rep.key_metrics || []).forEach(function(m) {
-        if (typeof m === 'string') {
-          chips.push('<span class="sp-metric">' + _h(m) + '</span>');
-        } else if (m && typeof m === 'object') {
-          var st = (m.status || '').toLowerCase();
-          var icon = st === 'pass' ? '✅ ' : st === 'warn' ? '⚠️ ' : st === 'fail' ? '❌ ' : '';
-          var txt = (m.label || '') + (m.value != null ? ': ' + m.value : '');
-          chips.push('<span class="sp-metric sp-metric-' + _h(st || 'plain') + '">' + icon + _h(txt) + '</span>');
-        }
-      });
-      var nPass = (decision.passed || []).length, nFail = (decision.failed || []).length;
-      if (nPass + nFail) {
-        chips.push('<span class="sp-metric sp-metric-' + (nFail ? 'warn' : 'pass') + '">'
-                   + nPass + '/' + (nPass + nFail) + ' tests passing</span>');
-      }
-      if (rep.lit_match) chips.push('<span class="sp-metric">Lit match: ' + _h(rep.lit_match) + '</span>');
-
-      return ''
-        + '<div class="sp-top">'
-        +   '<span class="sp-num">' + (i + 1) + '.</span>'
-        +   '<span class="sp-title">' + _h(title) + '</span>'
-        +   '<span class="sp-verdict ' + v.cls + '">' + v.emoji + ' ' + _h(v.label) + '</span>'
-        + '</div>'
-        + _clarityStrip(s)
-        + (objective ? '<div class="sp-objective">' + _h(objective) + '</div>' : '')
-        + '<div class="sp-meta">' + meta.join(' · ') + '</div>'
-        + ((conf || ev)
-            ? '<div class="sp-quality">'
-              + (conf ? '<span class="sp-conf sp-conf-' + _h(conf.toLowerCase()) + '">Confidence: ' + _h(conf) + '</span>' : '')
-              + (ev   ? '<span class="sp-ev">Evidence: ' + _h(ev) + '</span>' : '')
-              + '</div>'
-            : '')
-        + (conclusion ? '<div class="sp-conclusion"><span class="sp-lbl">Conclusion</span> ' + _h(conclusion) + '</div>' : '')
-        + (chips.length ? '<div class="sp-metrics">' + chips.join('') + '</div>' : '')
-        + (insight ? '<div class="sp-insight"><span class="sp-lbl">Insight</span> ' + _h(insight) + '</div>' : '')
-        + (caveat  ? '<div class="sp-caveat"><span class="sp-lbl">Caveat</span> ' + _h(caveat) + '</div>' : '')
-        + '<span class="sp-expand-hint">▸ click to expand full study</span>';
-    }
-
-    // Review-readiness gates — mechanical checks that catch the classes of
-    // problem an expert reviewer keeps flagging, BEFORE the report reaches them.
-    // Computed from already-declared fields (no run data needed), so they fire
-    // at design time. Returns {warns:[html], oks:[text]}.
-    //   Gate 1 (parameter vs reference): a model_setting's `default` is the
-    //     literature/heuristic value; flag when `current` deviates materially.
-    //   Gate 2 (duration vs doubling time): flag when the configured run length
-    //     can't cover one doubling time τ (steadiness claims need ≥ 1 τ).
-    function _reviewReadiness(s) {
-      var cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : {};
-      var settings = cond.model_settings || cond.expert_inputs || [];
-      var warns = [], oks = [];
-
-      settings.forEach(function(ms) {
-        var def = ms.default, cur = ms.current;
-        if (typeof def === 'number' && typeof cur === 'number' && def !== 0 && cur !== def) {
-          var ratio = cur / def;
-          if (ratio < 0.75 || ratio > 1.34) {
-            var factor = ratio < 1 ? def / cur : ratio;
-            warns.push('Parameter <code>' + _h(ms.name) + '</code> is set to <strong>' + _h(cur)
-              + '</strong> but the heuristic/literature default is <strong>' + _h(def) + '</strong> ('
-              + (factor >= 10 ? Math.round(factor) : factor.toFixed(1)) + '× off). '
-              + 'Justify the deviation in the study or correct it.');
-          }
-        }
-      });
-
-      var tau = null, tauName = null;
-      settings.forEach(function(ms) {
-        var v = (ms.current != null) ? ms.current : ms.default;
-        if (tau == null && typeof v === 'number'
-            && /(^|_)(tau|doubling|generation[_ ]?time)/i.test(ms.name || '')) {
-          tau = v; tauName = ms.name;
-        }
-      });
-      if (tau != null) {
-        var bp = (cond.baseline && cond.baseline.params) || {};
-        var nSteps = bp.n_steps, ts = (typeof bp.time_step === 'number' && bp.time_step > 0) ? bp.time_step : 1;
-        if (typeof nSteps === 'number') {
-          var runMin = nSteps * ts / 60.0;
-          if (runMin < tau) {
-            warns.push('Configured run is ≈ <strong>' + runMin.toFixed(0) + ' min</strong> (n_steps '
-              + nSteps + ' × ' + ts + ' s), shorter than one doubling time τ = <strong>' + _h(tau)
-              + ' min</strong> (<code>' + _h(tauName) + '</code>). Steadiness / steady-state claims need ≥ 1 doubling time.');
-          } else {
-            oks.push('Run ≈ ' + runMin.toFixed(0) + ' min covers ≥ 1 doubling time (τ = ' + tau + ' min).');
-          }
-        }
-      }
-      return {warns: warns, oks: oks};
-    }
-
-    // SP3b: per-study feedback → action table for the report. Renders the
-    // pbg-supplied s.feedback_actions items that carry a proposed action
-    // (kind + proposed_text + open/applied status). Read-only — the report
-    // never computes the action. Returns '' when there are none.
-    function _renderReportFeedbackActions(s, slug) {
-      var fa = s && s.feedback_actions;
-      if (!fa || !fa.items || !fa.items.length) return '';
-      var withActions = fa.items.filter(function(it) { return it && it.action; });
-      if (!withActions.length) return '';
-      var badge = {
-        open:      'background:#fef3c7;color:#92400e;',
-        applied:   'background:#d1fae5;color:#065f46;',
-        dismissed: 'background:#f1f5f9;color:#64748b;',
-      };
-      var rows = withActions.map(function(it) {
-        var a = it.action || {};
-        var st = it.status || 'open';
-        return '<tr>'
-          + '<td><span style="' + (badge[st] || badge.open)
-          +   'padding:1px 8px;border-radius:9999px;font-size:0.82em;'
-          +   'font-family:ui-monospace,monospace">' + _h(st) + '</span></td>'
-          + '<td><code>' + _h(a.kind || '') + '</code>'
-          +   (a.target_finding ? ' <span class="muted small">→ ' + _h(a.target_finding) + '</span>' : '') + '</td>'
-          + '<td>' + _h(a.proposed_text || '') + '</td>'
-          + '<td class="muted small">' + _h((it.text || '').slice(0, 120)) + '</td>'
-          + '</tr>';
-      }).join('');
-      return '<div class="feedback-actions-panel" id="study-' + slug + '-feedback-actions" '
-        + 'style="margin:12px 0;padding:12px 16px;background:#f5f3ff;border:1px solid #8b5cf6;'
-        + 'border-left-width:5px;border-radius:6px;color:#3730a3">'
-        + '<strong>🔁 Feedback → action (' + withActions.length + ')</strong>'
-        + '<table class="readout-table" style="margin-top:8px"><thead><tr>'
-        + '<th>Status</th><th>Action</th><th>Proposed</th><th>From feedback</th>'
-        + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
-    }
-
-    function v3StudySection(s, i, statusBadge, phaseBadge, parents, kids) {
-      var slug = _h(s.name);
-      var sid = {
-        summary:    'study-' + slug + '-summary',
-        decision:   'study-' + slug + '-decision',
-        takeaways:  'study-' + slug + '-takeaways',
-        findings:   'study-' + slug + '-findings',
-        sims:       'study-' + slug + '-sims',
-        charts:     'study-' + slug + '-charts',
-        readouts:   'study-' + slug + '-readouts',
-        tests:      'study-' + slug + '-tests',
-        conditions: 'study-' + slug + '-conditions',
-        build:      'study-' + slug + '-build',
-        reqs:       'study-' + slug + '-reqs',
-        followups:  'study-' + slug + '-followups',
-        discovery:  'study-' + slug + '-discovery',
-        limits:     'study-' + slug + '-limitations',
-        refs:       'study-' + slug + '-refs',
-      };
-
-      var purpose = s.purpose || {};
-      var gate = s.pipeline_gate || {};
-      var sims = s.simulation_set || [];
-      var modelChange = s.model_change;
-      var assumptions = s.key_assumptions || [];
-      // implementation_requirements is authored EITHER as a list of
-      // {id,title,...} dicts OR as a multi-line prose STRING
-      // (`implementation_requirements: |`), and migrations sometimes write a
-      // dict keyed by req-id. Normalize to a list of objects so we never iterate
-      // a string char-by-char (which made `.length` the character count, e.g.
-      // "(492)", and `r.title` the str.title method) and never crash on reqs.map.
-      var reqs = (function(v) {
-        if (v == null) return [];
-        if (typeof v === 'string') {
-          var t = v.trim();
-          return t ? [{ _prose: true, description: t }] : [];
-        }
-        if (!Array.isArray(v)) {
-          // dict keyed by req-id → its values; any other non-array → wrap once
-          v = (typeof v === 'object') ? Object.values(v) : [v];
-        }
-        return v.reduce(function(acc, item) {
-          if (item && typeof item === 'object') { acc.push(item); }
-          else {
-            var s2 = item == null ? '' : String(item).trim();
-            if (s2) acc.push({ _prose: true, description: s2 });
-          }
-          return acc;
-        }, []);
-      })(s.implementation_requirements || s.gaps);
-      var readouts = s.readouts || [];
-      // Prefer the modular `tests:` list (which carries `kind: report_card`
-      // modules) over the legacy behavior_tests/expected_behavior, so report
-      // cards render as test modules in the test section below.
-      var tests = _studyTests(s);
-      var decide = s.conclusion_logic || {};
-      var limitations = s.limitations || [];
-      // Tolerate a string (authors sometimes write limitations as prose, not a list).
-      if (typeof limitations === 'string') limitations = limitations.trim() ? [limitations] : [];
-      var followUps = s.follow_up_studies || [];
-      // Discovery Implications — alternate hypotheses, mechanism-update
-      // proposals, and the richer followup_study_proposals (successor to
-      // follow_up_studies). All fields optional; section hidden when empty.
-      var discImpl = (s.discovery_implications && typeof s.discovery_implications === 'object')
-                      ? s.discovery_implications : {};
-      var followupProposals = discImpl.followup_study_proposals || [];
-      var findings = _asFindings(s.findings);
-      var bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      var charts = (chartsByStudy && chartsByStudy[s.name]) || [];
-
-      var hasBuild = !!modelChange || assumptions.length || reqs.length;
-      var ifPass = decide.if_primary_tests_pass || decide.if_pass;
-      var ifFail = decide.if_primary_tests_fail || decide.if_fail;
-      var runs = s.runs || [];
-      // Pick the run that actually carries recorded outcomes (canonical/grade),
-      // not blindly runs[last] — a later composite/sim run with no outcomes made
-      // every test pill render ⏳ PENDING.
-      var latestRun = _runWithOutcomes(runs);
-
-      // Derive decision + plain-English summary FIRST so they can be linked
-      // from the sub-nav and rendered at the top of the section.
-      var decision = _decideDecision(s);
-      var summaryText = _studySummary(s, decision);
-      var controlPanelHtml = _studyControlPanel(s, i, decision);
-      var verdictBadge = _verdictBadge(s, decision);
-      var _review = _reviewReadiness(s);
-      var reviewHtml = _review.warns.length
-        ? '<div class="review-gate" id="study-' + slug + '-review">'
-          + '<strong>⚠ Review-readiness checks (' + _review.warns.length + ')</strong>'
-          + '<div class="review-gate-sub">Caught before expert review — fix or justify each.</div>'
-          + '<ul>' + _review.warns.map(function(w) { return '<li>' + w + '</li>'; }).join('') + '</ul>'
-          + '</div>'
-        : '';
-      var hasDecide = !!(ifPass || ifFail
-                         || (decide.implementation_validation && decide.implementation_validation.length)
-                         || (decide.biological_validation && decide.biological_validation.length)
-                         || s.conclusion || latestRun);
-
-      // Sub-nav links — order MUST mirror the report's section render order
-      // (the post-execution assembly below): embeds → summary → findings →
-      // conditions → ran → measured → charts → tests → model changes →
-      // build/fix → next steps → limitations → refs → decision (last).
-      var links = [];
-      var nEmbedsForStudy = (embedsByStudy[s.name] || []).length;
-      if (nEmbedsForStudy)
-        links.push('<a href="#study-' + slug + '-embeds">Visualizations <span class="sn-count">' + nEmbedsForStudy + '</span></a>');
-      links.push('<a href="#' + sid.summary + '">Summary</a>');
-      if (findings.length)    links.push('<a href="#' + sid.findings + '">Findings <span class="sn-count">' + findings.length + '</span></a>');
-      var _hasDiscovery = !!(
-        (discImpl.alternate_hypotheses || []).length
-        || (discImpl.mechanism_update_proposals || []).length
-        || followupProposals.length
-        || (discImpl.resolved_uncertainties || []).length
-        || (discImpl.remaining_uncertainties || []).length);
-      if (_hasDiscovery) {
-        var _nDisc = (discImpl.alternate_hypotheses || []).length
-                   + (discImpl.mechanism_update_proposals || []).length
-                   + followupProposals.length;
-        links.push('<a href="#' + sid.discovery + '">Discovery implications'
-                   + (_nDisc ? ' <span class="sn-count">' + _nDisc + '</span>' : '') + '</a>');
-      }
-      // Conditions sub-nav link: rendered when v4 ``conditions:`` exists.
-      var _cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : null;
-      var _nVar = (_cond && _cond.variants || []).length;
-      var _nEI  = (_cond && (_cond.model_settings || _cond.expert_inputs) || []).length;
-      if (_cond) {
-        var _condCount = _nVar + _nEI;
-        links.push('<a href="#' + sid.conditions + '">Conditions ' +
-                   (_condCount ? '<span class="sn-count">' + _condCount + '</span>' : '') + '</a>');
-      }
-      var _ranCount = sims.length || (s.baseline || []).length || (s.runs || []).length;
-      links.push('<a href="#' + sid.sims + '">What we ran' + (_ranCount ? ' <span class="sn-count">' + _ranCount + '</span>' : '') + '</a>');
-      if (readouts.length)    links.push('<a href="#' + sid.readouts + '">What we measured <span class="sn-count">' + readouts.length + '</span></a>');
-      if (charts.length)      links.push('<a href="#' + sid.charts + '">Charts <span class="sn-count">' + charts.length + '</span></a>');
-      if (tests.length)       links.push('<a href="#' + sid.tests + '">How we judge it <span class="sn-count">' + tests.length + '</span></a>');
-      if (hasBuild)           links.push('<a href="#' + sid.build + '">Model changes</a>');
-      if (reqs.length)        links.push('<a href="#' + sid.reqs + '">What to build / fix <span class="sn-count">' + reqs.length + '</span></a>');
-      if (followUps.length)   links.push('<a href="#' + sid.followups + '">Next steps <span class="sn-count">' + followUps.length + '</span></a>');
-      if (limitations.length) links.push('<a href="#' + sid.limits + '">Limitations <span class="sn-count">' + limitations.length + '</span></a>');
-      if (bib.length)         links.push('<a href="#' + sid.refs + '">Cited refs <span class="sn-count">' + bib.length + '</span></a>');
-      links.push('<a href="#' + sid.decision + '">Decision</a>');
-
-      var dependsBrief = parents ? 'Depends on: ' + parents : '<em>Root study (no dependencies)</em>';
-
-      var subNav = ''
-        + '<div class="study-nav">'
-        +   '<div class="study-nav-row1">'
-        +     '<span class="study-nav-num">' + (i + 1) + '.</span>'
-        +     '<strong class="study-nav-name">' + _h(s.name) + '</strong>'
-        +     phaseBadge + statusBadge
-        +     '<span class="study-nav-deps muted small">' + dependsBrief + '</span>'
-        +   '</div>'
-        +   '<nav class="study-nav-row2">' + links.join('') + '</nav>'
-        +   '<span class="sn-collapse-hint" data-collapse="study">▴ click to collapse full study</span>'
-        + '</div>';
-
-      // ── COMPACT REPORT BLOCK (authored: Purpose·Setup·Result·… ) ──────
-      // Leads each study with the uniform human-facing pattern. Reads
-      // s.report; absent → just the plain-English summary below (fallback).
-      var _rep = s.report || {};
-      var reportHtml = '';
-      (function() {
-        var rows = [
-          ['Purpose', _rep.purpose], ['Setup', _rep.setup],
-          ['Result', _rep.result], ['Interpretation', _rep.interpretation],
-          ['Decision', _rep.decision], ['Next action', _rep.next_action],
-        ].filter(function(r) { return r[1]; });
-        if (!rows.length) return;
-        reportHtml = '<div class="study-report">' + rows.map(function(r) {
-          return '<div class="study-report-row"><span class="srl">' + r[0] + '</span>'
-               + '<span class="srv">' + _multiline(r[1]) + '</span></div>';
-        }).join('') + '</div>';
-      })();
-
-      // ── PLAIN-ENGLISH SUMMARY ─────────────────────────────────────────
-      var summaryHtml = reportHtml
-        + '<div id="' + sid.summary + '" class="study-summary">'
-        + '<h3>Overview</h3>'
-        + '<p class="study-summary-text">' + _h(summaryText) + '</p>'
-        + '<details class="tech-details"><summary>Purpose &amp; background (study design)</summary>'
-        +   (purpose.question         ? '<div class="callout cl-blue"><strong>Question.</strong> ' + _multiline(purpose.question) + '</div>' : '')
-        +   (purpose.mechanism        ? '<div class="callout cl-yellow"><strong>Mechanism / Model change.</strong> ' + _multiline(purpose.mechanism) + '</div>' : '')
-        +   (purpose.expected_outcome ? '<div class="callout cl-green"><strong>Expected outcome.</strong> ' + _multiline(purpose.expected_outcome) + '</div>' : '')
-        + '</details>'
-        + '</div>';
-
-      // ── DECISION BOX ──────────────────────────────────────────────────
-      function _listAsBullets(arr, emptyText) {
-        if (!arr || !arr.length) return '<em class="muted">' + emptyText + '</em>';
-        return '<ul style="margin:4px 0 0 18px;padding:0">' + arr.map(function(x){return '<li>' + _h(x) + '</li>';}).join('') + '</ul>';
-      }
-      var decisionTechnical = '';
-      if (gate.prerequisites || gate.enables || gate.proceed_condition || ifPass || ifFail) {
-        var prereqStr = (gate.prerequisites && gate.prerequisites.length)
-          ? gate.prerequisites.map(function(p){
-              // prerequisites are {study, condition} objects (or bare slug strings).
-              var slug = (p && typeof p === 'object') ? (p.study || p.slug || '') : p;
-              var cond = (p && typeof p === 'object' && p.condition) ? ' <span class="muted small">(' + _h(p.condition) + ')</span>' : '';
-              return '<a href="#study-' + _h(slug) + '"><code>' + _h(slug) + '</code></a>' + cond;
-            }).join(' · ')
-          : '<em class="muted">none (root study)</em>';
-        var enablesStr = (gate.enables && gate.enables.length)
-          ? gate.enables.map(function(p){
-              var slug = (p && typeof p === 'object') ? (p.study || p.slug || '') : p;
-              var cond = (p && typeof p === 'object' && p.condition) ? ' <span class="muted small">(' + _h(p.condition) + ')</span>' : '';
-              return '<a href="#study-' + _h(slug) + '"><code>' + _h(slug) + '</code></a>' + cond;
-            }).join(' · ')
-          : '<em class="muted">—</em>';
-        decisionTechnical = '<details class="tech-details"><summary>Pipeline gate &amp; conclusion logic (technical)</summary>'
-          + '<p><strong>Prerequisites:</strong> ' + prereqStr + '</p>'
-          + '<p><strong>Enables:</strong> ' + enablesStr + '</p>'
-          + (gate.proceed_condition ? '<p><strong>Proceed when:</strong> ' + _multiline(gate.proceed_condition) + '</p>' : '')
-          + (ifPass ? '<div class="callout cl-green"><strong>If primary tests pass:</strong> ' + (typeof ifPass === 'string' ? _multiline(ifPass) : _multiline((ifPass.implementation_status || '') + (ifPass.biological_validation ? ' ' + ifPass.biological_validation : ''))) + '</div>' : '')
-          + (ifFail ? '<div class="callout cl-red"><strong>If primary tests fail:</strong> ' + (typeof ifFail === 'string' ? _multiline(ifFail) : _multiline((ifFail.block_downstream || JSON.stringify(ifFail.diagnose || '')))) + '</div>' : '')
-          + '</details>';
-      }
-      var decisionHtml = '<div id="' + sid.decision + '" class="decision-box decision-' + decision.cls + '">'
-        + '<div class="decision-header">'
-        +   '<h3 class="decision-title">Pipeline-gate decision</h3>'
-        +   '<span class="decision-status">' + _h(decision.label) + '</span>'
-        + '</div>'
-        + '<div class="decision-grid">'
-        +   '<div class="decision-cell decision-cell-pass"><strong>✓ Passed</strong>' + _listAsBullets(decision.passed, 'nothing yet') + '</div>'
-        +   '<div class="decision-cell decision-cell-fail"><strong>✗ Failed</strong>' + _listAsBullets(decision.failed, 'nothing failing') + '</div>'
-        +   '<div class="decision-cell decision-cell-block"><strong>⛔ Blocks the next study</strong>' + _listAsBullets(decision.blocks, 'nothing blocking') + '</div>'
-        +   '<div class="decision-cell decision-cell-next"><strong>→ Immediate next action</strong><div style="margin-top:4px">' + _h(decision.next) + '</div></div>'
-        + '</div>'
-        + decisionTechnical
-        + '</div>';
-
-      // ── KEY TAKEAWAYS + GROUPED FINDINGS ─────────────────────────────
-      var takeawaysHtml = '';
-      if (findings.length) {
-        var groups = {biological: [], computational: [], methodological: [], other: []};
-        findings.forEach(function(f) {
-          var k = f.kind || 'other';
-          (groups[k] || groups.other).push(f);
-        });
-
-        // 1) Short takeaways list — one bullet per finding (statement first sentence).
-        var takeawayItems = findings.map(function(f) {
-          var status = f.status || 'novel';
-          var glyph = ({confirms:'✓', partial:'◐', contradicts:'✗', novel:'◆'})[status] || '◆';
-          var stmt = (f.statement || (f.id||'').replace(/[-_]/g,' ')).split('\n')[0].split('.')[0];
-          if (stmt.length > 180) stmt = stmt.slice(0, 177) + '…';
-          return '<li class="takeaway-' + status + '"><span class="takeaway-glyph">' + glyph + '</span> '
-               + '<a href="#finding-' + _h(f.id || '') + '">' + _h(stmt) + '</a></li>';
-        }).join('');
-
-        // 2) Detailed cards grouped by kind, each with a heading.
-        var kindHeader = {
-          biological:     'Biological findings',
-          computational:  'Infrastructure / computational findings',
-          methodological: 'Methodological findings',
-          other:          'Other findings',
-        };
-        function _renderFinding(f) {
-          var status = f.status || 'novel';
-          var glyph = ({confirms:'✓', partial:'◐', contradicts:'✗', novel:'◆'})[status] || '◆';
-          var statusText = (f.kind === 'biological')
-            ? (status + ' literature')
-            : ({confirms:'confirmed', partial:'partial result', contradicts:'correction', novel:'new result'}[status] || status);
-          var ev = f.evidence || {};
-          var exp = f.expected || {};
-          var ref = f.expert_reference || {};
-          var prov = f.provenance || {};
-          // Anchor a (possibly descriptive) test reference: the leading
-          // identifier token becomes the #<prefix>-<id> target, the full text
-          // stays as the link label so the reader can trace the value to its
-          // source (the test card) instead of reading dead code.  Only used
-          // for the TEST case: the report renders test cards (id="test-..."),
-          // so #test- anchors resolve.  The report has NO per-run rows, so run
-          // references are rendered as plain <code> (see _traceRun) — anchoring
-          // them would produce dead run-row links.  (The STUDY page does emit
-          // per-run rows and keeps its run anchors; that lives in study-detail.)
-          function _traceLink(prefix, val) {
-            var s = String(val);
-            var tok = (s.match(/^[A-Za-z0-9_.\-]+/) || [s])[0];
-            return '<a href="#' + prefix + '-' + _h(tok) + '"><code>' + _h(s) + '</code></a>';
-          }
-          // Run references in the report: plain <code>, no anchor (no target).
-          function _traceRun(val) {
-            return '<code>' + _h(String(val)) + '</code>';
-          }
-          var techParts = [];
-          if (ev.from_test) techParts.push('test: ' + _traceLink('test', ev.from_test));
-          if (ev.from_run)  techParts.push('run: ' + _traceRun(ev.from_run));
-          if (ev.window)    techParts.push('window: ' + _h(ev.window));
-          if (ev.smoking_gun) techParts.push('<details style="margin-top:4px"><summary>Smoking gun</summary><pre style="white-space:pre-wrap;font-size:0.85em;background:#fff;padding:6px;border-radius:3px">' + _h(ev.smoking_gun) + '</pre></details>');
-          if (ev.discovered_during) techParts.push('discovered during: <code>' + _h(ev.discovered_during) + '</code>');
-
-          var techDisclosure = techParts.length
-            ? '<details class="tech-details"><summary>Technical details</summary>' + techParts.join('<br>') + '</details>'
-            : '';
-
-          var evMain = '';
-          if (ev.observed != null) {
-            evMain = '<div class="finding-evidence"><strong>What we saw:</strong> '
-                   + _fmtObserved(ev.observed) + (ev.units ? ' ' + _h(ev.units) : '') + '</div>';
-          }
-          var expMain = '';
-          if (exp.range != null || exp.threshold != null || exp.summary) {
-            var rngStr = '';
-            if (exp.range != null) {
-              var rng = Array.isArray(exp.range) ? '[' + exp.range.join(', ') + ']' : String(exp.range);
-              rngStr = '<strong>What the literature says:</strong> ' + _h(rng);
-            } else if (exp.threshold != null) {
-              rngStr = '<strong>Target threshold:</strong> ' + _h(String(exp.threshold));
-            }
-            expMain = '<div class="finding-expected">' + rngStr
-                    + (exp.summary ? '<div style="margin-top:4px">' + _multiline(exp.summary) + '</div>' : '')
-                    + (exp.cites && exp.cites.length ? '<div class="muted small" style="margin-top:4px">Cites: ' + exp.cites.map(function(c){return '<code>' + _h(c) + '</code>';}).join(', ') + '</div>' : '')
-                    + '</div>';
-          }
-
-          // Traceability block (spine B1): surface the finding's computed
-          // distance + provenance, connected to source. The headline computed
-          // number `divergence_factor` (how far observed is from expected) was
-          // previously dropped; render it prominently. Link the cited test +
-          // run, list provenance.run_ids (linked), and inline the cited test's
-          // pass_if band so the reader sees what "passing" meant without hunting.
-          var traceBits = [];
-          if (ev.divergence_factor != null) {
-            traceBits.push('<span class="finding-divergence" style="font-weight:600">×'
-              + _h(String(ev.divergence_factor)) + ' vs expected</span>');
-          }
-          if (ev.from_test) traceBits.push('test: ' + _traceLink('test', ev.from_test));
-          if (ev.from_run)  traceBits.push('run: ' + _traceRun(ev.from_run));
-          var runIds = prov.run_ids || [];
-          if (Array.isArray(runIds) && runIds.length) {
-            traceBits.push('runs: ' + runIds.map(function(rid) {
-              return '<code>' + _h(String(rid)) + '</code>';
-            }).join(', '));
-          }
-          // Inline the cited test's pass_if band (look it up by from_test).
-          var citedBand = '';
-          if (ev.from_test) {
-            var citedTok = (String(ev.from_test).match(/^[A-Za-z0-9_.\-]+/) || [''])[0];
-            var citedTest = (tests || []).filter(function(t){ return t && t.name === citedTok; })[0];
-            if (citedTest && (citedTest.pass_if || citedTest.expect)) {
-              citedBand = '<div class="pass_if-band muted small" style="margin-top:4px">passes if '
-                + (citedTest.measure ? _measureText(citedTest.measure) + ' ' : '')
-                + '<strong>' + _h(_passIfText(citedTest.pass_if || citedTest.expect)) + '</strong></div>';
-            }
-          }
-          var traceBlock = (traceBits.length || citedBand)
-            ? '<div class="finding-traceability" style="margin-top:6px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;font-size:0.88em">'
-              + (traceBits.length ? '<span class="muted small">traceability:</span> ' + traceBits.join(' · ') : '')
-              + citedBand
-              + '</div>'
-            : '';
-
-          var refBlock = '';
-          if (ref.doc || ref.quote || ref.note) {
-            var refBody = '';
-            if (ref.quote) refBody += '<blockquote class="finding-expert-quote">' + _multiline(ref.quote) + '</blockquote>';
-            if (ref.note) refBody += '<div class="finding-expert-note">' + _multiline(ref.note) + '</div>';
-            var refLabel = ref.doc ? 'Expert reference: <code>' + _h(ref.doc) + '</code>' : 'Expert reference';
-            if (ref.section) refLabel += ' (' + _h(ref.section) + ')';
-            refBlock = '<details class="finding-expert"><summary>' + refLabel + '</summary>' + refBody + '</details>';
-          }
-
-          // Optional sweep visualisation when evidence carries a sweep table
-          // (e.g. F-08 / F-10 calibration sweeps). Renders an inline SVG
-          // bar chart of the numeric value across multipliers.
-          var sweepChart = '';
-          var sweepData = ev.sweep_table || ev.sweep;
-          if (sweepData && typeof sweepData === 'object') {
-            sweepChart = _renderSweepChart(sweepData);
-          }
-
-          return '<div class="finding-card finding-kind-' + _h(f.kind || 'other') + ' finding-status-' + _h(status) + '" id="finding-' + _h(f.id || '') + '">'
-               +   '<div class="finding-header">'
-               +     '<span class="finding-status-glyph">' + glyph + '</span>'
-               +     '<span class="finding-id">' + _h(f.id || '') + '</span>'
-               +     '<span class="finding-status-text">' + _h(statusText) + '</span>'
-               +     _findingWeightChip(f._evidential_weight)
-               +     _findingChips(f)
-               +   '</div>'
-               +   '<div class="finding-statement">' + _multiline(f.statement || (f.id ? f.id.replace(/[-_]/g,' ') : '(no statement)')) + '</div>'
-               +   evMain
-               +   expMain
-               +   traceBlock
-               +   (f.explanation ? '<div class="finding-explanation"><em>Why:</em> ' + _multiline(f.explanation) + '</div>' : '')
-               +   sweepChart
-               +   refBlock
-               +   (f.next_action ? '<div class="finding-next"><strong>→ Next:</strong> ' + _multiline(f.next_action) + '</div>' : '')
-               +   (f.seeded_study ? '<div class="finding-seeded"><strong>→ seeded study:</strong> <a href="' + _studyHref(f.seeded_study) + '">' + _h(f.seeded_study) + '</a></div>' : '')
-               +   techDisclosure
-               + '</div>';
-        }
-
-        takeawaysHtml = '<div id="' + sid.findings + '" class="findings-section">'
-          + '<h3>Detailed findings</h3>'
-          + Object.keys(groups).filter(function(k){return groups[k].length;}).map(function(k) {
-              return '<h4 class="findings-group-header">' + kindHeader[k] + ' <span class="muted small">(' + groups[k].length + ')</span></h4>'
-                   + groups[k].map(_renderFinding).join('');
-            }).join('')
-          + '</div>';
-      }
-
-      // ── WHAT DID/WILL WE RUN? (Simulations) ──────────────────────────
-      var simsHtml = '';
-      // What we ran — ENFORCED. The composite(s) + parameter settings actually
-      // simulated. Prefer the v3 simulation_set; else derive from the dashboard-
-      // managed baseline (composite + params) + recorded runs + robustness
-      // (seeds) — which is how the autopoiesis studies record runs. Always
-      // rendered; a study with neither gets an explicit gap notice. Each
-      // composite links out to the bigraph-loom explorer (popped out, live only).
-      function _short(model) {
-        if (!model) return '';
-        var p = String(model).split('.');
-        return p[p.length - 1];
-      }
-      // A composite reference rendered as a one-click pop-out to the bigraph-loom
-      // STATIC view (read-only): /bigraph-loom/?static=1&stateUrl=/api/composite-
-      // state/<ref>.json. Works from any report on the live dashboard.
-      function _loomStaticPopout(composite) {
-        // Pop out the bigraph-loom STATIC (read-only) view of the composite. The
-        // URL is computed at GENERATION time and baked in absolute so the button
-        // works whether the report is viewed inline, in an iframe/srcdoc, or
-        // downloaded (as long as that dashboard is up).
-        //
-        // Snapshot mode (the hosted read-only dashboard) serves pre-resolved
-        // composite state as STATIC FILES at <basePath>/api/composite-state/
-        // <id>.json and the loom entry point at <basePath>/bigraph-loom/ — BOTH
-        // must carry the configured base path (e.g. /v2ecoli/dashboard on a
-        // GitHub Pages project site). The live server instead answers the query
-        // form /api/composite-state?ref=<id> at the origin root. Using the live
-        // form (or omitting the base path) in snapshot mode 404s the pop-out —
-        // mirror _loadCompositeExplorer's snapshot handling here.
-        var cfg = (typeof window !== 'undefined' && window.__DASH_CONFIG__) || {};
-        var isSnap = cfg.mode === 'snapshot';
-        var origin = (typeof location !== 'undefined' && location.origin
-                      && /^https?:/.test(location.origin)) ? location.origin : '';
-        // basePath applies in both snapshot and live-under-a-prefix (/workbench);
-        // empty in normal local serving.
-        var base = origin + (cfg.basePath || '');
-        var stateUrl = isSnap
-          ? base + '/api/composite-state/' + encodeURIComponent(composite) + '.json'
-          : base + '/api/composite-state?ref=' + encodeURIComponent(composite);
-        var u = base + '/bigraph-loom/index.html?static=1&stateUrl=' + encodeURIComponent(stateUrl);
-        return "window.open('" + u.replace(/'/g, "\\'") + "','loom','width=1200,height=840');";
-      }
-      function _compositeCell(composite) {
-        if (!composite) return '<span class="muted">—</span>';
-        // Standalone reports: render the composite as plain text — no link out
-        // to the bigraph-loom explorer. Those live-only pop-outs are not worth
-        // maintaining and break a self-contained / shared report.
-        return '<code>' + _h(_short(composite)) + '</code>';
-      }
-      function _paramsCell(params) {
-        if (!params || typeof params !== 'object' || !Object.keys(params).length)
-          return '<span class="muted">default parameters</span>';
-        return Object.keys(params).map(function(k) {
-          return '<code>' + _h(k) + ' = ' + _h(JSON.stringify(params[k])) + '</code>';
-        }).join(' ');
-      }
-      if (sims.length) {
-        // The first sim is the reference; describe each row as its diff from it.
-        var baseSim = sims[0] || {};
-        var baseParams = baseSim.params || {};
-        var baseModel = baseSim.base_model;
-        function _changes(sim) {
-          var bits = [];
-          if (sim === baseSim) return '<em class="muted">reference baseline</em>';
-          if (sim.base_model && sim.base_model !== baseModel)
-            bits.push('different model <code>' + _h(_short(sim.base_model)) + '</code>');
-          // perturbation dict wins; else diff params vs the baseline sim
-          var changed = sim.perturbation && Object.keys(sim.perturbation).length
-            ? sim.perturbation
-            : (function() {
-                var d = {}, p = sim.params || {};
-                Object.keys(p).forEach(function(k) {
-                  if (k === 'seed' || k === 'cache_dir' || k === 'n_steps') return;
-                  if (JSON.stringify(p[k]) !== JSON.stringify(baseParams[k])) d[k] = p[k];
-                });
-                return d;
-              })();
-          var keys = Object.keys(changed).filter(function(k){return changed[k] !== null;});
-          if (keys.length) bits.push(keys.slice(0, 6).map(function(k) {
-            return '<code>' + _h(k) + '=' + _h(JSON.stringify(changed[k])) + '</code>';
-          }).join(' '));
-          return bits.length ? bits.join('; ') : '<em class="muted">same params, longer/other</em>';
-        }
-        var rows = sims.map(function(sim) {
-          var statusClass = sim.status === 'ready' ? 'sim-status-ready'
-                          : sim.status === 'gated' ? 'sim-status-gated'
-                          : sim.status === 'ran' ? 'sim-status-ran' : 'sim-status-unknown';
-          var statusPill = sim.status ? '<span class="sim-status-pill ' + statusClass + '">' + _h(sim.status) + '</span>' : '<span class="muted small">—</span>';
-          var runParts = [];
-          if (sim.condition) runParts.push(_h(sim.condition));
-          var ns = (sim.params && sim.params.n_steps);
-          if (sim.duration_min != null) runParts.push(_h(sim.duration_min) + ' min');
-          else if (ns != null) runParts.push(_h(ns) + ' steps');
-          if (sim.seeds && sim.seeds.length) runParts.push(sim.seeds.length + ' seed' + (sim.seeds.length === 1 ? '' : 's'));
-          var tests = sim.applies_tests || sim.tests || [];
-          var feeds = (Array.isArray(tests) && tests.length)
-            ? '<div class="sim-feeds muted small">feeds: ' + tests.map(function(t){return '<code>' + _h(t) + '</code>';}).join(' ') + '</div>' : '';
-          return '<tr>'
-            + '<td><strong>' + _h(sim.name || '(unnamed)') + '</strong>' + feeds + '</td>'
-            + '<td>' + _compositeCell(sim.base_model) + '</td>'
-            + '<td>' + _changes(sim) + '</td>'
-            + '<td class="muted small">' + (runParts.join(' · ') || '—') + '</td>'
-            + '<td>' + _runChip(s.run_commands && s.run_commands.baseline) + '</td>'
-            + '<td>' + statusPill + '</td>'
-            + '</tr>';
-        }).join('');
-        simsHtml = '<div id="' + sid.sims + '"><h3>What we ran <span class="muted small">(' + sims.length + ' simulation' + (sims.length === 1 ? '' : 's') + ')</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">One row per concrete run: the model composite, what changes vs the reference baseline, the condition / length, and its status.</p>'
-          + '<table class="sim-table"><thead><tr><th>Simulation</th><th>Composite</th><th>Changes vs baseline</th><th>Run</th><th>CLI</th><th>Status</th></tr></thead>'
-          + '<tbody>' + rows + '</tbody></table>'
-          + '</div>';
-      } else {
-        // No simulation_set — derive what was run from the dashboard-managed
-        // baseline (composite + parameter settings), recorded runs, and
-        // robustness (seeds). This is how the autopoiesis studies record runs.
-        var baseline = s.baseline || [];
-        var runsArr = s.runs || [];
-        var rob = s.robustness || {};
-        var runByName = {};
-        runsArr.forEach(function(r) { if (r && r.name) runByName[r.name] = r; });
-        var replCell = (rob && (rob.n_replicates || (rob.seeds && rob.seeds.length)))
-          ? ((rob.n_replicates || rob.seeds.length) + ' seed'
-             + ((rob.n_replicates || rob.seeds.length) === 1 ? '' : 's')
-             + (rob.parameter_sweep ? ' + sweep' : ''))
-          : (runsArr.length ? '1 run' : '—');
-        var entries = baseline.length
-          ? baseline
-          : runsArr.map(function(r) { return {name: r.name, composite: r.composite, params: null}; });
-        if (entries.length) {
-          var brows = entries.map(function(b) {
-            var run = runByName[b.name] || runsArr[0] || {};
-            var status = run.status || 'recorded';
-            return '<tr>'
-              + '<td><strong>' + _h(b.name || 'baseline') + '</strong></td>'
-              + '<td>' + _compositeCell(b.composite) + '</td>'
-              + '<td>' + _paramsCell(b.params) + '</td>'
-              + '<td class="muted small">' + _h(replCell) + '</td>'
-              + '<td>' + _runChip(s.run_commands && s.run_commands.baseline) + '</td>'
-              + '<td><span class="sim-status-pill sim-status-ran">' + _h(status) + '</span></td>'
-              + '</tr>';
-          }).join('');
-          simsHtml = '<div id="' + sid.sims + '"><h3>What we ran <span class="muted small">(composite + parameters)</span></h3>'
-            + '<p class="muted small" style="margin:0 0 8px 0">The composite(s) and parameter settings actually simulated for this study (from its baseline).</p>'
-            + '<table class="sim-table"><thead><tr><th>Run</th><th>Composite</th><th>Parameters</th><th>Replication</th><th>CLI</th><th>Status</th></tr></thead>'
-            + '<tbody>' + brows + '</tbody></table>'
-            + '</div>';
-        } else {
-          // ENFORCED: a study with no composite/params recorded is flagged.
-          simsHtml = '<div id="' + sid.sims + '"><h3>What we ran</h3>'
-            + '<p style="margin:0;color:#b45309">⚠ No composite or parameters recorded for this study — declare a baseline (composite + parameter settings) or a simulation_set so the report shows what was simulated.</p>'
-            + '</div>';
-        }
-      }
-
-      // ── PROMINENT MODEL BANNER ───────────────────────────────────────────
-      // Every study runs at least one composite — surface it at the TOP of the
-      // study with its key parameters and a one-click pop-out to the bigraph-loom
-      // STATIC view. Enforced: a study with no composite is flagged in red.
-      var modelBannerHtml = (function() {
-        var entries = [];
-        if (sims.length) {
-          var seen = {};
-          sims.forEach(function(sm) {
-            var c = sm.base_model;
-            if (c && !seen[c]) { seen[c] = 1; entries.push({composite: c, params: sm.params}); }
-          });
-        } else if ((s.baseline || []).length) {
-          (s.baseline).forEach(function(b) { entries.push({composite: b.composite, params: b.params}); });
-        } else {
-          (s.runs || []).forEach(function(r) { if (r.composite) entries.push({composite: r.composite, params: null}); });
-        }
-        if (!entries.length) {
-          return '<div class="study-model-banner study-model-missing" style="margin:10px 0;padding:12px 16px;'
-            + 'background:#fef2f2;border:1px solid #fecaca;border-left:5px solid #dc2626;border-radius:8px;color:#991b1b">'
-            + '<strong>⚠ No model declared.</strong> Every study must run at least one composite — declare a '
-            + 'baseline (composite + parameters) so this study is reproducible.</div>';
-        }
-        var rows = entries.map(function(e) {
-          var params = (e.params && typeof e.params === 'object' && Object.keys(e.params).length)
-            ? Object.keys(e.params).map(function(k) { return '<code>' + _h(k) + '=' + _h(JSON.stringify(e.params[k])) + '</code>'; }).join(' ')
-            : '<span class="muted">default parameters</span>';
-          var btn = e.composite
-            ? '<span style="font-size:0.92em;font-weight:600;color:#1e40af;white-space:nowrap">🧬 <code>'
-              + _h(_short(e.composite)) + '</code></span>'
-            : '<span class="muted">(no composite)</span>';
-          return '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px">'
-            + btn + '<span style="font-size:0.88em;color:#475569">' + params + '</span></div>';
-        }).join('');
-        return '<div class="study-model-banner" style="margin:10px 0;padding:12px 16px;'
-          + 'background:#f0f9ff;border:1px solid #bae6fd;border-left:5px solid #2563eb;border-radius:8px">'
-          + '<div style="font-weight:700;color:#0c4a6e">Model</div>'
-          + '<div class="muted small" style="margin-top:2px">The composite(s) this study runs and their parameters.</div>'
-          + rows + '</div>';
-      })();
-
-      // ── CHARTS (visualisations from runs.db) ─────────────────────────
-      var chartsHtml = charts.length
-        ? '<div id="' + sid.charts + '">'
-          + '<h3>Visualisations from the latest run</h3>'
-          + _renderChartCardsHtml(charts, slug)
-          + '</div>'
-        : '';
-
-      // ── WHAT DID/WILL WE MEASURE? (Readouts) ─────────────────────────
-      var readoutsHtml = readouts.length
-        ? '<div id="' + sid.readouts + '"><h3>Measurements <span class="muted small">(' + readouts.length + ' readouts)</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Quantities we extract from each simulation run to evaluate the study\'s tests.</p>'
-          + '<table class="readout-table"><thead><tr><th>Readout</th><th>Status</th><th>Path</th><th>Description</th></tr></thead><tbody>'
-          + readouts.map(function(r) {
-              var path = r.path || r.identifier || r.store_path;
-              var blocked = (r.blocked_by_requirements && r.blocked_by_requirements.length)
-                ? '<div class="muted small">⛔ blocked by ' + r.blocked_by_requirements.map(function(b){return '<code>' + _h(b) + '</code>';}).join(', ') + '</div>' : '';
-              return '<tr>'
-                + '<td><strong>' + _h(r.name || '') + '</strong></td>'
-                + '<td class="muted small">' + (r.status ? _h(r.status) : '—') + '</td>'
-                + '<td>' + (path ? '<code>' + _h(path) + '</code>' : '<span class="muted">—</span>')
-                  + (r.units ? ' <span class="muted small">(' + _h(r.units) + ')</span>' : '') + '</td>'
-                + '<td>' + _h(r.notes || r.description || '') + blocked + '</td>'
-                + '</tr>';
-            }).join('')
-          + '</tbody></table>'
-          + '</div>'
-        : '';
-
-      // ── HOW DO WE JUDGE SUCCESS? (Tests, claim-first) ────────────────
-      var testsHtml = '';
-      if (tests.length) {
-        // Aggregate latest outcomes by test name so we can show PASS/FAIL pills.
-        // Merge BOTH the authored outcomes AND the run/outcome-spine
-        // evaluator-computed outcomes, so each test surfaces how it actually ran
-        // (measured_value, evaluated_by code/agent) and whether the code verdict
-        // agrees with the authored one (reconcile).
-        var outcomeByTest = {};
-        if (latestRun && latestRun.outcomes) {
-          Object.keys(latestRun.outcomes).forEach(function(k) { outcomeByTest[k] = _normOutcome(latestRun.outcomes[k]) || {}; });
-        }
-        if (latestRun && latestRun.computed_outcomes) {
-          Object.keys(latestRun.computed_outcomes).forEach(function(k) {
-            var c = latestRun.computed_outcomes[k] || {};
-            var base = outcomeByTest[k] || {};
-            if (base.result == null && c.result != null) base.result = c.result;   // code verdict when no authored one
-            if (c.measured_value != null && base.measured_value == null) base.measured_value = c.measured_value;
-            if (c.evaluated_by) base.evaluated_by = c.evaluated_by;   // code | agent | needs_rerun
-            if (c.operator) base.operator = c.operator;
-            if (c.reconcile) base.reconcile = c.reconcile;            // agree | divergent | no_authored
-            if (base.detail == null && (c.detail || c.reason)) base.detail = c.detail || c.reason;
-            outcomeByTest[k] = base;
-          });
-        }
-        // At-a-glance summary so a reviewer doesn't have to count pills.
-        var _tc = { PASS: 0, FAIL: 0, PARTIAL: 0, SKIP: 0, PENDING: 0 };
-        tests.forEach(function(t) {
-          var o = outcomeByTest[t.name];
-          var r = (o && o.result) || t.result || _testStatusToResult(t.status) || (t.status === 'gated' ? 'GATED' : 'PENDING');
-          if (r === 'PASS') _tc.PASS++; else if (r === 'FAIL') _tc.FAIL++;
-          else if (r === 'PARTIAL') _tc.PARTIAL++;
-          else if (r === 'SKIP') _tc.SKIP++; else _tc.PENDING++;
-        });
-        var _tcParts = [];
-        if (_tc.PASS) _tcParts.push(_tc.PASS + ' ✓ passed');
-        if (_tc.FAIL) _tcParts.push(_tc.FAIL + ' ✗ failed');
-        if (_tc.PARTIAL) _tcParts.push(_tc.PARTIAL + ' ◐ partial');
-        if (_tc.SKIP) _tcParts.push(_tc.SKIP + ' ⏭ skipped');
-        if (_tc.PENDING) _tcParts.push(_tc.PENDING + ' ⏳ pending');
-        var _tcSummary = _tcParts.length ? (' — ' + _tcParts.join(' · ')) : '';
-        // Report-card test modules: a `kind: report_card` test renders its
-        // inlined card + graded verdict pill (the offline analogue of the live
-        // study-detail _fillReportCardModules path). Look the card HTML up by
-        // its `card` name from this study's fetched report cards.
-        var _rcPill = {
-          within_tol: ['#16a34a', 'within tol'], drift: ['#d97706', 'drift'],
-          mismatch: ['#dc2626', 'mismatch'], ungraded: ['#64748b', 'ungraded'],
-        };
-        var _cardByName = {};
-        (reportCardsByStudy[s.name] || []).forEach(function(rc) { _cardByName[rc.card] = rc; });
-        testsHtml = '<div id="' + sid.tests + '"><h3>Success criteria <span class="muted small">(' + tests.length + ' tests' + _tcSummary + ')</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Each test makes a specific scientific claim with a machine-checkable criterion (<code>measure</code> + <code>pass_if</code>). Tests are now <strong>evaluated by code against the run</strong> (the run/outcome spine: RunReader → evaluator): the pill shows the result, and the evidence line shows the <em>measured value</em>, whether it was computed by <em>code</em> or routed to an <em>agent</em>, and whether the code verdict <em>agrees</em> with the authored one (reconcile). <span class="muted">⏳ pending = the study hasn\'t run yet.</span> Technical assertion + the exact evaluator are under "Technical details".</p>'
-          + tests.map(function(t) {
-              var name = t.name || '(unnamed)';
-              // ── REPORT-CARD TEST MODULE ──────────────────────────────────
-              // A modular `kind: report_card` test renders the card itself
-              // (inlined, self-contained) with its graded verdict pill, in
-              // place of the behavioral claim/evidence layout.
-              if ((t.kind || 'behavioral') === 'report_card') {
-                var rc = _cardByName[t.card];
-                var vp = _rcPill[(rc && rc.verdict) || 'ungraded'] || _rcPill.ungraded;
-                var rcPill = '<span style="display:inline-block;padding:2px 10px;border-radius:9999px;'
-                  + 'font-size:0.78em;font-weight:600;background:' + vp[0] + ';color:#fff">' + _h(vp[1]) + '</span>';
-                var rcBody = (rc && rc.html)
-                  ? '<iframe srcdoc="' + (rc.html || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '" '
-                    + 'class="embed-frame" onload="_wireEmbed(this)" scrolling="no" '
-                    + 'style="width:100%;min-height:560px;border:0;display:block;overflow:hidden;margin-top:8px" '
-                    + 'title="' + _h(t.card) + ' report card"></iframe>'
-                  : '<div class="muted small" style="padding:8px">report card <code>' + _h(t.card)
-                    + '</code> not generated yet — run the comparison.</div>';
-                return '<div class="test-card test-report-card" id="test-' + _h(name) + '">'
-                     +   '<div class="test-header" style="display:flex;align-items:center;gap:8px">'
-                     +     rcPill
-                     +     '<strong>' + _h(t.card) + ' report card</strong>'
-                     +     '<span class="test-id muted small" style="margin-left:auto">' + _h(name) + '</span>'
-                     +   '</div>'
-                     +   rcBody
-                     + '</div>';
-              }
-              var cls = t.classification || 'unclassified';
-              var out = outcomeByTest[name];
-              var result = (out && out.result) || t.result || _testStatusToResult(t.status) || (t.status === 'gated' ? 'GATED' : 'PENDING');
-              var resBg = result === 'PASS' ? '#d1fae5' : (result === 'FAIL' ? '#fee2e2' : (result === 'SKIP' ? '#fef3c7' : (result === 'PARTIAL' ? '#fde68a' : '#f1f5f9')));
-              var resFg = result === 'PASS' ? '#065f46' : (result === 'FAIL' ? '#991b1b' : (result === 'SKIP' ? '#92400e' : (result === 'PARTIAL' ? '#92400e' : '#475569')));
-              var resGlyph = result === 'PASS' ? '✓' : (result === 'FAIL' ? '✗' : (result === 'PARTIAL' ? '◐' : '⏳'));
-              // Claim: the English description, first sentence.
-              var claim = (t.description || t.en || '').split('\n')[0].split('. ')[0];
-              if (claim.length > 220) claim = claim.slice(0, 217) + '…';
-              if (claim && claim.charAt(claim.length - 1) !== '.' && claim.charAt(claim.length - 1) !== '?') claim += '.';
-              // Evidence (spine B3): render the code-computed outcome as a
-              // styled row — measured_value + operator + evaluated_by in a
-              // CODE-COMPUTED chip, kept visually SEPARATE from the
-              // human-authored outcome (its own chip), with a prominent
-              // reconcile:divergent badge and a link to the run that produced
-              // the value + the pass_if band it was judged against. No more
-              // raw merged k:v dump (which blended authored + computed).
-              var authoredOut = (latestRun && latestRun.outcomes) ? _normOutcome(latestRun.outcomes[name]) : null;
-              var computedOut = (latestRun && latestRun.computed_outcomes) ? latestRun.computed_outcomes[name] : null;
-              var runIdent = latestRun ? (latestRun.run_id || latestRun.name || '') : '';
-              var evidence = '';
-              if (computedOut || authoredOut) {
-                var co = computedOut || {};
-                var mv = co.measured_value;
-                var mvStr = (mv == null) ? '—' : (typeof mv === 'object' ? JSON.stringify(mv) : String(mv));
-                if (mvStr.length > 220) mvStr = mvStr.slice(0, 217) + '…';
-                var codeBits = [];
-                if (co.result != null) codeBits.push('<strong>' + _h(String(co.result)) + '</strong>');
-                if (co.operator) codeBits.push('op <code>' + _h(String(co.operator)) + '</code>');
-                if (co.evaluated_by) codeBits.push('by <code>' + _h(String(co.evaluated_by)) + '</code>');
-                var codeChip = computedOut
-                  ? '<span class="outcome-chip outcome-chip-computed" style="display:inline-block;padding:3px 7px;border-radius:4px;background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;font-size:0.85em"><span class="muted">code computed</span> ' + codeBits.join(' · ') + '</span>'
-                  : '';
-                var authoredChip = (authoredOut && authoredOut.result != null)
-                  ? ' <span class="outcome-chip outcome-chip-authored" style="display:inline-block;padding:3px 7px;border-radius:4px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:0.85em"><span class="muted">authored</span> <strong>' + _h(String(authoredOut.result)) + '</strong></span>'
-                  : '';
-                var divBadge = (co.reconcile === 'divergent')
-                  ? ' <span class="reconcile-divergent" style="display:inline-block;padding:3px 7px;border-radius:4px;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;font-weight:600;font-size:0.85em">⚠ reconcile: divergent</span>'
-                  : '';
-                var runLink = runIdent
-                  ? ' <span class="muted small">from run <code>' + _h(runIdent) + '</code></span>'
-                  : '';
-                var bandLine = t.pass_if
-                  ? '<div class="pass_if-band muted small" style="margin-top:3px">passes if '
-                    + (t.measure ? _measureText(t.measure) + ' ' : '')
-                    + '<strong>' + _h(_passIfText(t.pass_if)) + '</strong>'
-                    + _thresholdProvenanceChip(t.pass_if) + '</div>'   // #9
-                  : '';
-                var detailLine = (co.detail || co.reason)
-                  ? '<div class="muted small" style="margin-top:3px">' + _h(String(co.detail || co.reason)) + '</div>'
-                  : '';
-                evidence = '<div class="computed-outcome-row">'
-                  + (computedOut ? '<div><strong>measured_value:</strong> <code>' + _h(mvStr) + '</code></div>' : '')
-                  + '<div style="margin-top:3px">' + codeChip + authoredChip + divBadge + runLink + '</div>'
-                  + bandLine + detailLine
-                  + '</div>';
-              }
-              var techBits = [];
-              if (t.measure) techBits.push('Measure: ' + _measureText(t.measure));
-              if (t.pass_if) techBits.push('Pass condition: ' + _h(_passIfText(t.pass_if)));
-              else if (t.expect) techBits.push('Expect: <code>' + _h(JSON.stringify(t.expect)) + '</code>');
-              // The Python that actually evaluates this test: the declarative
-              // (kind, op) dispatch into the generic evaluator. There is no
-              // per-test Python — evaluate() handles every test by kind + op.
-              (function() {
-                var kind = (t.measure && t.measure.kind) || null;
-                var op = (t.pass_if && t.pass_if.op) || (t.expect && t.expect.op) || null;
-                if (!kind && !op) return;
-                var ref = 'Python: <code>vivarium_workbench/lib/expected_behavior.py</code> → <code>evaluate()</code>';
-                if (kind) ref += '; measure kind <code>' + _h(kind) + '</code> via <code>_series_for_simple_kind()</code>/<code>_measure()</code>';
-                if (op) ref += '; op <code>' + _h(op) + '</code> via <code>_check()</code>';
-                techBits.push(ref);
-              })();
-              if (t.requires_simulation) techBits.push('Requires sim: <code>' + _h(t.requires_simulation) + '</code>');
-              if (t.cites && t.cites.length) techBits.push('Cites: ' + t.cites.map(function(c){return '<code>' + _h(c) + '</code>';}).join(', '));
-              if (t.calibration_anchor) techBits.push('Calibration anchor: ⚠️ <code>' + _h(JSON.stringify(t.calibration_anchor)) + '</code>');
-              var techDisc = techBits.length ? '<details class="tech-details"><summary>Technical details</summary>' + techBits.join('<br>') + '</details>' : '';
-
-              return '<div class="test-card test-classification-' + _h(cls) + '" id="test-' + _h(name) + '">'
-                   +   '<div class="test-header">'
-                   +     '<span style="background:' + resBg + ';color:' + resFg + ';padding:2px 10px;border-radius:9999px;font-size:0.78em;font-weight:600">' + resGlyph + ' ' + _h(result) + '</span>'
-                   +     '<span class="test-classification">' + _h(cls) + '</span>'
-                   +     _thresholdProvenanceChip(t.pass_if)   // #9 — threshold provenance
-                   +   '</div>'
-                   +   '<div class="test-claim"><strong>Claim:</strong> ' + _h(claim) + '</div>'
-                   +   (evidence ? '<div class="test-evidence"><strong>Evidence:</strong> ' + evidence + '</div>' : '')
-                   +   '<div class="test-id muted small">Test id: <code>' + _h(name) + '</code></div>'
-                   +   techDisc
-                   + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // ── WHAT CHANGES IN THE MODEL? (Build / model_change) ────────────
-      var buildHtml = '';
-      if (modelChange || assumptions.length) {
-        var mcHtml = '';
-        if (modelChange) {
-          if (typeof modelChange === 'string') {
-            mcHtml = '<p>' + _multiline(modelChange) + '</p>';
-          } else {
-            var mcNotes = modelChange.notes || '';
-            var hasNewWork = (modelChange.new_processes || []).length
-                          || (modelChange.new_state_variables || []).length
-                          || (modelChange.new_parameters || []).length
-                          || (modelChange.modified_processes || []).length;
-            mcHtml = mcNotes ? '<p>' + _multiline(mcNotes) + '</p>' : '';
-            if (!hasNewWork && !mcNotes) mcHtml = '<p class="muted">No code-level model changes in this study.</p>';
-            // Technical details with everything (processes, params, listeners).
-            var mcBits = [];
-            Object.keys(modelChange).forEach(function(k) {
-              if (k === 'notes') return;
-              var v = modelChange[k];
-              if (Array.isArray(v) && !v.length) return;
-              if (typeof v === 'string') mcBits.push(_h(k) + ': ' + _multiline(v));
-              else mcBits.push(_h(k) + ': <code>' + _h(JSON.stringify(v)) + '</code>');
-            });
-            if (mcBits.length) mcHtml += '<details class="tech-details"><summary>Technical details</summary>' + mcBits.join('<br>') + '</details>';
-          }
-        }
-        var asmHtml = assumptions.length
-          ? '<h4 style="margin:12px 0 4px 0">Key assumptions</h4>'
-          + '<ul>' + assumptions.map(function(a){return '<li>' + _multiline(typeof a === 'string' ? a : (a.text || JSON.stringify(a))) + '</li>';}).join('') + '</ul>'
-          : '';
-        buildHtml = '<div id="' + sid.build + '"><h3>Model changes</h3>' + mcHtml + asmHtml + '</div>';
-      }
-
-      // ── WHAT NEEDS TO BE BUILT OR FIXED? (Implementation reqs) ───────
-      var reqsHtml = '';
-      if (reqs.length) {
-        reqsHtml = '<div id="' + sid.reqs + '"><h3>Build / fix list <span class="muted small">(' + reqs.length + ')</span></h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Concrete engineering work to fully exercise this study.</p>'
-          + reqs.map(function(r) {
-              // Prose-form requirement (authored as a single `| ` block): render
-              // the text as a plain prose card, not an id/title/effort card.
-              if (r && r._prose) {
-                return '<div class="req-card"><div class="req-key">' + _multiline(r.description || '') + '</div></div>';
-              }
-              var effortBadge = r.effort ? '<span class="req-effort">' + _h(r.effort) + '</span>' : '';
-              var kindBadge   = r.kind   ? '<span class="req-kind">'   + _h(r.kind)   + '</span>' : '';
-              var statusBadge = '';
-              if (r.defer_until) statusBadge = '<span class="req-status req-status-deferred">deferred</span>';
-              else if (r.status === 'done' || r.status === 'complete') statusBadge = '<span class="req-status req-status-done">done</span>';
-              else statusBadge = '<span class="req-status req-status-open">open</span>';
-              var keyLine = '';
-              if (r.why) {
-                keyLine = '<div class="req-key"><strong>Why it matters:</strong> ' + _multiline(r.why) + '</div>';
-              } else if (r.description) {
-                var teaser = String(r.description).split(/\n\s*\n/)[0].slice(0, 240);
-                keyLine = '<div class="req-key">' + _multiline(teaser) + (r.description.length > 240 ? '…' : '') + '</div>';
-              }
-              var unblocks = '';
-              if (r.unblocks) {
-                var items = Array.isArray(r.unblocks) ? r.unblocks : [r.unblocks];
-                unblocks = '<div class="req-unblocks"><strong>Unblocks:</strong><ul>' + items.map(function(u){return '<li>' + _h(u) + '</li>';}).join('') + '</ul></div>';
-              }
-              var deferredNote = r.defer_until
-                ? '<div class="req-deferred">⏸ Deferred until <code>' + _h(r.defer_until) + '</code>.</div>'
-                : '';
-              var techBits = [];
-              if (r.description && r.description.length > 240) techBits.push(_multiline(r.description));
-              if (r.steps && r.steps.length) techBits.push('<ol>' + r.steps.map(function(st){return '<li>' + _h(st) + '</li>';}).join('') + '</ol>');
-              if (r.files && r.files.length) techBits.push('Files: ' + r.files.map(function(f){return '<code>' + _h(f) + '</code>';}).join(', '));
-              var techDisc = techBits.length ? '<details class="tech-details"><summary>Implementation detail</summary>' + techBits.join('<br>') + '</details>' : '';
-
-              return '<div class="req-card">'
-                   +   '<div class="req-header">'
-                   +     '<code class="req-id">' + _h(r.id || '') + '</code>'
-                   +     '<strong class="req-title">' + _h(r.title || '(untitled)') + '</strong>'
-                   +     '<span class="req-badges">' + kindBadge + effortBadge + statusBadge + '</span>'
-                   +   '</div>'
-                   +   keyLine + deferredNote + unblocks + techDisc
-                   + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // ── WHAT SHOULD HAPPEN NEXT? (Follow-ups) ────────────────────────
-      var followUpsHtml = followUps.length
-        ? '<div id="' + sid.followups + '"><h3>What should happen next? <span class="muted small">(' + followUps.length + ' follow-ups)</span></h3>'
-          + '<p class="muted small">Concrete next steps. <em>Non-existing</em> entries can be seeded into child studies via the dashboard.</p>'
-          + followUps.map(function(f) {
-              var kind = f.kind || 'other';
-              var techBits = [];
-              if (f.hypothesized_mechanism) techBits.push('Hypothesised mechanism: ' + _multiline(f.hypothesized_mechanism));
-              if (f.unblocks && f.unblocks.length) techBits.push('Unblocks: ' + f.unblocks.map(function(x){return '<code>' + _h(x) + '</code>';}).join(', '));
-              if (f.acceptance && f.acceptance.length) techBits.push('Acceptance criteria: <ul>' + f.acceptance.map(function(a){return '<li>' + _h(a) + '</li>';}).join('') + '</ul>');
-              var techDisc = techBits.length ? '<details class="tech-details"><summary>Technical details</summary>' + techBits.join('<br>') + '</details>' : '';
-              var status = f.status ? '<span class="fu-status fu-status-' + _h(f.status) + '">' + _h(f.status) + '</span>' : '';
-              var effort = f.effort ? '<span class="fu-effort">' + _h(f.effort) + '</span>' : '';
-              return '<div class="fu-card fu-kind-' + _h(kind) + '">'
-                   +   '<div class="fu-head"><span class="fu-kind">' + _h(kind) + '</span>' + effort + status + '<strong class="fu-title">' + _h(f.title || '(untitled)') + '</strong></div>'
-                   +   (f.why ? '<div class="fu-why">' + _multiline(f.why) + '</div>' : '')
-                   +   techDisc
-                   + '</div>';
-            }).join('')
-          + '</div>'
-        : '';
-
-      // ── DISCOVERY IMPLICATIONS ───────────────────────────────────────
-      // Turns the study's results into resolved/remaining uncertainties,
-      // alternate hypotheses, mechanism-update proposals, and selectable
-      // follow-up study proposals. Sits after the evidence/follow-ups and
-      // before the Decide box. Each follow-up proposal carries an
-      // "➕ Add to investigation" button that seeds a child study node.
-      var discoveryHtml = '';
-      if (_hasDiscovery) {
-        var diBits = [];
-
-        // Resolved / remaining uncertainties — two short lists.
-        var resolved = discImpl.resolved_uncertainties || [];
-        var remaining = discImpl.remaining_uncertainties || [];
-        if (resolved.length || remaining.length) {
-          var uncBits = [];
-          if (resolved.length) {
-            uncBits.push('<div class="di-unc di-unc-resolved"><h4>✓ Resolved uncertainties</h4><ul>'
-              + resolved.map(function(u){ return '<li>' + _multiline(typeof u === 'string' ? u : JSON.stringify(u)) + '</li>'; }).join('')
-              + '</ul></div>');
-          }
-          if (remaining.length) {
-            uncBits.push('<div class="di-unc di-unc-remaining"><h4>● Remaining uncertainties</h4><ul>'
-              + remaining.map(function(u){ return '<li>' + _multiline(typeof u === 'string' ? u : JSON.stringify(u)) + '</li>'; }).join('')
-              + '</ul></div>');
-          }
-          diBits.push('<div class="di-uncertainties">' + uncBits.join('') + '</div>');
-        }
-
-        // Alternate hypotheses. Canonical source is
-        // discovery_implications.alternate_hypotheses; C5 falls back to the
-        // top-level alternative_hypotheses so authored prose anywhere still
-        // surfaces (the top-level shape uses claim/discriminated_by/status).
-        var altH = (discImpl.alternate_hypotheses && discImpl.alternate_hypotheses.length)
-          ? discImpl.alternate_hypotheses
-          : (s.alternative_hypotheses || []);
-        if (altH.length) {
-          diBits.push('<div class="di-group"><h4>Alternate hypotheses <span class="muted small">(' + altH.length + ')</span></h4>'
-            + altH.map(function(h) {
-                if (typeof h === 'string') h = {statement: h};
-                var evFor = (h.evidence_for || []).length;
-                var evAgainst = (h.evidence_against || []).length;
-                var disc = h.discriminating_observables || [];
-                var rows = [];
-                if (h.why_plausible) rows.push('<div class="di-alt-why">' + _multiline(h.why_plausible) + '</div>');
-                if (evFor || evAgainst) {
-                  rows.push('<div class="di-alt-ev"><span class="di-ev di-ev-for">▲ ' + evFor + ' for</span>'
-                    + '<span class="di-ev di-ev-against">▼ ' + evAgainst + ' against</span></div>');
-                }
-                if (disc.length) {
-                  rows.push('<div class="di-alt-disc"><span class="di-lbl">Discriminating observables:</span> '
-                    + disc.map(function(d){ return '<code>' + _h(d) + '</code>'; }).join(', ') + '</div>');
-                }
-                // Top-level alternative_hypotheses fields.
-                if (h.discriminated_by) {
-                  rows.push('<div class="di-alt-disc"><span class="di-lbl">Discriminated by:</span> ' + _multiline(h.discriminated_by) + '</div>');
-                }
-                if (h.status) {
-                  rows.push('<div class="di-alt-status"><span class="di-lbl">Status:</span> ' + _h(h.status) + '</div>');
-                }
-                var elems = h.mechanism_elements_affected || [];
-                if (elems.length) {
-                  rows.push('<div class="di-alt-elems"><span class="di-lbl">Mechanism elements:</span> '
-                    + elems.map(function(e){ return '<code>' + _h(e) + '</code>'; }).join(', ') + '</div>');
-                }
-                return '<div class="di-alt-card">'
-                  + '<div class="di-alt-stmt"><strong>' + _h(h.statement || h.claim || h.hypothesis || '(untitled hypothesis)') + '</strong></div>'
-                  + rows.join('')
-                  + '</div>';
-              }).join('')
-            + '</div>');
-        }
-
-        // Mechanism update proposals.
-        var mech = discImpl.mechanism_update_proposals || [];
-        if (mech.length) {
-          diBits.push('<div class="di-group"><h4>Mechanism update proposals <span class="muted small">(' + mech.length + ')</span></h4>'
-            + mech.map(function(m) {
-                var ut = (m.update_type || 'revise');
-                var badge = m.requires_expert_approval
-                  ? '<span class="di-approval-badge">needs expert approval</span>' : '';
-                var cc = m.confidence_change
-                  ? '<span class="di-conf-change">Δconfidence: ' + _h(String(m.confidence_change)) + '</span>' : '';
-                return '<div class="di-mech-card">'
-                  + '<div class="di-mech-head">'
-                  +   '<code class="di-mech-target">' + _h(m.mechanism_node_or_edge || '(unspecified)') + '</code>'
-                  +   '<span class="di-update-chip di-update-' + _h(ut) + '">' + _h(ut) + '</span>'
-                  +   cc + badge
-                  + '</div>'
-                  + (m.rationale ? '<div class="di-mech-rationale">' + _multiline(m.rationale) + '</div>' : '')
-                  + '</div>';
-              }).join('')
-            + '</div>');
-        }
-
-        // Follow-up study proposals — each a selectable card with an
-        // "➕ Add to investigation" button (seeds a new child study node).
-        if (followupProposals.length) {
-          diBits.push('<div class="di-group"><h4>Follow-up study proposals <span class="muted small">(' + followupProposals.length + ')</span></h4>'
-            + '<p class="muted small">Click <strong>➕ Add study</strong> to spawn a new study node in the investigation graph (seeds a child study.yaml from the proposal, with a leads-to edge back to this study).</p>'
-            + followupProposals.map(function(p, pi) {
-                var gain = (p.expected_information_gain || '').toLowerCase();
-                var gainChip = gain ? '<span class="di-gain-chip di-gain-' + _h(gain) + '">gain: ' + _h(gain) + '</span>' : '';
-                var typeChip = p.study_type ? '<span class="di-type-chip">' + _h(p.study_type) + '</span>' : '';
-                var trigChip = p.source_trigger ? '<span class="di-trigger-chip">' + _h(p.source_trigger) + '</span>' : '';
-                var targets = p.target_mechanism_elements || [];
-                var prio = p.priority ? '<span class="di-prio-chip">priority: ' + _h(String(p.priority)) + '</span>' : '';
-                // "➕ Add study" seeds a child study from this proposal via
-                // _seedFollowupProposal (POST /api/study-seed-followup). Guarded
-                // so a downloaded static report (no walkthrough.js) degrades to a
-                // hint instead of a ReferenceError; the section is also an inline-
-                // feedback host (💬) for reviewers.
-                // Single-quoted args so they sit safely inside onclick="…" (a
-                // JSON.stringify'd id would emit double quotes and break the attr).
-                var seedArgs = "'" + _h(s.name) + "', '"
-                  + _h(p.id != null ? String(p.id) : '') + "', " + pi + ", this";
-                var seedBtn = '<div class="di-fup-actions" style="margin-top:8px">'
-                  + '<button class="btn-seed-followup" '
-                  + 'onclick="event.stopPropagation(); if(window._seedFollowupProposal){_seedFollowupProposal(' + seedArgs + ');}'
-                  + 'else{alert(\'Open this investigation in the live dashboard to add the study.\');}" '
-                  + 'style="font-size:0.82em;padding:3px 10px;border:1px solid #16a34a;background:#f0fdf4;'
-                  + 'color:#166534;border-radius:6px;cursor:pointer;white-space:nowrap">➕ Add study</button></div>';
-                return '<div class="di-fup-card">'
-                  + '<div class="di-fup-head">'
-                  +   '<strong class="di-fup-title">' + _h(p.title || '(untitled proposal)') + '</strong>'
-                  +   typeChip + trigChip + gainChip + prio
-                  + '</div>'
-                  + (p.motivation ? '<div class="di-fup-motivation" style="margin-top:4px"><span class="di-lbl">Why:</span> ' + _multiline(p.motivation) + '</div>' : '')
-                  + (p.proposed_experiment ? '<div class="di-fup-exp" style="margin-top:4px"><span class="di-lbl">Proposed experiment:</span> ' + _multiline(p.proposed_experiment) + '</div>' : '')
-                  + (p.hypothesized_mechanism ? '<div class="di-fup-mech" style="margin-top:4px"><span class="di-lbl">Hypothesized mechanism:</span> ' + _multiline(p.hypothesized_mechanism) + '</div>' : '')
-                  + (targets.length ? '<div class="di-fup-targets" style="margin-top:4px"><span class="di-lbl">Targets:</span> '
-                      + targets.map(function(t){ return '<code>' + _h(t) + '</code>'; }).join(', ') + '</div>' : '')
-                  + seedBtn
-                  + '</div>';
-              }).join('')
-            + '</div>');
-        }
-
-        // Addressed mechanism uncertainty (provenance line, optional).
-        var addressed = discImpl.mechanism_uncertainty_addressed || [];
-        if (addressed.length) {
-          diBits.push('<div class="di-addressed muted small"><span class="di-lbl">Mechanism uncertainty addressed:</span> '
-            + addressed.map(function(a){ return _h(typeof a === 'string' ? a : JSON.stringify(a)); }).join('; ') + '</div>');
-        }
-
-        discoveryHtml = '<div id="' + sid.discovery + '" class="discovery-implications">'
-          + '<h3>Discovery implications</h3>'
-          + '<p class="muted small">Where this study\'s results leave the mechanism model — and what to investigate next.</p>'
-          + diBits.join('')
-          + '</div>';
-      }
-
-      // ── LIMITATIONS ──────────────────────────────────────────────────
-      var limitsHtml = limitations.length
-        ? '<div id="' + sid.limits + '"><h3>Limitations</h3><ul>'
-          + limitations.map(function(l) { return '<li>' + _multiline(typeof l === 'string' ? l : (l.text || JSON.stringify(l))) + '</li>'; }).join('')
-          + '</ul></div>'
-        : '';
-
-      // ── REFERENCES ───────────────────────────────────────────────────
-      var refsHtml = bib.length
-        ? '<div id="' + sid.refs + '"><h3>References cited by this study</h3><p>'
-          + bib.map(function(k) { return '<code>' + _h(k) + '</code>'; }).join(', ')
-          + '</p></div>'
-        : '';
-
-      // ── BIOLOGY-AT-A-GLANCE (planning-phase, biologist-first) ────────
-      // Renders when study.yaml declares any of: biological_summary,
-      // study_card, literature_anchors. Designed so a biologist reading
-      // the report sees the biology before any code identifier.
-      // ── MECHANISM NARRATIVE (framework: 7 first-class fields any study can
-      // declare). Designed so the report reads as a cumulative mechanism
-      // migration rather than a sequence of implementation tasks. Each
-      // field is independently optional; only declared fields render.
-      //   biological_role         — what mechanism this study introduces
-      //   mechanism_replaced      — what heuristic / placeholder it replaces
-      //   dependency_rationale    — why this study must run at this point in
-      //                              the dependency chain
-      //   primary_claim           — what observable would convince us the
-      //                              mechanism is behaving correctly
-      //   primary_visualization   — the explanatory figure for this claim
-      //   scope_boundary          — what is explicitly in scope
-      //   deferred_biology        — what biology is intentionally deferred to
-      //                              later studies
-      var narrativeFields = [
-        ['biological_role',       'Biological role'],
-        ['mechanism_replaced',    'Mechanism replaced'],
-        ['dependency_rationale',  'Dependency rationale'],
-        ['primary_claim',         'Primary claim'],
-        ['primary_visualization', 'Primary visualization'],
-        ['scope_boundary',        'Scope boundary'],
-        ['deferred_biology',      'Deferred biology'],
-      ];
-      var narrativeRows = [];
-      narrativeFields.forEach(function(pair) {
-        var key = pair[0], label = pair[1];
-        var v = s[key];
-        if (typeof v === 'string' && v.trim()) {
-          narrativeRows.push('<tr><th>' + label + '</th><td>' + _multiline(v) + '</td></tr>');
-        }
-      });
-      var mechanismNarrativeHtml = '';
-      if (narrativeRows.length) {
-        mechanismNarrativeHtml =
-          '<div class="mechanism-narrative">'
-          + '<h3 class="biology-glance-label">Mechanism narrative</h3>'
-          + '<table class="mechanism-narrative-table">' + narrativeRows.join('') + '</table>'
-          + '</div>';
-      }
-
-      // C6 — biological_summary is the one optional override; derive the prose
-      // from findings[].statement when it is absent so the Biology callout
-      // still renders meaningful mechanism prose.
-      var _bioProse = s.biological_summary;
-      if (!_bioProse) {
-        var _bioFindings = _asFindings(s.findings)
-          .filter(function(f) { return f && typeof f === 'object'; })
-          .map(function(f) { return f.statement || f.summary; })
-          .filter(Boolean);
-        if (_bioFindings.length) _bioProse = _bioFindings.join('\n\n');
-      }
-      var biologyGlanceHtml = '';
-      if (_bioProse || s.study_card || s.literature_anchors) {
-        var bgsBits = [];
-        if (_bioProse) {
-          bgsBits.push(
-            '<div class="biology-summary-callout">'
-            + '<h3 class="biology-glance-label">Biology</h3>'
-            + '<p class="biology-prose">' + _multiline(_bioProse) + '</p>'
-            + '</div>'
-          );
-        }
-        if (s.study_card) {
-          var sc = s.study_card;
-          var scRows = [];
-          if (sc.goal) scRows.push('<tr><th>Goal</th><td>' + _multiline(sc.goal) + '</td></tr>');
-          if (sc.mechanism) scRows.push('<tr><th>Mechanism</th><td>' + _multiline(sc.mechanism) + '</td></tr>');
-          if (sc.why_before_next) scRows.push('<tr><th>Why before next</th><td>' + _multiline(sc.why_before_next) + '</td></tr>');
-          if (sc.expected_result) scRows.push('<tr><th>Expected result</th><td>' + _multiline(sc.expected_result) + '</td></tr>');
-          if (sc.main_expert_question) scRows.push('<tr><th>Main expert question</th><td>' + _multiline(sc.main_expert_question) + '</td></tr>');
-          if (scRows.length) {
-            bgsBits.push(
-              '<div class="study-card">'
-              + '<h3 class="biology-glance-label">Study card</h3>'
-              + '<table class="study-card-table">' + scRows.join('') + '</table>'
-              + '</div>'
-            );
-          }
-        }
-        if (Array.isArray(s.literature_anchors) && s.literature_anchors.length) {
-          var anchorItems = s.literature_anchors.map(function(a) {
-            var bits = ['<div class="anchor-expectation">' + _h(a.expectation || '') + '</div>'];
-            if (a.model_observable) {
-              bits.push('<div class="anchor-observable"><em>Model observable:</em> <code>'
-                + _h(a.model_observable) + '</code></div>');
-            }
-            if (a.source) {
-              bits.push('<div class="anchor-source"><em>Source:</em> ' + _h(a.source) + '</div>');
-            }
-            if (a.status_in_v2ecoli) {
-              bits.push('<div class="anchor-status"><em>Current status:</em> '
-                + _h(a.status_in_v2ecoli) + '</div>');
-            }
-            return '<li class="literature-anchor-card">' + bits.join('') + '</li>';
-          }).join('');
-          bgsBits.push(
-            '<div class="literature-anchors">'
-            + '<h3 class="biology-glance-label">Literature anchors</h3>'
-            + '<p class="muted small" style="margin:0 0 8px 0">The biological '
-            + 'expectations this study tests, mapped to the model observable that '
-            + 'will measure each one. Full citations live in the test cards.</p>'
-            + '<ul class="literature-anchor-list">' + anchorItems + '</ul>'
-            + '</div>'
-          );
-        }
-        if (bgsBits.length) {
-          biologyGlanceHtml = '<div class="biology-glance">' + bgsBits.join('') + '</div>';
-        }
-      }
-
-      // ── PRE-RUN EXPERT REVIEW ────────────────────────────────────────
-      // Compiles expert_decisions_needed into a prominent panel so biologists
-      // can answer them before the simulation is run.
-      var expertReviewHtml = '';
-      if (Array.isArray(s.expert_decisions_needed) && s.expert_decisions_needed.length) {
-        var qCards = s.expert_decisions_needed.map(function(q) {
-          var altHtml = '';
-          if (Array.isArray(q.alternatives) && q.alternatives.length) {
-            altHtml = '<div class="expert-question-alternatives"><em>Alternatives:</em><ul>'
-              + q.alternatives.map(function(a){return '<li>' + _h(a) + '</li>';}).join('')
-              + '</ul></div>';
-          }
-          var impactHtml = q.impact_if_wrong
-            ? '<div class="expert-question-impact"><em>Impact if wrong:</em> '
-              + _multiline(q.impact_if_wrong) + '</div>'
-            : '';
-          var blocksHtml = '';
-          if (Array.isArray(q.blocks) && q.blocks.length) {
-            blocksHtml = '<details class="expert-question-blocks"><summary>What this blocks ('
-              + q.blocks.length + ' items)</summary><ul>'
-              + q.blocks.map(function(b){return '<li>' + _h(b) + '</li>';}).join('')
-              + '</ul></details>';
-          }
-          var requestedHtml = q.requested_response
-            ? '<details class="expert-question-response"><summary>Requested response format</summary><p>'
-              + _multiline(q.requested_response) + '</p></details>'
-            : '';
-          var askedToHtml = q.asked_to
-            ? '<span class="expert-question-asked-to">asked to: ' + _h(q.asked_to) + '</span>'
-            : '';
-          return '<div class="expert-question-card status-' + _h(q.status || 'open') + '">'
-            + '<div class="expert-question-header">'
-            +   '<span class="expert-question-id">' + _h(q.id || '') + '</span>'
-            +   '<span class="expert-question-status">' + _h(q.status || 'open') + '</span>'
-            +   askedToHtml
-            + '</div>'
-            + '<div class="expert-question-text"><strong>Q.</strong> '
-            +   _multiline(q.question || '') + '</div>'
-            + altHtml + impactHtml + blocksHtml + requestedHtml
-            + '</div>';
-        }).join('');
-        expertReviewHtml = '<div class="pre-run-expert-review" id="study-' + slug + '-expert">'
-          + '<h3>Pre-run expert review</h3>'
-          + '<p class="muted small" style="margin:0 0 8px 0">Open biological '
-          + 'questions the planning is contingent on. A "wrong" answer here means '
-          + 'a primary test threshold needs to change <em>before</em> the simulation '
-          + 'is run, not after.</p>'
-          + qCards
-          + '</div>';
-      }
-
-      // ── EMBED VISUALIZATIONS ─────────────────────────────────────────
-      // Pre-fetched HTML previews (study.yaml.embed_visualizations) inlined
-      // as <iframe srcdoc> so the downloaded report works offline. The
-      // preview's own <script src> CDN loads (Plotly) will still need
-      // network access at *viewing* time, but the HTML structure + data
-      // are baked in.
-      var embedsHtml = '';
-      var studyEmbeds = embedsByStudy[s.name] || [];
-      if (studyEmbeds.length) {
-        embedsHtml = '<div class="study-embeds" id="study-' + slug + '-embeds">'
-          + '<h3>Visualizations</h3>'
-          + studyEmbeds.map(function(emb) {
-              // Escape double-quotes for srcdoc attribute.
-              var escaped = (emb.html || '').replace(/&/g, '&amp;')
-                                            .replace(/"/g, '&quot;');
-              // A "prior / superseded" embed is one explicitly flagged stale, or
-              // whose name/description marks it as a pre-execution, placeholder,
-              // or older-dated preview. These are auto-collapsed (the expert's
-              // "fold these previous results") so they don't dominate the page
-              // with empty placeholder charts — but stay one click away.
-              var meta = ((emb.name || '') + ' ' + (emb.description || '')).toLowerCase();
-              var isStale = emb.stale === true
-                || (typeof emb.description === 'string' && emb.description.indexOf('⚠') === 0)
-                || /\b(prior|planning[- ]phase|placeholder|pending refresh|pre-execution|superseded|baseline rerun|will be populated|not yet run)\b/.test(meta);
-              // If the inner doc declares a fixed CSS height clamp (e.g.
-              // comparative_viz emits `html,body{height:540px;overflow:hidden}`
-              // to bound Plotly's hover-layer scrollHeight inflation), set
-              // the iframe height directly so _fitEmbed's measurements can't
-              // over- or under-grow it. Unclamped embeds (e.g. the tall
-              // chromosome figures) fall through to _fitEmbed's autosize.
-              // Lenient regex: matches `html,body { ... height: NNNpx ... }`
-              // regardless of property order inside the rule. Earlier strict
-              // form `/html,body\{height:(\d+)px/` only matched when `height:`
-              // was the FIRST property; viz authors who put `margin:0;padding:0;`
-              // first lost the clamp and got auto-resized to scrollHeight
-              // (which misreports for matplotlib-PNG bodies and for charts
-              // whose legend overflows the chart div).
-              var _hClamp = (emb.html || '').match(/html\s*,\s*body\s*\{[^}]*\bheight\s*:\s*(\d+)px/);
-              var _hStyle = _hClamp ? (';height:' + (parseInt(_hClamp[1], 10) + 24) + 'px') : '';
-              // Infrastructural no-scrollbar guarantee:
-              //   scrolling="no"     — kills the browser iframe scrollbar
-              //                        regardless of any size mismatch
-              //                        between _fitEmbed's measurement
-              //                        and the inner content's actual
-              //                        rendered height. Plotly's legend-
-              //                        overflow scrollbars previously
-              //                        leaked through because the chart
-              //                        div was sized for the chart but
-              //                        not the wrapped legend rows.
-              //   min-height:1200px  — under-measured iframes still show
-              //                        enough vertical space for typical
-              //                        multi-panel figures (e.g. 2×3 grid
-              //                        cell_mass / growth_rate / RNA /
-              //                        ribosome activity panels — these
-              //                        rendered at ~1280 px tall and the
-              //                        previous 720 px floor clipped them).
-              //                        The _fitEmbed walk extends to svg/
-              //                        img/canvas (see below) and uses
-              //                        img.naturalHeight to pre-measure
-              //                        before the browser has laid out
-              //                        the data: URL, so iframes grow
-              //                        correctly — this floor is the
-              //                        safety net for first-paint before
-              //                        any timers fire.
-              var iframe = '<iframe srcdoc="' + escaped + '" '
-                + 'class="embed-frame" onload="_wireEmbed(this)" '
-                + 'scrolling="no" '
-                + 'style="width:100%;min-height:1200px;border:0;display:block;overflow:hidden' + _hStyle + '" '
-                + 'title="' + _h(emb.name) + '"></iframe>';
-              if (isStale) {
-                // Collapsed by default; re-fit on expand.
-                return '<details class="study-embed-card stale-embed" ontoggle="_onEmbedToggle(this)" '
-                  + 'style="margin:12px 0;border:1px solid #f59e0b;border-radius:6px;background:#fffdf6;overflow:hidden">'
-                  + '<summary style="padding:8px 12px;cursor:pointer;background:#fffbeb;color:#92400e;font-weight:600;list-style:none">'
-                  +   '⚠ ' + _h(emb.name) + ' <span style="font-weight:400">— prior / superseded result (click to view)</span>'
-                  + '</summary>'
-                  + (emb.description ? '<p class="small" style="margin:6px 12px;color:#92400e">' + _h(emb.description) + '</p>' : '')
-                  + iframe
-                  + '</details>';
-              }
-              return '<div class="study-embed-card" style="margin:12px 0;border:1px solid #e2e8f0;border-radius:6px;background:#fff;overflow:hidden">'
-                + '<div style="padding:8px 12px;border-bottom:1px solid #e5e7eb;background:#f9fafb">'
-                +   '<strong>' + _h(emb.name) + '</strong>'
-                + '</div>'
-                + (emb.description ? '<p class="muted small" style="margin:6px 12px">' + _h(emb.description) + '</p>' : '')
-                + iframe
-                + '</div>';
-            }).join('')
-          + '</div>';
-      }
-
-      // (Report cards now render as modules INSIDE the test section — see
-      // `kind: report_card` handling in testsHtml above — not as a separate
-      // block here.)
-
-      // ── CONDITIONS (v4: baseline + variants + model_settings) ─────────
-      // Renders the actual parameter table the evaluator wants: each
-      // variant's overrides + every model_setting's current/default/range.
-      var conditionsHtml = _renderConditionsBlock(s, sid.conditions);
-
-      // C2 + C3 — derived 3-track verdicts + read-only four-section synthesis,
-      // both computed from canonical fields (no longer write-only).
-      var verdictsHtml = _conclusionVerdictsHtml(s, slug);
-      var synthesisHtml = _conclusionSynthesisHtml(s, slug);
-
-      // Wave 2 — compositional causal discovery + semantic closure renders.
-      var commitmentHtml = _compositionCommitmentHtml(s, slug);   // C-COMMIT
-      var invariantsHtml = _invariantChecksHtml(s, slug);         // C-INVAR
-      var causalHtml = _causalNecessityHtml(s, slug);             // C-CF
-      var representationHtml = _representationHtml(s, slug);       // C-MODELCARD
-
-      // ── PLANNING-PHASE DETECTION ──
-      // A study is "planning" when no runs have completed yet. In that
-      // mode we strip decision / takeaways / findings (post-execution
-      // sections) and lead with the spec the expert needs to comment on:
-      // Question → Conditions → Tests → Baseline preview → Assumptions.
-      // Once runs land, the full flow returns.
-      var hasRuns = (s.runs || []).length > 0 || _asFindings(s.findings).length > 0;
-      // Informational/descriptive reference studies are "complete", not
-      // "planning" — they have no hypothesis to run, so don't show the
-      // "PLANNING — not yet run" framing.
-      var isPlanning = !hasRuns && !_isInformationalStudy(s);
-
-      // Param-enforcement banner (expert-feedback D.2). When the study
-      // declares enforced_params and its latest run didn't apply them, show
-      // the violations prominently so "declared but not implemented" is
-      // visible — the exact thing the reviewer caught manually.
-      var enforcementHtml = '';
-      var pe = s.param_enforcement;
-      if (pe && pe.violations && pe.violations.length) {
-        enforcementHtml =
-          '<div class="param-enforcement-banner" id="study-' + slug + '-enforcement" '
-          + 'style="margin:12px 0;padding:12px 16px;background:#fffbeb;border:1px solid #f59e0b;'
-          + 'border-left-width:5px;border-radius:6px;color:#92400e">'
-          + '<strong>⚠ Declared parameters were not applied to the latest run</strong>'
-          + '<div class="small" style="margin-top:4px">This study declares '
-          + 'enforced parameters, but the most recent run did not apply '
-          + (pe.violations.length === 1 ? 'one of them' : (pe.violations.length + ' of them'))
-          + ' — results below may reflect composite defaults rather than the '
-          + 'intended values. Re-run after wiring these in.</div>'
-          + '<ul class="small" style="margin:8px 0 0 18px">'
-          + pe.violations.map(function(v) {
-              return '<li>' + _h(v.message || (v.param + ': declared ' + v.expected)) + '</li>';
-            }).join('')
-          + '</ul></div>';
-      }
-
-      // Spine A3: readiness panel placeholder. Populated after render by
-      // _populateReadinessPanels(), which fetches /api/report-lint ONCE per
-      // report and keys the deterministic linter findings by study. Mirrors
-      // the param-enforcement banner: surfaced per study, connected to its
-      // source (the linter), labeled code-computed. Empty until populated.
-      var readinessHtml = '<div class="study-readiness-panel" id="study-' + slug + '-readiness" data-study="' + _h(slug) + '"></div>';
-
-      // Imported expert feedback (expert-feedback B.1). Shows the reviewer's
-      // own annotations back, in-context per study, so the loop closes: the
-      // next report makes clear what was said and lets the team show it's
-      // addressed. Newest-first; author + timestamp preserved.
-      // Imported reviewer-feedback quotes are intentionally NOT rendered in the
-      // report (per request — they cluttered the top of each study). Feedback is
-      // still imported + tracked in investigations/<inv>/feedback/*.yaml, and how
-      // it was addressed shows in the study conclusion/status.
-      var feedbackHtml = '';
-
-      // SP3b: feedback → action table. Read-only render of the pbg-supplied
-      // s.feedback_actions (open feedback items that have a proposed action +
-      // its kind / proposed_text / open-applied status). The report NEVER
-      // computes the action — it renders what study_feedback_actions returns.
-      feedbackHtml += _renderReportFeedbackActions(s, slug);
-
-      // Status-drift banner (round-2 friction #2). When a stored status axis
-      // (or a "planning" headline) contradicts what actually ran, say so — the
-      // report should never show "planning" on an executed study.
-      var statusDriftHtml = '';
-      var sdis = s.status_disagreements;
-      if (sdis && sdis.length) {
-        statusDriftHtml =
-          '<div class="status-drift-banner" id="study-' + slug + '-status-drift" '
-          + 'style="margin:12px 0;padding:12px 16px;background:#fffbeb;border:1px solid #f59e0b;'
-          + 'border-left-width:5px;border-radius:6px;color:#92400e">'
-          + '<strong>⚠ Status is out of date relative to what ran</strong>'
-          + '<ul class="small" style="margin:8px 0 0 18px">'
-          + sdis.map(function(v) { return '<li>' + _h(v.message || (v.axis + ': ' + v.stored + ' → ' + v.derived)) + '</li>'; }).join('')
-          + '</ul></div>';
-      }
-
-      // Charts come from runs.db when present, or fall back to the
-      // workspace default-baseline. Wrap them with a BASELINE banner
-      // so the expert knows the trace is pre-execution data, not a
-      // study-specific run.
-      var chartsWithBaselineNoticeHtml = chartsHtml;
-      if (isPlanning && chartsHtml) {
-        chartsWithBaselineNoticeHtml =
-            '<div class="planning-baseline-strip" id="study-' + slug + '-baseline-strip">' +
-              '<div class="planning-baseline-strip-banner">' +
-                '<span class="planning-baseline-pill">BASELINE</span>' +
-                '<span class="planning-baseline-text">' +
-                  'Charts below show the <strong>workspace pre-execution baseline</strong>' +
-                  ' — what the system looks like before any of this study\'s variants run.' +
-                  ' Expert reviewers: comment on whether these traces look right for the' +
-                  ' starting point.' +
-                '</span>' +
-              '</div>' +
-              chartsHtml +
-            '</div>';
-      }
-
-      // Reviewer-tier wrapper: technical/method subsections hide in Scientist
-      // mode (body.mode-scientist .tier-reviewer{display:none}) and show in
-      // Reviewer mode. Empty subsections stay empty (no stray wrapper div).
-      var _rv = function(h){ return (h && String(h).trim()) ? '<div class="tier-reviewer">' + h + '</div>' : ''; };
-
-      if (isPlanning) {
-        // Planning-phase layout — minimal, expert-comment-driven.
-        // The <header class="study-header"> chrome (num + slug + phase
-        // badge + status badge + Depends on + Blocks) was REMOVED because
-        // every field is already in the sticky control panel above
-        // (sp-top + sp-meta from _studyControlPanel). The v4 render path
-        // dropped this same header at line ~6172 for the same reason;
-        // this is the v3 sibling fix. Anchor (#study-<slug>) is on the
-        // <details> element itself, not the h2, so URL hashes still
-        // resolve. The "PLANNING — not yet run" pill is preserved as a
-        // standalone callout because the sticky panel doesn't render it.
-        return ''
-          + '<details class="study-fold verdict-' + verdictBadge.cls + '" id="study-' + slug + '">'
-          +   '<summary class="study-panel">' + controlPanelHtml + '</summary>'
-          + '<section class="study study-planning">'
-          +   subNav
-          +   '<div class="study-planning-pill">PLANNING — not yet run</div>'
-          +   modelBannerHtml     // 🧬 Model: composite(s) + params + loom static popout (PROMINENT)
-          +   _rv(statusDriftHtml)     // ⚠ status out of date vs runs (#2)
-          +   _rv(enforcementHtml)     // ⚠ declared params not applied (D.2)
-          +   _rv(readinessHtml)       // ✓/⚠ lint readiness panel (A3)
-          +   _rv(reviewHtml)          // ⚠ review-readiness gates (duration / param-vs-reference)
-          +   _rv(feedbackHtml)        // 💬 imported expert feedback (B.1)
-          +   _rv(commitmentHtml)      // Theoretical commitment (C-COMMIT)
-          +   _rv(invariantsHtml)      // Invariant checks (C-INVAR)
-          +   summaryHtml         // Question / purpose
-          +   _rv(conditionsHtml)      // Conditions: variants + model settings (PROMINENT)
-          +   _rv(testsHtml)           // Expected behavior / tests (PROMINENT for comments)
-          +   _rv(representationHtml)   // Representation claims (C-MODELCARD)
-          +   chartsWithBaselineNoticeHtml  // Baseline charts with BASELINE label
-          +   embedsHtml          // Embedded preview HTMLs
-          +   readoutsHtml        // What we'll measure
-          +   _rv(buildHtml)           // Model change (collapsed-ish, technical)
-          +   '<details class="study-technical-fold"><summary>Technical context (model changes · implementation tasks · follow-ups · limitations · refs)</summary>'
-          +     _rv(reqsHtml)          // Implementation requirements
-          +     followUpsHtml     // Follow-ups
-          +     discoveryHtml     // Discovery implications
-          +     limitsHtml        // Limitations
-          +     refsHtml          // References
-          +   '</details>'
-          + '</section>'
-          + '</details>';
-      }
-
-      // Post-execution layout — full v3 flow including decision + findings.
-      // <header class="study-header"> dropped for the same reason as the
-      // planning path + the v4 path: every field (num, slug, phase badge,
-      // status badge, Depends on, Blocks) is already in the sticky control
-      // panel's sp-top + sp-meta rows above.
-      return ''
-        + '<details class="study-fold verdict-' + verdictBadge.cls + '" id="study-' + slug + '">'
-        +   '<summary class="study-panel">' + controlPanelHtml + '</summary>'
-        + '<section class="study">'
-        +   subNav
-        +   modelBannerHtml     // 🧬 Model: composite(s) + params + loom static popout (PROMINENT)
-        +   _rv(statusDriftHtml)     // ⚠ status out of date vs runs (#2)
-        +   _rv(enforcementHtml)     // ⚠ declared params not applied (D.2)
-        +   _rv(readinessHtml)       // ✓/⚠ lint readiness panel (A3)
-        +   _rv(reviewHtml)          // ⚠ review-readiness gates (duration / param-vs-reference)
-        +   _rv(feedbackHtml)        // 💬 imported expert feedback (B.1)
-        +   _rv(commitmentHtml)      // Theoretical commitment (C-COMMIT)
-        +   _rv(invariantsHtml)      // Invariant checks (C-INVAR)
-        +   biologyGlanceHtml   // 0. Biology-at-a-glance
-        +   mechanismNarrativeHtml  // 0a. Mechanism narrative (7 framework fields)
-        +   summaryHtml         // 1. Plain-English summary (explanation leads, before charts)
-        +   embedsHtml          // 1a. Embedded visualizations (after the explanation)
-        +   _rv(expertReviewHtml)    // 2b. Pre-run expert review
-        +   takeawaysHtml       // 3 + 4. Detailed findings
-        +   _rv(verdictsHtml)        // Derived 3-track conclusion verdicts (computed)
-        +   _rv(causalHtml)          // Causal necessity table (C-CF)
-        +   discoveryHtml       // Discovery implications (directly under the findings)
-        +   _rv(conditionsHtml)      // Conditions (what we set up) — grouped with the runs
-        +   _rv(simsHtml)            // What did/will we run
-        +   readoutsHtml        // What did/will we measure (above visualisations)
-        +   chartsHtml          //    + Visualisations
-        +   _rv(testsHtml)           // 7. How we judge success
-        +   _rv(buildHtml)           // 8. Model changes
-        +   _rv(representationHtml)   // Representation claims (C-MODELCARD)
-        +   _rv(reqsHtml)            // 9. What to build/fix
-        +   followUpsHtml       // 10. Next steps
-        +   limitsHtml          // 11. Limitations
-        +   synthesisHtml       // Read-only four-section conclusion synthesis (derived)
-        +   refsHtml            // 12. References
-        +   decisionHtml        // Decision: can we move to the next study?
-        + '</section>'
-        + '</details>';
-    }
-
-    // Render the per-study Conditions block (v4). Returns empty string for
-    // studies without a ``conditions:`` mapping.
-    //
-    // Layout:
-    //   - Baseline composite + params
-    //   - Variants table (name, base_composite, parameter overrides)
-    //   - Model settings table (name, type, default, current, range, gate)
-    //
-    // Why this lives next to Tests instead of inside Build: variants and
-    // model_settings are the *experimental conditions* — what you change to
-    // run the tests — distinct from the *code* changes captured in Build.
-    function _renderConditionsBlock(s, anchorId) {
-      var cond = (s.conditions && typeof s.conditions === 'object') ? s.conditions : null;
-      // C4 — single canonical run-spec. When a study has no v4 ``conditions:``
-      // mapping, derive the rich conditions table from the normalized
-      // ``simulation_set`` (the server folds top-level baseline/variants and
-      // parameter-override interventions into it), so there is one source.
-      if (!cond && Array.isArray(s.simulation_set) && s.simulation_set.length) {
-        var _derivedBaseline = {};
-        var _derivedVariants = [];
-        s.simulation_set.forEach(function(e) {
-          if (!e || typeof e !== 'object') return;
-          if (e.is_baseline) {
-            _derivedBaseline = {composite: e.base_model, params: e.params || {}};
-          } else {
-            _derivedVariants.push({
-              name: e.name,
-              composite: e.base_model,
-              parameter_overrides: e.params || {},
-              description: e.description || ''
-            });
-          }
-        });
-        cond = {baseline: _derivedBaseline, variants: _derivedVariants, model_settings: []};
-      }
-      if (!cond) return '';
-      var baseline = cond.baseline || {};
-      var variants = cond.variants || [];
-      var expertInputs = cond.model_settings || cond.expert_inputs || [];
-      if (!baseline.composite && !variants.length && !expertInputs.length) return '';
-
-      function _fmtVal(v) {
-        if (v === null || v === undefined) return '<em class="muted">—</em>';
-        if (typeof v === 'object') return '<code>' + _h(JSON.stringify(v)) + '</code>';
-        return '<code>' + _h(String(v)) + '</code>';
-      }
-      function _kvList(obj) {
-        var keys = Object.keys(obj || {});
-        if (!keys.length) return '<em class="muted">(no overrides)</em>';
-        return keys.map(function(k) {
-          return '<div class="cond-kv"><span class="cond-kv-k">' + _h(k) + '</span>' +
-                 '<span class="cond-kv-v">' + _fmtVal(obj[k]) + '</span></div>';
-        }).join('');
-      }
-
-      // Baseline row
-      var baselineHtml = '';
-      if (baseline.composite || baseline.params) {
-        baselineHtml =
-            '<div class="cond-baseline">' +
-              '<h4>Baseline</h4>' +
-              '<div class="cond-baseline-composite">' +
-                'Composite: <code>' + _h(baseline.composite || '?') + '</code>' +
-              '</div>' +
-              '<div class="cond-baseline-params">' +
-                _kvList(baseline.params || {}) +
-              '</div>' +
-            '</div>';
-      }
-
-      // Variants table
-      var variantsHtml = '';
-      if (variants.length) {
-        variantsHtml =
-            '<div class="cond-variants">' +
-              '<h4>Variants <span class="muted small">(' + variants.length + ')</span></h4>' +
-              '<p class="muted small" style="margin:0 0 6px 0">Each variant is a perturbation of the baseline — typically a parameter override or a swapped composite. These define the runs that test the assumption.</p>' +
-              '<table class="cond-table">' +
-                '<thead><tr><th>Variant</th><th>Composite / base</th><th>Parameter overrides</th><th>Notes</th><th>Run</th></tr></thead>' +
-                '<tbody>' +
-                  variants.map(function(v) {
-                    var ovr = v.parameter_overrides || v.params || {};
-                    var base = v.composite || v.base_composite || '<em class="muted">(inherits baseline)</em>';
-                    var name = v.name || '?';
-                    var notes = v.description || v.notes || '';
-                    // Task 9: look up this variant's precomputed `vdash …` command
-                    // off the study payload (single source of truth). Degrade to
-                    // no chip when run_commands is absent (older / static bundle).
-                    var _rcVariants = (s.run_commands && s.run_commands.variants) || [];
-                    var _vc = (_rcVariants.find && _rcVariants.find(function(x){ return x.name === v.name; })) || null;
-                    return '<tr>' +
-                      '<td><code>' + _h(name) + '</code></td>' +
-                      '<td>' + (typeof base === 'string' && base.indexOf('<em') === 0 ? base : '<code>' + _h(base) + '</code>') + '</td>' +
-                      '<td>' + _kvList(ovr) + '</td>' +
-                      '<td>' + (notes ? _multiline(notes) : '<em class="muted">—</em>') + '</td>' +
-                      '<td>' + _runChip(_vc && _vc.cmd) + '</td>' +
-                    '</tr>';
-                  }).join('') +
-                '</tbody>' +
-              '</table>' +
-            '</div>';
-      }
-
-      // Model settings table
-      var expertHtml = '';
-      if (expertInputs.length) {
-        var nRequired = expertInputs.filter(function(e){return e.gate === 'required-before-run';}).length;
-        var requiredBadge = nRequired
-          ? '<span class="cond-ei-required-badge" title="' + nRequired + ' input(s) must be set before this study can run">' + nRequired + ' required</span>'
-          : '';
-        expertHtml =
-            '<div class="cond-expert-inputs">' +
-              '<h4>Model settings <span class="muted small">(' + expertInputs.length + ')</span> ' + requiredBadge + '</h4>' +
-              '<p class="muted small" style="margin:0 0 6px 0">Parameters that need human input before the study runs. Edit a value on the dashboard\'s study-detail page (Build tab) and the next <code>pbg_runner</code> invocation will pick it up.</p>' +
-              '<table class="cond-table">' +
-                '<thead><tr><th>Name</th><th>Type</th><th>Default</th><th>Current</th><th>Range</th><th>Gate</th><th>Description</th></tr></thead>' +
-                '<tbody>' +
-                  expertInputs.map(function(e) {
-                    var name = e.name || '?';
-                    var type = e.type || '';
-                    var def  = e.default;
-                    var cur  = (e.current === null || e.current === undefined) ? null : e.current;
-                    var range = '';
-                    if (Array.isArray(e.range) && e.range.length === 2)
-                      range = '[' + e.range[0] + ', ' + e.range[1] + ']';
-                    else if (Array.isArray(e.options))
-                      range = e.options.join(' | ');
-                    var gate = e.gate || 'optional';
-                    var gateBadge = gate === 'required-before-run'
-                      ? '<span class="cond-ei-gate-req">required</span>'
-                      : '<span class="cond-ei-gate-opt">optional</span>';
-                    var awaiting = (cur === null) ? '<em class="muted">awaiting expert</em>' : _fmtVal(cur);
-                    return '<tr>' +
-                      '<td><code>' + _h(name) + '</code></td>' +
-                      '<td>' + _h(type) + '</td>' +
-                      '<td>' + _fmtVal(def) + '</td>' +
-                      '<td>' + awaiting + '</td>' +
-                      '<td>' + (range ? '<code>' + _h(range) + '</code>' : '<em class="muted">—</em>') + '</td>' +
-                      '<td>' + gateBadge + '</td>' +
-                      '<td>' + (e.description ? _multiline(e.description) : '<em class="muted">—</em>') + '</td>' +
-                    '</tr>';
-                  }).join('') +
-                '</tbody>' +
-              '</table>' +
-            '</div>';
-      }
-
-      return '<div id="' + anchorId + '" class="study-conditions">' +
-               '<h3>Conditions <span class="muted small">— what we set up to test it</span></h3>' +
-               baselineHtml + variantsHtml + expertHtml +
-             '</div>';
-    }
-
-    // --- per-study section builder -----------------------------------
-    function studySection(s, i) {
-      var isV3 = !!(s.purpose || s.simulation_set || s.behavior_tests
-                    || s.pipeline_gate || s.readouts || s.implementation_requirements);
-      var statusBadge = '<span class="badge badge-' + _h(s.status || 'planned') + '">'
-                      + _h(s.status || 'planned') + '</span>';
-      var phaseBadge = s.phase
-        ? ' <span class="phase-badge phase-' + _h((s.phase || '').toLowerCase()) + '">' + _h(s.phase) + '</span>'
-        : '';
-
-      // Parent + child chips.
-      var parents = (s.parent_studies || []).map(function(p) {
-        var pn = (typeof p === 'string') ? p : p.study;
-        var cond = (typeof p === 'string') ? 'tests-passed' : (p.condition || 'tests-passed');
-        return '<code>' + _h(pn) + '</code> <span class="muted">(' + _h(cond) + ')</span>';
-      }).join(' · ');
-      var kids = (children[s.name] || []).map(function(c) { return '<code>' + _h(c) + '</code>'; }).join(' · ');
-
-      if (isV3) return v3StudySection(s, i, statusBadge, phaseBadge, parents, kids);
-
-      // Variants list.
-      var variants = (s.variants || []).map(function(v) {
-        var paramRows = v.params ? Object.entries(v.params).map(function(kv) {
-          return '<li><code>' + _h(kv[0]) + ' = ' + _h(JSON.stringify(kv[1])) + '</code></li>';
-        }).join('') : '';
-        return '<details class="variant"><summary><strong>' + _h(v.name) + '</strong>'
-             + (v.status ? ' <span class="muted">[' + _h(v.status) + ']</span>' : '')
-             + '</summary>'
-             + '<p>' + _multiline(v.description || '') + '</p>'
-             + (paramRows ? '<ul class="params">' + paramRows + '</ul>' : '')
-             + '</details>';
-      }).join('');
-
-      // Interventions list.
-      var interventions = (s.interventions || []).map(function(iv) {
-        var tests = (iv.triggers_tests || []).map(function(t) { return '<code>' + _h(t) + '</code>'; }).join(', ');
-        return '<details class="intervention"><summary><strong>' + _h(iv.name) + '</strong></summary>'
-             + '<p>' + _multiline(iv.description || '') + '</p>'
-             + (tests ? '<p class="muted">Triggers tests: ' + tests + '</p>' : '')
-             + '</details>';
-      }).join('');
-
-      // Expected-behavior table (the assumptions / predictions block).
-      var ebRows = (s.expected_behavior || []).map(function(b) {
-        var cites = (b.cites || []).map(function(k) { return '<code>' + _h(k) + '</code>'; }).join(', ');
-        return '<tr class="eb-row eb-' + _h(b.status || 'implemented') + '">'
-             + '<td><code>' + _h(b.name) + '</code></td>'
-             + '<td>' + _h(b.en || '') + '</td>'
-             + '<td>' + _h(b.status || 'implemented') + '</td>'
-             + '<td>' + cites + '</td>'
-             + '</tr>';
-      }).join('');
-
-      // Gaps (assumptions / explicit deferrals).
-      var gaps = (s.gaps || []).map(function(g) {
-        return '<details class="gap"><summary><strong>' + _h(g.id || '') + '</strong> — ' + _h(g.title || '') + '</summary>'
-             + (g.why ? '<p><strong>Why:</strong> ' + _multiline(g.why) + '</p>' : '')
-             + (g.approach ? '<p><strong>Approach:</strong> ' + _multiline(g.approach) + '</p>' : '')
-             + (g.defer_until ? '<p class="muted">Deferred until: <code>' + _h(g.defer_until) + '</code></p>' : '')
-             + '</details>';
-      }).join('');
-
-      // Expert questions (the validate-this block).
-      var expertQs = (s.expert_questions || []).map(function(q) {
-        return '<li>' + _h(q) + '</li>';
-      }).join('');
-
-      // Bibliography keys for this study (so the expert can pull each).
-      var bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      var bibList = bib.map(function(k) { return '<code>' + _h(k) + '</code>'; }).join(', ');
-
-      // Sub-section ids — used by the per-study sticky sub-nav so each
-      // section is clickable to scroll-to.
-      var slug = _h(s.name);
-      var sidQ  = 'study-' + slug + '-qh';
-      var sidBg = 'study-' + slug + '-background';
-      var sidPr = 'study-' + slug + '-predictions';
-      var sidVa = 'study-' + slug + '-variants';
-      var sidIn = 'study-' + slug + '-interventions';
-      var sidGa = 'study-' + slug + '-gaps';
-      var sidQu = 'study-' + slug + '-questions';
-      var sidRe = 'study-' + slug + '-refs';
-
-      // Per-study sub-nav. CSS makes it sticky inside the .study section,
-      // so it sticks at the top of the viewport while you're in the study
-      // and is naturally replaced by the next study's nav as you scroll
-      // past.
-      var subNav = '';
-      var links = [];
-      links.push('<a href="#' + sidQ + '">Question</a>');
-      if (s.description)  links.push('<a href="#' + sidBg + '">Background</a>');
-      if (ebRows)         links.push('<a href="#' + sidPr + '">Predictions <span class="sn-count">' + (s.expected_behavior||[]).length + '</span></a>');
-      if (variants)       links.push('<a href="#' + sidVa + '">Variants <span class="sn-count">' + (s.variants||[]).length + '</span></a>');
-      if (interventions)  links.push('<a href="#' + sidIn + '">Interventions <span class="sn-count">' + (s.interventions||[]).length + '</span></a>');
-      if (gaps)           links.push('<a href="#' + sidGa + '">Gaps <span class="sn-count">' + (s.gaps||[]).length + '</span></a>');
-      if (expertQs)       links.push('<a href="#' + sidQu + '">Expert questions <span class="sn-count">' + (s.expert_questions||[]).length + '</span></a>');
-      if (bibList)        links.push('<a href="#' + sidRe + '">Cited refs <span class="sn-count">' + bib.length + '</span></a>');
-      var dependsBrief = parents ? 'Depends on: ' + parents : '<em>Root study (no dependencies)</em>';
-
-      subNav = ''
-        + '<div class="study-nav">'
-        +   '<div class="study-nav-row1">'
-        +     '<span class="study-nav-num">' + (i + 1) + '.</span>'
-        +     '<strong class="study-nav-name">' + _h(s.name) + '</strong>'
-        +     statusBadge
-        +     '<span class="study-nav-deps muted small">' + dependsBrief + '</span>'
-        +   '</div>'
-        +   '<nav class="study-nav-row2">' + links.join('') + '</nav>'
-        +   '<span class="sn-collapse-hint" data-collapse="study">▴ click to collapse full study</span>'
-        + '</div>';
-
-      // Wrap the v4 narrative-spine section in a <details class="study-fold">
-      // so the Expand all / Collapse all toolbar buttons (which target
-      // .study-fold) actually have something to operate on. v3 studies got
-      // this for free via v3StudySection's <details> wrapper; v4 sections
-      // were left flat and the buttons did nothing on v4-only investigations.
-      // Open by default so existing reader behaviour is unchanged.
-      //
-      // Reuses the v3 `.sp-*` CSS classes so the collapsed-card look matches
-      // what v3 readers already see: num + title + verdict / one-line
-      // objective / slug+depth meta / chips for predictions + variants +
-      // refs / expand hint. Populated from v4 narrative-spine fields:
-      // objective for the one-liner, expected_behavior for the chips, etc.
-      var v4Title    = s.title || _humanizeStudyName(s.name).title;
-      var v4Verdict  = (function() {
-        var st = (s.status || 'planning').toLowerCase();
-        if (st === 'planning' || st === 'planned') return {cls: 'v-prelim', emoji: '📋', label: 'Planned'};
-        if (st === 'running' || st === 'in_progress') return {cls: 'v-cal', emoji: '🔬', label: 'Running'};
-        if (st === 'complete' || st === 'ran' || st === 'passed') return {cls: 'v-pass', emoji: '✅', label: 'Complete'};
-        if (st === 'failed' || st === 'invalid') return {cls: 'v-fail', emoji: '❌', label: 'Failed'};
-        return {cls: 'v-none', emoji: '·', label: _h(s.status || 'planning')};
-      })();
-      var v4Objective = _firstSentence(s.objective || '');
-      var v4Meta = ['<code>' + _h(s.name) + '</code>',
-                    'depth ' + (depthMap[s.name] || 0)];
-      if (s.phase) v4Meta.push('phase ' + _h(s.phase));
-      if (s.topic) v4Meta.push('topic ' + _h(s.topic));
-
-      // Rich-panel content: an optional `report:` block on the study
-      // YAML (same shape as v3 _studyControlPanel reads) drives the
-      // dnaa-style Confidence/Evidence chips + CONCLUSION/INSIGHT/CAVEAT
-      // rows + status-colored key_metrics. Synthesises sensible
-      // pre-execution scaffold values when the block is missing or
-      // partial, so a fresh investigation lands with a populated card
-      // instead of an empty one.
-      var rep = s.report || {};
-      var v4Conf = (rep.confidence || '').trim();
-      var v4Ev   = (rep.evidence_quality || '').trim();
-      if (!v4Conf && (v4Verdict.label === 'Planned')) v4Conf = 'design-stage';
-      if (!v4Ev   && (v4Verdict.label === 'Planned')) v4Ev   = 'scaffold';
-      var v4Conclusion = rep.conclusion   || _firstSentence(rep.result)
-                       || (v4Verdict.label === 'Planned' && s.hypothesis
-                            ? 'Predicted — ' + _firstSentence(s.hypothesis) : '');
-      var v4Insight    = rep.main_insight || _firstSentence(rep.interpretation);
-      var v4Caveat     = rep.caveat;
-      if (!v4Caveat && Array.isArray(s.limitations) && s.limitations.length) {
-        var l0 = s.limitations[0];
-        v4Caveat = (typeof l0 === 'string') ? l0 : (l0 && (l0.text || l0.limitation)) || '';
-      }
-      var v4LitMatch = (rep.lit_match || '').trim();
-
-      // Chip strip: rich key_metrics (label+value+status) when authored,
-      // else auto-derived prediction-count + status breakdown + variants
-      // + refs + deps.
-      var v4Chips = [];
-      (rep.key_metrics || []).forEach(function(m) {
-        if (typeof m === 'string') {
-          v4Chips.push('<span class="sp-metric">' + _h(m) + '</span>');
-        } else if (m && typeof m === 'object') {
-          var st = (m.status || '').toLowerCase();
-          var icon = st === 'pass' ? '✅ ' : st === 'warn' ? '⚠️ ' : st === 'fail' ? '❌ ' : '';
-          var txt = (m.label || '') + (m.value != null ? ': ' + m.value : '');
-          v4Chips.push('<span class="sp-metric sp-metric-' + _h(st || 'plain') + '">' + icon + _h(txt) + '</span>');
-        }
-      });
-      var ebList = s.expected_behavior || [];
-      if (ebList.length) {
-        var counts = {stub: 0, gated: 0, implemented: 0};
-        ebList.forEach(function(b) {
-          var st = (b && b.status) || 'implemented';
-          if (counts[st] !== undefined) counts[st]++;
-        });
-        v4Chips.push('<span class="sp-metric">' + ebList.length + ' predictions</span>');
-        if (counts.implemented) v4Chips.push('<span class="sp-metric sp-metric-pass">✅ ' + counts.implemented + ' implemented</span>');
-        if (counts.gated)       v4Chips.push('<span class="sp-metric sp-metric-warn">⏳ ' + counts.gated + ' gated</span>');
-        if (counts.stub)        v4Chips.push('<span class="sp-metric">🟡 ' + counts.stub + ' stub</span>');
-      }
-      var nVar = (s.variants || []).length;
-      if (nVar) v4Chips.push('<span class="sp-metric">' + nVar + ' variants</span>');
-      var v4Bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      if (v4Bib.length) v4Chips.push('<span class="sp-metric">' + v4Bib.length + ' refs</span>');
-      var nParents = (s.parent_studies || []).length;
-      if (nParents) v4Chips.push('<span class="sp-metric">depends on ' + nParents + '</span>');
-      var nKids = (children[s.name] || []).length;
-      if (nKids) v4Chips.push('<span class="sp-metric">blocks ' + nKids + '</span>');
-      if (v4LitMatch) v4Chips.push('<span class="sp-metric">Lit match: ' + _h(v4LitMatch) + '</span>');
-
-      // Section-nav chips inside the sticky panel. CSS hides this row
-      // when the fold is COLLAPSED (it would just duplicate the
-      // metric chips below); when OPEN, the rich rows are hidden and
-      // this nav becomes the primary content of the sticky strip, so
-      // the user can jump to Question / Background / Predictions / etc.
-      // without scrolling back to the topbar.
-      var spSectionNav = links.length
-        ? '<nav class="sp-section-nav">' + links.join('') + '</nav>'
-        : '';
-
-      var foldSummary = ''
-        + '<summary class="study-panel">'
-        +   '<div class="sp-top">'
-        +     '<span class="sp-num">' + (i + 1) + '.</span>'
-        +     '<span class="sp-title">' + _h(v4Title) + '</span>'
-        +     '<span class="sp-verdict ' + v4Verdict.cls + '">' + v4Verdict.emoji + ' ' + _h(v4Verdict.label) + '</span>'
-        +   '</div>'
-        +   spSectionNav
-        +   (v4Objective ? '<div class="sp-objective">' + _h(v4Objective) + '</div>' : '')
-        +   '<div class="sp-meta">' + v4Meta.join(' · ') + '</div>'
-        +   ((v4Conf || v4Ev)
-              ? '<div class="sp-quality">'
-                + (v4Conf ? '<span class="sp-conf sp-conf-' + _h(v4Conf.toLowerCase()) + '">Confidence: ' + _h(v4Conf) + '</span>' : '')
-                + (v4Ev   ? '<span class="sp-ev">Evidence: ' + _h(v4Ev) + '</span>' : '')
-                + '</div>'
-              : '')
-        +   (v4Conclusion ? '<div class="sp-conclusion"><span class="sp-lbl">Conclusion</span> ' + _h(v4Conclusion) + '</div>' : '')
-        +   (v4Chips.length ? '<div class="sp-metrics">' + v4Chips.join('') + '</div>' : '')
-        +   (v4Insight ? '<div class="sp-insight"><span class="sp-lbl">Insight</span> ' + _h(v4Insight) + '</div>' : '')
-        +   (v4Caveat  ? '<div class="sp-caveat"><span class="sp-lbl">Caveat</span> '   + _h(v4Caveat)  + '</div>' : '')
-        +   '<span class="sp-expand-hint">▸ click to expand full study</span>'
-        + '</summary>';
-
-      // Dropped chrome on the v4 expanded section to remove three forms
-      // of redundancy with the (now-rich) sp-* summary panel:
-      //   1. subNav (sticky study-nav with chips like Question / Background
-      //      / Predictions / Cited refs) — the sp-metrics chips in the
-      //      summary panel already convey the same counts; the topbar nav
-      //      handles cross-study navigation. Removing it also kills the
-      //      double-sticky stack (topbar + study-fold panel + study-nav).
-      //   2. <header class="study-header"><h2>num. slug status</h2></header>
-      //      — every field is in sp-top + sp-meta of the panel above.
-      //   3. The "Depends on / Blocks" paragraphs that lived in the
-      //      header — these are now shown as the resolved dep list right
-      //      below the summary so the dep slugs (not just counts) stay
-      //      visible while the panel is sticky.
-      var depsLine = '';
-      if (parents || kids) {
-        var bits = [];
-        if (parents) bits.push('<span class="muted">Depends on:</span> ' + parents);
-        if (kids)    bits.push('<span class="muted">Blocks:</span> '     + kids);
-        depsLine = '<p class="study-deps muted small">' + bits.join(' &nbsp;·&nbsp; ') + '</p>';
-      }
-
-      // Task 9: per-study "Reproduce" line — the canonical baseline `vdash …`
-      // command off the study payload (single source of truth). Absent on
-      // older payloads / the static bundle → no line, never "undefined".
-      var _reproBase = s.run_commands && s.run_commands.baseline;
-      var reproLine = _reproBase
-        ? '<p class="reproduce-line muted small">Reproduce: ' + _runChip(_reproBase) + '</p>'
-        : '';
-
-      // FRAMEWORK FIX: the v4 narrative-spine renderer had no charts/embeds
-      // section, so any study that did not trip isV3 (a schema_version 3/4
-      // study authored with findings/tests/baseline but none of
-      // purpose|simulation_set|behavior_tests|pipeline_gate|readouts|
-      // implementation_requirements) silently dropped its figures even though
-      // /api/study-charts returned them. Render both here too, mirroring
-      // v3StudySection, so charts/visualizations are never lost by the routing.
-      var v4Charts = (chartsByStudy && chartsByStudy[s.name]) || [];
-      var v4ChartsHtml = v4Charts.length
-        ? '<div id="study-' + slug + '-charts"><h3>Visualisations from the latest run</h3>'
-          + _renderChartCardsHtml(v4Charts, slug) + '</div>'
-        : '';
-      var v4Embeds = (embedsByStudy && embedsByStudy[s.name]) || [];
-      var v4EmbedsHtml = v4Embeds.length
-        ? '<div class="study-embeds" id="study-' + slug + '-embeds"><h3>Interactive visualizations</h3>'
-          + v4Embeds.map(function(emb) {
-              var escaped = String((emb && emb.html) || '')
-                .replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-              var frame = escaped
-                ? '<iframe srcdoc="' + escaped + '" loading="lazy" scrolling="no" '
-                  + 'style="width:100%;border:0;min-height:420px" '
-                  + 'title="' + _h((emb && emb.name) || 'visualization') + '"></iframe>'
-                : (emb && emb.url
-                    ? '<p><a href="' + _h(emb.url) + '">' + _h(emb.name || emb.url) + '</a></p>'
-                    : '');
-              return '<div class="study-embed">'
-                + ((emb && emb.title) ? '<div class="chart-title" style="font-weight:600;margin-bottom:4px">' + _h(emb.title) + '</div>' : '')
-                + frame + '</div>';
-            }).join('')
-          + '</div>'
-        : '';
-
-      return ''
-        + '<details class="study-fold" id="study-fold-' + slug + '">'
-        + foldSummary
-        + '<section class="study" id="study-' + slug + '">'
-        +   depsLine
-        +   reproLine
-
-        +   '<div class="qh" id="' + sidQ + '">'
-        +     (s.question   ? '<p><strong>Question.</strong> '   + _multiline(s.question)   + '</p>' : '')
-        +     (s.hypothesis ? '<p><strong>Hypothesis.</strong> ' + _multiline(s.hypothesis) + '</p>' : '')
-        +     (s.objective  ? '<p><strong>Objective.</strong> '  + _multiline(s.objective)  + '</p>' : '')
-        +   '</div>'
-
-        +   (s.description ? '<div class="description" id="' + sidBg + '"><h3>Background</h3><p>' + _multiline(s.description) + '</p></div>' : '')
-
-        +   (ebRows ? '<div id="' + sidPr + '"><h3>Predicted behavior (assumptions to validate)</h3>'
-                    + '<p class="muted small">Each row is a precise, testable prediction. Status indicates whether the supporting code is in place today (implemented) or gated on upstream work (gated / stub).</p>'
-                    + '<table class="eb"><thead><tr><th>Name</th><th>Prediction</th><th>Status</th><th>Citations</th></tr></thead>'
-                    + '<tbody>' + ebRows + '</tbody></table></div>' : '')
-
-        +   v4EmbedsHtml       // Interactive visualizations (embed_visualizations)
-        +   v4ChartsHtml       // Charts / figures from the latest run (framework fix)
-
-        +   (variants ? '<div id="' + sidVa + '"><h3>Variants (perturbations to be tested)</h3>' + variants + '</div>' : '')
-
-        +   (interventions ? '<div id="' + sidIn + '"><h3>Interventions (simulation plans)</h3>' + interventions + '</div>' : '')
-
-        +   (gaps ? '<div id="' + sidGa + '"><h3>Open gaps / explicit deferrals</h3>'
-                  + '<p class="muted small">Concrete pieces of code that need to land before this study can run end-to-end.</p>'
-                  + gaps + '</div>' : '')
-
-        +   (expertQs ? '<div id="' + sidQu + '"><h3>Questions for domain experts</h3><ul class="expert-qs">' + expertQs + '</ul></div>' : '')
-
-        +   (bibList ? '<div id="' + sidRe + '"><h3>References cited by this study</h3><p>' + bibList + '</p></div>' : '')
-
-        + '</section>'
-        + '</details>';
-    }
-
-    // ── PARTS grouping (framework): investigation.yaml may declare a `parts`
-    // field grouping studies into conceptual phases (Foundations / Nucleotide
-    // cycle / Chromosome binding / Initiation trigger / Reset mechanisms / …).
-    // When present, render a Part header before each group's studies so the
-    // report reads as a coherent mechanism progression rather than a flat list.
-    // Schema:
-    //   parts:
-    //     - name: "I. Foundations"
-    //       overview: "Optional 1-2 sentence prose..."
-    //       studies: ["dnaa-00-parameter-foundation", "dnaa-01-expression-dynamics"]
-    var studiesHtml;
-    var parts = (iset && Array.isArray(iset.parts)) ? iset.parts : null;
-    if (parts && parts.length) {
-      // Map slug → index in `ordered` so we render each study once even when
-      // a part declares a study not in `ordered` (skip) or `ordered` has a
-      // study not declared in any part (append as "Unassigned" group).
-      var byNameIdx = {};
-      ordered.forEach(function(s, i) { byNameIdx[s && s.name] = i; });
-      var rendered = {};
-      var groupHtmls = [];
-      parts.forEach(function(part) {
-        var partStudies = (part && Array.isArray(part.studies)) ? part.studies : [];
-        var sections = [];
-        partStudies.forEach(function(slug) {
-          var i = byNameIdx[slug];
-          if (i === undefined) return;
-          sections.push(studySection(ordered[i], i));
-          rendered[slug] = true;
-        });
-        if (!sections.length) return;
-        var heading = '<header class="part-heading"><h2 class="part-title">' + _h(part.name || '') + '</h2>'
-          + (part.overview ? '<p class="part-overview">' + _multiline(part.overview) + '</p>' : '')
-          + '</header>';
-        groupHtmls.push('<section class="investigation-part">' + heading + sections.join('\n') + '</section>');
-      });
-      // Catch any unassigned studies (so nothing silently disappears).
-      var unassigned = ordered.filter(function(s) { return s && !rendered[s.name]; });
-      if (unassigned.length) {
-        var stub = '<header class="part-heading"><h2 class="part-title">Other studies</h2></header>';
-        var sec = unassigned.map(function(s) { return studySection(s, byNameIdx[s.name]); }).join('\n');
-        groupHtmls.push('<section class="investigation-part">' + stub + sec + '</section>');
-      }
-      studiesHtml = groupHtmls.join('\n');
-    } else {
-      studiesHtml = ordered.map(studySection).join('\n');
-    }
-
-    /* `acceptance` variable removed: it built an <ol> of acceptance_criteria
-       entries that fed the top-of-report "Acceptance criteria" section
-       (now removed). The acceptance_criteria field on investigation.yaml
-       still exists in the schema; per-study behavior_tests +
-       conclusion_verdicts carry the same signal more actionably.
-       The defensive `_asList` coercion this fix added at the (now-deleted)
-       render site is superseded; the durable guard lives server-side in
-       `_coerce_list_field`. `_asList` is kept as a reusable helper. */
-    var acceptance = '';
-
-    // ── Collect the union of references across the investigation + studies ──
-    // Sources: study expected_behavior[].cites + bibliography.bib_keys (bib keys),
-    // the investigation's declared inputs.references (iset.references, bib keys),
-    // and each study's `references:` (bib-key strings → looked up in papers.bib;
-    // rich {name,url,role} entries → rendered as standalone sources).
-    var citedKeys = new Set();
-    var extraSources = [];
-    function _collectRef(r) {
-      if (typeof r === 'string') { if (r) citedKeys.add(r); return; }
-      if (!r || typeof r !== 'object') return;
-      if (r.key || r.bib_key) { citedKeys.add(r.key || r.bib_key); return; }
-      if (r.name || r.url || r.path) extraSources.push(r);
-    }
-    (iset.references || []).forEach(_collectRef);
-    specs.forEach(function(s) {
-      (s.expected_behavior || []).forEach(function(b) {
-        (b.cites || []).forEach(function(k) { citedKeys.add(k); });
-      });
-      var bib = (s.bibliography && s.bibliography.bib_keys) || [];
-      bib.forEach(function(k) { citedKeys.add(k); });
-      (s.references || []).forEach(_collectRef);
-    });
-    var orderedCited = Array.from(citedKeys).sort();
-    var referencesHtml = orderedCited.map(function(key) {
-      var e = bibByKey[key];
-      if (!e) {
-        return '<li class="ref-entry"><code>' + _h(key) + '</code> <span class="muted">— (not in papers.bib)</span></li>';
-      }
-      var citation = '';
-      if (e.author)  citation += _h(e.author);
-      if (e.year)    citation += (citation ? ' (' + _h(e.year) + ')' : _h(e.year));
-      if (e.title)   citation += (citation ? '. ' : '') + '<em>' + _h(e.title) + '</em>';
-      if (e.journal) citation += '. ' + _h(e.journal);
-      if (e.volume) {
-        citation += ' ' + _h(e.volume);
-        if (e.number) citation += '(' + _h(e.number) + ')';
-      }
-      if (e.pages)   citation += ', pp. ' + _h(e.pages);
-      var doiLink = e.doi ? ' · <a href="https://doi.org/' + encodeURIComponent(e.doi) + '" target="_blank">doi:' + _h(e.doi) + '</a>' : '';
-      var urlLink = e.url ? ' · <a href="' + _h(e.url) + '" target="_blank">link ↗</a>' : '';
-      return '<li class="ref-entry" id="ref-' + _h(key) + '">'
-           + '<code>' + _h(key) + '</code> &middot; '
-           + citation
-           + doiLink + urlLink
-           + (e.note ? '<div class="muted small">Note: ' + _h(e.note) + '</div>' : '')
-           + '</li>';
-    }).join('');
-    // Rich study/investigation sources (name + online link + role) that aren't
-    // papers.bib keys — de-duped by name+url, appended to the References list.
-    var _seenSrc = {};
-    referencesHtml += extraSources.filter(function (r) {
-      var k = (r.name || '') + '|' + (r.url || r.path || '');
-      if (_seenSrc[k]) return false; _seenSrc[k] = 1; return true;
-    }).map(function (r) {
-      var label = _h(r.name || r.url || r.path || 'source');
-      var head = r.url
-        ? '<a href="' + _h(r.url) + '" target="_blank" rel="noopener">' + label + '</a> <small class="muted">↗</small>'
-        : '<strong>' + label + '</strong>';
-      return '<li class="ref-entry">' + head
-           + (r.role ? '<div class="muted small">' + _h(r.role) + '</div>' : '') + '</li>';
-    }).join('');
-
-    // ── Build the TOC (sidebar nav) entries from the ordered studies ────
-    // Display name is human-readable; the kebab-slug appears in small
-    // muted text below as a stable identifier reference. Counts surface
-    // the v3-shape quantities a reader actually cares about.
-    function _humanizeStudyName(slug) {
-      // strip a leading "<prefix>-NN[a-z]?-" so dnaa-01-expression-dynamics
-      // becomes just "expression-dynamics". Keep the numbered prefix for
-      // display as a chip ("dnaa-01").
-      var m = /^([a-z]+-\d+[a-z]*)-(.+)$/.exec(slug);
-      if (!m) return {chip: '', title: slug.replace(/-/g, ' ')};
-      var rest = m[2].replace(/-/g, ' ');
-      // Title-case the first letter of the first word; leave the rest in
-      // lowercase so identifiers (rna_synth_prob etc.) read naturally.
-      rest = rest.charAt(0).toUpperCase() + rest.slice(1);
-      // Truncate aggressively for very long follow-up names.
-      if (rest.length > 60) rest = rest.slice(0, 57) + '…';
-      return {chip: m[1], title: rest};
-    }
-
-    var nameClean = _h(iset.name);
-
-    return ''
-      + '<!doctype html>\n<html><head><meta charset="utf-8">'
-      + '<title>Investigation: ' + _h(iset.title || iset.name) + '</title>'
-      + '<style>'
-      // ── reset + base ──
-      + '*{box-sizing:border-box}'
-      + 'html,body{margin:0;padding:0}'
-      + 'body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;color:#0f172a;line-height:1.55;background:#fff}'
-      // ── layout: sticky top nav + single centered column ──
-      + '.topbar{position:sticky;top:0;z-index:100;display:flex;flex-wrap:wrap;align-items:center;gap:6px;'
-      +     'padding:9px 20px;background:rgba(255,255,255,0.95);backdrop-filter:saturate(140%) blur(6px);'
-      +     'border-bottom:1px solid #e2e8f0}'
-      + '.topbar .tb-title{font-weight:700;font-size:0.92em;color:#0f172a;margin-right:10px;white-space:nowrap}'
-      + '.topbar a{font-size:0.83em;color:#334155;text-decoration:none;padding:4px 12px;border-radius:9999px;background:#f1f5f9;white-space:nowrap}'
-      + '.topbar a:hover{background:#e2e8f0;color:#0f172a}'
-      + '.topbar a.active{background:#dbeafe;color:#1e40af;font-weight:600}'
-      // (reader-mode toggle removed — the report always shows the full view;
-      //  the tier-reviewer/tier-developer wrappers remain as inert containers.)
-      /* iset switcher dropdown at the right end of the topbar (margin-left:auto
-         pushes it past the section links). Calls /api/investigation-registry
-         to list peer dashboards; click a peer row to navigate. Trigger styled
-         like the section-anchor chips but with a subtle distinguishing border
-         so it doesn't look like just another anchor. */
-      + '.tb-iset-switcher{margin-left:auto;display:inline-flex;align-items:center;gap:5px;'
-      +     'font:inherit;font-size:0.83em;color:#334155;'
-      +     'padding:4px 12px;border-radius:9999px;background:#fff;border:1px solid #cbd5e1;cursor:pointer;'
-      +     'white-space:nowrap}'
-      + '.tb-iset-switcher:hover{background:#f1f5f9;border-color:#94a3b8}'
-      + '.tb-iset-switcher[aria-expanded="true"]{background:#dbeafe;border-color:#3b82f6;color:#1e40af}'
-      + '.tb-iset-switcher-icon{font-size:1.05em;line-height:1}'
-      + '.tb-iset-switcher-arrow{font-size:0.7em;color:#94a3b8;margin-left:1px}'
-      + '.tb-iset-menu{position:fixed;z-index:200;min-width:320px;max-width:480px;max-height:70vh;overflow-y:auto;'
-      +     'background:#fff;border:1px solid #cbd5e1;border-radius:8px;'
-      +     'box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:6px 0}'
-      + '.tb-iset-menu[hidden]{display:none}'
-      + '.tb-iset-menu-section{padding:6px 14px 4px;font-size:0.7em;font-weight:700;letter-spacing:0.05em;'
-      +     'text-transform:uppercase;color:#94a3b8}'
-      + '.tb-iset-menu-row{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;border:0;background:none;'
-      +     'width:100%;text-align:left;font:inherit;color:#0f172a;font-size:0.86em}'
-      + '.tb-iset-menu-row:hover{background:#f1f5f9}'
-      + '.tb-iset-menu-row-current{background:#dbeafe;color:#1e40af;cursor:default}'
-      + '.tb-iset-menu-row-current:hover{background:#dbeafe}'
-      + '.tb-iset-menu-slug{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-      + '.tb-iset-menu-pill{font-size:0.7em;font-weight:600;padding:2px 7px;border-radius:9999px;'
-      +     'background:#f1f5f9;color:#64748b;white-space:nowrap}'
-      + '.tb-iset-menu-pill-here{background:#dcfce7;color:#166534}'
-      + '.tb-iset-menu-pill-running{background:#fef9c3;color:#854d0e}'
-      + '.tb-iset-menu-pill-dormant{background:#f1f5f9;color:#64748b}'
-      + '.tb-iset-menu-empty,.tb-iset-menu-error{padding:10px 14px;font-size:0.82em;color:#64748b}'
-      + '.tb-iset-menu-error{color:#991b1b}'
-      + '.content{max-width:none;margin:0;padding:24px 40px}'
-      // Anchor targets clear the sticky bar when jumped to.
-      + '.content [id]{scroll-margin-top:60px}'
-      // Cap prose paragraphs only (≈75 chars) so wide-screen lines stay
-      // readable, but keep tables, code blocks, and callouts full-width.
-      // Text spans the full content width — no separate prose cap (which used
-      // to stop paragraphs short of the page while headings/rules ran wider).
-      + '.content p, .content li, .content .description p, .qh p{max-width:none}'
-      // ── typography ──
-      + 'h1{margin:0 0 8px 0;font-size:2em;line-height:1.2}'
-      + 'h2{margin:32px 0 12px 0;font-size:1.4em;border-bottom:1px solid #e2e8f0;padding-bottom:6px;scroll-margin-top:16px}'
-      + 'h3{margin:22px 0 8px 0;font-size:1.08em;color:#1e293b}'
-      + 'p{margin:8px 0}'
-      + 'code{background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:0.88em;font-family:ui-monospace,monospace}'
-      + 'pre{background:#f1f5f9;padding:10px 12px;border-radius:4px;font-size:0.85em;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word}'
-      // ── tables ──
-      + 'table{border-collapse:collapse;width:100%;font-size:0.92em;margin:8px 0}'
-      + 'th,td{border-bottom:1px solid #e2e8f0;padding:7px 10px;text-align:left;vertical-align:top}'
-      + 'th{background:#f8fafc;font-weight:600}'
-      + 'table.eb td{vertical-align:top}'
-      + 'table.eb td:first-child{font-family:ui-monospace,monospace;font-size:0.85em;color:#475569;white-space:nowrap}'
-      // ── badges + status pills ──
-      + '.muted{color:#64748b}'
-      + '.small{font-size:0.85em}'
-      + '.badge{display:inline-block;font-size:0.72em;padding:2px 9px;border-radius:9999px;background:#e2e8f0;color:#1e293b;text-transform:lowercase;vertical-align:middle;margin-left:8px;font-weight:500}'
-      + '.badge-planned{background:#f1f5f9;color:#475569}'
-      + '.badge-running{background:#dbeafe;color:#1e40af}'
-      + '.badge-ran{background:#d1fae5;color:#065f46}'
-      + '.badge-complete{background:#d1fae5;color:#064e3b}'
-      + '.badge-failed{background:#fee2e2;color:#991b1b}'
-      + '.badge-invalid{background:#fee2e2;color:#991b1b}'
-      + '.badge-planning{background:#fef3c7;color:#92400e}'
-      + '.phase-badge{display:inline-block;font-size:0.72em;padding:2px 9px;border-radius:9999px;margin-right:4px;font-weight:500;background:#e0e7ff;color:#3730a3;vertical-align:middle}'
-      + '.phase-design{background:#e0e7ff;color:#3730a3}'
-      + '.phase-build{background:#fef3c7;color:#92400e}'
-      + '.phase-simulate{background:#dbeafe;color:#1e40af}'
-      + '.phase-evaluate{background:#fce7f3;color:#9d174d}'
-      + '.phase-decide{background:#d1fae5;color:#065f46}'
-      + '.callout{margin:8px 0;padding:10px 14px;border-radius:4px;line-height:1.55}'
-      + '.callout.cl-blue{background:#eff6ff;border-left:4px solid #3b82f6}'
-      + '.callout.cl-yellow{background:#fefce8;border-left:4px solid #facc15}'
-      + '.callout.cl-green{background:#f0fdf4;border-left:4px solid #10b981}'
-      + '.callout strong{margin-right:6px}'
-      // follow-up cards
-      + '.fu-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #94a3b8;border-radius:4px;background:#f8fafc;font-size:0.93em}'
-      + '.fu-kind-existing{border-left-color:#3b82f6;background:#eff6ff}'
-      + '.fu-kind-infrastructure_fix{border-left-color:#dc2626;background:#fef2f2}'
-      + '.fu-kind-calibration_task{border-left-color:#f59e0b;background:#fefce8}'
-      + '.fu-kind-expert_question{border-left-color:#a855f7;background:#faf5ff}'
-      + '.fu-kind-new{border-left-color:#10b981;background:#f0fdf4}'
-      + '.fu-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}'
-      + '.fu-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.fu-effort{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-family:ui-monospace,monospace}'
-      + '.fu-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.fu-status-blocked{background:#fef3c7;color:#92400e}'
-      + '.fu-status-done{background:#d1fae5;color:#065f46}'
-      + '.fu-title{flex:1}'
-      + '.fu-why,.fu-unblocks,.fu-acc,.fu-hyp{margin:4px 0 0 0;font-size:0.92em;line-height:1.45}'
-      + '.fu-hyp{padding:6px 10px;background:#fff;border-radius:3px;border:1px dashed #cbd5e1}'
-      + '.fu-acc ul{margin:2px 0 0 18px;padding:0}'
-      // discovery implications — alternate hypotheses, mechanism updates,
-      // selectable follow-up proposals.
-      + '.discovery-implications{margin:0 0 24px 0;padding:14px 16px;background:#fdfcff;border:1px solid #ddd6fe;border-radius:8px}'
-      + '.discovery-implications>h3{margin-top:0}'
-      + '.di-group{margin:14px 0 0 0}'
-      + '.di-group>h4{margin:0 0 6px 0;font-size:0.95em}'
-      + '.di-uncertainties{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}'
-      + '.di-unc{flex:1;min-width:220px;padding:8px 12px;border-radius:6px;font-size:0.9em}'
-      + '.di-unc>h4{margin:0 0 4px 0;font-size:0.85em}'
-      + '.di-unc ul{margin:0 0 0 18px;padding:0}'
-      + '.di-unc-resolved{background:#ecfdf5;border:1px solid #a7f3d0}'
-      + '.di-unc-remaining{background:#fffbeb;border:1px solid #fde68a}'
-      + '.di-alt-card,.di-mech-card,.di-fup-card{padding:10px 14px;margin:8px 0;border:1px solid #e2e8f0;border-left:4px solid #a78bfa;border-radius:4px;background:#fff;font-size:0.93em}'
-      + '.di-alt-stmt{margin-bottom:4px}'
-      + '.di-alt-why{color:#475569;margin:4px 0;line-height:1.45}'
-      + '.di-alt-ev{display:flex;gap:8px;margin:4px 0}'
-      + '.di-ev{font-size:0.78em;padding:1px 8px;border-radius:9999px}'
-      + '.di-ev-for{background:#dcfce7;color:#166534}'
-      + '.di-ev-against{background:#fee2e2;color:#991b1b}'
-      + '.di-alt-disc,.di-alt-elems,.di-fup-targets{font-size:0.85em;color:#475569;margin-top:4px}'
-      + '.di-lbl{color:#64748b;font-weight:600}'
-      + '.di-mech-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}'
-      + '.di-mech-target{background:#f1f5f9;padding:1px 6px;border-radius:3px}'
-      + '.di-mech-rationale{color:#475569;line-height:1.45}'
-      + '.di-update-chip{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.di-update-strengthen{background:#dcfce7;color:#166534}'
-      + '.di-update-weaken{background:#fef3c7;color:#92400e}'
-      + '.di-update-reject{background:#fee2e2;color:#991b1b}'
-      + '.di-update-revise,.di-update-split,.di-update-merge{background:#e0e7ff;color:#3730a3}'
-      + '.di-conf-change{font-size:0.72em;padding:1px 8px;border-radius:9999px;background:#eef2ff;color:#4338ca;font-family:ui-monospace,monospace}'
-      + '.di-approval-badge{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e}'
-      + '.di-fup-card{border-left-color:#10b981}'
-      + '.di-fup-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}'
-      + '.di-fup-title{flex:1;min-width:160px}'
-      + '.di-fup-exp{color:#475569;margin:4px 0;line-height:1.45}'
-      + '.di-type-chip,.di-trigger-chip,.di-prio-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.di-trigger-chip{background:#f3e8ff;color:#6b21a8}'
-      + '.di-gain-chip{font-size:0.7em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#475569}'
-      + '.di-gain-high{background:#dcfce7;color:#166534}'
-      + '.di-gain-medium{background:#fef9c3;color:#854d0e}'
-      + '.di-gain-low{background:#f1f5f9;color:#64748b}'
-      + '.di-add-btn{margin-top:8px;font-size:0.82em;padding:4px 12px;border:1px solid #10b981;background:#f0fdf4;color:#065f46;border-radius:4px;cursor:pointer}'
-      + '.di-add-btn:hover{background:#dcfce7}'
-      + '.di-add-btn:disabled{opacity:0.6;cursor:default}'
-      + '.di-addressed{margin-top:12px}'
-      // charts — SVGs scale to fit their card container; preserves aspect
-      // ratio so a 1400×484 chart shrinks to (e.g.) 800×276 instead of
-      // overflowing horizontally + clipping content.
-      + '.chart-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px 12px 12px;margin:10px 0}'
-      + '.chart-card svg,.chart-card img.chart-img{display:block;width:100%;max-width:100%;height:auto}'
-      + '.chart-caption{font-size:0.83em;color:#475569;margin-top:4px;line-height:1.4}'
-      + '.chart-simulations{font-size:0.9em;color:#1e3a8a;background:#dbeafe;border-left:3px solid #2563eb;padding:6px 10px;margin-top:8px;border-radius:0 3px 3px 0;line-height:1.5}'
-      + '.chart-simulations strong{color:#1e40af}'
-      + '.chart-interpretation{font-size:0.9em;color:#14532d;background:#dcfce7;border-left:3px solid #16a34a;padding:6px 10px;margin-top:6px;border-radius:0 3px 3px 0;line-height:1.5}'
-      + '.chart-interpretation strong{color:#15803d}'
-      // implementation-requirement cards (biologist-friendly layout)
-      + '.req-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-radius:6px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.02)}'
-      + '.req-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}'
-      + '.req-id{font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px;font-family:ui-monospace,monospace}'
-      + '.req-title{font-size:1.02em;flex:1;line-height:1.3}'
-      + '.req-badges{display:flex;gap:4px;flex-wrap:wrap}'
-      + '.req-kind{font-size:0.7em;text-transform:lowercase;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}'
-      + '.req-effort{font-size:0.72em;font-family:ui-monospace,monospace;padding:1px 8px;border-radius:9999px;background:#fef3c7;color:#92400e;font-weight:600}'
-      + '.req-status{font-size:0.7em;padding:1px 8px;border-radius:9999px;font-weight:500}'
-      + '.req-status-open{background:#fee2e2;color:#991b1b}'
-      + '.req-status-deferred{background:#fef3c7;color:#92400e}'
-      + '.req-status-done{background:#d1fae5;color:#065f46}'
-      + '.req-key{padding:8px 12px;background:#f8fafc;border-left:3px solid #3b82f6;border-radius:3px;font-size:0.94em;line-height:1.5;margin:6px 0}'
-      + '.req-deferred{padding:6px 10px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:3px;font-size:0.86em;color:#78350f;margin:6px 0}'
-      + '.req-unblocks{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.88em;margin:6px 0}'
-      + '.req-unblocks ul{margin:4px 0 0 20px;padding:0}'
-      + '.req-unblocks li{margin:2px 0}'
-      + '.req-detail{margin-top:8px;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.req-detail summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}'
-      + '.req-detail summary:hover{color:#0f172a}'
-      + '.req-detail-section{margin-top:8px}'
-      + '.req-detail-section h5{margin:6px 0 4px 0;font-size:0.85em;color:#475569;text-transform:uppercase;letter-spacing:0.04em}'
-      + '.req-detail-section ol,.req-detail-section ul{margin:4px 0 0 22px;padding:0;font-size:0.93em}'
-      // simulation cards (biologist-friendly layout)
-      + '.sim-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-radius:6px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.02)}'
-      + '.sim-card.sim-sim-status-gated{border-left:4px solid #f59e0b;background:#fffbeb}'
-      + '.sim-card.sim-sim-status-ready{border-left:4px solid #10b981}'
-      + '.sim-card.sim-sim-status-ran{border-left:4px solid #3b82f6;background:#eff6ff}'
-      + '.sim-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}'
-      + '.sim-name{font-size:1.02em;flex:1}'
-      + '.sim-status-pill{font-size:0.7em;text-transform:lowercase;padding:1px 8px;border-radius:9999px;font-weight:500}'
-      + '.sim-status-pill.sim-status-ready{background:#d1fae5;color:#065f46}'
-      + '.sim-status-pill.sim-status-gated{background:#fef3c7;color:#92400e}'
-      + '.sim-status-pill.sim-status-ran{background:#dbeafe;color:#1e40af}'
-      + '.sim-pert{padding:8px 12px;margin:6px 0;background:#f8fafc;border-left:3px solid #3b82f6;border-radius:3px;font-size:0.92em}'
-      + '.sim-pert ul{margin:4px 0 0 20px;padding:0}'
-      + '.sim-pert li{margin:2px 0;line-height:1.4}'
-      + '.sim-pert-none{color:#64748b;font-style:italic;border-left-color:#cbd5e1}'
-      + '.sim-meta{margin:6px 0;font-size:0.85em;color:#475569}'
-      + '.sim-meta span{margin-right:2px}'
-      + '.sim-meta em{font-style:normal;color:#94a3b8;font-size:0.92em}'
-      + '.sim-readouts,.sim-tests{margin:6px 0;font-size:0.88em;line-height:1.5}'
-      + '.sim-blocked{padding:6px 10px;margin:6px 0;background:#fef2f2;border-left:3px solid #dc2626;border-radius:3px;font-size:0.88em;color:#7f1d1d}'
-      + '.sim-blocked code{background:rgba(220,38,38,0.08);padding:1px 4px;border-radius:2px}'
-      + '.sim-detail{margin-top:8px;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.sim-detail summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}'
-      + '.sim-detail summary:hover{color:#0f172a}'
-      + '.sim-extra{margin-top:6px;font-size:0.92em;line-height:1.5}'
-      // findings (top-of-section "what we learned" cards)
-      + '.findings-section{margin:0 0 24px 0;padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}'
-      + '.findings-section h3{margin:0 0 6px 0;color:#3730a3}'
-      // study summary (plain-English block at top of each study)
-      + '.study-summary{padding:14px 16px;margin:12px 0 16px 0;background:#f8fafc;border-left:4px solid #6366f1;border-radius:6px}'
-      + '.study-summary-text{margin:0;font-size:1.02em;line-height:1.55;color:#1e293b}'
-      // Compact authored report block (leads each study).
-      + '.study-report{margin:12px 0 14px 0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden}'
-      + '.study-report-row{display:flex;gap:0;border-bottom:1px solid #eef2f7}'
-      + '.study-report-row:last-child{border-bottom:none}'
-      + '.study-report .srl{flex:0 0 130px;padding:9px 12px;background:#f8fafc;font-weight:600;font-size:0.82em;'
-      +    'text-transform:uppercase;letter-spacing:0.03em;color:#475569}'
-      + '.study-report .srv{flex:1 1 auto;padding:9px 14px;color:#1e293b;min-width:0}'
-      + '.tech-details{margin-top:10px;padding:6px 10px;background:#ffffff;border:1px solid #e2e8f0;border-radius:4px;font-size:0.88em}'
-      + '.tech-details summary{cursor:pointer;color:#475569;font-weight:500}'
-      + '.tech-details summary:hover{color:#0f172a}'
-      // decision box
-      + '.decision-box{margin:0 0 20px 0;padding:14px 16px;border-radius:8px;border:2px solid #cbd5e1;background:#fff}'
-      + '.decision-box.dec-passed{border-color:#10b981;background:#f0fdf4}'
-      + '.decision-box.dec-blocked{border-color:#dc2626;background:#fef2f2}'
-      + '.decision-box.dec-needscal{border-color:#f59e0b;background:#fffbeb}'
-      + '.decision-box.dec-ready{border-color:#3b82f6;background:#eff6ff}'
-      + '.decision-box.dec-notstarted{border-color:#94a3b8;background:#f8fafc}'
-      + '.decision-box.dec-inprogress{border-color:#8b5cf6;background:#faf5ff}'
-      + '.decision-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}'
-      + '.decision-title{margin:0;font-size:1.1em;color:#0f172a}'
-      + '.decision-status{font-size:0.9em;font-weight:600;padding:4px 12px;border-radius:9999px;background:#fff;border:1px solid currentColor}'
-      + '.dec-passed .decision-status{color:#065f46}'
-      + '.dec-blocked .decision-status{color:#991b1b}'
-      + '.dec-needscal .decision-status{color:#92400e}'
-      + '.dec-ready .decision-status{color:#1e40af}'
-      + '.dec-notstarted .decision-status{color:#475569}'
-      + '.dec-inprogress .decision-status{color:#6b21a8}'
-      + '.decision-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:6px}'
-      + '.decision-cell{padding:8px 10px;background:#fff;border-radius:4px;font-size:0.9em;border:1px solid #e2e8f0}'
-      + '.decision-cell strong{display:block;margin-bottom:4px;font-size:0.88em;color:#475569}'
-      + '.decision-cell-pass{border-left:3px solid #10b981}'
-      + '.decision-cell-fail{border-left:3px solid #dc2626}'
-      + '.decision-cell-block{border-left:3px solid #f59e0b}'
-      + '.decision-cell-next{border-left:3px solid #3b82f6}'
-      // key takeaways list
-      + '.takeaways-section{margin:0 0 20px 0;padding:14px 16px;background:#fafbff;border-left:4px solid #6366f1;border-radius:6px}'
-      + '.takeaways-section h3{margin:0 0 8px 0;color:#3730a3}'
-      + '.takeaway-list{list-style:none;padding:0;margin:0}'
-      + '.takeaway-list li{padding:5px 0;line-height:1.45;font-size:0.95em}'
-      + '.takeaway-list li a{color:#1e293b;text-decoration:none}'
-      + '.takeaway-list li a:hover{text-decoration:underline}'
-      + '.takeaway-glyph{display:inline-block;width:20px;text-align:center;margin-right:4px}'
-      + '.takeaway-confirms .takeaway-glyph{color:#10b981}'
-      + '.takeaway-contradicts .takeaway-glyph{color:#dc2626}'
-      + '.takeaway-partial .takeaway-glyph{color:#f59e0b}'
-      + '.takeaway-novel .takeaway-glyph{color:#8b5cf6}'
-      + '.findings-group-header{margin:14px 0 4px 0;font-size:1em;color:#3730a3}'
-      // test cards (claim-first)
-      + '.test-card{padding:10px 14px;margin:8px 0;background:#fff;border:1px solid #e2e8f0;border-radius:6px}'
-      + '.test-card.test-classification-primary{border-left:4px solid #10b981}'
-      + '.test-card.test-classification-supporting{border-left:4px solid #3b82f6}'
-      + '.test-card.test-classification-diagnostic{border-left:4px solid #f59e0b}'
-      + '.test-card.test-classification-regression{border-left:4px solid #94a3b8}'
-      + '.test-header{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}'
-      + '.test-classification{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3}'
-      + '.test-claim{font-size:0.95em;line-height:1.5;margin:4px 0}'
-      + '.test-evidence{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0}'
-      + '.test-id{margin-top:4px;font-family:ui-monospace,monospace}'
-      // readout cards
-      + '.readout-card{padding:8px 12px;margin:6px 0;background:#fff;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.readout-desc{font-size:0.9em;color:#475569;margin-top:4px}'
-      // sweep chart
-      + '.sweep-chart{margin:8px 0;padding:6px;background:#fafbff;border:1px solid #e0e7ff;border-radius:4px}'
-      + '.finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,0.02)}'
-      + '.finding-card.finding-status-confirms{border-left-color:#10b981}'
-      + '.finding-card.finding-status-partial{border-left-color:#f59e0b}'
-      + '.finding-card.finding-status-contradicts{border-left-color:#dc2626}'
-      + '.finding-card.finding-status-novel{border-left-color:#8b5cf6}'
-      + '.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}'
-      + '.finding-status-glyph{font-size:1.2em;width:24px;text-align:center}'
-      + '.finding-status-confirms .finding-status-glyph{color:#10b981}'
-      + '.finding-status-partial   .finding-status-glyph{color:#f59e0b}'
-      + '.finding-status-contradicts .finding-status-glyph{color:#dc2626}'
-      + '.finding-status-novel     .finding-status-glyph{color:#8b5cf6}'
-      + '.finding-id{font-family:ui-monospace,monospace;font-size:0.78em;color:#475569;background:#f1f5f9;padding:1px 6px;border-radius:3px}'
-      + '.finding-kind{font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;padding:1px 8px;border-radius:9999px;background:#e0e7ff;color:#3730a3;font-weight:500}'
-      + '.finding-status-text{font-size:0.78em;color:#64748b;margin-left:auto;font-style:italic}'
-      + '.finding-statement{font-size:1.0em;line-height:1.5;font-weight:500;color:#0f172a;margin:4px 0 8px 0}'
-      + '.finding-evidence{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}'
-      + '.finding-expected{font-size:0.86em;color:#475569;padding:6px 10px;background:#f8fafc;border-left:3px solid #94a3b8;border-radius:3px;margin:6px 0;line-height:1.5}'
-      + '.finding-exp-summary{font-size:0.9em;color:#475569;padding:6px 10px;background:#fafbff;border-left:3px solid #6366f1;border-radius:3px;margin:6px 0;line-height:1.5}'
-      + '.finding-explanation{font-size:0.92em;color:#1e293b;margin:6px 0;line-height:1.5}'
-      + '.finding-explanation em{color:#475569;font-style:normal;font-weight:600}'
-      + '.finding-expert{margin:6px 0;padding:6px 10px;background:#fafafa;border:1px solid #e2e8f0;border-radius:4px}'
-      + '.finding-expert summary{cursor:pointer;font-size:0.85em;color:#475569;font-weight:500}'
-      + '.finding-expert-quote{border-left:3px solid #6366f1;margin:6px 0 4px 0;padding:6px 10px;background:#fafbff;font-style:italic;color:#1e1b4b;font-size:0.92em;line-height:1.5}'
-      + '.finding-expert-note{font-size:0.88em;color:#475569;margin-top:4px;font-style:italic}'
-      + '.finding-next{padding:6px 10px;background:#f0fdf4;border-left:3px solid #10b981;border-radius:3px;font-size:0.9em;margin-top:8px;line-height:1.5}'
-      + '.finding-next strong{color:#065f46}'
-      // ── eb table row coloring ──
-      // ── Conditions block (Variants + Model settings) ──
-      + '.study-conditions{margin:18px 0 10px 0;padding:12px 14px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px}'
-      // Planning-phase banner at the top of the report
-      + '.planning-phase-banner{display:flex;gap:16px;align-items:flex-start;background:linear-gradient(135deg,#fef9c3 0%,#fde68a 100%);border:1px solid #f59e0b;border-radius:8px;padding:18px 22px;margin:16px 0 24px 0;box-shadow:0 1px 3px rgba(0,0,0,0.05)}'
-      + '.planning-phase-banner-icon{font-size:1.8em;line-height:1;flex:0 0 auto;width:32px}'
-      + '.planning-phase-banner-content{flex:1 1 auto;min-width:0;color:#78350f;line-height:1.55}'
-      + '.planning-phase-banner-body{color:#78350f;line-height:1.55}'
-      + '.planning-phase-banner-body strong{color:#451a03}'
-      + '.planning-phase-banner-list{margin:8px 0 0 20px;padding:0;color:#78350f}'
-      + '.planning-phase-banner-list li{margin:6px 0;line-height:1.5}'
-      + '.planning-phase-banner-foot{margin:10px 0 0 0;color:#92400e;font-size:0.9em;font-style:italic;padding-top:8px;border-top:1px solid rgba(217,119,6,0.25)}'
-      // Per-study planning pill in the header
-      + '.study-planning-pill{display:inline-block;background:#fbbf24;color:#451a03;font-weight:700;font-size:0.78em;letter-spacing:0.06em;padding:3px 10px;border-radius:4px;margin-top:8px}'
-      // Baseline strip wrapping charts in planning mode
-      + '.planning-baseline-strip{border:1px solid #93c5fd;border-radius:8px;padding:0;margin:18px 0;background:#fff;overflow:hidden}'
-      + '.planning-baseline-strip-banner{display:flex;gap:10px;align-items:flex-start;background:#dbeafe;padding:8px 14px;border-bottom:1px solid #93c5fd}'
-      + '.planning-baseline-pill{display:inline-block;background:#1e40af;color:#fff;font-weight:700;font-size:0.72em;letter-spacing:0.08em;padding:3px 9px;border-radius:3px;flex-shrink:0;margin-top:2px}'
-      + '.planning-baseline-text{color:#1e40af;font-size:0.92em;line-height:1.5}'
-      + '.planning-baseline-text strong{color:#1e3a8a}'
-      + '.planning-baseline-strip .charts{padding:12px 14px}'
-      // Collapsed technical fold at the end of a planning study
-      + '.study-technical-fold{margin:18px 0 0 0;padding:8px 12px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px}'
-      + '.study-technical-fold>summary{cursor:pointer;color:#475569;font-size:0.9em;font-weight:600}'
-      + '.study-technical-fold[open]{background:#fff;border-color:#94a3b8}'
-      + '.study-technical-fold[open]>summary{margin-bottom:8px;color:#0f172a}'
-      + '.study-conditions h3{margin:0 0 8px 0;font-size:1.05em;color:#0f172a}'
-      + '.study-conditions h4{margin:14px 0 6px 0;font-size:0.95em;color:#334155;text-transform:uppercase;letter-spacing:0.04em}'
-      + '.cond-baseline{background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px 10px;margin:0 0 12px 0}'
-      + '.cond-baseline-composite{font-size:0.92em;color:#334155;margin-bottom:6px}'
-      + '.cond-baseline-params{display:flex;flex-wrap:wrap;gap:6px}'
-      + '.cond-kv{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border-radius:3px;padding:2px 6px;font-size:0.85em}'
-      + '.cond-kv-k{color:#3730a3;font-weight:600;font-family:ui-monospace,monospace}'
-      + '.cond-kv-v code{background:transparent;padding:0;color:#1f2937}'
-      + '.cond-table{width:100%;border-collapse:collapse;font-size:0.9em;margin:6px 0}'
-      + '.cond-table th{text-align:left;padding:6px 8px;border-bottom:1px solid #cbd5e1;color:#334155;font-weight:600;background:#fff}'
-      + '.cond-table td{padding:6px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top}'
-      + '.cond-table tr:last-child td{border-bottom:none}'
-      + '.cond-table td .cond-kv{display:block;margin:2px 0;background:#f3f4f6}'
-      + '.cond-ei-required-badge{display:inline-block;background:#fde68a;color:#78350f;font-size:0.75em;padding:1px 8px;border-radius:9px;margin-left:6px;font-weight:600}'
-      + '.cond-ei-gate-req{display:inline-block;background:#fde68a;color:#78350f;font-size:0.78em;padding:1px 6px;border-radius:3px;font-weight:600}'
-      + '.cond-ei-gate-opt{display:inline-block;background:#e0e7ff;color:#3730a3;font-size:0.78em;padding:1px 6px;border-radius:3px}'
-      + 'tr.eb-stub td{background:#fefce8}'
-      + 'tr.eb-gated td{background:#fff7ed}'
-      + 'tr.eb-implemented td{background:#f0fdf4}'
-      // ── details / collapsibles ──
-      + 'details{margin:8px 0;padding:8px 12px;background:#f8fafc;border-radius:4px;border-left:3px solid #cbd5e1}'
-      + 'details > summary{cursor:pointer;font-size:0.95em}'
-      + 'details[open]{background:#fff;border-left-color:#3b82f6}'
-      + 'details details{margin-left:0;background:#fff}'
-      // ── per-study sections ──
-      // Each .study is a sticky container for its own .study-nav. As the
-      // user scrolls past a study, its .study-nav exits its bounding
-      // .study div and the next study's nav takes over.
-      + '.study{margin-top:40px;padding-top:8px;scroll-margin-top:16px;position:relative}'
-      + '.study-nav{position:sticky;top:44px;z-index:20;background:rgba(255,255,255,0.96);backdrop-filter:saturate(120%) blur(2px);'
-      +     '-webkit-backdrop-filter:saturate(120%) blur(2px);'
-      +     'border-bottom:1px solid #e2e8f0;padding:8px 12px 6px 12px;margin:0 -12px 12px -12px;border-radius:4px}'
-      + '.study-nav .study-nav-row1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}'
-      + '.study-nav .study-nav-num{color:#94a3b8;font-family:ui-monospace,monospace;font-size:0.85em}'
-      + '.study-nav .study-nav-name{font-size:1.02em}'
-      + '.study-nav .study-nav-deps{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
-      + '.study-nav-row2{display:flex;flex-wrap:wrap;gap:4px}'
-      + '.study-nav-row2 a{display:inline-block;padding:2px 10px;border-radius:9999px;font-size:0.83em;color:#3b82f6;text-decoration:none;background:#eff6ff;border:1px solid transparent}'
-      + '.study-nav-row2 a:hover{background:#dbeafe;border-color:#bfdbfe}'
-      + '.sn-count{display:inline-block;margin-left:4px;font-size:0.8em;color:#64748b;background:#fff;padding:0 5px;border-radius:9999px;border:1px solid #e2e8f0}'
-      /* sn-collapse-hint: the click-to-collapse affordance ON the visible
-         sticky strip (study-nav). Previous attempt put it inside the
-         per-study panel (which is the OFFICIAL <summary> click target for
-         the <details>), but study-nav has higher z-index than the panel at
-         top:44px, so the panel is covered and the in-panel hint is
-         invisible during scroll. Putting the hint here means the click
-         handler has to manually toggle the parent <details>.open — see
-         the DOMContentLoaded handler near the bottom of this file. Styled
-         to match sp-expand-hint (small grey, left-aligned, same font-size)
-         so it reads as the same control in two states. */
-      + '.sn-collapse-hint{display:none}'
-      + '.study-fold[open] .sn-collapse-hint{display:block;font-size:0.73em;color:#94a3b8;margin-top:6px;cursor:pointer}'
-      + '.study-fold[open] .sn-collapse-hint:hover{color:#334155}'
-      // Scroll-margin so links to sub-sections don't get hidden under the
-      // sticky study-nav.
-      + '.study [id^="study-"]{scroll-margin-top:96px}'
-      + '.study-header h2{border:0;padding:0;margin:0 0 4px 0}'
-      // Task 9: run-command chips (copy-to-run `vdash …` strings).
-      + '.run-chip{display:inline-block;font-family:ui-monospace,monospace;font-size:0.82em;background:#0f172a;color:#e2e8f0;padding:2px 7px;border-radius:4px;white-space:nowrap;cursor:pointer}'
-      + '.reproduce-line{margin:4px 0 8px 0}'
-      + '.study-num{color:#94a3b8;font-weight:normal;font-size:0.85em;margin-right:4px}'
-      + '.qh{padding:12px 16px;background:#f8fafc;border-left:4px solid #3b82f6;border-radius:4px;margin:12px 0}'
-      + '.qh p{margin:6px 0}'
-      + '.description p{white-space:pre-wrap}'
-      + 'ul.params{font-size:0.85em;font-family:ui-monospace,monospace;margin:6px 0;padding-left:20px}'
-      // ── footer ──
-      + 'footer{margin-top:56px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:0.82em;color:#64748b}'
-      // ── responsive ──
-      + '@media (max-width:900px){'
-      +   '.content{padding:20px;max-width:none}'
-      +   '.topbar{padding:8px 14px}'
-      + '}'
-      // ── print ──
-      + '@media print{'
-      +   '.topbar{display:none}'
-      +   '.content{padding:0;max-width:none}'
-      +   'details[open]{margin:4px 0}'
-      +   'h1,h2,h3{break-after:avoid}'
-      +   '.study{break-inside:avoid-page}'
-      + '}'
-
-      // ── biology-at-a-glance + investigation biology-story + expert-review
-      //    (added so the shareable report mirrors the live dashboard
-      //    biologist-first planning view; styled inline so the standalone
-      //    HTML renders with no external assets) ─────────────────────────
-      + '.investigation-biology-story{padding:16px 20px;background:#f0f9ff;border:1px solid #bae6fd;border-left:5px solid #0284c7;border-radius:8px;margin:14px 0 18px 0;max-width:none}'
-      + '.investigation-biology-story p.biology-prose{margin:0;font-size:1em;line-height:1.6;color:#0c4a6e;white-space:pre-line;max-width:none}'
-      + 'details.report-fold{margin:10px 0;border-left:3px solid #cbd5e1;padding-left:10px}'
-      + 'details.report-fold>summary{cursor:pointer;font-weight:600;color:#1e3a8a;margin-bottom:6px}'
-      + '.rf-prev{color:#64748b;font-weight:400;font-size:0.9em}'
-      + '.rf-chip{display:inline-block;background:#eef2ff;color:#3730a3;border-radius:10px;padding:1px 8px;font-size:0.72em;font-weight:600;margin:0 3px;vertical-align:middle}'
-      + '.rf-pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:0.72em;font-weight:700;margin:0 3px;vertical-align:middle;background:#e2e8f0;color:#334155;text-transform:uppercase;letter-spacing:0.03em}'
-      + '.rf-pill-pass,.rf-pill-passed,.rf-pill-complete{background:#dcfce7;color:#166534}'
-      + '.rf-pill-in-progress,.rf-pill-active,.rf-pill-running{background:#fef9c3;color:#854d0e}'
-      + '.rf-pill-fail,.rf-pill-failed,.rf-pill-invalid{background:#fee2e2;color:#991b1b}'
-      + '.biology-glance{margin:0 0 18px 0;padding:14px 18px;background:#f0fdf4;border:1px solid #bbf7d0;border-left:5px solid #16a34a;border-radius:8px}'
-      + '.biology-glance .biology-glance-label{font-size:0.85em;text-transform:uppercase;letter-spacing:0.05em;color:#166534;margin:0 0 8px 0;font-weight:600;border:none;padding:0}'
-      + '.biology-summary-callout{margin-bottom:14px}'
-      + '.biology-summary-callout .biology-prose{margin:0;font-size:1.02em;line-height:1.55;color:#14532d;white-space:pre-line;max-width:none}'
-      + '.biology-glance .study-card{margin-bottom:14px;background:#fff;border-radius:6px;padding:10px 14px;border:1px solid #d1fae5}'
-      + '.study-card-table{width:100%;border-collapse:collapse;font-size:0.93em;margin:0}'
-      + '.study-card-table th{text-align:left;font-weight:600;color:#166534;background:#f0fdf4;padding:6px 10px;white-space:nowrap;vertical-align:top;width:180px;border-bottom:1px solid #bbf7d0}'
-      + '.study-card-table td{padding:6px 10px;vertical-align:top;color:#14532d;border-bottom:1px solid #f0fdf4;line-height:1.5}'
-      + '.study-card-table tr:last-child th,.study-card-table tr:last-child td{border-bottom:none}'
-      // Investigation Parts grouping: section headings before each study group.
-      + '.investigation-part{margin-bottom:30px}'
-      + '.part-heading{margin:34px 0 10px 0;padding:14px 18px;background:linear-gradient(90deg,#eef2ff 0%,#fff 100%);border-left:4px solid #6366f1;border-radius:4px}'
-      + '.part-title{margin:0;font-size:1.4em;color:#3730a3;font-weight:700}'
-      + '.part-overview{margin:6px 0 0 0;color:#475569;font-size:0.95em;line-height:1.5;white-space:pre-line}'
-      // Mechanism narrative: 7 framework fields any study can declare.
-      + '.mechanism-narrative{margin:18px 0 14px 0;background:#fff;border-radius:6px;padding:10px 14px;border:1px solid #c7d2fe}'
-      + '.mechanism-narrative-table{width:100%;border-collapse:collapse;font-size:0.93em;margin:0}'
-      + '.mechanism-narrative-table th{text-align:left;font-weight:600;color:#3730a3;background:#eef2ff;padding:6px 10px;white-space:nowrap;vertical-align:top;width:190px;border-bottom:1px solid #c7d2fe}'
-      + '.mechanism-narrative-table td{padding:6px 10px;vertical-align:top;color:#1e1b4b;border-bottom:1px solid #eef2ff;line-height:1.55;white-space:pre-line}'
-      + '.mechanism-narrative-table tr:last-child th,.mechanism-narrative-table tr:last-child td{border-bottom:none}'
-      + '.literature-anchors{background:#fff;border-radius:6px;padding:10px 14px;border:1px solid #d1fae5}'
-      + '.literature-anchor-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}'
-      + '.literature-anchor-card{padding:8px 12px;background:#f8fefa;border-left:3px solid #16a34a;border-radius:4px;font-size:0.92em}'
-      + '.literature-anchor-card .anchor-expectation{font-weight:500;color:#064e3b;margin-bottom:4px;line-height:1.45}'
-      + '.literature-anchor-card .anchor-observable,.literature-anchor-card .anchor-source,.literature-anchor-card .anchor-status{font-size:0.88em;color:#475569;margin:2px 0;line-height:1.45}'
-      + '.literature-anchor-card .anchor-observable code{font-size:0.92em;background:#fff;padding:1px 5px;border-radius:3px;border:1px solid #d1fae5}'
-      + '.literature-anchor-card .anchor-status{font-style:italic}'
-      + '.pre-run-expert-review{margin:18px 0;padding:14px 16px;background:#faf5ff;border:1px solid #e9d5ff;border-left:5px solid #a855f7;border-radius:8px}'
-      + '.pre-run-expert-review h3{color:#6b21a8;margin:0 0 6px 0}'
-      + '.expert-question-card{padding:10px 14px;background:#fff;border:1px solid #e9d5ff;border-left:4px solid #a855f7;border-radius:6px;margin:10px 0}'
-      + '.expert-question-card.status-resolved{border-left-color:#10b981}'
-      + '.expert-question-header{display:flex;align-items:center;gap:8px;font-size:0.85em;color:#6b21a8;margin-bottom:6px;flex-wrap:wrap}'
-      + '.expert-question-id{font-family:ui-monospace,monospace;font-size:0.85em;background:#ede9fe;padding:1px 6px;border-radius:3px}'
-      + '.expert-question-status{font-size:0.78em;padding:1px 6px;border-radius:9999px;background:#fef3c7;color:#92400e}'
-      + '.expert-question-card.status-resolved .expert-question-status{background:#d1fae5;color:#065f46}'
-      + '.expert-question-asked-to{font-size:0.78em;color:#6b7280;margin-left:auto}'
-      + '.expert-question-text{font-size:0.95em;line-height:1.55;color:#1e1b4b;margin-bottom:6px}'
-      + '.expert-question-alternatives,.expert-question-impact{font-size:0.9em;color:#475569;line-height:1.5;margin:4px 0}'
-      + '.expert-question-alternatives ul{margin:4px 0 0 18px;padding:0}'
-      + '.expert-question-alternatives li{margin:2px 0}'
-      + '.expert-question-impact em,.expert-question-alternatives em{color:#6b21a8;font-style:normal;font-weight:600}'
-      + '.expert-question-blocks,.expert-question-response{font-size:0.88em;margin:6px 0 0 0;color:#475569}'
-      + '.expert-question-blocks summary,.expert-question-response summary{cursor:pointer;padding:3px 0;color:#6b7280}'
-      + '.expert-question-blocks ul{margin:4px 0 0 18px;padding:0}'
-      + '.expert-question-blocks li{margin:2px 0;font-size:0.92em}'
-      + '.expert-question-response p{margin:4px 0;padding:6px 10px;background:#faf5ff;border-radius:4px}'
-
-      // ── collapsible study fold + control-panel summary ──
-      + '.study-fold{border:1px solid #e2e8f0;border-radius:10px;margin:10px 0;background:#fff;scroll-margin-top:16px}'
-      + '.study-fold[open]{box-shadow:0 1px 3px rgba(0,0,0,.07)}'
-      + '.study-fold>.study-panel{cursor:pointer;list-style:none;padding:12px 16px;border-left:4px solid #cbd5e1;border-radius:9px}'
-      + '.study-fold>.study-panel::-webkit-details-marker{display:none}'
-      + '.study-fold>.study-panel:hover{background:#f8fafc}'
-      // When a study is open: make its header sticky so the collapse arrow
-      // stays in view while scrolling inside the study. One click collapses
-      // and the next study floats into view — no scrolling back to the top.
-      // Stick BELOW the topbar (which sits at top:0, z:100), not at top:0.
-      // Otherwise the topbar (higher z-index) visually covers the panel and
-      // every interactive element inside it — including the collapse hint —
-      // becomes invisible the moment the user scrolls. The 44px offset
-      // matches the existing `.study-nav{top:44px}` convention (topbar is
-      // ~44px tall after its 9px padding + ~26px line content). Friction
-      // report 2026-05-28: "click to collapse goes out of view when we
-      // scroll" — was actually the entire sticky panel disappearing
-      // behind the topbar, not just the hint.
-      + '.study-fold[open]>.study-panel{position:sticky;top:44px;z-index:10;padding:8px 16px;border-bottom:1px solid #e2e8f0;border-radius:9px 9px 0 0;background:#f8fafc;box-shadow:0 1px 4px rgba(0,0,0,.06)}'
-      // Sticky-when-open: hide the rich content rows (still visible
-      // below in the expanded body — no information lost, just no
-      // longer duplicated). The section-nav row stays visible to
-      // serve as the in-study jump-target navigation.
-      + '.study-fold[open]>.study-panel .sp-objective,'
-      + '.study-fold[open]>.study-panel .sp-meta,'
-      + '.study-fold[open]>.study-panel .sp-quality,'
-      + '.study-fold[open]>.study-panel .sp-conclusion,'
-      + '.study-fold[open]>.study-panel .sp-metrics,'
-      + '.study-fold[open]>.study-panel .sp-insight,'
-      + '.study-fold[open]>.study-panel .sp-caveat{display:none}'
-      // Section-nav chips: hidden in the collapsed card (would
-      // duplicate the metric chips); shown ONLY when the fold is
-      // open so the sticky strip provides in-study navigation.
-      + '.sp-section-nav{display:none}'
-      + '.study-fold[open]>.study-panel .sp-section-nav{'
-      +   'display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 0;width:100%'
-      + '}'
-      + '.sp-section-nav a{'
-      +   'display:inline-block;padding:2px 10px;border-radius:9999px;'
-      +   'font-size:0.83em;color:#3b82f6;text-decoration:none;'
-      +   'background:#eff6ff;border:1px solid transparent'
-      + '}'
-      + '.sp-section-nav a:hover{background:#dbeafe;border-color:#bfdbfe}'
-      + '.sp-section-nav .sn-count{'
-      +   'display:inline-block;margin-left:5px;padding:0 6px;border-radius:9999px;'
-      +   'background:rgba(59,130,246,0.13);color:#3b82f6;font-size:0.85em;'
-      + '}'
-      // Prominent collapse affordance (open state). Replaces the small
-      // float:right hint with a button-style chip in the top-right of
-      // the sticky strip; visible at a glance + obvious click target.
-      + '.study-fold[open]>.study-panel{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}'
-      + '.study-fold[open]>.study-panel>.sp-top{flex:1 1 auto;min-width:0;margin:0}'
-      + '.study-fold.verdict-v-pass>.study-panel{border-left-color:#16a34a}'
-      + '.study-fold.verdict-v-warn>.study-panel{border-left-color:#d97706}'
-      + '.study-fold.verdict-v-block>.study-panel{border-left-color:#dc2626}'
-      + '.study-fold.verdict-v-fail>.study-panel{border-left-color:#dc2626}'
-      + '.study-fold.verdict-v-prelim>.study-panel{border-left-color:#6366f1}'
-      + '.study-fold.verdict-v-cal>.study-panel{border-left-color:#0891b2}'
-      + '.study-fold.verdict-v-none>.study-panel{border-left-color:#94a3b8}'
-      + '.study-fold .study{margin-top:0;padding:8px 16px 4px}'
-      + '.sp-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}'
-      + '.sp-num{color:#94a3b8;font-family:ui-monospace,monospace;font-size:0.95em}'
-      + '.sp-title{font-size:1.13em;font-weight:700;color:#0f172a;flex:1;min-width:200px}'
-      + '.sp-verdict{font-size:0.88em;font-weight:700;padding:3px 11px;border-radius:9999px;white-space:nowrap}'
-      + '.sp-verdict.v-pass{background:#dcfce7;color:#166534}'
-      + '.sp-verdict.v-warn{background:#fef9c3;color:#854d0e}'
-      + '.sp-verdict.v-block{background:#fee2e2;color:#991b1b}'
-      + '.sp-verdict.v-prelim{background:#e0e7ff;color:#3730a3}'
-      + '.sp-verdict.v-fail{background:#fee2e2;color:#991b1b}'
-      + '.sp-verdict.v-cal{background:#cffafe;color:#155e75}'
-      + '.sp-verdict.v-none{background:#f1f5f9;color:#475569}'
-      + '.sp-objective{margin:6px 0 2px;color:#334155;font-size:0.97em}'
-      + '.sp-meta{font-size:0.77em;color:#94a3b8;margin:2px 0 6px}'
-      + '.sp-meta code{background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:0.95em;color:#64748b}'
-      + '.sp-quality{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0}'
-      + '.sp-conf,.sp-ev{font-size:0.78em;font-weight:600;padding:2px 9px;border-radius:6px;background:#f1f5f9;color:#475569}'
-      + '.sp-conf-high{background:#dcfce7;color:#166534}'
-      + '.sp-conf-medium{background:#fef9c3;color:#854d0e}'
-      + '.sp-conf-low{background:#fee2e2;color:#991b1b}'
-      + '.sp-conclusion{margin:6px 0;color:#0f172a;font-size:0.95em}'
-      + '.sp-insight{margin:4px 0;color:#0f172a;font-size:0.92em}'
-      + '.sp-caveat{margin:4px 0;color:#7c2d12;font-size:0.92em}'
-      + '.sp-lbl{display:inline-block;font-size:0.7em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:#64748b;margin-right:5px;vertical-align:1px}'
-      + '.sp-caveat .sp-lbl{color:#b45309}'
-      + '.sp-metrics{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 3px}'
-      + '.sp-metric{font-size:0.77em;background:#eef2ff;color:#3730a3;padding:2px 9px;border-radius:9999px}'
-      + '.sp-metric-pass{background:#dcfce7;color:#166534}'
-      + '.sp-metric-warn{background:#fef9c3;color:#854d0e}'
-      + '.sp-metric-fail{background:#fee2e2;color:#991b1b}'
-      + '.sp-expand-hint{display:inline-block;font-size:0.73em;color:#94a3b8;margin-top:6px}'
-      + '.study-fold[open] .sp-expand-hint{display:none}'
-      /* sp-collapse-hint: the OPEN-state partner of sp-expand-hint.
-         Styled identically (same font-size, grey, margin) so the two
-         affordances feel like the same control in two states.
-
-         `flex: 0 0 100% + order: 100` guarantees it always lands on
-         its own row at the very bottom of the sticky panel, regardless
-         of whether sp-section-nav rendered (some studies have no nav
-         links — without the flex-basis trick the hint would float onto
-         the title row next to the verdict, which is what triggered the
-         2026-05-28 "click to collapse is in the wrong menu bar" report).
-         Default block text-align is left, matching where the expand-hint
-         sits on collapsed cards. */
-      + '.sp-collapse-hint{display:none}'
-      + '.study-fold[open] .sp-collapse-hint{'
-      +   'display:block;flex:0 0 100%;order:100;'
-      +   'font-size:0.73em;color:#94a3b8;margin-top:6px'
-      + '}'
-      + '.studies-toolbar{display:flex;gap:8px;margin:8px 0 14px}'
-      + '.studies-toolbar button{font:inherit;font-size:0.85em;padding:5px 12px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:6px;cursor:pointer;color:#334155}'
-      + '.studies-toolbar button:hover{background:#e2e8f0}'
-      + '@media print{.sp-expand-hint,.sp-collapse-hint,.studies-toolbar{display:none}}'
-      // ── review-readiness gate panel ──
-      + '.review-gate{margin:10px 0;padding:10px 14px;background:#fffbeb;border:1px solid #f59e0b;border-left-width:5px;border-radius:6px;color:#92400e}'
-      + '.review-gate>strong{color:#b45309}'
-      + '.review-gate-sub{font-size:0.82em;color:#a16207;margin:2px 0 4px}'
-      + '.review-gate ul{margin:6px 0 0 18px;padding:0}'
-      + '.review-gate li{margin:3px 0}'
-      + '.review-gate code{background:#fef3c7;padding:0 4px;border-radius:3px;font-size:0.92em}'
-      // ── compact sim / readout tables ──
-      + '.sim-table,.readout-table{width:100%;border-collapse:collapse;font-size:0.9em;margin:4px 0 8px}'
-      + '.sim-table th,.readout-table th{text-align:left;padding:5px 8px;border-bottom:2px solid #e2e8f0;color:#475569;font-size:0.86em;font-weight:600}'
-      + '.sim-table td,.readout-table td{padding:5px 8px;border-bottom:1px solid #f1f5f9;vertical-align:top}'
-      + '.sim-table tr:hover,.readout-table tr:hover{background:#f8fafc}'
-      + '.sim-table code,.readout-table code{background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:0.92em}'
-      + '.sim-feeds,.sim-table .sim-feeds code{font-size:0.82em}'
-      + '.sim-status-pill{display:inline-block;font-size:0.8em;padding:1px 8px;border-radius:9999px;background:#e2e8f0;color:#1e293b}'
-      + '.sim-status-ready,.sim-status-pill.sim-status-ready{background:#dcfce7;color:#166534}'
-      + '.sim-status-ran,.sim-status-pill.sim-status-ran{background:#dbeafe;color:#1e40af}'
-      + '.sim-status-gated,.sim-status-pill.sim-status-gated{background:#fef9c3;color:#854d0e}'
-      + '</style></head><body>'
-
-      // ── Embed autosize (self-reporting child pattern) ──────────────
-      //
-      // Each embed-frame iframe runs its own ResizeObserver +
-      // MutationObserver inside its document and posts the measured
-      // height to this parent via postMessage. The parent maps
-      // event.source → iframe element and sets iframe.style.height.
-      //
-      // Why self-reporting instead of parent-side measurement: prior
-      // _fitEmbed used a selector walk
-      // (.plotly-graph-div / [data-plotly] / div[id] / svg / img / canvas)
-      // to find tall children and sum their bounding rects. Every new
-      // content type the walk didn't recognize (`<table>` from fetch,
-      // `<video>`, etc.) under-measured → iframe clipped. The
-      // MutationObserver here catches DOM changes that don't immediately
-      // trigger a size change on body (e.g. table populated from a
-      // fetch); the ResizeObserver catches everything else. body
-      // .scrollHeight is ground truth in the iframe's own document, no
-      // selector needed.
-      //
-      // The child function is defined here in the parent context only so
-      // its source can be extracted via .toString() and injected into
-      // each iframe's <head>. It does NOT execute in the parent.
-      + '<script>'
-      + 'window.__embedReg=window.__embedReg||new Map();'
-      // Parent receiver — install once.
-      + 'if(!window.__embedRecv){window.__embedRecv=true;'
-      +   'window.addEventListener("message",function(ev){'
-      +     'if(!ev.data||ev.data.type!=="embed-autosize:height")return;'
-      +     'var f=window.__embedReg.get(ev.source);if(!f)return;'
-      +     'var h=Math.max(0,+ev.data.height||0);'
-      +     'if(h>0)f.style.height=(h+24)+"px";'
-      +   '});'
-      + '}'
-      // Child function — its .toString() is what runs inside each iframe.
-      //
-      // Height measurement uses a SENTINEL: an invisible 0×0 div appended
-      // as the last child of body. Its top position (relative to body's
-      // top) IS the content height — independent of body's laid-out
-      // height, html element height, or `height: 100%` style inheritance.
-      // Avoids the feedback loop where html.scrollHeight grows with the
-      // iframe's own viewport size, which then makes us report a larger
-      // height, which grows the iframe again, ad infinitum.
-      + 'window.__embedChildFn=function(){'
-      +   'if(window.__ec)return;window.__ec=1;'
-      +   'var sentinel=null;'
-      +   'function ensureSentinel(){'
-      +     'if(sentinel&&sentinel.parentNode===document.body)return;'
-      +     'sentinel=document.createElement("div");'
-      +     'sentinel.setAttribute("data-ec-sentinel","1");'
-      +     'sentinel.style.cssText="height:0;width:0;visibility:hidden;clear:both;margin:0;padding:0";'
-      +     'document.body.appendChild(sentinel);'
-      +   '}'
-      +   'function m(){var d=document,b=d.body;if(!b)return;'
-      // Honor explicit pinned height (height + overflow:hidden in inner CSS).
-      +     'var p=0;if(window.getComputedStyle){var bs=getComputedStyle(b);'
-      +       'if(bs&&(bs.overflow||"").indexOf("hidden")>=0){'
-      +         'var hm=(bs.height||"").match(/^(\\d+(?:\\.\\d+)?)px$/);'
-      +         'if(hm)p=Math.round(parseFloat(hm[1]));}}'
-      +     'var h;'
-      +     'if(p>0){h=p;}else{'
-      +       'ensureSentinel();'
-      +       'var bRect=b.getBoundingClientRect();'
-      +       'var sRect=sentinel.getBoundingClientRect();'
-      +       'h=Math.max(0,Math.ceil(sRect.top-bRect.top));'
-      // Fallback if sentinel reads 0 (e.g. body itself has display:none).
-      +       'if(h===0)h=b.scrollHeight||0;'
-      +     '}'
-      +     'try{window.parent.postMessage({type:"embed-autosize:height",height:h},"*");}catch(_){}'
-      +   '}'
-      +   'function init(){ensureSentinel();m();'
-      // Only observe body. Observing documentElement caused the runaway
-      // feedback loop (html scrollHeight grows with iframe viewport).
-      +     'if(window.ResizeObserver&&document.body){'
-      +       'var ro=new ResizeObserver(m);ro.observe(document.body);}'
-      +     'if(window.MutationObserver&&document.body){var mo=new MutationObserver(function(muts){'
-      // Skip mutations triggered by our own sentinel insertion to avoid
-      // a measurement immediately re-firing measurement.
-      +       'for(var i=0;i<muts.length;i++){'
-      +         'var t=muts[i].target;'
-      +         'if(t&&t.getAttribute&&t.getAttribute("data-ec-sentinel"))return;}'
-      +       'm();'
-      +     '});'
-      +       'mo.observe(document.body,{childList:1,subtree:1,attributes:1,'
-      +         'attributeFilter:["style","class","src","open","hidden"]});}'
-      // Per-image load handlers catch late-decoded images that don't
-      // trigger body resize until they finish decoding.
-      +     'if(document.body){var ii=document.body.querySelectorAll("img");'
-      +       'for(var i=0;i<ii.length;i++){'
-      +         'if(!ii[i].complete)ii[i].addEventListener("load",m);}}'
-      +     'window.addEventListener("load",m);'
-      // Belt-and-suspenders timed safety net for content loaded by
-      // async scripts that don't mutate body's observable surface.
-      +     '[100,500,2000].forEach(function(t){setTimeout(m,t);});'
-      +   '}'
-      +   'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);'
-      +   'else init();'
-      + '};'
-      // Stash the child source for injection.
-      + 'window.__embedChildJs="("+window.__embedChildFn.toString()+")();";'
-      // _wireEmbed: register the iframe in the parent map, inject the
-      // child autosize script into its head. Idempotent — re-wiring
-      // an already-wired iframe is a no-op.
-      + 'window._wireEmbed=function(f){try{'
-      +   'var cw=f.contentWindow;if(cw)window.__embedReg.set(cw,f);'
-      +   'var inj=function(){try{var d=f.contentDocument;if(!d||!d.head)return;'
-      +     'if(d.head.querySelector("script[data-ec]"))return;'
-      +     'var s=d.createElement("script");s.setAttribute("data-ec","1");'
-      +     's.textContent=window.__embedChildJs;'
-      +     'd.head.appendChild(s);}catch(_e){}};'
-      +   'if(f.contentDocument&&f.contentDocument.readyState!=="loading")inj();'
-      +   'else f.addEventListener("load",inj,{once:true});'
-      + '}catch(e){}};'
-      // _fitEmbed: back-compat shim. A few call sites elsewhere still
-      // invoke _fitEmbed directly; forward to _wireEmbed so they pick
-      // up the new child-injection path without code changes.
-      + 'window._fitEmbed=function(f){if(window._wireEmbed)window._wireEmbed(f);};'
-      // Collapsed-embed toggle: when a <details> opens an embed, kick
-      // the iframe to re-measure (in case it was paused while hidden).
-      + 'window._onEmbedToggle=function(d){if(!d.open)return;var f=d.querySelector(".embed-frame");if(!f)return;'
-      +   'try{f.contentWindow&&f.contentWindow.dispatchEvent(new Event("resize"));}catch(e){}'
-      +   'if(window._wireEmbed)window._wireEmbed(f);};'
-      + '</script>'
-
-      // ── Sticky top nav — section-level tags only (per-study nav now lives
-      //    in the collapsed control panels). Conditional tags render only when
-      //    the section exists, keeping the bar uncluttered. Trailing switcher
-      //    dropdown lists peer investigations from /api/investigation-registry
-      //    so the user can jump between live dashboards without leaving the
-      //    page — see _wireIsetSwitcher below for the click + render logic.
-      + '<nav class="topbar">'
-      +   '<span class="tb-title">' + _h(iset.title || iset.name) + '</span>'
-      +   '<a href="#" onclick="window.scrollTo({top:0,behavior:\'smooth\'});return false;">Top</a>'
-      // Top menu kept minimal: Top · Studies · Appendices · References. The
-      // Overview/Open-questions/Roadmap sections sit close together near the top
-      // and are easily reached from Top, so they're omitted from the bar.
-      +   '<a href="#studies-heading">Studies</a>'
-      +   (_hasAppendices ? '<a href="#appendices">Appendices</a>' : '')
-      +   '<a href="#references">References</a>'
-      + '</nav>'
-
-      // ── Main content ──
-      + '<main class="content" id="top">'
-
-      +   '<h1>' + _h(iset.title || iset.name) + ' <span class="badge badge-' + _h(iset.status || 'planning') + '">' + _h(iset.status || 'planning') + '</span>'
-      +     _objectOfEvaluationChip(iset.object_of_evaluation) + '</h1>'
-      +   '<p class="muted small">Investigation report · <code>' + nameClean + '</code> · generated ' + _h(now) + ' · '
-      +     ((specs || []).some(function(s) { return (s.runs || []).length || _asFindings(s.findings).length; })
-          ? 'for expert review — results below reflect completed runs.'
-          : 'for expert review prior to execution.') + '</p>'
-
-      // ── Coordinated-generation provenance banner (expert-feedback A.3) ──
-      +   generationBannerHtml
-
-      // ── Execution-status / planning-phase banner — run-state context up top ──
-      +   (function() {
-            var alls = specs || [];
-            var planning = alls.filter(function(s) { return !(s.runs || []).length && !_asFindings(s.findings).length && !_isInformationalStudy(s); });
-            var total = alls.length, n = planning.length;
-            if (!n) return '';
-            var names = planning.map(function(s) { return s.name || s.slug || ''; }).filter(Boolean).join(', ');
-            var pre = (n === total);   // genuinely pre-execution — nothing has run
-            var body = pre
-              ? '<strong>Planning phase — pre-execution review.</strong> None of the ' + total
-                + ' studies have run yet; the charts are the <strong>workspace pre-execution baseline</strong>.'
-                + ' For each study the key review surfaces are:'
-              : '<strong>' + (total - n) + ' of ' + total + ' studies have completed runs</strong> — their'
-                + ' verdicts + evaluator-computed test outcomes are below. ' + n + ' still in planning'
-                + (names ? ' (<code>' + _h(names) + '</code>)' : '')
-                + ': their charts are pre-execution baselines and their tests are pending those runs.'
-                + ' For the planned studies the key review surfaces are:';
-            return '<div class="planning-phase-banner" id="planning-phase-banner">'
-              + '<div class="planning-phase-banner-icon">📝</div>'
-              + '<div class="planning-phase-banner-content">'
-              +   '<div class="planning-phase-banner-body">' + body + '</div>'
-              +   '<ul class="planning-phase-banner-list">'
-              +     '<li><strong>Conditions</strong> — variants and their parameter overrides, plus the model settings awaiting your call.</li>'
-              +     '<li><strong>Expected behavior</strong> — what each test claims will pass / fail and the criterion it uses (flag any under- or over-specified).</li>'
-              +     '<li><strong>Baseline visualizations</strong> — what the system looks like before the study\'s mechanism lands.</li>'
-              +   '</ul>'
-              +   '<div class="planning-phase-banner-foot">Click the <strong>💬</strong> icon next to any section to leave inline feedback. "Generate feedback report" (bottom-right) packages everything into a single yaml file.</div>'
-              + '</div>'
-              + '</div>';
-          })()
-
-      // ── One-line acceptance headline (full gating/verdict tables → Roadmap + Appendices) ──
-      +   acceptanceNarrativeHtml
-
-      // ── LAYER 1: EXECUTIVE — authored narrative + verdict for the reviewer ──
-      +   (function() {
-            var ex = iset.executive || {};
-            var dn = ex.decisions_needed || [];
-            if (!ex.what_is_this && !ex.verdict && !iset.question && !iset.hypothesis) return '';
-            var vs = ex.verdict_status || 'in-progress';
-            var h = '<details id="executive" class="report-fold" style="margin-top:12px"><summary>📋 Executive summary' + ' <span class="rf-pill rf-pill-' + _h(String(vs).toLowerCase().replace(/[^a-z0-9]+/g,'-')) + '">' + _h(vs) + '</span>' + ((ex.verdict || ex.what_is_this) ? ' <span class="rf-prev">' + _h(_previewText(ex.verdict || ex.what_is_this, 150)) + '</span>' : '') + '</summary>';
-            if (ex.what_is_this)
-              h += '<p>' + _multiline(ex.what_is_this) + '</p>';
-            if (ex.verdict)
-              h += '<div class="callout" style="background:#f8fafc;border-left:5px solid #64748b;border-radius:8px;padding:12px 16px;margin:10px 0">'
-                 + '<span class="badge badge-' + _h(vs) + '">' + _h(vs) + '</span> '
-                 + '<strong>Current verdict.</strong> ' + _multiline(ex.verdict) + '</div>';
-            if (iset.question)
-              h += '<p><strong>Question.</strong> ' + _multiline(iset.question) + '</p>';
-            if (iset.hypothesis)
-              h += '<p><strong>Hypothesis.</strong> ' + _multiline(iset.hypothesis) + '</p>';
-            // ── Spine A1: computed acceptance roll-up ──────────────────────
-            // Restores the acceptance visibility removed earlier, now COMPUTED
-            // by the spine (investigation_status.roll_up_acceptance) and
-            // connected to the member studies' verdicts. Mirrors the
-            // param-enforcement banner: surfaced, connected (each criterion
-            // links to its study section), and labeled code-computed vs
-            // authored, with a divergence badge when the two disagree.
-            var ca = iset.computed_acceptance;
-            if (ca && ca.criteria && ca.criteria.length) {
-              var authoredVs = (ex.verdict_status || '').toString().toLowerCase().trim();
-              var computedVs = (ca.verdict_status || '').toString().toLowerCase().trim();
-              // NOTE: the per-criterion `result`s below are LIVE-ROLLED at render
-              // time (from each member study's current verdict), whereas
-              // `ca.diverges_from_authored` is the spine-PERSISTED divergence flag
-              // — the two can momentarily differ; this is acceptable per the plan.
-              // Prefer the spine-persisted divergence flag; fall back to the
-              // computed-vs-authored verdict_status comparison the plan allows.
-              var caDiverges = (ca.diverges_from_authored === true)
-                || (!!authoredVs && !!computedVs && authoredVs !== computedVs);
-              var critRows = ca.criteria.map(function(c) {
-                var r = (c.result || '').toString().toLowerCase();
-                var rcls = (r === 'passing' || r === 'pass') ? '#16a34a'
-                         : (r === 'failing' || r === 'fail') ? '#dc2626'
-                         : '#92400e';
-                var m = _critMetric(c.study, c.behavior);
-                var metricCell = m
-                  ? (m.field ? '<code>' + _h(m.field) + '</code>' : '')
-                    + (m.passIf ? ' <span class="muted small">pass if ' + _h(m.passIf) + '</span>' : '')
-                    + (m.observed !== null && m.observed !== undefined
-                        ? ' → <strong>' + _fmtObserved(m.observed) + '</strong>' : '')
-                  : '<span class="muted small">—</span>';
-                return '<tr>'
-                  + '<td style="padding:3px 8px"><a href="#study-' + _h(c.study) + '">' + _h(c.study) + '</a></td>'
-                  + '<td style="padding:3px 8px">' + _h(c.behavior || '') + '</td>'
-                  + '<td style="padding:3px 8px;font-size:0.9em">' + metricCell + '</td>'
-                  + '<td style="padding:3px 8px;font-weight:600;color:' + rcls + '">' + _h(c.result || '—') + '</td>'
-                  + '</tr>';
-              }).join('');
-              var caBadge = caDiverges
-                ? '<span class="acceptance-divergence" title="The code-computed acceptance disagrees with the authored verdict_status — computed by the spine (investigation_status), not human-authored." style="display:inline-block;margin-left:8px;padding:2px 9px;border-radius:9999px;font-size:0.8em;font-weight:600;background:#fffbeb;border:1px solid #f59e0b;color:#92400e">⚠ code: ' + _h(ca.verdict_status || computedVs || '?') + ' · authored: ' + _h(ex.verdict_status || '—') + '</span>'
-                : '';
-              h += '<div class="acceptance-rollup" id="' + _h(iset.name || 'inv') + '-acceptance-rollup" '
-                + 'style="margin:12px 0;padding:12px 16px;background:#f8fafc;border:1px solid #cbd5e1;border-left-width:5px;border-radius:6px">'
-                + '<strong>Acceptance roll-up</strong> '
-                + '<span class="muted small" style="color:#64748b">code-computed from member-study verdicts</span>'
-                + caBadge
-                + _acceptanceExplainer
-                + '<table class="small" style="margin-top:8px;border-collapse:collapse">'
-                + '<thead><tr>'
-                + '<th style="padding:3px 8px;text-align:left">Study</th>'
-                + '<th style="padding:3px 8px;text-align:left">Behavior</th>'
-                + '<th style="padding:3px 8px;text-align:left">Metric (field · pass-if → observed)</th>'
-                + '<th style="padding:3px 8px;text-align:left">Result</th>'
-                + '</tr></thead><tbody>' + critRows + '</tbody></table></div>';
-            }
-            return h + '</details>';
-          })()
-
-      // ── Biology — the mechanism this investigation models ──
-      +   ((iset.biological_story || '').trim()
-          ? '<details id="biology" class="report-fold">'
-            + '<summary>🧬 Biology — the mechanism this investigation models' + ' <span class="rf-prev">' + _h(_previewText(iset.biological_story || '', 175)) + '</span>' + '</summary>'
-            + '<p style="margin:0">' + _multiline(iset.biological_story) + '</p>'
-            + '</details>'
-          : '')
-
-      // ── Key findings — the scientific argument ──
-      +   (function() {
-            var sa = iset.scientific_argument || {};
-            var ef = sa.evidence_for || [], ea = sa.evidence_against || [],
-                kf = sa.key_figures || [], cav = sa.caveats || [];
-            if (!sa.main_claim && !ef.length && !ea.length) return '';
-            function _li(x) { return '<li>' + _multiline(typeof x === 'string' ? x : (x.text || JSON.stringify(x))) + '</li>'; }
-            var h = '<details id="scientific-argument" class="report-fold"><summary>🔬 Scientific argument' + ((ef.length || ea.length) ? ' <span class="rf-chip">' + ef.length + ' for \u00b7 ' + ea.length + ' against</span>' : '') + (sa.main_claim ? ' <span class="rf-prev">' + _h(_previewText(sa.main_claim, 150)) + '</span>' : '') + '</summary>';
-            if (sa.main_claim)
-              h += '<p><strong>Main claim.</strong> ' + _multiline(sa.main_claim) + '</p>';
-            if (ef.length || ea.length) {
-              h += '<div style="display:flex;gap:24px;flex-wrap:wrap">';
-              if (ef.length) h += '<div style="flex:1 1 280px"><h3 style="color:#065f46">Evidence for</h3><ul>' + ef.map(_li).join('') + '</ul></div>';
-              if (ea.length) h += '<div style="flex:1 1 280px"><h3 style="color:#9a3412">Evidence against</h3><ul>' + ea.map(_li).join('') + '</ul></div>';
-              h += '</div>';
-            }
-            if (kf.length)
-              h += '<h3>Key figures</h3><ul>' + kf.map(function(k) {
-                return '<li><code>' + _h(k.study || '') + '</code> · <code>' + _h(k.viz || '') + '</code> — ' + _h(k.caption || '') + '</li>';
-              }).join('') + '</ul>';
-            if (cav.length)
-              h += '<h3>Caveats</h3><ul>' + cav.map(_li).join('') + '</ul>';
-            return h + '</details>';
-          })()
-
-      // ── Open questions & decisions needed (decisions-needed + needs-attention) ──
-      +   (function() {
-            var dec = (function() {
-            var dn = (iset.executive || {}).decisions_needed || [];
-            if (!dn.length) return '';
-            return '<div class="tier-reviewer"><details id="decisions-needed" class="report-fold"><summary>✋ Decisions needed from reviewers' + ' <span class="rf-chip">' + dn.length + ' item' + (dn.length===1?'':'s') + '</span>' + (dn[0] && dn[0].question ? ' <span class="rf-prev">next: ' + _h(_previewText(dn[0].question, 130)) + '</span>' : '') + '</summary><ol>'
-              + dn.map(function(d) {
-                  return '<li><strong>' + _h(d.question || '') + '</strong>'
-                    + (d.context ? '<div class="muted small">' + _multiline(d.context) + '</div>' : '')
-                    + '</li>';
-                }).join('') + '</ol></details></div>';
-            })();
-            var na = needsAttentionReportHtml;
-            var inner = dec + na;
-            if (!inner || !inner.trim()) return '';
-            return '<h2 id="open-questions">Open questions &amp; decisions needed</h2>' + inner;
-          })()
-
-      // ── Investigation roadmap — the study dependency / verdict graph ──
-      +   (function() {
-            if (!verdictDagHtml || !verdictDagHtml.trim()) return '';
-            return '<h2 id="roadmap">Investigation roadmap</h2>' + verdictDagHtml;
-          })()
-
-      +   ''
-
-      /* Removed: top-of-report "Acceptance criteria" section.
-         Per-study behavior_tests + conclusion_verdicts (the v4 way
-         studies signal pass/fail) already convey "what must pass for
-         this investigation to be considered complete." The top-of-
-         report ordered list of acceptance criteria duplicated that
-         signal in a less-actionable form. */
-
-      +   '<h2 id="studies-heading">Studies' + (hasDag ? ' (dependency order)' : '') + '</h2>'
-      +   '<p class="muted small">Each study is collapsed to a one-glance control panel — scan top to bottom, then click any panel to expand its full detail.</p>'
-      +   '<div class="studies-toolbar">'
-      +     '<button type="button" id="studies-expand-all">Expand all</button>'
-      +     '<button type="button" id="studies-collapse-all">Collapse all</button>'
-      +     '<script>(function(){'
-      +       'function findFolds(){return Array.from(document.querySelectorAll(".study-fold"));}'
-      +       'function setAll(open){'
-      +         'var folds=findFolds();'
-      +         'console.log("[studies-toolbar] "+(open?"expand":"collapse")+" "+folds.length+" .study-fold elements");'
-      +         'folds.forEach(function(d){d.open=open;});'
-      +         'if(open&&folds.length){folds[0].scrollIntoView({behavior:"smooth",block:"start"});}'
-      +       '}'
-      +       'function wire(){'
-      +         'var ex=document.getElementById("studies-expand-all");'
-      +         'var co=document.getElementById("studies-collapse-all");'
-      +         'if(ex)ex.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();setAll(true);});'
-      +         'if(co)co.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();setAll(false);});'
-      +       '}'
-      +       'document.addEventListener("click",function(e){'
-      +         'var t=e.target;var h=t&&t.closest?t.closest(".sn-collapse-hint,.sp-collapse-hint"):null;'
-      +         'if(h){var d=h.closest("details.study-fold");if(d){d.open=false;d.scrollIntoView({behavior:"smooth",block:"start"});}e.preventDefault();e.stopPropagation();return;}'
-      +         'var na=t&&t.closest?t.closest(".study-nav a"):null;'
-      +         'if(na&&na.getAttribute("href")&&na.getAttribute("href").charAt(0)==="#"){var tg=document.getElementById(na.getAttribute("href").slice(1));if(tg){var fd=tg.closest("details.study-fold");if(fd&&!fd.open)fd.open=true;e.preventDefault();setTimeout(function(){tg.scrollIntoView({behavior:"smooth",block:"start"});},0);}}'
-      +       '});'
-      +       'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",wire);}else{wire();}'
-      +     '})();</script>'
-      +   '</div>'
-      +   studiesHtml
-
-
-      // ── Future work (iset.future_work / iset.next_steps) ──
-      +   (function() {
-            var fw = (iset.future_work !== undefined && iset.future_work !== null) ? iset.future_work : iset.next_steps;
-            if (fw === undefined || fw === null) return '';
-            var body;
-            if (Object.prototype.toString.call(fw) === '[object Array]') {
-              var its = fw.filter(function(x) { return x !== null && x !== undefined && String(x).trim(); });
-              if (!its.length) return '';
-              body = '<ul>' + its.map(function(x) { return '<li>' + _multiline(typeof x === 'string' ? x : (x.text || JSON.stringify(x))) + '</li>'; }).join('') + '</ul>';
-            } else {
-              var s = String(fw);
-              if (!s.trim()) return '';
-              body = '<p>' + _multiline(s) + '</p>';
-            }
-            return '<details id="future-work" class="report-fold"><summary>🔭 Future work</summary>' + body + '</details>';
-          })()
-
-      // ── Appendices — method-grading & verification detail (reviewer / developer tiers) ──
-      +   (function() {
-            var accFold = (acGatingMatrixHtml && acGatingMatrixHtml.trim())
-              ? '<details class="report-fold tier-reviewer" id="acceptance-detail"><summary>How the verdict is computed — acceptance criteria &amp; gating matrix</summary>' + acGatingMatrixHtml + '</details>'
-              : '';
-            var proposedHtml = (function() {
-            var pi = iset.proposed_inputs || {};
-            var items = pi.items || [];
-            if (!items.length) return '';
-            var pending = items.filter(function(it){ return (it.status||'pending')==='pending'; }).length;
-            function _kindBadge(kind) {
-              var k = (kind||'reference');
-              var bg = k === 'mechanism' ? '#faf5ff' : '#eff6ff';
-              var fg = k === 'mechanism' ? '#6b21a8' : '#1e40af';
-              return '<span style="font-size:0.7em;text-transform:uppercase;letter-spacing:0.05em;'
-                + 'padding:1px 8px;border-radius:9999px;background:' + bg + ';color:' + fg + '">' + _h(k) + '</span>';
-            }
-            function _statusPill(status) {
-              var s = (status||'pending');
-              var c = s === 'accepted' ? {bg:'#dcfce7',fg:'#166534'}
-                    : s === 'declined' ? {bg:'#fee2e2',fg:'#991b1b'}
-                    : {bg:'#fef3c7',fg:'#92400e'};
-              return '<span style="font-size:0.7em;padding:1px 8px;border-radius:9999px;background:'
-                + c.bg + ';color:' + c.fg + ';margin-left:6px">' + _h(s) + '</span>';
-            }
-            var cards = items.map(function(it) {
-              var status = it.status || 'pending';
-              var headline = (it.kind === 'mechanism') ? (it.summary || '(mechanism)') : (it.citation || '(reference)');
-              var rows = [];
-              if (it.related_study) rows.push('<div class="muted small"><strong>Related study:</strong> <code>' + _h(it.related_study) + '</code></div>');
-              if (it.rationale) rows.push('<div class="small" style="margin-top:4px"><strong>Rationale.</strong> ' + _multiline(it.rationale) + '</div>');
-              if (it.provenance) rows.push('<div class="muted small" style="margin-top:4px"><strong>Provenance.</strong> ' + _multiline(it.provenance) + '</div>');
-              if (it.proposed_by || it.proposed_at) {
-                rows.push('<div class="muted small" style="margin-top:4px">proposed by ' + _h(it.proposed_by || 'agent')
-                  + (it.proposed_at ? ' · ' + _h(String(it.proposed_at)) : '') + '</div>');
-              }
-              var actions;
-              if (status === 'pending') {
-                // Accept button — records the acceptance into the SAME
-                // feedback-report channel as the follow-up "➕ Add study"
-                // button (window._decideProposedInput → _annotate →
-                // _fbAddAnnotation). No server POST: the acceptance is
-                // serialized into the downloadable feedback YAML and applied
-                // when the agent imports it. Works identically served
-                // (http/https) or offline (file://). Reviewers can still use
-                // the inline 💬 affordance for free-form notes.
-                // Single-quoted args so they sit safely inside onclick="…".
-                var acceptArgs = "'" + _h(String(it.id||'')) + "', 'accept', this, '"
-                  + _h(String(it.kind||'reference')) + "'";
-                actions = '<div class="proposed-input-actions" style="margin-top:10px">'
-                  + '<button class="btn-accept-proposed-input" '
-                  + 'onclick="event.stopPropagation(); if(window._decideProposedInput){_decideProposedInput(' + acceptArgs + ');}'
-                  + 'else{alert(\'Open this investigation in the live dashboard to accept the suggestion.\');}" '
-                  + 'style="font-size:0.82em;padding:3px 10px;border:1px solid #16a34a;background:#f0fdf4;'
-                  + 'color:#166534;border-radius:6px;cursor:pointer;white-space:nowrap">✓ Accept — add via feedback report</button></div>';
-              } else {
-                actions = '<div class="proposed-input-resolved muted small" style="margin-top:10px;font-style:italic">'
-                  + (status === 'accepted'
-                      ? '✓ Accepted by the expert' + (it.kind === 'reference' ? ' — added to the investigation\'s provided references.' : ' — a human integrates the mechanism.')
-                      : '✗ Declined by the expert — not integrated.')
-                  + '</div>';
-              }
-              var borderColor = status === 'accepted' ? '#16a34a' : status === 'declined' ? '#dc2626' : '#f59e0b';
-              return '<div class="proposed-input-card" data-item-id="' + _h(String(it.id||'')) + '" '
-                + 'style="padding:12px 14px;border:1px solid #e2e8f0;border-left:4px solid ' + borderColor
-                + ';border-radius:6px;background:#fff;margin-bottom:10px">'
-                + '<div style="display:flex;align-items:flex-start;gap:8px">'
-                +   '<div style="flex:1;min-width:0">'
-                +     _kindBadge(it.kind) + _statusPill(status)
-                +     '<div style="font-weight:600;margin-top:6px">' + _h(headline) + '</div>'
-                +     rows.join('')
-                +   '</div>'
-                + '</div>'
-                + actions
-                + '</div>';
-            }).join('');
-            var note = pi._note
-              ? '<p class="muted small" style="margin:0 0 10px 0">' + _multiline(pi._note) + '</p>'
-              : '<p class="muted small" style="margin:0 0 10px 0">These references / mechanisms were proposed by the agent and were '
-                + '<strong>not</strong> provided by the expert. Nothing here is integrated until you <strong>Accept</strong> it.</p>';
-            return '<details id="proposed-inputs" class="report-fold"><summary>🧩 Suggested additions — pending your approval'
-              + ' <span class="rf-chip">' + items.length + ' item' + (items.length===1?'':'s')
-              + (pending ? ' · ' + pending + ' pending' : '') + '</span></summary>'
-              + note + cards + '</details>';
-            })();
-            var parts = [
-              accFold,
-              (rigorSectionHtml && rigorSectionHtml.trim()) ? '<div class="tier-reviewer">' + rigorSectionHtml + '</div>' : '',
-              (frameworkScorecardHtml && frameworkScorecardHtml.trim()) ? '<div class="tier-developer">' + frameworkScorecardHtml + '</div>' : '',
-              (competingHypothesesHtml && competingHypothesesHtml.trim()) ? '<div class="tier-reviewer">' + competingHypothesesHtml + '</div>' : '',
-              (proposedHtml && proposedHtml.trim()) ? '<div class="tier-reviewer">' + proposedHtml + '</div>' : ''
-            ];
-            var inner = parts.filter(Boolean).join('');
-            if (!inner.trim()) return '';
-            return '<div class="tier-reviewer">'
-              + '<h2 id="appendices">Appendices</h2>'
-              + '<p class="muted small">Method-grading and verification detail — kept at the back, after the main narrative.</p>'
-              + inner
-              + '</div>';
-          })()
-      +   '<h2 id="references">References <span class="muted small">(' + orderedCited.length + ' cited across this investigation)</span></h2>'
-      +   '<p class="muted small">Union of <code>bibliography.bib_keys</code> and per-behavior <code>cites:</code> across all studies in this investigation. Click DOI or link to open the source.</p>'
-      +   '<ol class="references-list" style="line-height:1.6;font-size:0.93em">'
-      +     referencesHtml
-      +   '</ol>'
-
-      +   '<footer id="footer">'
-      +     '<p>Generated by vivarium-dashboard. Source of truth: <code>investigations/' + nameClean + '/investigation.yaml</code> and the per-study <code>studies/&lt;name&gt;/study.yaml</code> files.</p>'
-      +     '<p>Open the live DAG: in the dashboard, click <strong>Investigations</strong> → <em>' + _h(iset.title || iset.name) + '</em>.</p>'
-      +   '</footer>'
-
-      + '</main>'
-
-      // ── Active-section tracking for top-nav links ──
-      + '<script>'
-      + '(function(){'
-      +   'var links=Array.from(document.querySelectorAll(".topbar a"));'
-      +   'var targets=links.map(function(a){return document.getElementById(a.getAttribute("href").slice(1));})'
-      +     '.filter(Boolean);'
-      +   'function onScroll(){'
-      +     'var y=window.scrollY+80;'
-      +     'var current=null;'
-      +     'for(var i=0;i<targets.length;i++){if(targets[i].offsetTop<=y)current=targets[i];}'
-      +     'links.forEach(function(a){a.classList.toggle("active",current&&("#"+current.id)===a.getAttribute("href"));});'
-      +   '}'
-      +   'window.addEventListener("scroll",onScroll,{passive:true});'
-      +   'onScroll();'
-      // Studies are collapsed by default. When the URL targets a study (or any
-      // anchor inside one), open all ancestor <details> so the target is
-      // actually visible, then scroll to it.
-      +   'function openToHash(){'
-      +     'var h=location.hash;if(!h)return;'
-      +     'var el=document.getElementById(decodeURIComponent(h.slice(1)));if(!el)return;'
-      +     'if(el.tagName==="DETAILS")el.open=true;'
-      +     'var d=el.closest?el.closest("details"):null;'
-      +     'while(d){d.open=true;d=d.parentElement?d.parentElement.closest("details"):null;}'
-      +     'try{el.scrollIntoView();}catch(e){}'
-      +   '}'
-      +   'window.addEventListener("hashchange",openToHash);'
-      +   'openToHash();'
-      // Printing / save-as-PDF must show everything — a closed <details> can't
-      // be forced open by CSS, so open them all before print.
-      +   'window.addEventListener("beforeprint",function(){'
-      +     'document.querySelectorAll(".study-fold").forEach(function(d){d.open=true;});'
-      +   '});'
-      // When a fold opens, re-fit its embeds and nudge Plotly to recompute
-      // width (charts drawn while the fold was collapsed render at 0 width).
-      +   'document.querySelectorAll(".study-fold").forEach(function(d){'
-      +     'd.addEventListener("toggle",function(){if(!d.open)return;'
-      +       'd.querySelectorAll(".embed-frame").forEach(function(f){'
-      +         'try{f.contentWindow&&f.contentWindow.dispatchEvent(new Event("resize"));}catch(e){}'
-      +         'if(window._fitEmbed){window._fitEmbed(f);[120,400,1000].forEach(function(t){setTimeout(function(){window._fitEmbed(f);},t);});}'
-      +       '});'
-      +     '});'
-      +   '});'
-      + '})();'
-      + '</script>'
-
-      // ── Spine A3: readiness-panel populate (report-render completion) ──
-      // The `.study-readiness-panel` placeholders above are emitted per study
-      // but filled by JS. This report is self-contained (no walkthrough.js),
-      // so bake an EXACT copy of _populateReadinessPanels (+ _readinessPanelHtml
-      // + _h) via `.toString()` and invoke it once the study sections have
-      // rendered. Reuses the same deterministic linter fetch — no duplicated
-      // logic, no AI. Idempotent. fetch('/api/report-lint') resolves when the
-      // report is SERVED by the dashboard; offline (file://) it no-ops cleanly.
-      + '<script>'
-      +   '(function(){'
-      +     'var _h=' + _h.toString() + ';'
-      +     'var _readinessPanelHtml=' + _readinessPanelHtml.toString() + ';'
-      +     'var _populateReadinessPanels=' + _populateReadinessPanels.toString() + ';'
-      +     'window._populateReadinessPanels=_populateReadinessPanels;'
-      +     'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",_populateReadinessPanels);}else{_populateReadinessPanels();}'
-      +   '})();'
-      + '</script>'
-
-      // ── Proposed-input Accept/Decline wiring (in-report) ──────────────
-      // Self-contained handler baked into the downloaded report so the
-      // Accept/Decline buttons work both in the live dashboard report and
-      // when the report is served by the dashboard. POSTs the decision to
-      // /api/proposed-input-decision and, on success, rewrites the card's
-      // status in place (no full reload needed). The investigation name is
-      // baked in so the standalone report knows which investigation to PATCH.
-      + '<script>'
-      + '(function(){'
-      +   'var INV=' + JSON.stringify(iset.name || '') + ';'
-      // Accept / Decline / "+ Add to investigation" all record the reviewer's
-      // decision as a NORMAL ANNOTATION — the same channel the manual 💬
-      // highlight-comments use (window._fbAddAnnotation, defined by the inline-
-      // feedback widget below). No server POST: the agent applies the decision
-      // when it reads the exported feedback YAML, like all other feedback. This
-      // works identically whether the report is served (http/https) or opened
-      // offline (file://).
-      +   'function _annotate(sid,text){'
-      +     'if(window._fbAddAnnotation){window._fbAddAnnotation(sid,text);return true;}'
-      +     'return false;'
-      +   '}'
-      +   'window._decideProposedInput=function(itemId,decision,btn,kind){'
-      +     'if(!itemId){alert("Missing item id");return;}'
-      +     'var card=btn&&btn.closest?btn.closest(".proposed-input-card"):null;'
-      +     'var actions=card?card.querySelector(".proposed-input-actions"):null;'
-      +     'var accepted=decision==="accept";'
-      +     'var titleEl=card?card.querySelector("div[style*=\\"font-weight:600\\"]"):null;'
-      +     'var title=titleEl?titleEl.textContent.trim():"";'
-      +     'var text=(accepted?"Accept":"Decline")+" \\u2014 "+(kind?"["+kind+"] ":"")+(title||"proposed input")+" [id: "+itemId+"]";'
-      +     'if(!_annotate("proposed-inputs",text)){alert("Could not record the decision (feedback widget unavailable).");return;}'
-      +     'if(actions){actions.querySelectorAll("button").forEach(function(b){b.disabled=true;});}'
-      +     'if(card){card.style.borderLeftColor=accepted?"#16a34a":"#dc2626";}'
-      +     'var resolved=document.createElement("div");'
-      +     'resolved.className="proposed-input-resolved muted small";'
-      +     'resolved.style.cssText="margin-top:10px;font-style:italic";'
-      +     'resolved.textContent=(accepted?"\\u2713":"\\u2717")+" recorded \\u2014 exports with your feedback";'
-      +     'if(actions){actions.replaceWith(resolved);}else if(card){card.appendChild(resolved);}'
-      +   '};'
-      // ── "+ Add to investigation" seed handler (report-scoped) ──────────
-      // Records a "Add study" annotation keyed to the proposed-inputs section.
-      // The SPA defines its own richer _seedFollowupProposal (live graph
-      // refresh); this report-scoped version just annotates so the offline /
-      // served reviewer click is captured in the feedback export.
-      +   'window._seedFollowupProposal=function(parentName,proposalId,proposalIdx,btn){'
-      +     'var card=btn&&btn.closest?btn.closest(".di-fup-card"):null;'
-      +     'var title=card?(function(){var t=card.querySelector(".di-fup-title");return t?t.textContent.trim():"";})():"";'
-      +     'var targets=card?Array.prototype.map.call(card.querySelectorAll(".di-fup-targets code"),function(c){return c.textContent;}):[];'
-      +     'var text="Add study \\u2014 "+(title||"new study")+(targets.length?" (targets: "+targets.join(", ")+")":"")+(parentName?" [parent: "+parentName+"]":"");'
-      +     'if(!_annotate("proposed-inputs",text)){alert("Could not record the request (feedback widget unavailable).");return;}'
-      +     'if(btn){btn.disabled=true;btn.textContent="\\u2713 recorded \\u2014 exports with your feedback";btn.style.borderColor="#16a34a";btn.style.color="#166534";}'
-      +   '};'
-      + '})();'
-      + '</script>'
-
-      // ── Inline feedback widget (fully detached: localStorage only) ──
-      //
-      // Per-report annotation key: each download gets a unique reportId
-      // (millisecond-precision generation timestamp). Annotations are
-      // keyed by INV + REPORT_ID, so opening an older report doesn't
-      // see comments left on a newer one and vice versa. The yaml export
-      // tags meta.report_id so pbg-feedback-import can attribute it
-      // back to a specific report file.
-      + _feedbackWidgetCss()
-      + _feedbackWidgetJs(iset.name || 'investigation',
-                          'rpt-' + new Date().toISOString()
-                                     .slice(0, 19).replace(/[-:T]/g, ''),
-                          ghRepo)
-
-      + '</body></html>';
-  }
-
-  // Inline CSS for the inline-feedback widget. Self-contained so the
-  // downloaded report works with no external dependencies.
-  function _feedbackWidgetCss() {
-    return '<style>'
-      + '.fb-host{position:relative}'
-      + '.fb-add{position:absolute;top:4px;right:4px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;width:26px;height:26px;font-size:13px;line-height:1;cursor:pointer;opacity:.55;transition:opacity .15s;z-index:5;padding:0;display:inline-flex;align-items:center;justify-content:center}'
-      + '.fb-host:hover .fb-add{opacity:1}'
-      + '.fb-add:hover{background:#fde68a;border-color:#f59e0b}'
-      + '.fb-add.has-fb{opacity:1;background:#fde68a;border-color:#f59e0b}'
-      // Editor is a body-level FIXED overlay so it can never be clipped
-      // by parent overflow:hidden / flex / transform. Positioned at click
-      // time via getBoundingClientRect against the trigger button.
-      + '.fb-editor{position:fixed;width:360px;max-width:calc(100vw - 24px);padding:12px;background:#fffbeb;border:1px solid #f59e0b;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:1000}'
-      + '.fb-editor textarea{width:100%;box-sizing:border-box;padding:6px;font:inherit;border:1px solid #cbd5e1;border-radius:3px;min-height:80px;resize:vertical}'
-      + '.fb-editor-row{display:flex;gap:6px;margin-top:8px;align-items:center}'
-      + '.fb-editor-row input{flex:1;min-width:0;padding:4px 8px;border:1px solid #cbd5e1;border-radius:3px;font:inherit}'
-      + '.fb-editor-row button{padding:5px 12px;cursor:pointer;border-radius:3px;font:inherit}'
-      + '.fb-save{background:#2563eb;color:#fff;border:1px solid #1e40af}'
-      + '.fb-cancel{background:#f3f4f6;border:1px solid #d1d5db;color:#1f2937}'
-      + '.fb-entries{margin:6px 0 0 0}'
-      + '.fb-entry{background:#fefce8;border-left:3px solid #f59e0b;padding:6px 10px;margin:4px 0;border-radius:0 4px 4px 0;position:relative}'
-      + '.fb-meta{font-size:11px;color:#78716c}'
-      + '.fb-text{margin-top:2px;white-space:pre-wrap}'
-      + '.fb-del{position:absolute;top:4px;right:6px;background:none;border:none;color:#a8a29e;cursor:pointer;font-size:14px;padding:0;line-height:1}'
-      + '.fb-del:hover{color:#dc2626}'
-      + '.fb-gh-entry{margin-top:6px;background:#1f883d;color:#fff;border:1px solid #1a7f37;border-radius:4px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;line-height:1.2}'
-      + '.fb-gh-entry:hover{background:#1a7f37}'
-      + '.fb-bar{position:fixed;bottom:16px;right:16px;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.15);border-radius:6px;background:#fff}'
-      + '.fb-bar-btn{background:#f59e0b;color:#1f2937;border:1px solid #d97706;padding:10px 14px;font-weight:600;border-radius:6px;cursor:pointer;font-size:14px}'
-      + '.fb-bar-btn:hover{background:#fde68a}'
-      + '.fb-bar-btn[disabled]{opacity:.5;cursor:not-allowed}'
-      + '.fb-count{font-weight:400;opacity:.75;margin-left:4px}'
-      + '@media print{.fb-add,.fb-editor,.fb-bar,.fb-gh-entry{display:none}}'
-      + '</style>';
-  }
-
-  // Inline JS for the inline-feedback widget. Persists to localStorage
-  // keyed per-investigation; renders 💬 buttons on every element whose
-  // id matches the section taxonomy (study-*, finding-*, acceptance,
-  // references, how-to-read, studies-heading) and offers a "Generate
-  // feedback report" YAML download. No server contact — works offline.
-  //
-  // The editor is a body-level FIXED overlay anchored at click time to
-  // the trigger button's viewport coords. Two reasons for the overlay
-  // pattern instead of an in-host child:
-  //   1. <button> defaults to type="submit" — appending a child editor
-  //      inside arbitrary report sections can land in unexpected layout
-  //      contexts (overflow:hidden parents, flex containers, <details>
-  //      blocks) that clip or hide the editor entirely.
-  //   2. A single global editor means clicking a different 💬 swaps the
-  //      anchor cleanly instead of opening N stacked editors.
-  function _feedbackWidgetJs(invName, reportId, ghRepo) {
-    return '<script>'
-      + '(function(){'
-      +   'var INV=' + JSON.stringify(invName) + ';'
-      +   'var REPORT_ID=' + JSON.stringify(reportId || '') + ';'
-      // Repo (owner/name) resolved server-side at generation time from the
-      // workspace git remote (fallback workspace.yaml dashboard.github_repo).
-      // null when the workspace has no GitHub origin — the widget then
-      // host-detects or prompts once.
-      +   'var GH_REPO=' + JSON.stringify(ghRepo || '') + ';'
-      +   'var KEY="v2ecoli_feedback_"+INV+(REPORT_ID?("_"+REPORT_ID):"");'
-      +   'var ID_PATTERNS=[/^study-/,/^finding-/,/^acceptance$/,/^references$/,/^studies-heading$/,/^executive$/,/^decisions-needed$/,/^scientific-argument$/,/^biology$/,/^proposed-inputs$/];'
-      +   'var openEd=null;'
-      +   'var memStore={};'
-      +   'function safeGet(k){try{var v=(typeof localStorage!=="undefined")?localStorage.getItem(k):null;return (v==null?memStore[k]:v)||"";}catch(e){return memStore[k]||"";}}'
-      +   'function safeSet(k,v){memStore[k]=v;try{if(typeof localStorage!=="undefined")localStorage.setItem(k,v);}catch(e){}}'
-      +   'function load(){try{var s=safeGet(KEY);return s?JSON.parse(s):{};}catch(e){return {};}}'
-      +   'function save(d){safeSet(KEY,JSON.stringify(d));}'
-      +   'function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}'
-      +   'function shouldAttach(el){if(!el.id)return false;return ID_PATTERNS.some(function(re){return re.test(el.id);});}'
-      +   'function attachAll(){'
-      +     'document.querySelectorAll("[id]").forEach(function(el){'
-      +       'if(!shouldAttach(el)||el.dataset.fbAttached)return;'
-      +       'el.dataset.fbAttached="1";el.classList.add("fb-host");'
-      +       'var btn=document.createElement("button");'
-      +       'btn.type="button";'  // explicit: never a form submit
-      +       'btn.className="fb-add";btn.title="Add feedback to this section";btn.textContent="💬";'
-      +       'btn.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();openEditor(el,el.id,btn);});'
-      +       'el.appendChild(btn);renderExisting(el,el.id);'
-      +     '});'
-      +     'updateBadges();updateBarCount();'
-      +   '}'
-      +   'function renderExisting(host,sid){'
-      +     'var data=load();var entries=data[sid]||[];'
-      +     'var box=host.querySelector(":scope>.fb-entries");'
-      +     'if(!box){box=document.createElement("div");box.className="fb-entries";host.appendChild(box);}'
-      +     'box.innerHTML=entries.map(function(e,i){'
-      +       'return "<div class=\\"fb-entry\\">'
-      +              '<button type=\\"button\\" class=\\"fb-del\\" data-i=\\""+i+"\\" title=\\"Delete\\">×</button>'
-      +              '<div class=\\"fb-meta\\">"+esc(e.author||"evaluator")+" · "+esc(e.ts)+"</div>'
-      +              '<div class=\\"fb-text\\">"+esc(e.text)+"</div>'
-      // Per-annotation one-click GitHub issue (label=feedback, titled+bodied
-      // with this section + this annotation). Hidden when no repo is known.
-      +              '<button type=\\"button\\" class=\\"fb-gh-entry\\" data-i=\\""+i+"\\" title=\\"File this comment as a GitHub issue\\">\\u2197 Open GitHub issue</button>'
-      +              '</div>";'
-      +     '}).join("");'
-      +     'box.querySelectorAll(".fb-del").forEach(function(b){'
-      +       'b.addEventListener("click",function(ev){ev.preventDefault();ev.stopPropagation();var i=parseInt(b.dataset.i,10);var d=load();(d[sid]||[]).splice(i,1);if(!(d[sid]||[]).length)delete d[sid];save(d);renderExisting(host,sid);updateBadges();updateBarCount();});'
-      +     '});'
-      +     'box.querySelectorAll(".fb-gh-entry").forEach(function(b){'
-      +       'b.addEventListener("click",function(ev){ev.preventDefault();ev.stopPropagation();var i=parseInt(b.dataset.i,10);var e=(load()[sid]||[])[i];if(e)openGhIssueForSection(sid,e.text,e.author);});'
-      +     '});'
-      +   '}'
-      +   'function closeEditor(){if(openEd){openEd.remove();openEd=null;}}'
-      +   'function positionEditor(ed,anchorBtn){'
-      +     'var r=anchorBtn.getBoundingClientRect();'
-      +     'var edW=Math.min(360,window.innerWidth-24);'
-      +     'var top=r.bottom+8;'
-      +     'var left=Math.max(12,Math.min(window.innerWidth-edW-12,r.right-edW));'
-      +     'ed.style.top=top+"px";'
-      +     'ed.style.left=left+"px";'
-      +     'var edH=ed.offsetHeight||220;'
-      +     'if(top+edH>window.innerHeight-12){ed.style.top=Math.max(12,r.top-edH-8)+"px";}'
-      +   '}'
-      +   'function openEditor(host,sid,anchorBtn){'
-      +     'closeEditor();'  // singleton: only one editor at a time
-      +     'var ed=document.createElement("div");ed.className="fb-editor";'
-      +     'ed.setAttribute("data-fb-sid",sid);'
-      +     'ed.innerHTML="<div style=\\"font-size:12px;color:#78716c;margin-bottom:6px\\">Feedback on §<code>"+esc(sid)+"</code></div>'
-      +       '<textarea placeholder=\\"What feedback do you have on this section? (assumption, parameter, evidence, missing detail, etc.)\\"></textarea>'
-      +       '<div class=\\"fb-editor-row\\">'
-      +         '<input class=\\"fb-author\\" placeholder=\\"Your name (optional)\\" value=\\""+esc(safeGet("fb_author"))+"\\">'
-      +         '<button type=\\"button\\" class=\\"fb-cancel\\">Cancel</button>'
-      +         '<button type=\\"button\\" class=\\"fb-save\\">Save</button>'
-      +       '</div>";'
-      +     'document.body.appendChild(ed);'
-      +     'openEd=ed;'
-      +     'ed.addEventListener("click",function(e){e.stopPropagation();});'
-      +     'positionEditor(ed,anchorBtn);'
-      +     'window.requestAnimationFrame(function(){positionEditor(ed,anchorBtn);});'  // refine after layout
-      +     'setTimeout(function(){var ta=ed.querySelector("textarea");if(ta)ta.focus();},0);'
-      +     'ed.querySelector(".fb-cancel").addEventListener("click",function(e){e.preventDefault();e.stopPropagation();closeEditor();});'
-      +     'ed.querySelector(".fb-save").addEventListener("click",function(e){'
-      +       'e.preventDefault();e.stopPropagation();'
-      +       'var text=ed.querySelector("textarea").value.trim();if(!text)return;'
-      +       'var author=ed.querySelector(".fb-author").value.trim();'
-      +       'if(author)safeSet("fb_author",author);'
-      +       'var d=load();d[sid]=d[sid]||[];'
-      +       'd[sid].push({ts:new Date().toISOString(),author:author,text:text});'
-      +       'save(d);closeEditor();renderExisting(host,sid);updateBadges();updateBarCount();'
-      +     '});'
-      +   '}'
-      +   'document.addEventListener("click",function(e){'
-      +     'if(!openEd)return;'
-      +     'if(openEd.contains(e.target))return;'
-      +     'if(e.target.classList&&e.target.classList.contains("fb-add"))return;'
-      +     'closeEditor();'
-      +   '});'
-      +   'document.addEventListener("keydown",function(e){if(e.key==="Escape")closeEditor();});'
-      +   'window.addEventListener("resize",function(){if(openEd){var sid=openEd.getAttribute("data-fb-sid");var host=sid&&document.getElementById(sid);var btn=host&&host.querySelector(":scope>.fb-add");if(btn)positionEditor(openEd,btn);}});'
-      +   'window.addEventListener("scroll",function(){if(openEd){var sid=openEd.getAttribute("data-fb-sid");var host=sid&&document.getElementById(sid);var btn=host&&host.querySelector(":scope>.fb-add");if(btn)positionEditor(openEd,btn);}},{passive:true});'
-      +   'function countAll(){var d=load();var n=0;Object.keys(d).forEach(function(k){n+=(d[k]||[]).length;});return n;}'
-      +   'function updateBadges(){var d=load();document.querySelectorAll(".fb-add").forEach(function(b){var sid=b.parentElement&&b.parentElement.id;if(!sid)return;b.classList.toggle("has-fb",((d[sid]||[]).length>0));});}'
-      +   'function updateBarCount(){var c=countAll();var nt="("+c+")";document.querySelectorAll(".fb-count").forEach(function(s){if(s.textContent!==nt)s.textContent=nt;});document.querySelectorAll(".fb-bar-btn").forEach(function(btn){btn.disabled=c===0;});}'
-      +   'function ensureBar(){'
-      +     'if(document.querySelector(".fb-bar"))return;'
-      +     'var bar=document.createElement("div");bar.className="fb-bar";'
-      +     'var html="";'
-      +     'html+="<button type=\\"button\\" class=\\"fb-bar-btn fb-dl-btn\\" title=\\"Download all your annotations as a yaml file\\">Download feedback (.yaml) <span class=\\"fb-count\\">(0)</span></button>";'
-      // One-click submit to GitHub — works on any host (no dashboard server
-      // needed), so an emailed/Pages-hosted report can file feedback directly.
-      +     'html+="<button type=\\"button\\" class=\\"fb-bar-btn fb-gh-issue\\" style=\\"margin-left:6px;background:#1f883d\\" title=\\"Open a prefilled GitHub issue with your feedback\\">→ GitHub issue</button>";'
-      +     'bar.innerHTML=html;'
-      +     'document.body.appendChild(bar);'
-      +     'var db=bar.querySelector(".fb-dl-btn");if(db)db.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();downloadFeedback();});'
-      +     'var gi=bar.querySelector(".fb-gh-issue");if(gi)gi.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();openGhIssue();});'
-      +   '}'
-      // Proposed-input Accept/Decline and "+ Add to investigation" record
-      // their decision through this — a NORMAL annotation, the same channel
-      // the manual 💬 comments use. Author defaults to the reviewer's saved
-      // name (fb_author) so decisions are attributed like every other comment.
-      +   'window._fbAddAnnotation=function(sid,text,author){'
-      +     'if(!sid||!text)return;'
-      +     'author=author||safeGet("fb_author")||"reviewer";'
-      +     'var d=load();d[sid]=d[sid]||[];'
-      +     'd[sid].push({ts:new Date().toISOString(),author:author,text:text});'
-      +     'save(d);var host=document.getElementById(sid);if(host&&host.dataset&&host.dataset.fbAttached)renderExisting(host,sid);updateBadges();updateBarCount();'
-      +   '};'
-      +   'function serialiseYaml(meta,data){'
-      +     'var L=["# Inline feedback report","# Generated from the v2ecoli inline-feedback widget.","# Import with: pbg-feedback-import <this-file>"];'
-      +     'L.push("meta:");'
-      +     'Object.keys(meta).forEach(function(k){L.push("  "+k+": "+JSON.stringify(meta[k]));});'
-      +     'var keys=Object.keys(data).sort();'
-      +     'if(!keys.length){L.push("annotations: {}");}'
-      +     'else{L.push("annotations:");keys.forEach(function(sid){'
-      +       '(data[sid]||[]).forEach(function(e,i){if(i===0)L.push("  "+JSON.stringify(sid)+":");L.push("    - ts: "+JSON.stringify(e.ts));if(e.author)L.push("      author: "+JSON.stringify(e.author));L.push("      text: "+JSON.stringify(e.text));});'
-      +     '});}'
-      +     'return L.join("\\n")+"\\n";'
-      +   '}'
-      +   'function downloadFeedback(){'
-      +     'var d=load();if(!countAll()){alert("No feedback yet — click 💬 next to any section first.");return;}'
-      +     'var ts=new Date().toISOString();'
-      +     'var meta={investigation:INV,report_id:REPORT_ID,generated_at:ts,page_title:document.title,source_url:location.href};'
-      +     'var blob=new Blob([serialiseYaml(meta,d)],{type:"application/yaml"});'
-      +     'var url=URL.createObjectURL(blob);var a=document.createElement("a");'
-      +     'a.href=url;a.download="feedback-"+INV+"-"+ts.slice(0,19).replace(/[:T]/g,"-")+".yaml";'
-      +     'document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},0);'
-      +   '}'
-      // GitHub submit helpers. Resolve owner/repo from a github.io host
-      // (vivarium-collective.github.io/<repo>/…), else ask once and remember.
-      +   'function ghRepo(){'
-      // 1) repo injected at generation time from the workspace git remote.
-      +     'if(GH_REPO)return GH_REPO;'
-      // 2) github.io host detection (vivarium-collective.github.io/<repo>/…).
-      +     'try{var h=location.hostname,p=location.pathname.split("/").filter(Boolean);'
-      +       'if(/\\.github\\.io$/.test(h)&&p.length)return h.split(".")[0]+"/"+p[0];}catch(e){}'
-      // 3) remembered prompt answer, then a one-time prompt.
-      +     'var v=safeGet("fb_gh_repo");if(v)return v;'
-      +     'var ans=prompt("GitHub repo for this feedback (owner/repo):","");'
-      +     'if(ans){ans=ans.replace(/^https?:\\/\\/github.com\\//,"").replace(/\\.git$/,"").replace(/\\/+$/,"");safeSet("fb_gh_repo",ans);}'
-      +     'return ans||"";'
-      +   '}'
-      // Per-section GitHub issue: file ONE annotation as a focused issue,
-      // titled with the section id and bodied with the annotation text, a
-      // short quote of the section, and a deep-link anchor back to it.
-      +   'function sectionQuote(sid){try{var el=document.getElementById(sid);if(!el)return "";'
-      +     'var clone=el.cloneNode(true);clone.querySelectorAll(".fb-add,.fb-editor,.fb-entries,.fb-bar,script,style").forEach(function(n){n.remove();});'
-      +     'var t=(clone.textContent||"").replace(/\\s+/g," ").trim();return t.slice(0,280)+(t.length>280?"\\u2026":"");}catch(e){return "";}}'
-      +   'function openGhIssueForSection(sid,text,author){'
-      +     'var repo=ghRepo();if(!repo)return;'
-      +     'var anchor=location.origin+location.pathname+"#"+encodeURIComponent(sid);'
-      +     'var quote=sectionQuote(sid);'
-      +     'var body="Reviewer feedback on the **"+INV+"** investigation report.\\n\\n"'
-      +       '+"**Section:** `"+sid+"`\\n"'
-      +       '+(author?("**Reviewer:** "+author+"\\n"):"")'
-      +       '+"\\n**Feedback:**\\n> "+String(text||"").replace(/\\n/g,"\\n> ")+"\\n"'
-      +       '+(quote?("\\n**Section context:**\\n> "+quote+"\\n"):"")'
-      +       '+"\\n[Open this section in the report]("+anchor+")\\n";'
-      +     'var title="Reviewer feedback ["+INV+"]: "+sid;'
-      +     'var url="https://github.com/"+repo+"/issues/new?labels=feedback&title="+encodeURIComponent(title)+"&body="+encodeURIComponent(body);'
-      +     'var w=window.open(url,"_blank","noopener");if(!w)location.href=url;'
-      +   '}'
-      +   'function fbYaml(){var meta={investigation:INV,report_id:REPORT_ID,generated_at:new Date().toISOString(),page_title:document.title,source_url:location.href};return serialiseYaml(meta,load());}'
-      +   'function openGhIssue(){if(!countAll()){alert("No feedback yet — click the 💬 icons first.");return;}var repo=ghRepo();if(!repo)return;'
-      +     'var body="Inline feedback from the investigation report.\\n\\n```yaml\\n"+fbYaml()+"```\\n";'
-      +     'var url="https://github.com/"+repo+"/issues/new?labels=feedback&title="+encodeURIComponent("Reviewer feedback: "+INV)+"&body="+encodeURIComponent(body);'
-      +     'var w=window.open(url,"_blank","noopener");if(!w)location.href=url;'
-      +   '}'
-      +   'function init(){attachAll();ensureBar();var mo=new MutationObserver(function(){attachAll();});mo.observe(document.body,{childList:true,subtree:true});}'
-      +   'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();'
-      + '})();'
-      + '</script>';
-  }
-
-  // Pop-out the investigation itself in a detached window. URL carries
-  // both ?investigation=<name> AND #investigations so detection is robust
-  // regardless of when the param is read on the receiving side.
   function _popoutInvestigation() {
     var name = window._currentIset;
     if (!name) {
@@ -17436,10 +15310,7 @@
   // Back-compat shim for any old callers (sidebar groups still use this).
   // The investigation a study belongs to (from the iset index), or '' if none.
   function _investigationForStudy(slug) {
-    var iset = (window._isetIndex || []).find(function(i) {
-      return (i.studies || []).indexOf(slug) !== -1;
-    });
-    return iset ? iset.name : '';
+    return _investigationForStudyMap()[slug] || '';   // O(1) reverse lookup
   }
 
   // Is `slug` a member of investigation `invName`? Used so opening a study from
@@ -17447,13 +15318,34 @@
   // several investigations; _investigationForStudy returns only the FIRST).
   function _studyInInvestigation(slug, invName) {
     if (!invName) return false;
-    var iset = (window._isetIndex || []).find(function(i) { return i.name === invName; });
+    var iset = _isetByName()[invName];   // O(1)
     return !!(iset && (iset.studies || []).indexOf(slug) !== -1);
   }
   window._studyInInvestigation = _studyInInvestigation;
   window._investigationForStudy = _investigationForStudy;
 
   function _openStudyEmbeddedNewTab(name, tab) {
+    // In a popped-out Studies panel window there is no investigation content to
+    // show here — route the navigation to the opener (the main window) so the
+    // popped-out list CONTROLS the main window's selected study, and reflect the
+    // selection in this window's own list.
+    try {
+      if (document.body && document.body.classList.contains('viv-popout') &&
+          window.opener && !window.opener.closed &&
+          typeof window.opener._openStudyEmbeddedNewTab === 'function') {
+        window.opener._openStudyEmbeddedNewTab(name, tab);
+        // Opening a study from the GRAPH popout surfaces it in the opener (main
+        // window), which now has room since the graph vacated the inset — bring
+        // that window forward so the open is visible. (Studies popout keeps its
+        // quiet "controls the main window" behavior and does NOT steal focus.)
+        try {
+          if (document.body.classList.contains('viv-popout-graph') &&
+              window.opener && window.opener.focus) window.opener.focus();
+        } catch (e) { /* ignore */ }
+        _selectStudyInRail(name);
+        return;
+      }
+    } catch (e) { /* cross-origin / closed opener — fall back to local nav */ }
     // Single router: show the study's OWN investigation workspace, then
     // open/focus its study tab. Never the legacy icon view, never full-window nav.
     // Optional `tab` deep-links the porthole to a study sub-tab (e.g. conclusions).
@@ -17476,7 +15368,8 @@
       var view = document.getElementById('investigation-detail-view');
       if (view && view.parentNode === ctx) view.style.display = 'none';
       else if (ctx) ctx.innerHTML = '';
-      var t = document.getElementById('ws-title'); if (t) t.textContent = 'Study: ' + name;
+      var t = document.getElementById('ws-title'); if (t) { t.textContent = name; t.title = name; }
+      var tk = document.getElementById('ws-title-kicker'); if (tk) tk.textContent = 'Study';
       var a = document.getElementById('ws-actions'); if (a) a.innerHTML = '';
       _wsResetStudyTabs(null);
       _wsOpenStudyTab(name, tab);
@@ -17494,9 +15387,8 @@
     var sel = '.viv-rail-sublink[data-study-name="' +
       (window.CSS && CSS.escape ? CSS.escape(name) : name) + '"]';
     var leaf = document.querySelector(sel);
-    if (!leaf) return;
+    if (!leaf) { _renderRailStudyStepper(null); return; }
     leaf.classList.add('rail-study-active');
-    leaf.style.background = '#eef2ff';
     // If its investigation group is collapsed, expand it so the leaf is visible.
     var grp = leaf.closest('[data-rail-group], .viv-rail-investigations-group');
     if (grp && grp.classList.contains('collapsed') &&
@@ -17505,6 +15397,115 @@
       if (hdr) _vivToggleInvGroup(hdr);
     }
     try { leaf.scrollIntoView({ block: 'nearest' }); } catch (e) { /* ignore */ }
+    _renderRailStudyStepper(leaf);
+  }
+
+  // The tab currently open in the study porthole, so stepping to another study
+  // re-opens it on the SAME tab. _setStudyTab (study-detail.js) postMessages the
+  // active tab up on every switch; fall back to reading the iframe directly.
+  window._wsStudyTabs = window._wsStudyTabs || {};
+  function _currentStudyTab() {
+    if (window._wsStudyTabs && window._wsStudyTabs.tab) return window._wsStudyTabs.tab;
+    try {
+      var f = document.getElementById('ws-study-frame');
+      var p = f && f.contentWindow && f.contentWindow.document.querySelector('.study-pillar.active');
+      if (p && p.dataset && p.dataset.kind) return p.dataset.kind;
+    } catch (e) { /* cross-frame — ignore */ }
+    return undefined;
+  }
+  window._currentStudyTab = _currentStudyTab;
+  window.addEventListener('message', function (ev) {
+    if (ev && ev.data && typeof ev.data === 'object' && ev.data._vwStudyTab) {
+      window._wsStudyTabs = window._wsStudyTabs || {};
+      window._wsStudyTabs.tab = ev.data._vwStudyTab;
+      _updateRailStepperPosition();   // keep the stepper's tab hint fresh
+    }
+  });
+  // Keyboard: Alt+↑ / Alt+↓ step through studies (keeping the open tab), as long
+  // as a study is open and you're not typing in a field.
+  document.addEventListener('keydown', function (ev) {
+    if (!ev.altKey || ev.ctrlKey || ev.metaKey) return;
+    if (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown') return;
+    var t = ev.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (!document.querySelector('.viv-rail-sublink.rail-study-active')) return;
+    ev.preventDefault();
+    window._railStepStudy(ev.key === 'ArrowUp' ? -1 : 1);
+  });
+
+  // The study leaves of the currently-open study's rail group, in display order.
+  function _railStudySiblings(activeLeaf) {
+    // The active study's group; with none selected, fall back to the first
+    // investigation group (else every study leaf in the rail) so the stepper can
+    // start from the top.
+    var grp = activeLeaf ? activeLeaf.closest('.viv-rail-investigations-group') : null;
+    if (!grp) {
+      grp = document.querySelector('#viv-rail-investigations .viv-rail-investigations-group') ||
+            document.getElementById('viv-rail-investigations');
+    }
+    if (!grp) return [];
+    return Array.prototype.slice.call(grp.querySelectorAll('.viv-rail-sublink[data-study-name]'));
+  }
+  // Step to the previous (dir<0) / next (dir>0) study, keeping the same open tab.
+  // With no study selected, ▼ opens the first study and ▲ opens the last.
+  window._railStepStudy = function (dir) {
+    var active = document.querySelector('.viv-rail-sublink.rail-study-active[data-study-name]');
+    var leaves = _railStudySiblings(active);
+    if (!leaves.length) return;
+    var i = active ? leaves.indexOf(active) : -1;
+    var j = (i < 0) ? (dir < 0 ? leaves.length - 1 : 0) : i + (dir < 0 ? -1 : 1);
+    if (j < 0 || j >= leaves.length) return;
+    var slug = leaves[j].getAttribute('data-study-name');
+    if (slug && window._openStudyEmbeddedNewTab) window._openStudyEmbeddedNewTab(slug, _currentStudyTab());
+  };
+
+  // A compact prev/next stepper pinned at the top of the Studies rail. Always
+  // visible once the study list is present (not only when a study is selected):
+  // ▲/▼ walk the current investigation's studies (keeping the open tab), with an
+  // "n / N" position readout ("– / N" when nothing is selected yet).
+  function _renderRailStudyStepper(activeLeaf) {
+    var host = document.getElementById('viv-rail-investigations');
+    if (!host) return;
+    var bar = document.getElementById('viv-rail-study-stepper');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'viv-rail-study-stepper';
+      // Full-width opaque band (sticky, pins to the top of the scroll region);
+      // the bordered card lives inside so the study list scrolls cleanly beneath.
+      bar.innerHTML =
+        '<div class="viv-rail-step-card">' +
+          '<button type="button" id="viv-rail-step-prev" title="Previous study (keeps the open tab)" aria-label="Previous study">▲</button>' +
+          '<span id="viv-rail-step-pos" title="Study position in this investigation"></span>' +
+          '<button type="button" id="viv-rail-step-next" title="Next study (keeps the open tab)" aria-label="Next study">▼</button>' +
+        '</div>';
+      host.parentNode.insertBefore(bar, host);
+      bar.querySelector('#viv-rail-step-prev').addEventListener('click', function () { window._railStepStudy(-1); });
+      bar.querySelector('#viv-rail-step-next').addEventListener('click', function () { window._railStepStudy(1); });
+    }
+    // Prefer to sit on the SAME row as the search field (one compact bar); fall
+    // back to a band above the list when there's no search head.
+    var searchHead = document.getElementById('viv-rail-studies-head');
+    if (searchHead && bar.parentNode !== searchHead) searchHead.appendChild(bar);
+    else if (!searchHead && bar.parentNode !== host.parentNode) host.parentNode.insertBefore(bar, host);
+    _updateRailStepperPosition();
+  }
+  // Exposed so the Studies panel can mount the stepper as soon as the list renders
+  // (independent of any study being selected).
+  window._renderRailStudyStepper = _renderRailStudyStepper;
+  function _updateRailStepperPosition() {
+    var bar = document.getElementById('viv-rail-study-stepper');
+    if (!bar) return;
+    var active = document.querySelector('.viv-rail-sublink.rail-study-active[data-study-name]');
+    var leaves = _railStudySiblings(active);
+    var i = active ? leaves.indexOf(active) : -1;
+    var n = leaves.length;
+    var prev = bar.querySelector('#viv-rail-step-prev');
+    var next = bar.querySelector('#viv-rail-step-next');
+    var pos = bar.querySelector('#viv-rail-step-pos');
+    // With nothing selected (i<0) both arrows are live (▼ → first, ▲ → last).
+    if (prev) prev.disabled = (n === 0) || (i === 0);
+    if (next) next.disabled = (n === 0) || (i >= 0 && i >= n - 1);
+    if (pos) pos.textContent = n ? ((i >= 0 ? (i + 1) : '–') + ' / ' + n) : '';
   }
   window._selectStudyInRail = _selectStudyInRail;
 
@@ -17513,21 +15514,6 @@
   // Map a study's free-form status string to a small colored dot. Keeps the
   // rail rows readable: the study NAME gets the full row width, the dot is a
   // glanceable status, the full status text is shown in the title tooltip.
-  function _railStatusColor(status) {
-    var s = String(status || '').toLowerCase();
-    if (s.indexOf('fail') !== -1 || s.indexOf('invalid') !== -1 || s.indexOf('blocked') !== -1) return '#ef4444';   // red
-    if (s.indexOf('pending') !== -1 || s.indexOf('refresh') !== -1 || s.indexOf('needs') !== -1) return '#f59e0b';// amber
-    if (s.indexOf('inconclusive') !== -1 || s.indexOf('partial') !== -1) return '#d97706'; // dark amber
-    if (s.indexOf('running') === 0) return '#3b82f6';                                // blue
-    // 'pass' covers the gate verdict 'passed' as well as 'passing'/'passes'.
-    if (s.indexOf('done') === 0 || s.indexOf('ran') === 0 || s.indexOf('complete') !== -1
-        || s.indexOf('evaluated') !== -1 || s.indexOf('confirmed') !== -1 || s.indexOf('pass') !== -1
-        || s.indexOf('accept') !== -1 || s.indexOf('decided') !== -1
-        || s.indexOf('-wins') !== -1 || s.indexOf('in-band') !== -1) return '#16a34a'; // green
-    if (s.indexOf('evaluate') === 0) return '#6366f1';                               // indigo (mid-pass action)
-    return '#9ca3af';                                                                // gray (planned/unknown)
-  }
-
   // Pinned studies: a per-user convenience, kept in localStorage (no workspace
   // write). A pinned study is duplicated into a "Pinned" strip at the top of the
   // STUDIES rail for quick access while still appearing in its own group.
@@ -17553,29 +15539,171 @@
   }
   window._toggleStudyPin = _toggleStudyPin;
 
-  // Single-row per study: [dot] name [pin]. Full status string in tooltip. The
-  // pin toggle sits at the right; clicking it pins/unpins without opening the
-  // study (stopPropagation). Used by the grouped, pinned, and ungrouped layouts.
+  // ── Rail drag-to-reorder (investigations + studies) ───────────────────────
+  // Replaces pinning: the user drags investigation groups and studies into any
+  // order; the order is remembered per-browser (localStorage, like every other
+  // rail preference). `viv.invOrder` is the investigation order (iset names);
+  // `viv.studyOrder` maps an iset name -> its studies' slug order. Items with no
+  // saved position keep the default sort (MRU / topological depth) after the
+  // explicitly-ordered ones, so a fresh workspace reads sensibly.
+  function _loadInvOrder() {
+    try { var a = JSON.parse(window.localStorage.getItem('viv.invOrder') || '[]'); return Array.isArray(a) ? a : []; }
+    catch (e) { return []; }
+  }
+  function _saveInvOrder(order) {
+    try { window.localStorage.setItem('viv.invOrder', JSON.stringify(order)); } catch (e) { /* private mode */ }
+  }
+  function _loadStudyOrder() {
+    try { var o = JSON.parse(window.localStorage.getItem('viv.studyOrder') || '{}'); return (o && typeof o === 'object') ? o : {}; }
+    catch (e) { return {}; }
+  }
+  function _saveStudyOrder(map) {
+    try { window.localStorage.setItem('viv.studyOrder', JSON.stringify(map)); } catch (e) { /* private mode */ }
+  }
+  // Stable sort of `items` (each with `.name`) by a saved order array: names in
+  // `order` come first in that order, the rest keep `fallbackCmp`, appended.
+  function _applyUserOrder(items, order, fallbackCmp) {
+    var idx = {};
+    (order || []).forEach(function (n, i) { idx[n] = i; });
+    return items.slice().sort(function (a, b) {
+      var ia = idx[a.name], ib = idx[b.name];
+      var aIn = ia !== undefined, bIn = ib !== undefined;
+      if (aIn && bIn) return ia - ib;
+      if (aIn !== bIn) return aIn ? -1 : 1;
+      return fallbackCmp(a, b);
+    });
+  }
+
+  // The element the dragged item should be inserted BEFORE, given the pointer Y
+  // — the standard flexless HTML5 sortable computation.
+  function _dragAfterElement(container, sel, y) {
+    var els = Array.prototype.slice.call(container.querySelectorAll(sel + ':not(.viv-rail-dragging)'));
+    var closest = { offset: Number.NEGATIVE_INFINITY, el: null };
+    els.forEach(function (child) {
+      var box = child.getBoundingClientRect();
+      var offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) closest = { offset: offset, el: child };
+    });
+    return closest.el;
+  }
+  // Wire a drag-to-reorder scope: dragging any element matching `handleSel`
+  // reorders the `itemSel` items within `container` live; `onDrop` fires with the
+  // new DOM order once the drag ends. `moveSel` maps a handle to the element that
+  // actually moves (its closest itemSel ancestor).
+  function _wireSortable(container, handleSel, itemSel, onDrop) {
+    if (!container || container.__vivSortable) return;
+    container.__vivSortable = true;
+    var dragEl = null;
+    var _dragRaf = 0, _dragY = 0;    // coalesce dragover geometry reads to one per frame
+    container.addEventListener('dragstart', function (e) {
+      var handle = e.target.closest ? e.target.closest(handleSel) : null;
+      if (!handle) return;
+      var item = handle.closest(itemSel);
+      if (!item || !container.contains(item)) return;
+      dragEl = item;
+      item.classList.add('viv-rail-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', ''); } catch (_) { /* Firefox needs a payload */ }
+      e.stopPropagation();  // don't let a nested scope (studies) also start a group drag
+    });
+    container.addEventListener('dragover', function (e) {
+      if (!dragEl || !container.contains(dragEl)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      // _dragAfterElement reads getBoundingClientRect() for every row (a forced
+      // reflow). dragover fires continuously, so coalesce to one reposition per
+      // animation frame instead of per event — smooth even with many rows.
+      _dragY = e.clientY;
+      if (_dragRaf) return;
+      _dragRaf = requestAnimationFrame(function () {
+        _dragRaf = 0;
+        if (!dragEl || !container.contains(dragEl)) return;
+        var after = _dragAfterElement(container, itemSel, _dragY);
+        if (after == null) container.appendChild(dragEl);
+        else if (after !== dragEl) container.insertBefore(dragEl, after);
+      });
+    });
+    container.addEventListener('drop', function (e) { if (dragEl) { e.preventDefault(); e.stopPropagation(); } });
+    container.addEventListener('dragend', function () {
+      if (_dragRaf) { cancelAnimationFrame(_dragRaf); _dragRaf = 0; }
+      if (!dragEl) return;
+      dragEl.classList.remove('viv-rail-dragging');
+      dragEl = null;
+      if (typeof onDrop === 'function') onDrop();
+    });
+  }
+  // After each rail render, make the investigation groups and each group's
+  // studies drag-sortable, persisting the new order.
+  function _wireRailDnd() {
+    var host = document.getElementById('viv-rail-investigations');
+    if (!host) return;
+    // Investigation groups (exclude the "Ungrouped" folder — it has no stable id).
+    _wireSortable(
+      host, '.viv-rail-grip-inv', '.viv-rail-investigations-group[data-iset]',
+      function () {
+        var names = Array.prototype.slice
+          .call(host.querySelectorAll('.viv-rail-investigations-group[data-iset]'))
+          .map(function (el) { return el.getAttribute('data-iset'); })
+          .filter(function (n) { return n && n !== '__ungrouped__'; });
+        _saveInvOrder(names);
+        _renderRailInvestigationGroups();
+      }
+    );
+    // Studies within each group.
+    host.querySelectorAll('.viv-rail-investigations-group[data-iset] .viv-rail-investigations-group-items')
+      .forEach(function (items) {
+        var group = items.closest('.viv-rail-investigations-group');
+        var iset = group && group.getAttribute('data-iset');
+        if (!iset || iset === '__ungrouped__') return;
+        _wireSortable(items, '.viv-rail-grip-study', '.viv-rail-sublink[data-study-name]', function () {
+          var slugs = Array.prototype.slice
+            .call(items.querySelectorAll('.viv-rail-sublink[data-study-name]'))
+            .map(function (el) { return el.getAttribute('data-study-name'); })
+            .filter(Boolean);
+          var map = _loadStudyOrder();
+          map[iset] = slugs;
+          _saveStudyOrder(map);
+          _renderRailInvestigationGroups();
+        });
+      });
+  }
+
+  // A drag grip (⠿) shown at the left of a reorderable row on hover.
+  function _railGrip(cls) {
+    return '<span class="viv-rail-grip ' + cls + '" draggable="true" aria-hidden="true"'
+      + ' title="Drag to reorder"'
+      + ' onclick="event.preventDefault();event.stopPropagation();return false;">'
+      + '<svg viewBox="0 0 10 16" width="10" height="16" fill="currentColor">'
+      + '<circle cx="2.5" cy="3" r="1.3"/><circle cx="7.5" cy="3" r="1.3"/>'
+      + '<circle cx="2.5" cy="8" r="1.3"/><circle cx="7.5" cy="8" r="1.3"/>'
+      + '<circle cx="2.5" cy="13" r="1.3"/><circle cx="7.5" cy="13" r="1.3"/></svg></span>';
+  }
+
+  // Single-row per study: [grip] [dot] name. Full status string in tooltip.
+  // Used by the grouped and ungrouped layouts.
   function _railStudyItem(s, opts) {
     opts = opts || {};
-    var status = s.status || 'planned';
-    var color = _railStatusColor(status);
-    var indent = opts.indent ? '28px' : '12px';
+    // Two-axis source so the rail dot agrees with the investigation-graph card:
+    // the verdict when the study has one, otherwise the execution-progress color.
+    // Never null (the graph card uses the same _verdictMeta || _execMeta pair).
+    var _sm = _verdictMeta(s) || _execMeta(s);
+    var status = _sm.label;
+    var color = _sm.color;
+    var indent = opts.indent ? '16px' : '8px';
     var fontSize = opts.indent ? '0.85em' : '0.86em';
     var nameColor = opts.indent ? '#64748b' : '#374151';
-    var pinned = _isStudyPinned(s.name);
     var tip = _esc(s.name) + ' — ' + _esc(status) + (s.blocked ? ' (blocked)' : '');
-    var pinBtn = '<span class="viv-rail-pin' + (pinned ? ' pinned' : '') + '" role="button" tabindex="0" ' +
-           'aria-label="' + (pinned ? 'Unpin study' : 'Pin study to top') + '" ' +
-           'title="' + (pinned ? 'Unpin' : 'Pin to top') + '" ' +
-           'onclick="event.preventDefault();event.stopPropagation();_toggleStudyPin(\'' + _esc(s.name) + '\');return false;">📌</span>';
-    return '<a class="viv-rail-sublink' + (pinned ? ' viv-rail-sublink-pinned' : '') + '" data-study-name="' + _esc(s.name) + '" ' +
-           'onclick="event.preventDefault();_openStudyEmbeddedNewTab(\'' + _esc(s.name) + '\');return false;" ' +
+    var grip = opts.orderable ? _railGrip('viv-rail-grip-study') : '';
+    // Stamp the precomputed (lowercased) search haystack so the live filter can
+    // show/hide this row by a substring scan without rebuilding any DOM.
+    var hay = _esc(_studyHay(s, opts.groupTitle));
+    return '<a class="viv-rail-sublink" data-study-name="' + _esc(s.name) + '" data-rail-hay="' + hay + '" draggable="false" ' +
+           'onclick="event.preventDefault();_openStudyEmbeddedNewTab(\'' + _esc(s.name) + '\', (document.querySelector(\'.viv-rail-sublink.rail-study-active\') && typeof _currentStudyTab===\'function\') ? _currentStudyTab() : undefined);return false;" ' +
            'href="#" title="' + tip + '" ' +
-           'style="display:flex;align-items:center;gap:8px;padding:4px 14px 4px ' + indent + ';color:' + nameColor + ';text-decoration:none;font-size:' + fontSize + ';">' +
+           'style="display:flex;align-items:center;gap:6px;padding:4px 14px 4px ' + indent + ';color:' + nameColor + ';text-decoration:none;font-size:' + fontSize + ';">' +
+             grip +
              '<span aria-hidden="true" style="flex:none;width:8px;height:8px;border-radius:50%;background:' + color + ';display:inline-block"></span>' +
-             '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + _esc(s.name) + '</span>' +
-             pinBtn +
+             '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">' + _esc(s.title || s.name) + '</span>' +
            '</a>';
   }
 
@@ -17585,33 +15713,44 @@
     // Need both: window._investigations (all studies) AND window._isetIndex (groups).
     // If either isn't loaded yet, fall back to a loading message + kick the missing one.
     if (!Array.isArray(window._isetIndex)) window._isetIndex = [];
-    if (!Array.isArray(window._investigations) || !window._investigations.length) {
+    // Studies not FETCHED yet (still undefined, not an array) → show the spinner
+    // and kick the load. A loaded-but-EMPTY array ([]) is NOT "still loading": it
+    // means the workspace genuinely has no studies, so fall through and render the
+    // (empty) groups below — which show a proper "No studies" state. Treating []
+    // as "not loaded" re-fetched forever and spun on "Loading…" (e.g. an
+    // investigation with zero studies).
+    if (!Array.isArray(window._investigations)) {
       // No studies in memory yet → fall back to the legacy render until they arrive.
       if (typeof _renderRailInvestigationsLegacy === 'function') return _renderRailInvestigationsLegacy();
-      host.innerHTML = '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">Loading…</p>';
+      if (window.ProgressTrack) {
+        window.ProgressTrack.loading(host);
+        host.firstElementChild.classList.add('viv-loading-compact');
+      } else {
+        host.innerHTML = '<p class="viv-rail-empty" style="font-size:0.85em;color:#9ca3af;padding:4px 12px">Loading…</p>';
+      }
       if (typeof _loadInvestigations === 'function') _loadInvestigations();
       return;
     }
 
-    var memberSet = {};         // studySlug -> [isetName, ...]
-    window._isetIndex.forEach(function(iset) {
-      (iset.studies || []).forEach(function(slug) {
-        (memberSet[slug] = memberSet[slug] || []).push(iset.name);
-      });
-    });
-
     // Group studies: each iset gets its members; leftovers go to "Ungrouped".
     var groups = [];   // [{name, title, studies: [study, ...]}]
     var seen = {};
+    var _studyOrderMap = _loadStudyOrder();
+    // Index studies by name ONCE so membership resolution is O(1) per slug. A
+    // per-slug Array.find made every rail render O(N^2) — the dominant cost of a
+    // rebuild on large workspaces (e.g. sms-ecoli).
+    var _studyByName = {};
+    (window._investigations || []).forEach(function(s) { _studyByName[s.name] = s; });
     window._isetIndex.forEach(function(iset) {
       var members = (iset.studies || [])
-        .map(function(slug) { return window._investigations.find(function(s) { return s.name === slug; }); })
+        .map(function(slug) { return _studyByName[slug]; })
         .filter(Boolean);
       members.forEach(function(s) { seen[s.name] = true; });
-      // Sort within group by topological depth (the same map computed in
-      // _renderInvestigations); if unavailable, fall back to alpha.
+      // Order within group: the user's saved drag order first, then anything
+      // unmoved by topological depth (the same map computed in
+      // _renderInvestigations), falling back to alpha.
       var depthMap = window._investigationsDepth || {};
-      members.sort(function(a, b) {
+      members = _applyUserOrder(members, _studyOrderMap[iset.name], function(a, b) {
         var da = depthMap[a.name] || 0, db = depthMap[b.name] || 0;
         return da - db || a.name.localeCompare(b.name);
       });
@@ -17628,15 +15767,37 @@
     // Order: pinned first (in pin order), then most-recently-opened, then the
     // never-opened rest by topological depth then title. The active
     // investigation was just opened so MRU floats it to the top of the unpinned.
+    // Order: the user's saved drag order first; anything they haven't moved
+    // falls back to most-recently-opened, then topological depth / title.
     var _mru = _loadInvMru();
-    var _pins = _loadPinnedInvestigations();
-    var ordered = groups.slice().sort(function(a, b) {
-      var ap = _pins.indexOf(a.name), bp = _pins.indexOf(b.name);
-      var aP = ap !== -1, bP = bp !== -1;
-      if (aP !== bP) return aP ? -1 : 1;
-      if (aP && bP) return ap - bp;
+    var _invOrder = _loadInvOrder();
+    // Preserve the CURRENT on-screen order AND open/collapsed state across a
+    // re-render: a group already in the rail keeps its position and its
+    // expanded-ness, so navigating to a study never reshuffles the list or closes
+    // another open investigation ("stay where I put them"). Only groups new to the
+    // rail (first load, a freshly-created investigation) fall back to the saved /
+    // default state below.
+    var _domOrder = {};
+    var _domCollapsed = {};
+    (function () {
+      var _i = 0;
+      var _host = document.getElementById('viv-rail-investigations');
+      if (_host) {
+        _host.querySelectorAll('.viv-rail-investigations-group[data-iset]').forEach(function (el) {
+          var k = el.getAttribute('data-iset');
+          if (k && !(k in _domOrder)) {
+            _domOrder[k] = _i++;
+            _domCollapsed[k] = el.classList.contains('collapsed');
+          }
+        });
+      }
+    })();
+    var ordered = _applyUserOrder(groups, _invOrder, function(a, b) {
+      var ao = (a.name in _domOrder) ? _domOrder[a.name] : Infinity;
+      var bo = (b.name in _domOrder) ? _domOrder[b.name] : Infinity;
+      if (ao !== bo) return ao - bo;   // keep the order the user is already seeing
       var am = _mru[a.name] || 0, bm = _mru[b.name] || 0;
-      if (am !== bm) return bm - am;   // most-recently-opened first
+      if (am !== bm) return bm - am;   // new groups: most-recently-opened first
       var da = railDepthMap[a.name] || 0, db = railDepthMap[b.name] || 0;
       return da - db || String(a.title || a.name).localeCompare(String(b.title || b.name));
     });
@@ -17647,35 +15808,47 @@
     var ungrouped = window._investigations.filter(function(s) { return !seen[s.name]; });
     ungrouped.sort(function(a, b) { return String(a.name).localeCompare(String(b.name)); });
 
-    if (!window._pinnedStudies) _loadPinnedStudies();
     var hasActive = ordered.some(function(g) { return g.name === currentSlug; });
 
+    var _invExpandedState = _loadInvExpanded();
     function _railGroupHtml(g, forceOpen) {
       var isActive = g.name === currentSlug;
-      // Collapsed unless active, or the caller forces it open (first group when
-      // there is no active investigation), so the rail opens on something.
-      var collapsed = (isActive || forceOpen) ? '' : ' collapsed';
+      // Open/collapsed precedence, most-authoritative first:
+      //   1. the ACTIVE investigation always opens — navigating to it must reveal
+      //      its studies;
+      //   2. any OTHER group keeps its CURRENT on-screen state — so navigating
+      //      never closes another open investigation or reopens a collapsed one
+      //      ("stay where I put them");
+      //   3. on a fresh load (nothing on screen yet) restore the user's PERSISTED
+      //      toggle (localStorage);
+      //   4. otherwise the default: open the forced-first group, else collapsed.
+      var _dom = _domCollapsed[g.name];
+      var _saved = _invExpandedState[g.name];
+      var _open = isActive ? true
+                : (_dom !== undefined) ? !_dom
+                : (_saved !== undefined) ? _saved
+                : forceOpen;
+      var collapsed = _open ? '' : ' collapsed';
+      // Remember the default collapse state so the live filter can restore it when
+      // the search is cleared (it force-opens matching groups while searching).
+      var defaultCollapsed = collapsed ? ' data-default-collapsed="1"' : '';
       var activeCls = isActive ? ' rail-iset-active' : '';
       var clickName = g._ungrouped
         ? ''
         : ' onclick="window._railOpenInvestigationDetail(\'' + _esc(g.name) + '\');event.stopPropagation();"';
       var nameStyle = g._ungrouped ? '' : 'cursor:pointer;';
-      return '<div class="viv-rail-investigations-group' + collapsed + activeCls + '" data-iset="' + _esc(g.name) + '">'
+      return '<div class="viv-rail-investigations-group' + collapsed + activeCls + '" data-iset="' + _esc(g.name) + '"' + defaultCollapsed + '>'
         + '<div class="viv-rail-investigations-group-header" onclick="_vivToggleInvGroup(this)"'
         + ' title="' + _esc(g.title || g.name) + (g._ungrouped ? '' : ' — open investigation') + '">'
+        + (g._ungrouped ? '' : _railGrip('viv-rail-grip-inv'))
         + '<span class="viv-rail-investigations-group-arrow viv-arrow">▾</span>'
         + '<span class="viv-rail-investigations-group-name" style="' + nameStyle + '"' + clickName + '>'
         + _esc(g.title || g.name) + '</span>'
-        + (g._ungrouped ? '' :
-            '<span class="viv-rail-pin viv-rail-inv-pin' + (_isInvestigationPinned(g.name) ? ' pinned' : '') + '"'
-            + ' role="button" tabindex="0"'
-            + ' title="' + (_isInvestigationPinned(g.name) ? 'Unpin investigation' : 'Pin investigation to top') + '"'
-            + ' onclick="event.preventDefault();event.stopPropagation();_toggleInvestigationPin(\'' + _esc(g.name) + '\');return false;">📌</span>')
         + '<span class="viv-rail-investigations-group-count">' + g.studies.length + '</span>'
         + '</div>'
         + '<div class="viv-rail-investigations-group-items">'
         + (g.studies.length
-            ? g.studies.map(function(s) { return _railStudyItem(s, { indent: true }); }).join('')
+            ? g.studies.map(function(s) { return _railStudyItem(s, { indent: true, orderable: !g._ungrouped, groupTitle: g.title }); }).join('')
             : '<div class="viv-rail-empty" style="font-size:0.82em;color:#94a3b8;'
               + 'padding:4px 14px 4px 28px;font-style:italic">No studies</div>')
         + '</div>'
@@ -17687,79 +15860,76 @@
     // title), so e.g. "basal simulation" finds the `basal` study in the
     // v2ecoli-vEcoli comparison investigation. While searching, non-matching
     // groups are hidden and matching groups are force-expanded so hits show.
+    // Render the FULL list once (all groups, all studies) with default collapse
+    // states. The live search then shows/hides rows in place (_applyRailStudyFilter),
+    // so typing never rebuilds this DOM — the expensive part on large workspaces.
+    var groupsHtml = ordered.map(function(g, i) {
+      // With no active investigation, open the first group so the rail isn't
+      // entirely collapsed on load.
+      return _railGroupHtml(g, !hasActive && i === 0);
+    }).join('');
+
+    var ungroupedHtml = ungrouped.length
+      ? _railGroupHtml({ name: '__ungrouped__', title: 'Ungrouped', studies: ungrouped, _ungrouped: true }, false)
+      : '';
+
+    host.innerHTML = (groupsHtml + ungroupedHtml)
+      || '<div class="viv-rail-empty" style="font-size:0.85em;color:#94a3b8;'
+       + 'padding:6px 14px;font-style:italic">No studies yet.</div>';
+    _wireRailDnd();                 // the full list is always present → always sortable
+    _applyRailStudyFilter();        // re-apply any active query via show/hide
+  }
+
+  // Apply the current study-search query by showing/hiding already-rendered rows —
+  // NO DOM rebuild. Groups with no visible row are hidden; matching groups are
+  // force-opened; clearing the query restores each group's default collapse state.
+  function _applyRailStudyFilter() {
+    var host = document.getElementById('viv-rail-investigations');
+    if (!host) return;
     var q = (window._railStudyQuery || '').trim().toLowerCase();
     var tokens = q ? q.split(/\s+/) : [];
     var searching = tokens.length > 0;
+    var rail = document.getElementById('viv-rail');
+    if (rail) rail.classList.toggle('viv-rail-searching', searching);
 
-    // AND-first, OR-fallback. Prefer studies matching EVERY token (precise); but
-    // if nothing matches all tokens, fall back to matching ANY token so a natural
-    // phrase like "basal simulation" still surfaces the `basal` study even when
-    // "simulation" appears in none of its fields. Consider grouped + ungrouped.
-    var requireAll = searching && (
-      ordered.some(function(g) {
-        return g.studies.some(function(s) { return _studyMatchesQuery(s, g.title, tokens, true); });
-      }) ||
-      ungrouped.some(function(s) { return _studyMatchesQuery(s, 'Ungrouped', tokens, true); })
-    );
+    var items = Array.prototype.slice.call(host.querySelectorAll('.viv-rail-sublink[data-rail-hay]'));
+    // AND-first, OR-fallback (mirrors the previous render-time semantics): prefer
+    // rows matching EVERY token, but if none do, fall back to matching ANY.
+    var requireAll = searching && items.some(function(el) {
+      return _tokensMatch(el.getAttribute('data-rail-hay') || '', tokens, true);
+    });
+    items.forEach(function(el) {
+      var show = !searching || _tokensMatch(el.getAttribute('data-rail-hay') || '', tokens, requireAll);
+      el.classList.toggle('viv-rail-hidden', !show);
+    });
 
-    // Pinned strip (top): duplicates of pinned studies for quick access. Hidden
-    // while searching so results stay clean. A pinned study still shows in its
-    // own group/ungrouped list below.
-    var pinnedHtml = '';
-    if (!searching && (window._pinnedStudies || []).length) {
-      var pinnedStudies = window._pinnedStudies
-        .map(function(name) {
-          return window._investigations.find(function(s) { return s.name === name; });
-        })
-        .filter(Boolean);
-      if (pinnedStudies.length) {
-        pinnedHtml = '<div class="viv-rail-pinned-section">'
-          + '<div class="viv-rail-section-subheader">Pinned</div>'
-          + pinnedStudies.map(function(s) { return _railStudyItem(s, {}); }).join('')
-          + '</div>';
-      }
-    }
-
-    // Investigation groups (middle).
-    var groupsHtml = ordered.map(function(g, i) {
-      var studies = g.studies;
+    var anyVisible = false;
+    Array.prototype.forEach.call(host.querySelectorAll('.viv-rail-investigations-group'), function(group) {
       if (searching) {
-        studies = g.studies.filter(function(s) {
-          return _studyMatchesQuery(s, g.title, tokens, requireAll);
-        });
-        if (!studies.length) return '';   // hide groups with no match
-        g = { name: g.name, title: g.title, studies: studies };
+        var vis = group.querySelector('.viv-rail-sublink[data-rail-hay]:not(.viv-rail-hidden)');
+        group.classList.toggle('viv-rail-hidden', !vis);
+        if (vis) { group.classList.remove('collapsed'); anyVisible = true; }   // force-open matches
+      } else {
+        group.classList.remove('viv-rail-hidden');
+        group.classList.toggle('collapsed', group.hasAttribute('data-default-collapsed'));
       }
-      // While searching, force groups open so matches are visible. Otherwise:
-      // with no active investigation, open the first group so the rail isn't
-      // entirely collapsed on load.
-      return _railGroupHtml(g, searching || (!hasActive && i === 0));
-    }).join('');
+    });
 
-    // Ungrouped studies (bottom): a collapsible "Ungrouped" folder, like the
-    // investigation groups (collapsed by default; force-open while searching).
-    var ungroupedList = searching
-      ? ungrouped.filter(function(s) { return _studyMatchesQuery(s, 'Ungrouped', tokens, requireAll); })
-      : ungrouped;
-    var ungroupedHtml = '';
-    if (ungroupedList.length) {
-      ungroupedHtml = _railGroupHtml(
-        { name: '__ungrouped__', title: 'Ungrouped', studies: ungroupedList, _ungrouped: true },
-        searching
-      );
+    var note = document.getElementById('viv-rail-nomatch');
+    if (searching && !anyVisible) {
+      if (!note) {
+        note = document.createElement('div');
+        note.id = 'viv-rail-nomatch';
+        note.className = 'viv-rail-empty';
+        note.setAttribute('style', 'font-size:0.85em;color:#94a3b8;padding:6px 14px;font-style:italic');
+        host.appendChild(note);
+      }
+      note.textContent = 'No studies match “' + q + '”.';
+    } else if (note) {
+      note.remove();
     }
-
-    var html = pinnedHtml + groupsHtml + ungroupedHtml;
-
-    if (!html && searching) {
-      html = '<div class="viv-rail-empty" style="font-size:0.85em;color:#94a3b8;'
-           + 'padding:6px 14px;font-style:italic">No studies match “' + _esc(q) + '”.</div>';
-    }
-
-    host.innerHTML = html
-      || '<div class="viv-rail-empty" style="font-size:0.85em;color:#94a3b8;'
-       + 'padding:6px 14px;font-style:italic">No studies yet.</div>';
   }
+  window._applyRailStudyFilter = _applyRailStudyFilter;
 
   // A study matches the rail search when EVERY whitespace-delimited token of the
   // query is a substring of its combined searchable text (study fields + the
@@ -17793,10 +15963,12 @@
     return _tokensMatch(_studyHay(s, groupTitle), tokens, requireAll);
   }
 
-  // Study-search input handler: store the query and re-render the rail groups.
+  // Study-search input handler: record the query and filter in place by showing/
+  // hiding already-rendered rows. No rebuild → cheap enough to run per keystroke
+  // (so no debounce needed), and instant feedback even on large workspaces.
   window._filterRailStudies = function(value) {
     window._railStudyQuery = String(value || '');
-    _renderRailInvestigationGroups();
+    _applyRailStudyFilter();
   };
 
   // Per-workspace localStorage key for the remembered investigation. The URL
@@ -17858,6 +16030,14 @@
   // ── DAG helpers ─────────────────────────────────────────────────────
   // Build a children map (reverse of parent_studies) and a depth map
   // (BFS from roots) for the topological sort + Depends-on/Blocks chips.
+  // Memoized DAG: _renderInvestigations runs on every search keystroke, but the
+  // dependency graph only changes when the investigation list is replaced. Cache it
+  // by array identity so keystroke re-renders don't rebuild the BFS each time.
+  var _dagCache = null, _dagSrc;
+  function _memoInvestigationDag(all) {
+    if (all !== _dagSrc) { _dagSrc = all; _dagCache = _buildInvestigationDag(all); }
+    return _dagCache;
+  }
   function _buildInvestigationDag(all) {
     var childrenMap = {};
     all.forEach(function(inv) { childrenMap[inv.name] = []; });
@@ -17903,7 +16083,7 @@
     var grid = document.getElementById('investigations-grid');
     if (!grid) return;
     var f = window._investigationsFilter;
-    var dag = _buildInvestigationDag(window._investigations);
+    var dag = _memoInvestigationDag(window._investigations);
     window._investigationsChildren = dag.children;
     window._investigationsDepth = dag.depth;
     // Same shared engine + AND-first/OR-fallback as the rail / Investigations tab.
@@ -18085,18 +16265,21 @@
   }
   window._setInvestigationsView = _setInvestigationsView;
 
-  // Search input live-filter
+  // Search input live-filter (debounced: _renderInvestigations rebuilds the whole
+  // grid, so coalesce fast typing into one render).
+  var _invSearchTimer = 0;
   document.addEventListener('input', function(e) {
     if (e.target && e.target.id === 'investigations-search') {
       window._investigationsFilter.search = e.target.value;
-      _renderInvestigations();
+      if (_invSearchTimer) clearTimeout(_invSearchTimer);
+      _invSearchTimer = setTimeout(function() { _invSearchTimer = 0; _renderInvestigations(); }, 130);
     }
   });
 
   function _createInvestigation() {
     var srcSel = document.getElementById('create-inv-source');
     if (srcSel) srcSel.innerHTML = '<option value="">— blank composites list, add later —</option>';
-    fetch('/api/composites').then(function(r) { return r.json(); }).then(function(data) {
+    apiFetch('GET', '/api/composites').then(function(r) { return r.json(); }).then(function(data) {
       (data.composites || []).forEach(function(c) {
         if (srcSel) {
           var sopt = document.createElement('option');
@@ -18115,10 +16298,7 @@
   function _submitInvestigationCreate(form) {
     var data = new FormData(form);
     var payload = { name: data.get('name'), composite: data.get('composite'), source: data.get('source') || '' };
-    fetch('/api/study-create', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/study-create', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -18139,12 +16319,12 @@
     var detail = document.getElementById('investigation-detail');
     if (detail) {
       detail.style.display = '';
-      detail.innerHTML = '<p class="empty-state">Loading…</p>';
+      detail.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml() : '<p class="empty-state">Loading…</p>';
     }
     // Switch the Investigations page into single-study focus mode: hide the
     // grid + toolbar + chips and let the detail panel take the full width.
     _setInvestigationsFocusMode(true);
-    fetch('/api/investigation/' + encodeURIComponent(name))
+    apiFetch('GET', '/api/investigation/' + encodeURIComponent(name))
       .then(function(r) { return r.json(); })
       .then(function(data) { _renderInvestigationDetail(name, data); })
       .catch(function(err) {
@@ -18395,7 +16575,7 @@
       '</div>' +
       '<div class="investigation-detail-panel" data-tab="interventions">' +
         '<div id="inv-interventions-host">' +
-          '<p class="empty-state">Loading interventions…</p>' +
+          (window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading interventions…') : '<p class="empty-state">Loading interventions…</p>') +
         '</div>' +
       '</div>' +
       '<div class="investigation-detail-panel" data-tab="runs">' +
@@ -18411,12 +16591,13 @@
         '<button class="action-btn js-authoring" onclick="_saveObservables()">Save observables</button>' +
         '<div id="inv-observables-status" style="margin-top:8px;font-size:0.9em;color:#555"></div>' +
         '<hr style="margin:20px 0;border:none;border-top:1px solid #eee">' +
-        '<p class="panel-lead">Analyses to run at dispatch time — one <code>v2ecoli.workflow.analysis.' +
-          'ANALYSIS_REGISTRY</code> name per line (e.g. <code>doubling_time_distribution</code>). Translated ' +
+        '<p class="panel-lead">Analyses to run at dispatch time — which of the workspace\'s <code>v2ecoli.' +
+          'workflow.analysis.ANALYSIS_REGISTRY</code> entries to compute. Translated ' +
           'into <code>analysis_options</code> for remote (sms-api) dispatch and the local post-run pipeline ' +
           'alike.</p>' +
-        '<textarea id="inv-analyses-list" rows="3" style="width:100%;font-family:monospace;font-size:0.9em" ' +
-          'placeholder="doubling_time_distribution"></textarea>' +
+        '<div id="inv-analyses-list">' +
+          (window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading analyses…') : '<p class="empty-state">Loading analyses…</p>') +
+        '</div>' +
         '<button class="action-btn js-authoring" onclick="_saveAnalyses()">Save analyses</button>' +
         '<div id="inv-analyses-status" style="margin-top:8px;font-size:0.9em;color:#555"></div>' +
       '</div>' +
@@ -18430,7 +16611,7 @@
           '<button class="btn-mini js-authoring" style="margin-bottom:8px" onclick="_openAddVizModal(\'' + _esc(name) + '\')">+ Add visualization</button>' +
           vizFiles.map(function(v) {
             return '<h4 style="margin-bottom:4px">' + _esc(v.name) + '</h4>' +
-                   '<iframe class="viz-frame" src="/' + _esc(v.path) + '?ts=' + Date.now() + '"></iframe>';
+                   '<iframe class="viz-frame" src="' + (window.__BASE_PATH__ || '') + '/' + _esc(v.path) + '?ts=' + Date.now() + '"></iframe>';
           }).join('') :
           '<p class="empty-state">No visualizations declared in <code>spec.yaml</code> yet. ' +
             'Click <em>Add visualization</em> to scaffold one, or edit ' +
@@ -18505,13 +16686,9 @@
   }
 
   function _saveOverviewField(invName, key, value) {
-    var body = { investigation: invName, fields: {} };
-    body.fields[key] = value;
-    fetch('/api/investigation-set-overview', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    var overview = {};
+    overview[key] = value;
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(invName), {overview: overview})
       .then(function(r) {
         if (!r.ok) {
           return r.json().then(function(j) { alert(j.error || 'save failed'); });
@@ -18564,11 +16741,7 @@
     var invName = window._currentInvestigation;
     if (!invName) return;
     var blob = _emitConclusionsBlob();
-    fetch('/api/investigation-set-conclusions', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, markdown: blob}),
-    })
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(invName), {conclusions: blob})
       .then(function(r) {
         if (!r.ok) return r.json().then(function(j) { alert(j.error || 'save failed'); });
         if (typeof _showToast === 'function') _showToast('Saved conclusions');
@@ -18797,11 +16970,7 @@
         observables: fields.observables,
       };
     }
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', url, body)
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, body: j}; });
       })
@@ -18828,11 +16997,7 @@
     var invName = window._currentInvestigation;
     if (!invName) return;
     if (!confirm('Remove comparison "' + cmpName + '"?')) return;
-    fetch('/api/investigation-comparison', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: cmpName}),
-    })
+    apiFetch('DELETE', '/api/investigation-comparison', {investigation: invName, name: cmpName})
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, status: r.status, body: j}; });
       })
@@ -19042,11 +17207,7 @@
         variants: fields.variants,
       };
     }
-    fetch(url, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', url, body)
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, body: j}; });
       })
@@ -19073,11 +17234,7 @@
     var invName = window._currentInvestigation;
     if (!invName) return;
     if (!confirm('Remove group "' + grpName + '"?')) return;
-    fetch('/api/investigation-group', {
-      method: 'DELETE',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: grpName}),
-    })
+    apiFetch('DELETE', '/api/investigation-group', {investigation: invName, name: grpName})
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, status: r.status, body: j}; });
       })
@@ -19123,7 +17280,7 @@
   // ── Investigation Composites tab handlers ─────────────────────────────────
 
   function _loadInvComposites(invName) {
-    fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+    apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var sidebar = document.getElementById('inv-composites-sidebar');
@@ -19173,7 +17330,7 @@
 
   function _loadInvCompositeDetail(invName, compName) {
     _renderInvCompositeIntervention(compName);
-    fetch('/api/investigation-composite-doc?investigation=' + encodeURIComponent(invName) +
+    apiFetch('GET', '/api/investigation-composite-doc?investigation=' + encodeURIComponent(invName) +
           '&composite=' + encodeURIComponent(compName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -19272,7 +17429,7 @@
       return;
     }
     // Cache miss — fetch and then render.
-    fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+    apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var list = (data && data.composites) || [];
@@ -19468,11 +17625,7 @@
       parameter_overrides: paramObj,
       process_overrides: procObj,
     };
-    fetch('/api/investigation-composite-perturb', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    })
+    apiFetch('POST', '/api/investigation-composite-perturb', body)
       .then(function(r) {
         return r.json().then(function(j) { return {ok: r.ok, body: j}; });
       })
@@ -19483,7 +17636,7 @@
         }
         if (typeof _showToast === 'function') _showToast('Saved intervention "' + name + '"');
         // Re-fetch composites so the cache and table reflect the new state.
-        fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+        apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
           .then(function(r) { return r.json(); })
           .then(function(data) {
             var list = (data && data.composites) || [];
@@ -19502,7 +17655,7 @@
   function _loadInvObservables(invName) {
     // 1. Get composites list, 2. fetch each one's state tree, 3. union store paths,
     // 4. pre-check based on spec.observables.
-    fetch('/api/investigation-composites?investigation=' + encodeURIComponent(invName))
+    apiFetch('GET', '/api/investigation-composites?investigation=' + encodeURIComponent(invName))
       .then(function(r) { return r.json(); })
       .then(function(data) {
         var composites = data.composites || [];
@@ -19512,7 +17665,7 @@
           return;
         }
         Promise.all(composites.map(function(c) {
-          return fetch('/api/investigation-state-tree?investigation=' + encodeURIComponent(invName) +
+          return apiFetch('GET', '/api/investigation-state-tree?investigation=' + encodeURIComponent(invName) +
                        '&composite=' + encodeURIComponent(c.name))
             .then(function(r) { return r.json(); })
             .then(function(tree) { return {composite: c.name, nodes: tree.nodes || []}; });
@@ -19599,10 +17752,7 @@
       document.querySelectorAll('#inv-observables-tree input[type=checkbox][data-path]:checked')
         .forEach(function(cb) { paths.push(cb.dataset.path.split('.')); });
     }
-    fetch('/api/investigation-set-observables', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, paths: paths, emit_all: emitAll}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('PATCH', '/api/investigation/' + encodeURIComponent(invName), {observables: paths, emit_all: emitAll}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var status = document.getElementById('inv-observables-status');
         if (!status) return;
@@ -19622,8 +17772,10 @@
   function _loadInvAnalyses(invName) {
     // Pre-fill from the current spec.yaml.analyses[].name — same naive-scrape
     // approach _loadInvObservables already uses for observables, so this
-    // doesn't need a new read endpoint.
-    fetch('/investigations/' + encodeURIComponent(invName) + '/spec.yaml').then(function(r) {
+    // doesn't need a new read endpoint. Selectable options themselves come
+    // from the live /api/visualization-classes registry (item 69) rather
+    // than free text typed from memory.
+    var specNames = fetch('/investigations/' + encodeURIComponent(invName) + '/spec.yaml').then(function(r) {
       return r.ok ? r.text() : '';
     }).then(function(specText) {
       var names = [];
@@ -19634,22 +17786,43 @@
           if (p) names.push(p[1]);
         });
       }
-      var el = document.getElementById('inv-analyses-list');
-      if (el) el.value = names.join('\n');
+      return names;
+    });
+    var analysisClasses = fetch('/api/visualization-classes').then(function(r) { return r.json(); })
+      .then(function(data) { return (data && data.classes || []).filter(function(c) { return c.kind === 'analysis'; }); })
+      .catch(function() { return []; });
+
+    Promise.all([specNames, analysisClasses]).then(function(parts) {
+      var names = parts[0], classes = parts[1];
+      var mount = document.getElementById('inv-analyses-list');
+      if (!mount || !window.ChecklistSelect) return;
+      var known = {};
+      var items = classes.map(function(c) {
+        known[c.name] = true;
+        return { value: c.name, label: c.name, selected: names.indexOf(c.name) >= 0, title: c.doc };
+      });
+      // Never silently drop a name already declared in spec.yaml just
+      // because it's missing from the currently-loaded registry (e.g. a
+      // workspace/branch mismatch) — same honest-degrade convention as the
+      // baseline-composite select (item 69 phase 1).
+      names.forEach(function(n) {
+        if (!known[n]) items.push({ value: n, label: n, selected: true, flagged: true });
+      });
+      window.ChecklistSelect.render(mount, {
+        items: items,
+        filterPlaceholder: 'Filter analyses…',
+        emptyText: 'No analyses registered — install a workspace that provides ANALYSIS_REGISTRY entries.',
+      });
     });
   }
   window._loadInvAnalyses = _loadInvAnalyses;
 
   function _saveAnalyses() {
     var invName = window._currentInvestigation || '';
-    var el = document.getElementById('inv-analyses-list');
-    var names = ((el && el.value) || '').split(/[\n,]/)
-      .map(function(s) { return s.trim(); }).filter(Boolean);
+    var mount = document.getElementById('inv-analyses-list');
+    var names = (mount && window.ChecklistSelect) ? window.ChecklistSelect.selected(mount) : [];
     var analyses = names.map(function(n) { return {name: n, params: {}}; });
-    fetch('/api/study-set-analyses', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, analyses: analyses}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/study-set-analyses', {investigation: invName, analyses: analyses}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var status = document.getElementById('inv-analyses-status');
         if (!status) return;
@@ -19664,7 +17837,7 @@
     var sel = document.getElementById('inv-add-composite-source');
     if (!sel) return;
     sel.innerHTML = '<option value="">— pick a workspace composite —</option>';
-    fetch('/api/composites').then(function(r) { return r.json(); })
+    apiFetch('GET', '/api/composites').then(function(r) { return r.json(); })
       .then(function(data) {
         (data.composites || []).forEach(function(c) {
           var opt = document.createElement('option');
@@ -19691,10 +17864,7 @@
       name: data.get('name'),
       source: data.get('source'),
     };
-    fetch('/api/investigation-composite-add', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-composite-add', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -19745,10 +17915,7 @@
     };
     if (po) payload.parameter_overrides = po;
     if (procO) payload.process_overrides = procO;
-    fetch('/api/investigation-composite-perturb', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-composite-perturb', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -19762,10 +17929,7 @@
   window._submitPerturb = _submitPerturb;
 
   function _rebuildComposite(invName, compName) {
-    fetch('/api/investigation-composite-rebuild', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: compName}),
-    }).then(function() {
+    apiFetch('POST', '/api/investigation-composite-rebuild', {investigation: invName, name: compName}).then(function() {
       _loadInvComposites(invName);
       _loadInvCompositeDetail(invName, compName);
     });
@@ -19774,10 +17938,7 @@
 
   function _removeComposite(invName, compName) {
     if (!confirm('Remove composite ' + compName + '?')) return;
-    fetch('/api/investigation-composite', {
-      method: 'DELETE', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: invName, name: compName}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('DELETE', '/api/investigation-composite', {investigation: invName, name: compName}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -19858,16 +18019,12 @@
       if (errEl) errEl.textContent = 'Target name must match [a-z0-9_-]+';
       return;
     }
-    fetch('/api/composite-promote-to-catalog', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+    apiFetch('POST', '/api/composite-promote-to-catalog', {
         investigation: invName,
         variant: variant,
         target_name: target,
         description: desc,
-      }),
-    })
+      })
       .then(function(r) {
         return r.json().then(function(j) { return {status: r.status, body: j}; });
       })
@@ -19922,12 +18079,25 @@
     var detail = document.getElementById('investigation-detail');
     var btn = detail.querySelector('button.action-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Running…'; }
-    fetch('/api/investigation-run', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-run', {name: name}).then(function(r) { return r.json().then(function(j) { return [r.ok, j, r.status]; }); })
       .then(function(parts) {
-        var ok = parts[0], j = parts[1];
+        var ok = parts[0], j = parts[1], code = parts[2];
+        // §A5: a v3 investigation is now delegated server-side to the SAME
+        // background job machinery "Run unblocked" uses, so this answers
+        // 202 + job_id instead of blocking until every simulation finishes.
+        // Hand it to the existing progress poll rather than inventing a second
+        // async UX — that poll already renders items, resolves Batch dispatches
+        // and drives the prerequisite re-drive.
+        //
+        // This is also what makes the button usable on a gateway-fronted
+        // deployment at all: the synchronous shape could not outlive the ALB's
+        // idle timeout regardless of where the work ran.
+        if (code === 202 && j && j.job_id) {
+          if (typeof _vivPollRunProgress === 'function') _vivPollRunProgress(j.job_id);
+          if (btn) { btn.disabled = false; btn.textContent = 'Run'; }
+          _openInvestigation(name);
+          return;
+        }
         if (!ok) { alert('Run failed: ' + (j.error || 'unknown')); }
         // Refresh both the list (status update) and the detail panel
         window._investigationsLoaded = false;
@@ -19941,10 +18111,7 @@
 
   function _deleteInvestigation(name) {
     if (!confirm('Delete investigation "' + name + '"? This removes its runs.db, visualizations, and spec.yaml.')) return;
-    fetch('/api/investigation-delete', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+    apiFetch('POST', '/api/investigation-delete', {name: name}).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Delete failed: ' + (j.error || 'unknown')); return; }
       var detail = document.getElementById('investigation-detail');
       if (detail) { detail.style.display = 'none'; detail.innerHTML = ''; }
@@ -19958,10 +18125,7 @@
 
   function _deleteRun(investigationName, runId) {
     if (!confirm('Delete run ' + runId.slice(-12) + '?')) return;
-    fetch('/api/investigation-run-delete', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: investigationName, run_id: runId}),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+    apiFetch('POST', '/api/investigation-run-delete', {investigation: investigationName, run_id: runId}).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Delete failed: ' + (j.error || 'unknown')); return; }
       _openInvestigation(investigationName);
     });
@@ -19970,10 +18134,7 @@
 
   function _clearRuns(investigationName) {
     if (!confirm('Clear ALL runs from ' + investigationName + '? (visualizations will be empty until you re-run)')) return;
-    fetch('/api/investigation-runs-clear', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({investigation: investigationName}),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+    apiFetch('POST', '/api/investigation-runs-clear', {investigation: investigationName}).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Clear failed: ' + (j.error || 'unknown')); return; }
       _openInvestigation(investigationName);
     });
@@ -19988,15 +18149,12 @@
     var overrides;
     try { overrides = JSON.parse(edited); }
     catch (e) { alert('Invalid JSON: ' + e); return; }
-    fetch('/api/investigation-run-one', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
+    apiFetch('POST', '/api/investigation-run-one', {
         investigation: investigationName,
         sim_name: simName + '-copy',
         overrides: overrides,
         steps: steps,
-      }),
-    }).then(function(r) { return r.json(); }).then(function(j) {
+      }).then(function(r) { return r.json(); }).then(function(j) {
       if (!j.ok) { alert('Duplicate-run failed: ' + (j.error || 'unknown')); return; }
       // Re-render the investigation; the new run's viz HTML lives at
       // /investigations/<inv>/viz/<run_id>/<name>.html and is discoverable
@@ -20038,9 +18196,9 @@
           return '<figure style="margin:0 0 14px 0">' +
             '<figcaption style="font-size:0.85em;color:#555;margin-bottom:4px">' +
               _esc(f.name) +
-              ' <small><a href="/' + _esc(f.html_path) + '" target="_blank">open ↗</a></small>' +
+              ' <small><a href="' + (window.__BASE_PATH__ || '') + '/' + _esc(f.html_path) + '" target="_blank">open ↗</a></small>' +
             '</figcaption>' +
-            '<iframe src="/' + _esc(f.html_path) + '" sandbox="allow-scripts" ' +
+            '<iframe src="' + (window.__BASE_PATH__ || '') + '/' + _esc(f.html_path) + '" sandbox="allow-scripts" ' +
               'style="width:100%;height:380px;border:1px solid #eee;background:#fff"></iframe>' +
           '</figure>';
         }).join('');
@@ -20058,8 +18216,8 @@
     if (classSel) classSel.innerHTML = '<option value="">— none (description-only) —</option>';
     if (alreadyEl) alreadyEl.textContent = '';
     Promise.all([
-      fetch('/api/visualization-classes').then(function(r) { return r.json(); }),
-      fetch('/api/visualization-instances').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-classes').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-instances').then(function(r) { return r.json(); }),
       fetch('/workspace.yaml').then(function(r) { return r.ok ? r.text() : ''; }),
     ]).then(function(parts) {
       // Filter out Analysis classes — the workspace viz picker only shows Visualization classes.
@@ -20116,8 +18274,8 @@
     // is created once and re-populated each open from the cached spec.
     _ensureAddVizComparisonDropdown();
     Promise.all([
-      fetch('/api/visualization-instances').then(function(r) { return r.json(); }),
-      fetch('/api/visualization-classes').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-instances').then(function(r) { return r.json(); }),
+      apiFetch('GET', '/api/visualization-classes').then(function(r) { return r.json(); }),
     ]).then(function(parts) {
       var instances = (parts[0] && parts[0].instances) || [];
       // Filter out Analysis classes — the add-viz picker only offers Visualization classes.
@@ -20245,10 +18403,7 @@
       address: data.get('address'),
       config: config,
     };
-    fetch('/api/investigation-add-viz', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/investigation-add-viz', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20256,10 +18411,7 @@
           return;
         }
         closeModal('modal-investigation-add-viz');
-        fetch('/api/investigation-render-viz', {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({name: payload.investigation}),
-        }).then(function() {
+        apiFetch('POST', '/api/investigation-render-viz', {name: payload.investigation}).then(function() {
           _openInvestigation(payload.investigation);  // refresh detail panel
         });
       });
@@ -20279,10 +18431,7 @@
       name: data.get('name'),
       description: data.get('description'),
     };
-    fetch('/api/visualization-generate', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-generate', payload).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         if (!ok) {
@@ -20322,10 +18471,7 @@
   }
 
   function _acceptGeneratedClass(name) {
-    fetch('/api/visualization-accept', {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name: name}),
-    }).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
+    apiFetch('POST', '/api/visualization-accept', {name: name}).then(function(r) { return r.json().then(function(j) { return [r.ok, j]; }); })
       .then(function(parts) {
         var ok = parts[0], j = parts[1];
         var statusEl = document.getElementById('viz-generate-status');
@@ -20582,19 +18728,60 @@
     if (key === 'investigation') return String(_simInvestigation(row) || '').toLowerCase();
     if (key === 'run') return String(row.sim_name || row.label || row.run_id || '').toLowerCase();
     if (key === 'composite') return String(row.spec_id || '').toLowerCase();
+    if (key === 'source') {
+      var _s = row.source_ref || {};
+      return ((_s.repo || '') + ' ' + (_s.commit_short || '')).toLowerCase();
+    }
     if (key === 'status') return String(row.status || '').toLowerCase();
+    if (key === 'location') return String(row.store_path || row.db_path || '').toLowerCase();
+    if (key === 'config') {
+      var c = row.config || {};
+      return Object.keys(c).length ? JSON.stringify(c).toLowerCase() : '';
+    }
+    // Tools: sort by the matched tool's label so runs that have a tool (e.g. the
+    // atlas run → "HRA Computational Model Atlas") group together and, on the
+    // first (ascending) click, rise to the TOP; tool-less runs get a high
+    // sentinel so they sink. Clicking Tools thus surfaces the tool-linked runs.
+    if (key === 'tools') {
+      var mt = row.matched_tools || [];
+      return mt.length ? String(mt[0].label || mt[0].id || '').toLowerCase() : '\uffff';
+    }
     return '';
   }
 
+  // Statuses that mean "not finished" — a run the user just launched and is
+  // actively watching. These ALWAYS pin to the top of the Runs list, regardless
+  // of the column sort: remote list timestamps come from an unreliable bulk
+  // `last_updated` (every GovCloud run shows the same frozen time), so a live
+  // cloud run can't otherwise rise above the wall of old completed runs.
+  var _ACTIVE_RUN_STATUSES = { queued: 1, running: 1, pending: 1, submitted: 1,
+                               in_progress: 1, started: 1, dispatching: 1 };
+  function _isActiveRun(row) {
+    return !!_ACTIVE_RUN_STATUSES[String((row && row.status) || '').toLowerCase()];
+  }
+  function _sortActiveRuns(list) {
+    // Newest dispatch first among the active runs — the remote simulation_id is
+    // monotonic and trustworthy (unlike the frozen timestamp), else fall to time.
+    return list.slice().sort(function (a, b) {
+      var ai = ((a.remote_origin || {}).simulation_id) || 0;
+      var bi = ((b.remote_origin || {}).simulation_id) || 0;
+      if (ai !== bi) return bi - ai;
+      return (b.completed_at || b.started_at || 0) - (a.completed_at || a.started_at || 0);
+    });
+  }
+
   function _sortSimRows(rows, key, dir) {
-    if (!key) return rows;
-    const s = rows.slice().sort(function (a, b) {
+    var active = rows.filter(_isActiveRun);
+    var rest = rows.filter(function (r) { return !_isActiveRun(r); });
+    if (!key) return _sortActiveRuns(active).concat(rest);  // backend order for the rest
+    var s = rest.slice().sort(function (a, b) {
       var va = _simSortValue(a, key), vb = _simSortValue(b, key);
       if (va < vb) return -1;
       if (va > vb) return 1;
       return 0;
     });
-    return dir === 'desc' ? s.reverse() : s;
+    var sortedRest = dir === 'desc' ? s.reverse() : s;
+    return _sortActiveRuns(active).concat(sortedRest);
   }
 
   function _onSimHeaderClick(th) {
@@ -20659,10 +18846,18 @@
 
     visible = _sortSimRows(visible, _simSortState.key, _simSortState.dir);
 
+    // Chunked display: render only the first _simShown rows (page-size selector
+    // + "Show more"), so a large index (hundreds of runs) paints a small slice
+    // fast instead of the whole table. Count reflects the full filtered set.
+    var pageSize = window._simPageSize || 50;
+    if (!window._simShown || window._simShown < pageSize) window._simShown = pageSize;
+    var shown = visible.slice(0, window._simShown);
+
     var tbody = document.getElementById('sim-tbody');
     var table = document.getElementById('sim-table');
     var empty = document.getElementById('sim-empty');
-    if (tbody) tbody.innerHTML = visible.map(_renderSimRow).join('');
+    if (tbody) tbody.innerHTML = shown.map(_renderSimRow).join('');
+    _updateSimCount(shown.length, visible.length, (window._simRows || []).length);
     // Row click opens the run (delegated once, survives re-renders); the
     // download links/buttons keep their own behaviour.
     if (tbody && !tbody._simClickWired) {
@@ -20694,6 +18889,14 @@
     }
     if (table) table.style.display = visible.length ? '' : 'none';
     if (empty) empty.style.display = visible.length ? 'none' : '';
+
+    // Drag-resizable columns for the Simulations DB table. The thead is static
+    // (rendered once in index.html.j2) and only the tbody re-renders, so wire
+    // the grips a single time; stored widths persist across filters/reloads.
+    if (table && window.ColResize && !table._colResizeWired) {
+      table._colResizeWired = true;
+      window.ColResize.apply(table, 'sim-global-v2');
+    }
 
     var note = document.getElementById('sim-scope-note');
     if (note) {
@@ -20769,7 +18972,12 @@
       if (table)   table.style.display = 'none';
     }
 
-    window.DataSource.loadSimulations()
+    // Phase 1 — local-first: fetch the fast local index (include_remote=false)
+    // so the table + count paint in ~seconds instead of blocking on the slow
+    // (~tens-of-seconds) remote (GovCloud) fetch. Snapshot mode has no live
+    // backend, so its baked list is already complete — load it in one call.
+    var snapshot = (window.__DASH_CONFIG__ || {}).mode === 'snapshot';
+    window.DataSource.loadSimulations(snapshot ? undefined : { includeRemote: false })
       .then(function (data) {
         if (data.error) {
           if (quiet) return;
@@ -20779,7 +18987,14 @@
             'onclick="_initSimulations()">Retry</button></span>';
           return;
         }
-        window._simRows = data.simulations || [];
+        // Never shrink back to the local-only set once the remote-enriched rows
+        // have loaded: a quiet auto-refresh's fast local-only fetch must not clobber
+        // the (slow) GovCloud rows while they're still valid — that collapse-to-local
+        // then re-fetch was the visible flap.
+        var _incoming = data.simulations || [];
+        if (!window._simRemoteLoaded || _incoming.length >= (window._simRows || []).length) {
+          window._simRows = _incoming;
+        }
         // Scope target, most-specific first: the investigation currently open
         // in the detail view (_currentIsetSlug, set by _openInvestigationDetail),
         // else the git-branch investigation slug, else whatever investigation the
@@ -20789,6 +19004,11 @@
         if (loading) loading.style.display = 'none';
         _populateSimFilters();
         _applySimFilter();
+        _pollNonTerminalRemoteRuns();
+        // Phase 2 — merge in the remote runs (slow ~100s) in the background.
+        // On a quiet auto-refresh this only re-fires after a backoff and never
+        // while one is in flight, so the 15s poll can't restart the slow fetch.
+        if (!snapshot) _maybeLoadRemoteSims(quiet);
       })
       .catch(function (err) {
         if (quiet) return;
@@ -20798,6 +19018,157 @@
       });
   }
   window._initSimulations = _initSimulations;
+
+  // Phase 2 of the Runs load: fetch local+remote (the second call includes the
+  // GovCloud runs, deduped server-side) and merge into the table. Best-effort:
+  // a down tunnel leaves the local-only view in place.
+  // Don't re-pull the slow GovCloud list more than ~every 3 min on the quiet
+  // auto-refresh; the deployed /simulations endpoint can take ~100s, so a 15s
+  // poll firing it repeatedly never settles.
+  var REMOTE_REFRESH_MS = 180000;
+
+  function _maybeLoadRemoteSims(quiet) {
+    // First load / explicit refresh: always. Quiet auto-refresh: only after the
+    // backoff, and never while a fetch is already in flight (guard below).
+    if (!quiet || !window._simRemoteLoaded ||
+        (Date.now() - (window._simLastRemoteLoad || 0)) > REMOTE_REFRESH_MS) {
+      _loadRemoteSimsAsync();
+    }
+  }
+
+  function _loadRemoteSimsAsync() {
+    // Dedupe: the remote fetch is slow (~100s). Never start a second one while
+    // one is in flight — overlapping fetches are what made the page flap.
+    if (window._simRemoteInFlight) return;
+    window._simRemoteInFlight = true;
+    _setSimRemoteStatus('loading');
+    window.DataSource.loadSimulations({ includeRemote: true })
+      .then(function (data) {
+        window._simRemoteInFlight = false;
+        if (!data || data.error) { _setSimRemoteStatus('error'); return; }
+        var all = data.simulations || [];
+        if (all.length >= (window._simRows || []).length) window._simRows = all;
+        window._simRemoteLoaded = true;
+        window._simLastRemoteLoad = Date.now();
+        _setSimRemoteStatus('done');
+        _populateSimFilters();
+        _applySimFilter();
+        _pollNonTerminalRemoteRuns();
+      })
+      .catch(function () { window._simRemoteInFlight = false; _setSimRemoteStatus('error'); });
+  }
+
+  function _setSimRemoteStatus(state) {
+    var el = document.getElementById('sim-remote-status');
+    if (!el) return;
+    el.textContent = state === 'loading' ? '· loading GovCloud runs…'
+      : state === 'error' ? '· GovCloud runs unavailable'
+      : '';
+  }
+
+  // Count line + "Show more" visibility. shown = rows rendered; visible = rows
+  // matching the current filters; total = all loaded runs.
+  function _updateSimCount(shown, visible, total) {
+    var countEl = document.getElementById('sim-count');
+    var ctrls = document.getElementById('sim-controls');
+    var more = document.getElementById('sim-more');
+    if (ctrls) ctrls.style.display = total ? 'flex' : 'none';
+    if (countEl) {
+      countEl.textContent = (visible === total)
+        ? (total + ' run' + (total === 1 ? '' : 's'))
+        : (visible + ' of ' + total + ' runs');
+    }
+    if (more) more.style.display = (shown < visible) ? '' : 'none';
+  }
+
+  function _onSimPageSizeChange() {
+    var sel = document.getElementById('sim-page-size');
+    window._simPageSize = sel ? (parseInt(sel.value, 10) || 50) : 50;
+    window._simShown = window._simPageSize;  // reset to first page
+    _applySimFilter();
+  }
+  window._onSimPageSizeChange = _onSimPageSizeChange;
+
+  function _simShowMore() {
+    window._simShown = (window._simShown || (window._simPageSize || 50))
+      + (window._simPageSize || 50);
+    _applySimFilter();
+  }
+  window._simShowMore = _simShowMore;
+
+  // Backlog item 84: a UI-dispatched remote run's row shows "running" from
+  // the moment PR #922's pending-dispatch placeholder lands until someone
+  // explicitly clicks "Land Results" -- runs.db is never otherwise touched,
+  // so without this the row is frozen at "running" even long after the real
+  // AWS Batch campaign finished. Piggybacks on the auto-refresh cadence
+  // _startSimAutoRefresh already drives (every 15s while this page is open)
+  // rather than adding a second timer. For each currently-rendered remote
+  // row still showing "running", does ONE live check via the same
+  // GET /api/remote-run-poll?simulation_id=<id> endpoint item 6/81's own
+  // active-dispatch progress bar already uses (remote_run_status --
+  // on-demand, no in-process state) and, if the real phase is terminal,
+  // swaps just that row's chip in place. Deliberately does NOT write to
+  // runs.db or auto-land -- landing (the actual data pull) stays an
+  // explicit user action; this only keeps what's ON SCREEN honest while
+  // waiting for that click. Analysis-side staleness (item 84's own filing:
+  // GET /analyses/{id}/status is also pull-based) is a separate, still-open
+  // follow-on -- no analysis_id is tracked per-row today to poll against.
+  // Page-session-scoped: once a poll confirms a simulation_id's real terminal
+  // phase, remember it here. Required because this poller never writes to
+  // runs.db (landing stays the explicit user action) -- without this cache,
+  // every 15s auto-refresh re-renders every row from the raw DB value (still
+  // "running" until landed), silently erasing the chip this function just
+  // set, and the very next tick would re-poll and flip it right back --
+  // running/completed/running/completed forever for as long as the tab
+  // stays open on a real, finished-but-unlanded remote campaign. Caught live
+  // by watching more than one refresh cycle, not by a single before/after
+  // check.
+  window._remoteTerminalCache = window._remoteTerminalCache || {};
+
+  function _pollNonTerminalRemoteRuns() {
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') return;  // no live backend
+    var rows = document.querySelectorAll('tr[data-remote-sim-id]');
+    if (!rows.length) return;
+    var checked = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var tr = rows[i];
+      var chipHost = tr.querySelector('.run-status-live');
+      if (!chipHost) continue;
+      var simId = tr.getAttribute('data-remote-sim-id');
+      if (!simId) continue;
+
+      // Already known terminal from an earlier poll this page session --
+      // reapply immediately (no request, no visible flicker) instead of
+      // leaving this tick's fresh-from-DB "running" render stand until the
+      // next poll gets around to it.
+      var cachedPhase = window._remoteTerminalCache[simId];
+      if (cachedPhase) {
+        chipHost.innerHTML = window.SimTable.statusChip(cachedPhase);
+        continue;
+      }
+
+      if (!/running/i.test(chipHost.textContent)) continue;
+      if (checked >= 20) continue;  // defensive cap, not expected to bind in practice
+      checked++;
+      (function (host, id) {
+        apiFetch('GET', '/api/remote-run-poll?simulation_id=' + encodeURIComponent(id))
+          .then(function (r) { return r.json(); })
+          .then(function (body) {
+            var phase = body && body.phase;
+            if (phase === 'done') {
+              window._remoteTerminalCache[id] = 'completed';
+              host.innerHTML = window.SimTable.statusChip('completed');
+            } else if (phase === 'failed') {
+              window._remoteTerminalCache[id] = 'failed';
+              host.innerHTML = window.SimTable.statusChip('failed');
+            }
+            // running / queued / unreachable: leave the chip as-is, the next
+            // 15s auto-refresh tick will check again.
+          })
+          .catch(function () { /* transient -- next tick retries */ });
+      })(chipHost, simId);
+    }
+  }
 
   // Auto-refresh: while the Simulations DB page is open, re-pull every 15s so
   // the table stays current with newly persisted / remote-landed runs without
@@ -20892,11 +19263,7 @@
     // Replace the confirm handler each time to bind the current run_id.
     confirm.onclick = function () {
       confirm.disabled = true;
-      fetch('/api/simulation-run', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ run_id: run_id }),
-      }).then(function (r) { return r.json().then(function (d) {
+      apiFetch('DELETE', '/api/simulation-run', { run_id: run_id }).then(function (r) { return r.json().then(function (d) {
         return { ok: r.ok, status: r.status, body: d };
       }); }).then(function (res) {
         confirm.disabled = false;
@@ -21095,16 +19462,16 @@
     _ceStopRunPoll();  // clear any prior interval
     var myToken = ++window._cePollToken;
     var el = document.getElementById('ce-test-results');
-    if (el) el.innerHTML = '<p class="empty-state">Loading run&hellip;</p>';
+    if (el) el.innerHTML = window.ProgressTrack ? window.ProgressTrack.loadingHtml('Loading run…') : '<p class="empty-state">Loading run&hellip;</p>';
 
     function tick() {
       Promise.all([
-        fetch(_api('/api/composite-run/' + encodeURIComponent(run_id) + '/status'))
+        apiFetch('GET', '/api/composite-run/' + encodeURIComponent(run_id) + '/status')
           .then(function(r) {
             if (r.status === 404) return { _gone: true };
             return r.json();
           }),
-        fetch(_api('/api/composite-run/' + encodeURIComponent(run_id)))
+        apiFetch('GET', '/api/composite-run/' + encodeURIComponent(run_id))
           .then(function(r) { return r.ok ? r.json() : { trajectory: [] }; })
           .catch(function() { return { trajectory: [] }; }),
       ]).then(function(parts) {
@@ -21148,7 +19515,7 @@
   // -------------------------------------------------------------------------
 
   function _openPRDialog() {
-    fetch('/api/state').then(function (r) { return r.json(); }).then(function (state) {
+    apiFetch('GET', '/api/state').then(function (r) { return r.json(); }).then(function (state) {
       var branch = (state && state.active_branch) || '';
       var base = (state && state.base) || 'main';
       var titleField = document.querySelector('#form-open-pr input[name=title]');
@@ -21239,7 +19606,7 @@
       // Fetch composite diff in parallel so the "Model changes" section can
       // include actual file paths + line counts. Best-effort; renders without
       // the section if the fetch fails or returns no model-code changes.
-      fetch('/api/work-composite-diff').then(function (r) { return r.ok ? r.json() : {changes: []}; })
+      apiFetch('GET', '/api/work-composite-diff').then(function (r) { return r.ok ? r.json() : {changes: []}; })
         .catch(function () { return {changes: []}; })
         .then(function (diff) {
           var modelChanges = (diff && diff.changes) || [];
@@ -21370,14 +19737,11 @@
           if (!html) return null;
           var filename = 'investigation-' + iset.name + '.html';
           setStatus('Committing report…');
-          return fetch('/api/work-attach-report', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
+          return apiFetch('POST', '/api/work-attach-report', {
               filename: filename,
               html: html,
               commit_message: 'docs(report): refresh investigation report for PR',
-            }),
-          }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
+            }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
         });
     } else {
       attachPromise = Promise.resolve(null);
@@ -21392,10 +19756,7 @@
         }
       }
       setStatus('Creating PR…');
-      return fetch('/api/work-create-pr', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(prBody),
-      }).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
+      return apiFetch('POST', '/api/work-create-pr', prBody).then(function (r) { return r.json().then(function (j) { return [r.ok, j]; }); });
     })
     .then(function (pair) {
       var ok = pair[0], j = pair[1];
@@ -21424,77 +19785,11 @@
   function _generateReportHtmlForCurrentIset() {
     var name = window._currentIset;
     if (!name) return Promise.resolve(null);
-    // Route through DataSource so hosted/snapshot mode (sub-projects #2/#3)
-    // honours the configured source here too.  Direct-fetch fallback keeps
-    // behaviour unchanged when DataSource is not available.
-    var _isetFetch = (window.DataSource && window.DataSource.loadInvestigation)
-      ? window.DataSource.loadInvestigation(name)
-      : fetch('/api/investigation/' + encodeURIComponent(name)).then(function (r) { return r.json(); });
-    return _isetFetch.then(function (iset) {
-        var studyFetches = (iset.studies || []).map(function (s) {
-          return ((window.DataSource && window.DataSource.loadStudy)
-            ? window.DataSource.loadStudy(s.name).catch(function () { return {spec: {name: s.name}}; })
-            : fetch('/api/study/' + encodeURIComponent(s.name))
-                .then(function (r) { return r.ok ? r.json() : {spec: {name: s.name}}; }))
-            .then(function (j) { return j.spec || j; });
-        });
-        var bibFetch = fetch((window.DataSource && window.DataSource.referencesBibUrl)
-            ? window.DataSource.referencesBibUrl() : '/api/references-bib')
-          .then(function (r) { return r.ok ? r.json() : {entries: []}; })
-          .then(function (j) { return j.entries || []; })
-          .catch(function () { return []; });
-        var chartFetches = (iset.studies || []).map(function (s) {
-          // Via DataSource so snapshot mode reads api/study-charts/<slug>.json at
-          // the bundle basePath; raw fetch would 404 on a hosted read-only site.
-          return ((window.DataSource && window.DataSource.loadStudyCharts)
-            ? window.DataSource.loadStudyCharts(s.name)
-            : fetch('/api/study-charts/' + encodeURIComponent(s.name))
-                .then(function (r) { return r.ok ? r.json() : {charts: []}; }))
-            .then(function (j) { return {name: s.name, charts: (j && j.charts) || []}; })
-            .catch(function () { return {name: s.name, charts: []}; });
-        });
-        var ghRepoFetch = fetch('/api/github-repo')
-          .then(function (r) { return r.ok ? r.json() : {repo: null}; })
-          .then(function (j) { return (j && j.repo) || null; })
-          .catch(function () { return null; });
-        // Wave 3b #6/#16 — competing hypotheses + computed support_log.
-        var hypFetch = fetch('/api/investigation-hypotheses?investigation=' + encodeURIComponent(iset.name))
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (j) { return (j && j.hypotheses) || null; })
-          .catch(function () { return null; });
-        return Promise.all([Promise.all(studyFetches), bibFetch, Promise.all(chartFetches), ghRepoFetch, hypFetch])
-          .then(function (arr) {
-            var chartsByStudy = {};
-            arr[2].forEach(function (c) { chartsByStudy[c.name] = c.charts; });
-            // Fetch each study's embed_visualizations HTML and inline it so the
-            // generated report carries the interactive figures (Plotly hover/
-            // zoom/legend) offline, not just the static charts. The publisher
-            // basePath-prefixes embed.url, so a plain fetch resolves in a hosted
-            // snapshot too; in local mode it hits the same-origin /workspace path.
-            var specs = arr[0];
-            var embedFetches = specs.map(function (spec) {
-              var embeds = (spec && spec.embed_visualizations) || [];
-              var perStudy = embeds.map(function (embed) {
-                if (!embed || !embed.url) return Promise.resolve(null);
-                return fetch(embed.url, {headers: {Accept: 'text/html'}})
-                  .then(function (r) { return r.ok ? r.text() : null; })
-                  .then(function (text) {
-                    return text ? {name: embed.name || '', description: embed.description || '',
-                                   url: embed.url, html: text, stale: embed.stale === true} : null;
-                  })
-                  .catch(function () { return null; });
-              });
-              return Promise.all(perStudy).then(function (results) {
-                return {name: spec && spec.name, embeds: results.filter(Boolean)};
-              });
-            });
-            return Promise.all(embedFetches).then(function (embedResults) {
-              var embedsByStudy = {};
-              embedResults.forEach(function (e) { if (e && e.name) embedsByStudy[e.name] = e.embeds; });
-              return _buildInvestigationReportHtml(iset, specs, arr[1], chartsByStudy, embedsByStudy, null, arr[3], undefined, undefined, arr[4]);
-            });
-          });
-      });
+    // The report is generated server-side (or pre-rendered in a bundle); fetch
+    // its self-contained HTML to attach to a PR.
+    return fetch(_investigationReportUrl(name))
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .catch(function () { return null; });
   }
   window._generateReportHtmlForCurrentIset = _generateReportHtmlForCurrentIset;
 
@@ -21515,51 +19810,76 @@
     val.innerHTML = html + (hint ? '<div class="gh-value-hint">' + hint + '</div>' : '');
   }
 
-  function _renderGitStatusRows(s) {
-    if (!document.getElementById('viv-gh-row-repo')) return;  // page not present
-    if (s == null) {
-      _setRow('repo', '<span class="muted">not a git workspace</span>');
-      ['branch', 'push-state', 'ahead', 'dirty', 'pr'].forEach(function (id) { _setRow(id, ''); });
+  // Commit + Push — commit all changes on the workspace's branch and push it.
+  // Moved here from the Source card (this card owns git sync). Wired to
+  // #btn-commit-push in index.html.j2.
+  function _commitAndPush() {
+    if ((window.__DASH_CONFIG__ || {}).mode === 'snapshot') {
+      alert('Commit + Push needs the live workbench — a read-only snapshot has no git backend.');
       return;
     }
-    // Repository
-    _setRow('repo', s.upstream_repo
-      ? '<a href="' + s.repo_url + '" target="_blank" rel="noopener">' + _esc(s.upstream_repo) + '</a> ↗'
-      : '<span class="muted">no upstream remote configured</span>');
-    // Branch
-    _setRow('branch', s.branch
+    var msg = window.prompt('Commit message for push:', 'dashboard commit');
+    if (msg == null) return;
+    var btn = document.getElementById('btn-commit-push');
+    if (btn) { btn.disabled = true; btn.textContent = 'Pushing…'; }
+    function _reset() { if (btn) { btn.disabled = false; btn.textContent = 'Commit + Push'; } }
+    apiFetch('POST', '/api/branch/push', { message: msg }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        _reset();
+        if (res.ok) {
+          var m = 'Pushed ' + (res.d.branch || '') + ' @ ' + (res.d.commit || '').slice(0, 7);
+          if (typeof _showToast === 'function') _showToast(m); else alert(m);
+          _refreshGitStatus();
+        } else {
+          alert('Push failed: ' + (res.d.error || 'error'));
+        }
+      })
+      .catch(function () { _reset(); alert('Push failed: network error'); });
+  }
+  window._commitAndPush = _commitAndPush;
+
+  function _renderGitStatusRows(s) {
+    if (!document.getElementById('viv-gh-row-branch')) return;  // page not present
+    if (s == null) {
+      ['branch', 'dirty', 'pr'].forEach(function (id) { _setRow(id, ''); });
+      _setRow('branch', '<span class="muted">not a git workspace</span>');
+      return;
+    }
+    // Branch → base: the branch name, then how far ahead of its base it is (the
+    // PR-relevant comparison). Repo is NOT shown here — it's chosen in the Source
+    // card above; duplicating it was the confusing overlap this layout removes.
+    var branchName = s.branch
       ? (s.branch_url
-          ? '<a href="' + s.branch_url + '" target="_blank" rel="noopener"><code>' + _esc(s.branch) + '</code></a> ↗'
+          ? '<a href="' + s.branch_url + '" target="_blank" rel="noopener"><code>' + _esc(s.branch) + '</code></a>'
           : '<code>' + _esc(s.branch) + '</code>')
-      : '<span class="muted">no branch</span>');
-    // Push state
-    var stateMap = {
+      : '<span class="muted">no branch</span>';
+    var vsBase = '';
+    if (s.base) {
+      if (s.ahead_of_base > 0) {
+        var n = s.ahead_of_base + ' commit' + (s.ahead_of_base === 1 ? '' : 's')
+          + ' ahead of <code>' + _esc(s.base) + '</code>';
+        vsBase = ' → ' + (s.compare_url
+          ? '<a href="' + s.compare_url + '" target="_blank" rel="noopener">' + n + ' ↗</a>'
+          : n);
+      } else {
+        vsBase = ' → <span class="muted">up to date with <code>' + _esc(s.base) + '</code></span>';
+      }
+    }
+    _setRow('branch', branchName + vsBase);
+    // Changes: how the branch sits vs its REMOTE (push state) + the working tree.
+    var pushMap = {
       pushed:   '<span class="git-badge git-badge-ok">✓ pushed</span>',
-      ahead:    '<span class="git-badge git-badge-ahead">↑ ' + s.ahead + ' ahead of remote</span>',
+      ahead:    '<span class="git-badge git-badge-ahead">↑ ' + s.ahead + ' to push</span>',
       behind:   '<span class="git-badge git-badge-behind">↓ ' + s.behind + ' behind remote</span>',
       diverged: '<span class="git-badge git-badge-warn">! diverged from remote</span>',
     };
-    _setRow('push-state', stateMap[s.push_state] || '<span class="git-badge git-badge-warn">⊘ no origin</span>');
-    // Ahead of base
-    if (s.ahead_of_base > 0) {
-      var aheadHtml = s.compare_url
-        ? '<a href="' + s.compare_url + '" target="_blank" rel="noopener">' + s.ahead_of_base + ' commits ahead of <code>' + _esc(s.base) + '</code></a> ↗'
-        : s.ahead_of_base + ' commits ahead of <code>' + _esc(s.base) + '</code>';
-      _setRow('ahead', aheadHtml);
-    } else {
-      _setRow('ahead', s.base
-        ? '<span class="muted">up to date with <code>' + _esc(s.base) + '</code></span>'
-        : '');
-    }
-    // Working tree
-    if (s.dirty_count > 0) {
-      _setRow('dirty',
-        '<a href="#" onclick="event.preventDefault();_toggleDirtyPanel();return false">'
-        + s.dirty_count + ' uncommitted file' + (s.dirty_count === 1 ? '' : 's') + '</a>',
-        'Click to view + stage');
-    } else {
-      _setRow('dirty', '<span class="muted">clean</span>');
-    }
+    var pushBadge = pushMap[s.push_state] || '<span class="git-badge git-badge-warn">⊘ no remote</span>';
+    var treePart = (s.dirty_count > 0)
+      ? '<a href="#" onclick="event.preventDefault();_toggleDirtyPanel();return false">'
+        + s.dirty_count + ' uncommitted file' + (s.dirty_count === 1 ? '' : 's') + '</a>'
+      : '<span class="muted">clean</span>';
+    _setRow('dirty', pushBadge + ' &nbsp;·&nbsp; ' + treePart,
+      s.dirty_count > 0 ? 'Click the count to view + stage' : '');
     // Pull request
     if (s.pr_url) {
       var prState = (s.pr_state || 'open').toLowerCase();
@@ -21572,7 +19892,7 @@
   }
 
   function _refreshGitStatus() {
-    fetch('/api/git-status').then(function (r) { return r.json(); }).then(function (s) {
+    apiFetch('GET', '/api/git-status').then(function (r) { return r.json(); }).then(function (s) {
       // Legacy single-string box (still populated for any consumer that
       // reads it). The GitHub-tab settings page renders the same data into
       // individual rows via _renderGitStatusRows below.
@@ -21683,7 +20003,7 @@
       var a = document.getElementById('viv-gh-org-retry');
       if (a) a.onclick = function (e) { e.preventDefault(); _loadGithubOrgs(); };
     }
-    fetch('/api/auth/github/orgs').then(function (r) {
+    apiFetch('GET', '/api/auth/github/orgs').then(function (r) {
       if (r.status === 401) {
         sel.innerHTML = '<option value="">Sign in to load orgs…</option>';
         if (hint) hint.textContent = 'Sign in above to pick a default org.';
@@ -21815,11 +20135,9 @@
   // `.study-readiness-panel` placeholders are currently in the DOM by
   // overwriting their innerHTML — so a second call after more panels render
   // fills the new ones without issuing a duplicate fetch or double-rendering.
-  // No outer closure state is used (cache lives on the function object) so the
-  // investigation report can bake an exact copy via `.toString()` — see
-  // _buildInvestigationReportHtml; the served/downloaded report has no
-  // walkthrough.js, so it carries its own copy and invokes it after its study
-  // sections render (the placeholders are emitted async, after DOMContentLoaded).
+  // No outer closure state is used (cache lives on the function object), a
+  // property retained from when the investigation report baked an exact copy of
+  // this function via `.toString()`.
   function _populateReadinessPanels() {
     var panels = document.querySelectorAll('.study-readiness-panel');
     if (!panels.length) return;
@@ -21832,7 +20150,7 @@
     if (_populateReadinessPanels._cache) { _apply(_populateReadinessPanels._cache); return; }
     if (_populateReadinessPanels._pending) return;
     _populateReadinessPanels._pending = true;
-    fetch('/api/report-lint')
+    apiFetch('GET', '/api/report-lint')
       .then(function (r) { return r.ok ? r.json() : { findings: [] }; })
       .then(function (j) {
         var byStudy = {};
