@@ -13,6 +13,7 @@ overlays additionally need the committed viva-biomodels corpus dataset, see
 """
 from __future__ import annotations
 
+import json
 from collections import Counter
 
 from viva_human_atlas import annotation_gain, coverage, results_source, viz
@@ -196,6 +197,76 @@ def build_spatial_linkage_figure() -> None:
     _write("spatial-linkage", "links-per-organ", html)
 
 
+def build_annotation_organ_matching_figure() -> None:
+    d = json.load(open("datasets/biomodel_annotation_catalog.json"))
+    cat = d["catalog"]
+    o2m = cat["organ_to_models"]
+    # UBERON id -> readable organ label, via the catalog's own organ_index
+    label = {
+        info.get("uberon"): name
+        for name, info in cat.get("organ_index", {}).items()
+        if info.get("uberon")
+    }
+    items = sorted(o2m.items(), key=lambda kv: len(kv[1]), reverse=True)
+    html = viz.bar_html(
+        [label.get(ub, ub) for ub, _ in items],
+        [len(models) for _, models in items],
+        title=(
+            f"Annotation-based organ matches: models per organ "
+            f"({d['n_tagged']}/{d['n_ids']} corpus models tagged via SBML MIRIAM/BTO, "
+            f"{len(items)} organs)"
+        ),
+        xaxis_title="HRA organ",
+        yaxis_title="models (annotation match)",
+    )
+    _write("annotation-organ-matching", "models-per-organ", html)
+
+
+def build_model_harvest_figure() -> None:
+    rows = json.load(open("datasets/model_hra_map.json"))
+    counts = Counter(r.get("repository") or "unknown" for r in rows)
+    items = counts.most_common()
+    html = viz.bar_html(
+        [k for k, _ in items],
+        [v for _, v in items],
+        title=(
+            f"Multi-source model harvest: {len(rows)} models across "
+            f"{len(items)} repositories (one source registry, non-destructive upsert)"
+        ),
+        xaxis_title="source repository",
+        yaxis_title="models harvested",
+    )
+    _write("model-harvest", "models-per-source", html)
+
+
+def build_blood_vasculature_network_figure() -> None:
+    from process_bigraph import Composite
+
+    from viva_human_atlas.composites import vasculature_network_composite as vnc
+    from viva_human_atlas.core import build_core
+
+    comp = Composite(vnc.build_vasculature_network(include_routes=True), core=build_core())
+    comp.run(1)
+    summ = comp.state.get("vascular_network_summary") or {}
+    vc = summ.get("vessel_classes") or {}
+    order = ["artery", "capillary", "vein", "chamber"]
+    present = [(c, vc[c]) for c in order if c in vc]
+    present += [(c, n) for c, n in vc.items() if c not in order]
+    html = viz.bar_html(
+        [c for c, _ in present],
+        [n for _, n in present],
+        title=(
+            f"Blood-vasculature transport network: {summ.get('n_vessels', '?')} vessels "
+            f"by class ({summ.get('n_ftus', '?')} FTUs, {summ.get('n_edges', '?')} edges; "
+            f"{summ.get('n_closed_circuits', '?')}/{summ.get('n_ftus', '?')} FTUs on closed "
+            f"heart->organ->heart circuits, {summ.get('n_open_routes', '?')} open)"
+        ),
+        xaxis_title="vessel class",
+        yaxis_title="vessels",
+    )
+    _write("blood-vasculature-network", "vessels-by-class", html)
+
+
 def main() -> None:
     build_corpus_coverage_figure()
     build_model_coverage_3d_figure()
@@ -209,6 +280,9 @@ def main() -> None:
     build_ftu_model_coverage_figure()
     build_spatial_linkage_figure()
     build_annotation_recall_gain_figure()
+    build_annotation_organ_matching_figure()
+    build_model_harvest_figure()
+    build_blood_vasculature_network_figure()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 schema_version: 2
 name: glucose-regulation
-title: "Glucose Regulation — COPASI vs Tellurium"
+title: "Act 1 · Model Trust — COPASI vs Tellurium"
 created: '2026-07-26'
 status: running
 
@@ -29,12 +29,32 @@ lead: |
   connection are deferred to later investigations (see
   references/sources/hra-wpp-context.md).
 
+biological_story: |
+  The models in scope encode **glucose homeostasis** — the minute-to-hour
+  feedback between circulating glucose, pancreatic islet insulin/glucagon
+  secretion, and hepatic glucose production and uptake. BIOMD0000000633
+  (Bulik2016) is a kinetic model of hepatic glucose metabolism: glycogen
+  synthesis/breakdown and gluconeogenesis as enzyme-kinetic ODEs over ~30
+  species. These are the kind of mechanism the whole atlas is ultimately about —
+  physiological dynamics attached to an organ. But a mechanism is only as
+  trustworthy as the numerical integration that produces its trajectory, and the
+  same SBML can be integrated by different engines (COPASI's own solver vs
+  Tellurium/libRoadRunner). This act asks the prerequisite biological-modeling
+  question — do two independent engines reproduce the *same* glucose dynamics
+  from the *same* equations? — because every downstream claim about which organ a
+  model belongs to (Act 2) and whether an anatomical structure is "covered" (Act
+  3) silently assumes the model's behavior is engine-independent and real.
+
 executive:
   what_is_this: |
-    The first investigation in viva-human-atlas: a cross-engine (COPASI vs
-    Tellurium) correctness check on BioModels matching "glucose regulation",
-    establishing a trustworthy fetch-and-compare spine before ontology
-    linking and the 3D-spatial connection build on top of it.
+    **Act 1 of 3** in the viva-human-atlas arc — **Trust → Atlas → Coverage**.
+    The foundation: a cross-engine (COPASI vs Tellurium) correctness check on
+    BioModels matching "glucose regulation", establishing a trustworthy
+    fetch-and-compare spine. If two independent engines don't agree on the same
+    model, nothing built on top of those models can be trusted — so this act
+    earns that trust before Act 2 maps models onto HRA anatomy and Act 3
+    measures 3D coverage.
+    → Next: **Act 2 · Atlas** (investigation `hra-integration`).
   verdict: |
     The one curated model that loaded in both engines (BIOMD0000000633,
     Bulik2016 hepatic glucose metabolism) agrees near-perfectly (mean nRMSE

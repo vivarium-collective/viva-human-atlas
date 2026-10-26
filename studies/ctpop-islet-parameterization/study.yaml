@@ -57,10 +57,10 @@ biological_summary: |
   flips which of the model's two stable regimes the trajectory lands in.
 
 readouts:
-  - "runs.healthy.{time,B,G,I} / runs.beta_depleted.{time,B,G,I} (Topp2000 trajectories)"
-  - "runs.<scenario>.b_init / b_ref / beta_fraction (the CTpop-fraction -> beta-cell-mass binding)"
-  - "islet_composition (documented HRA-aligned beta/alpha/delta/PP-epsilon fractions + citations)"
-  - "reference_beta_fraction (0.54, the healthy-reference the binding scales against)"
+- "runs.healthy.{time,B,G,I} / runs.beta_depleted.{time,B,G,I} (Topp2000 trajectories)"
+- "runs.<scenario>.b_init / b_ref / beta_fraction (the CTpop-fraction -> beta-cell-mass binding)"
+- "islet_composition (documented HRA-aligned beta/alpha/delta/PP-epsilon fractions + citations)"
+- "reference_beta_fraction (0.54, the healthy-reference the binding scales against)"
 
 report:
   title: "CTpop -> Topp2000 Islet Parameterization — Beta-Depleted Islet Crosses the Model's Diabetes Bifurcation"
@@ -102,22 +102,32 @@ report:
     `pipeline_gate.gate_evaluator.result` is `needs_calibration`.
 
 baseline:
-  - name: baseline
-    step: local:viva_human_atlas.ctpop_islet.CtpopIsletParameterizationStep
-    params:
-      model_id: "BIOMD0000000341"
-      t_end: 4000.0
-      n_points: 200
+- name: baseline
+  step: local:viva_human_atlas.ctpop_islet.CtpopIsletParameterizationStep
+  params:
+    model_id: "BIOMD0000000341"
+    t_end: 4000.0
+    n_points: 200
 
 embed_visualizations:
-  - name: "Glucose vs islet composition"
-    url: "/reports/figures/ctpop-islet-parameterization/glucose-vs-islet-composition.html"
-    description: "Topp2000 glucose G(t) over 4,000 model-days: healthy islet (54% beta) settles at ~100 mg/dL (physiological); beta-depleted islet (30% beta, the T2D-relevant beta-cell loss) crosses the model's bifurcation to ~600 mg/dL (pathological hyperglycemia), beta-cell mass and insulin collapsing toward 0."
+- name: "Glucose vs islet composition"
+  url: "/reports/figures/ctpop-islet-parameterization/glucose-vs-islet-composition.html"
+  description: "Topp2000 glucose G(t) over 4,000 model-days: healthy islet (54% beta) settles at ~100 mg/dL (physiological); beta-depleted islet (30% beta, the T2D-relevant beta-cell loss) crosses the model's bifurcation to ~600 mg/dL (pathological hyperglycemia), beta-cell mass and insulin collapsing toward 0."
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    healthy_islet_physiological_fixed_point:
+      result: PARTIAL
+      observed: "runs.healthy: glucose G falls from 250 to ~100 mg/dL, beta-cell mass B grows from 37 to ~300, insulin I rises from 2.8 to ~10 -- the model's normal-fasting-range stable state."
+    beta_depleted_crosses_bifurcation:
+      result: PARTIAL
+      observed: 'runs.beta_depleted: glucose G rises from 250 to ~600 mg/dL (severe hyperglycemia) while beta-cell mass B (from 20.56) and insulin I collapse toward 0 -- the opposite stable regime from the healthy run.'
+    binding_is_nonhardcoded:
+      result: PARTIAL
+      observed: b_ref = 37 is read from BIOMD0000000341's SBML, and b_init = b_ref * beta_fraction / 0.54 reproduces 37 exactly at the 54% healthy reference fraction.
 pipeline_gate:
   gate_evaluator:
     result: needs_calibration
@@ -125,30 +135,30 @@ pipeline_gate:
   # glucose-regulation base (whose glucose models it parameterizes) — so the
   # investigation graph shows it as a downstream child, not an unlinked seed.
   prerequisites:
-    - study: ftu-model-coverage
-      relation: leads-to
-    - study: glucose-regulation
-      relation: leads-to
+  - study: ftu-model-coverage
+    relation: leads-to
+  - study: glucose-regulation
+    relation: builds-on
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      Binding the documented healthy islet composition (54% beta) to
-      Topp2000's initial beta-cell mass reproduces the model's own default
-      (b_ref=37) and the model settles at its physiological fixed point
-      (glucose ~100 mg/dL over 4,000 model-days). Binding the documented
-      T2D-relevant beta-depleted composition (30% beta) scales the initial
-      mass down to ~20.56 and the identical model crosses Topp2000's
-      beta-cell-mass bifurcation into its pathological fixed point (glucose
-      ~600 mg/dL, beta-cell mass and insulin collapsing toward 0) -- the
-      CTpop composition mechanistically shifts which of the model's two
-      stable regimes the glucose trajectory lands in, not merely its
-      numeric value.
-    evidence:
-      summary: "healthy (beta=0.54, b_init=37=b_ref): G 250->100.0, B 37->300.0, I 2.8->10.0 (physiological fixed point). beta_depleted (beta=0.30, b_init=20.56): G 250->600.0, B 20.56->~0, I 2.8->~0 (pathological fixed point) -- same model, same 4,000-model-day horizon, differing only in the CTpop-composition-bound initial beta-cell mass."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    Binding the documented healthy islet composition (54% beta) to
+    Topp2000's initial beta-cell mass reproduces the model's own default
+    (b_ref=37) and the model settles at its physiological fixed point
+    (glucose ~100 mg/dL over 4,000 model-days). Binding the documented
+    T2D-relevant beta-depleted composition (30% beta) scales the initial
+    mass down to ~20.56 and the identical model crosses Topp2000's
+    beta-cell-mass bifurcation into its pathological fixed point (glucose
+    ~600 mg/dL, beta-cell mass and insulin collapsing toward 0) -- the
+    CTpop composition mechanistically shifts which of the model's two
+    stable regimes the glucose trajectory lands in, not merely its
+    numeric value.
+  evidence:
+    summary: "healthy (beta=0.54, b_init=37=b_ref): G 250->100.0, B 37->300.0, I 2.8->10.0 (physiological fixed point). beta_depleted (beta=0.30, b_init=20.56): G 250->600.0, B 20.56->~0, I 2.8->~0 (pathological fixed point) -- same model, same 4,000-model-day horizon, differing only in the CTpop-composition-bound initial beta-cell mass."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -159,29 +169,113 @@ conclusion_verdicts:
     basis: "F-01 directly answers the study question -- yes, binding CTpop islet composition to Topp2000 changes the predicted glucose regulation, and dramatically: it flips which of the model's two stable fixed points (physiological vs. pathological/diabetic) the trajectory settles into, realizing the RUI -> CTpop -> model parameterization vision for a real, covered FTU model rather than merely stubbing which parameters would be involved."
 
 limitations:
-  - "`ISLET_COMPOSITION` is documented literature/HRA-ASCT+B composition (Cabrera et al. 2006 PNAS; Brissova et al. 2005), not a live HRA CTpop API pull for a specific RUI-registered tissue block -- a live CTpop endpoint is not (as of this writing) publicly exposed as JSON."
-  - "Binding is initial-mass only: only the beta-cell fraction enters the Topp2000 model, and only as the initial condition for B, not as a rate/kinetic parameter -- alpha and delta fractions are identified (`ISLET_COMPOSITION`) but not bound to any Topp2000 parameter (the model has no glucagon/somatostatin compartment to bind them to)."
-  - "The 30% beta-depleted scenario is a single illustrative T2D-relevant composition point, not a distribution over real measured islets -- the exact glucose/insulin/beta-mass endpoints (600 / ~0 / ~0) are specific to this one fraction and this one model's parameterization, not a general dose-response curve."
+- "`ISLET_COMPOSITION` is documented literature/HRA-ASCT+B composition (Cabrera et al. 2006 PNAS; Brissova et al. 2005), not a live HRA CTpop API pull for a specific RUI-registered tissue block -- a live CTpop endpoint is not (as of this writing) publicly exposed as JSON."
+- "Binding is initial-mass only: only the beta-cell fraction enters the Topp2000 model, and only as the initial condition for B, not as a rate/kinetic parameter -- alpha and delta fractions are identified (`ISLET_COMPOSITION`) but not bound to any Topp2000 parameter (the model has no glucagon/somatostatin compartment to bind them to)."
+- "The 30% beta-depleted scenario is a single illustrative T2D-relevant composition point, not a distribution over real measured islets -- the exact glucose/insulin/beta-mass endpoints (600 / ~0 / ~0) are specific to this one fraction and this one model's parameterization, not a general dose-response curve."
 
 discovery_implications:
   resolved_uncertainties:
-    - "CTpop islet composition, bound as an initial-condition parameter (beta-cell mass), does mechanistically change Topp2000's predicted glucose regulation -- realizing (for one covered FTU model and one composition-to-parameter binding) the RUI -> CTpop -> model parameterization vision `ftu-model-coverage`'s `ctpop_parameter_stub` only stubbed."
-    - "The composition shift from healthy (54% beta) to T2D-relevant beta-depleted (30% beta) composition is large enough, in this model's parameterization, to cross a real bifurcation between the model's physiological and pathological fixed points -- not just perturb a number within one regime."
+  - "CTpop islet composition, bound as an initial-condition parameter (beta-cell mass), does mechanistically change Topp2000's predicted glucose regulation -- realizing (for one covered FTU model and one composition-to-parameter binding) the RUI -> CTpop -> model parameterization vision `ftu-model-coverage`'s `ctpop_parameter_stub` only stubbed."
+  - "The composition shift from healthy (54% beta) to T2D-relevant beta-depleted (30% beta) composition is large enough, in this model's parameterization, to cross a real bifurcation between the model's physiological and pathological fixed points -- not just perturb a number within one regime."
   remaining_uncertainties:
-    - "Does a LIVE HRA CTpop count (for a specific RUI-registered islet tissue block) differ materially from the documented literature-average composition used here, and if so, in which direction?"
-    - "Should alpha/delta cell fractions bind to separate Topp2000-family or extended-model parameters (e.g. a glucagon-secretion term), rather than folding all islet composition information into the single beta-cell-mass initial condition?"
+  - "Does a LIVE HRA CTpop count (for a specific RUI-registered islet tissue block) differ materially from the documented literature-average composition used here, and if so, in which direction?"
+  - "Should alpha/delta cell fractions bind to separate Topp2000-family or extended-model parameters (e.g. a glucagon-secretion term), rather than folding all islet composition information into the single beta-cell-mass initial condition?"
   followup_study_proposals:
-    - id: fp-ctpop-live-islet-binding
-      title: "Bind a LIVE HRA CTpop islet cell count (not documented literature values) to Topp2000"
-      motivation: "This study proves the mechanism (composition -> beta-cell mass -> glucose regime) using documented literature composition; a live per-tissue-block CTpop count would let a specific RUI-registered islet be parameterized against its own measured composition rather than a population average."
-      study_type: mechanistic
-      proposed_experiment: "When/if a live HRA CTpop JSON endpoint becomes available for a RUI-registered pancreatic-islet tissue block, fetch its real beta/alpha/delta-cell counts, compute the beta fraction from the real counts (not the documented 0.54/0.34/0.10/0.02 split), and re-run `compare_islet_compositions` with that live fraction in place of the documented one."
-      expected_information_gain: high
-      source_trigger: ctpop-islet-parameterization
-    - id: fp-ctpop-multi-parameter-islet-binding
-      title: "Bind alpha/delta CTpop fractions to per-cell-type Topp-family model parameters"
-      motivation: "This study binds only the beta fraction (to initial beta-cell mass); a fuller CTpop -> model parameterization would also bind alpha/delta fractions to whichever islet-model parameters they mechanistically govern (e.g. a glucagon-secretion-capable extended model)."
-      study_type: mechanistic
-      proposed_experiment: "Identify or build an islet model with explicit alpha/delta-cell-mediated terms (e.g. glucagon counter-regulation), and bind CTpop alpha/delta fractions to those terms alongside the existing beta -> B binding, then compare against the beta-only binding used here."
-      expected_information_gain: medium
-      source_trigger: ctpop-islet-parameterization
+  - id: fp-ctpop-live-islet-binding
+    title: "Bind a LIVE HRA CTpop islet cell count (not documented literature values) to Topp2000"
+    motivation: "This study proves the mechanism (composition -> beta-cell mass -> glucose regime) using documented literature composition; a live per-tissue-block CTpop count would let a specific RUI-registered islet be parameterized against its own measured composition rather than a population average."
+    study_type: mechanistic
+    proposed_experiment: "When/if a live HRA CTpop JSON endpoint becomes available for a RUI-registered pancreatic-islet tissue block, fetch its real beta/alpha/delta-cell counts, compute the beta fraction from the real counts (not the documented 0.54/0.34/0.10/0.02 split), and re-run `compare_islet_compositions` with that live fraction in place of the documented one."
+    expected_information_gain: high
+    source_trigger: ctpop-islet-parameterization
+  - id: fp-ctpop-multi-parameter-islet-binding
+    title: "Bind alpha/delta CTpop fractions to per-cell-type Topp-family model parameters"
+    motivation: "This study binds only the beta fraction (to initial beta-cell mass); a fuller CTpop -> model parameterization would also bind alpha/delta fractions to whichever islet-model parameters they mechanistically govern (e.g. a glucagon-secretion-capable extended model)."
+    study_type: mechanistic
+    proposed_experiment: "Identify or build an islet model with explicit alpha/delta-cell-mediated terms (e.g. glucagon counter-regulation), and bind CTpop alpha/delta fractions to those terms alongside the existing beta -> B binding, then compare against the beta-only binding used here."
+    expected_information_gain: medium
+    source_trigger: ctpop-islet-parameterization
+
+assumptions:
+- "Proportional initial-mass rescaling B_init = b_ref * (beta_fraction / 0.54) is a defensible binding of a CTpop beta-cell fraction to Topp2000's single beta-cell-mass compartment, with b_ref read from the SBML rather than hardcoded."
+- "ISLET_COMPOSITION is a documented literature/HRA-ASCT+B population average (beta 54% / alpha 34% / delta 10% / PP-epsilon ~2%), used as a stand-in because a live HRA CTpop JSON endpoint is not publicly exposed as of this writing."
+- "Only the beta fraction maps to a model parameter (initial B); alpha/delta fractions are identified but have no Topp2000 parameter to bind to (the model has no glucagon/somatostatin compartment)."
+- "The Topp2000 model runs on a DAYS timescale, so 4,000 model-time-units (~11 years) is long enough for its slow beta-cell-mass compartment to reach a new steady state."
+
+behavior_tests:
+- name: healthy_islet_physiological_fixed_point
+  gate_class: acceptance_criterion
+  observable: "runs.healthy.{time,B,G,I}"
+  description: |
+    The healthy islet composition (54% beta, b_init = b_ref = 37) settles
+    the Topp2000 model at its physiological fixed point over 4,000
+    model-days.
+  expectation: |
+    runs.healthy: glucose G falls from 250 to ~100 mg/dL, beta-cell mass B
+    grows from 37 to ~300, insulin I rises from 2.8 to ~10 -- the model's
+    normal-fasting-range stable state.
+- name: beta_depleted_crosses_bifurcation
+  gate_class: acceptance_criterion
+  observable: "runs.beta_depleted.{time,B,G,I}"
+  description: |
+    The T2D-relevant beta-depleted composition (30% beta,
+    b_init = 37 * 0.30 / 0.54 ~ 20.56) drives the SAME model across
+    Topp2000's bifurcation into its pathological fixed point.
+  expectation: |
+    runs.beta_depleted: glucose G rises from 250 to ~600 mg/dL (severe
+    hyperglycemia) while beta-cell mass B (from 20.56) and insulin I collapse
+    toward 0 -- the opposite stable regime from the healthy run.
+- name: binding_is_nonhardcoded
+  gate_class: acceptance_criterion
+  observable: "runs.<scenario>.b_init / b_ref / beta_fraction"
+  description: |
+    The CTpop-fraction -> beta-cell-mass binding reads the model's own
+    default initial B out of the SBML rather than hardcoding it.
+  expectation: |
+    b_ref = 37 is read from BIOMD0000000341's SBML, and
+    b_init = b_ref * beta_fraction / 0.54 reproduces 37 exactly at the 54%
+    healthy reference fraction.
+
+literature_anchors:
+- expectation: "The Topp2000 beta-cell-mass model is fetched as a curated SBML BioModels entry (BIOMD0000000341)."
+  model_observable: "runs.<scenario>.b_ref"
+  source: "Malik-Sheriff et al. 2020 -- supports BioModels as the curated source of the model this study parameterizes."
+  cites: [MalikSheriff2020BioModels]
+- expectation: "b_ref (37) is read out of the model's own SBML declaration, so the composition binding is model-driven, not hardcoded."
+  model_observable: "runs.<scenario>.b_ref"
+  source: "Hucka et al. 2003 -- supports SBML as the machine-readable model encoding b_ref is read from."
+  cites: [Hucka2003SBML]
+- expectation: "Trajectories are integrated by Tellurium's libRoadRunner over the model's DAYS timescale."
+  model_observable: "runs.healthy.{time,B,G,I}"
+  source: "Somogyi et al. 2015 -- supports libRoadRunner as the integrator producing the trajectories."
+  cites: [Somogyi2015libRoadRunner]
+
+alternative_hypotheses:
+- id: ah-cosmetic-perturbation
+  claim: |
+    Binding CTpop composition to beta-cell mass only shifts the glucose
+    trajectory quantitatively within one regime -- a cosmetic parameter
+    nudge, not a qualitatively different physiological outcome.
+  status: excluded
+  discriminated_by: |
+    The healthy (54% beta) and beta-depleted (30% beta) runs land on two
+    QUALITATIVELY different fixed points of the same model: G ~100 mg/dL with
+    B growing to ~300 and I to ~10, versus G ~600 mg/dL with B and I both
+    collapsing toward 0. That is a bifurcation crossing between the model's
+    two documented stable regimes, not a proportional shift.
+  evidence_against:
+  - "Healthy run: G 250->100, B 37->300, I 2.8->10 (physiological fixed point)."
+  - "Beta-depleted run: G 250->600, B 20.56->~0, I 2.8->~0 (pathological fixed point) -- opposite regime, not a scaled copy of the healthy curve."
+- id: ah-initial-condition-artifact
+  claim: |
+    The hyperglycemic endpoint is an artifact of the shared initial glucose
+    (G0 = 250) or the simulation setup, not of the composition binding.
+  status: excluded
+  discriminated_by: |
+    Both scenarios start from the identical initial glucose and run the SAME
+    model over the SAME 4,000-model-day horizon; the ONLY difference is the
+    CTpop-composition-bound initial beta-cell mass (37 vs 20.56). The
+    divergent endpoints are therefore attributable to the composition binding
+    alone.
+  evidence_against:
+  - "Identical model, horizon (4,000 model-days) and G0 across both runs; only b_init (composition-bound) differs."

@@ -31,8 +31,8 @@ biological_summary: |
   resolution to a future viewer-side step.
 
 readouts:
-  - "spatial_link_summary.n_links / n_models"
-  - "per-link node_name (the GLB scene node a model's organ maps to)"
+- "spatial_link_summary.n_links / n_models"
+- "per-link node_name (the GLB scene node a model's organ maps to)"
 
 report:
   title: "Spatial Linkage — 10 model->AS->node links across 5 models, liver + pancreas"
@@ -62,39 +62,52 @@ report:
     color a single node, not both.
 
 baseline:
-  - name: baseline
-    step: local:viva_human_atlas.spatial_link.SpatialLinkStep
-    params:
-      query: "glucose regulation"
-      max_results: 25
+- name: baseline
+  step: local:viva_human_atlas.spatial_link.SpatialLinkStep
+  params:
+    query: "glucose regulation"
+    max_results: 25
 
 embed_visualizations:
-  - name: "Model->AS links per organ"
-    url: "/reports/figures/spatial-linkage/links-per-organ.html"
-    description: "Bar chart of (model, GLB-node) link counts per organ label from the live join: 10 links / 5 models, all liver or pancreas."
+- name: "Model->AS links per organ"
+  url: "/reports/figures/spatial-linkage/links-per-organ.html"
+  description: "Bar chart of (model, GLB-node) link counts per organ label from the live join: 10 links / 5 models, all liver or pancreas."
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    join-produces-links:
+      result: PARTIAL
+      observed: The Uberon-only join produces a non-empty link list -- observed 10 (model, GLB-node) links across 5 distinct biomodels (25-result glucose query).
+    two-nodes-per-model:
+      result: PARTIAL
+      observed: Every linked model maps to exactly 2 GLB scene nodes (one per sex GLB) -- observed 2 links/model, all liver or pancreas, confirming the join is deterministic and reproducible.
+    readout-is-placeholder:
+      result: PARTIAL
+      observed: The per-link readout field is a literal placeholder string ('pending time-series') for all 10 links in v1 -- NO simulation output is wired to a node yet, so this demonstrates join topology only, not live-data linkage.
 pipeline_gate:
   gate_evaluator:
     result: needs_calibration
+  prerequisites:
+  - study: model-coverage-3d
+    relation: builds-on
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      The live Uberon-only join produces 10 (model, GLB-node) links across
-      5 distinct biomodels, with every model linking to exactly 2 nodes
-      (one per sex) -- confirming the join mechanism is deterministic and
-      reproducible from the shared organ Uberon, even though `readout` is
-      still a literal placeholder string ("pending time-series") for every
-      link in v1.
-    evidence:
-      summary: "10 links across 5 models (BIOMD0000000633 -> liver x2; MODEL2001080002, MODEL1112110004, BIOMD0000000382, BIOMD0000000372 -> pancreas x2 each); 2 links per model, one per sex."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    The live Uberon-only join produces 10 (model, GLB-node) links across
+    5 distinct biomodels, with every model linking to exactly 2 nodes
+    (one per sex) -- confirming the join mechanism is deterministic and
+    reproducible from the shared organ Uberon, even though `readout` is
+    still a literal placeholder string ("pending time-series") for every
+    link in v1.
+  evidence:
+    summary: "10 links across 5 models (BIOMD0000000633 -> liver x2; MODEL2001080002, MODEL1112110004, BIOMD0000000382, BIOMD0000000372 -> pancreas x2 each); 2 links per model, one per sex."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -105,20 +118,51 @@ conclusion_verdicts:
     basis: "F-01 establishes the join mechanism works reliably (10 links/5 models, Uberon-only, fully reproducible) but carries no result data yet -- model->AS->node linkage works at the topology level only."
 
 limitations:
-  - "`readout` is a literal placeholder string ('pending time-series') for every link in v1; no simulation output is wired to a node yet."
-  - "The 2-links-per-model pattern (one per sex) means a viewer must still resolve 'which sex's GLB is currently displayed' to color a single node, not both."
+- "`readout` is a literal placeholder string ('pending time-series') for every link in v1; no simulation output is wired to a node yet."
+- "The 2-links-per-model pattern (one per sex) means a viewer must still resolve 'which sex's GLB is currently displayed' to color a single node, not both."
 
 discovery_implications:
   resolved_uncertainties:
-    - "Uberon-only join reliably produces exactly 2 links per model (one per sex), confirming the join mechanism is deterministic and reproducible."
+  - "Uberon-only join reliably produces exactly 2 links per model (one per sex), confirming the join mechanism is deterministic and reproducible."
   remaining_uncertainties:
-    - "Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?"
-    - "Is Uberon-CURIE-only join precise enough, or does a real viewer need a single 'best' node resolved per model?"
+  - "Can we spatially link model RESULTS (steady-state values), not just organ presence, to a specific AS node?"
+  - "Is Uberon-CURIE-only join precise enough, or does a real viewer need a single 'best' node resolved per model?"
   followup_study_proposals:
-    - id: fp-result-driven-spatial-link
-      title: "Result-driven spatial linkage"
-      motivation: "Color AS nodes by a real model readout (steady-state concentration from the corpus dataset) instead of a placeholder string, so the 3D viewer shows results, not just coverage."
-      study_type: data-pipeline
-      proposed_experiment: "Extract steady-state species concentrations from the committed corpus COPASI/Tellurium comparison dataset and attach them as the `readout` field on each (model, AS-node) link, replacing the placeholder 'pending time-series' string; re-render the 3D viewer pack colored by that value."
-      expected_information_gain: high
-      source_trigger: spatial-linkage
+  - id: fp-result-driven-spatial-link
+    title: "Result-driven spatial linkage"
+    motivation: "Color AS nodes by a real model readout (steady-state concentration from the corpus dataset) instead of a placeholder string, so the 3D viewer shows results, not just coverage."
+    study_type: data-pipeline
+    proposed_experiment: "Extract steady-state species concentrations from the committed corpus COPASI/Tellurium comparison dataset and attach them as the `readout` field on each (model, AS-node) link, replacing the placeholder 'pending time-series' string; re-render the 3D viewer pack colored by that value."
+    expected_information_gain: high
+    source_trigger: spatial-linkage
+
+behavior_tests:
+- name: join-produces-links
+  gate_class: regression_pin
+  description: The Uberon-only join produces a non-empty link list -- observed 10 (model, GLB-node) links across 5 distinct biomodels (25-result glucose query).
+- name: two-nodes-per-model
+  gate_class: regression_pin
+  description: Every linked model maps to exactly 2 GLB scene nodes (one per sex GLB) -- observed 2 links/model, all liver or pancreas, confirming the join is deterministic and reproducible.
+- name: readout-is-placeholder
+  gate_class: regression_pin
+  description: The per-link readout field is a literal placeholder string ('pending time-series') for all 10 links in v1 -- NO simulation output is wired to a node yet, so this demonstrates join topology only, not live-data linkage.
+
+assumptions:
+- 'The join is Uberon-CURIE-only: a model''s organ links to every crosswalk node sharing that Uberon, so one organ annotation legitimately links to 2 sex-split GLB nodes (no single ''best'' node is resolved in v1).'
+- readout carries no model result in v1 -- it is a placeholder string, so the study establishes the (model -> AS -> GLB node) topology only.
+
+literature_anchors:
+- expectation: A model's organ annotation can be joined to the specific ASCT+B-3D GLB scene node(s) the HRA keys to the same Uberon.
+  model_observable: per-link node_name on shared Uberon CURIE
+  source: HRA ASCT+B-3D crosswalk / Uberon keying
+  status_in_workspace: 'confirmed: 10 links/5 models, Uberon-only join'
+  cites:
+  - Boerner2021HRA
+
+alternative_hypotheses:
+- claim: The 2-links-per-model pattern might indicate a join bug rather than the intended per-sex GLB split.
+  discriminated_by: the two nodes per model are exactly the female/male GLBs of the same organ (VH_F/VH_M liver or pancreas), matching HRA's sex-split reference organs -- the expected behavior, not a bug.
+  status: excluded
+- claim: The links might already carry model results.
+  discriminated_by: every link's readout is the literal placeholder 'pending time-series'; wiring a real steady-state value is the fp-result-driven-spatial-link follow-up.
+  status: not-excluded

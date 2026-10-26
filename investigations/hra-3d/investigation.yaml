@@ -1,6 +1,6 @@
 schema_version: 2
 name: hra-3d
-title: "HRA-3D — Model Coverage on the Human Reference Atlas 3D Anatomy"
+title: "Act 3 · Coverage — Models on the HRA 3D Anatomy"
 created: '2026-07-26'
 status: running
 
@@ -42,13 +42,35 @@ lead: |
   the query-scoped `model-coverage-3d` study substantially undercounts real
   coverage — including missing kidney entirely.
 
+biological_story: |
+  The biology at stake is **structural coverage of the body by mechanistic
+  models**. The Human Reference Atlas decomposes anatomy into a nested hierarchy
+  — organs, their anatomical substructures (the ASCT+B tables, ~1,730
+  Uberon-keyed structures), and functional tissue units (FTUs: the smallest
+  repeating physiological units, e.g. the kidney glomerulus) — each tied to a 3D
+  GLB mesh. Mechanistic models cluster on a few well-studied organs (pancreas,
+  liver, heart) and leave most of the body unmodeled. This act crosses the
+  organ→models index from Act 2 with the 3D anatomical hierarchy to make that
+  distribution explicit: which structures have a model, where the modeling
+  white-space is, and — via the vasculature transport network — how organ models
+  could in principle be coupled through the circulation. The honest limits are
+  biological too: organ-granularity coverage marks every substructure of a
+  modeled organ as "covered" even when only part of it has direct evidence, and
+  presence of a model is not yet linkage of its *results* to a structure.
+
 executive:
   what_is_this: |
-    Builds the 3D-anatomy side of the fetch-and-compare spine: the full
-    ASCT+B-3D crosswalk and a glomerulus FTU digital object, organ-
-    granularity model coverage crossed with the biomodel-DO index at both
-    query scale and full-corpus scale, model->AS->GLB-node spatial linkage,
-    and a materialized three.js viewer pack.
+    **Act 3 of 3** in the viva-human-atlas arc — Trust → Atlas → **Coverage**.
+    Consumes Act 2's organ→models atlas and asks the payoff question: *which of
+    the HRA's anatomical structures actually have a mechanistic model, and where
+    is the modeling white-space?* Builds the 3D-anatomy side of the
+    fetch-and-compare spine: the full ASCT+B-3D crosswalk and a glomerulus FTU
+    digital object, organ-granularity model coverage crossed with the
+    biomodel-DO index at both query scale and full-corpus scale,
+    model->AS->GLB-node spatial linkage, an end-to-end reproducible build
+    pipeline (`atlas-pipeline`), a per-organ simulation pass
+    (`kidney-model-simulation`), and a materialized three.js viewer pack.
+    ← Prev: **Act 2 · Atlas** (`hra-integration`).
   verdict: |
     The crosswalk loads 2,295 AS rows (1,730 Uberon-keyed, 75.4%) across
     116 organ GLBs. A single 25-result query covers only 58/1,730 AS nodes
@@ -102,6 +124,8 @@ studies:
   - ctpop-islet-parameterization
   - blood-vasculature-network
   - hra-atlas-browser
+  - atlas-pipeline
+  - kidney-model-simulation
 
 inputs:
   references:
@@ -131,3 +155,7 @@ acceptance_criteria:
     behavior: "Crossing the full curated BioModels catalog against a curated HRA functional-tissue-unit (FTU) list by name/synonym match marks at least one FTU covered, matching Katy Boerner's question of whether existing models try to model FTUs."
   - study: hra-atlas-browser
     behavior: "The atlas manifest enumerates all GLB-backed HRA organs, colors the modeled ones by model count, and links each to its BioModels entries."
+  - study: atlas-pipeline
+    behavior: "The end-to-end atlas build runs as a single registered composite from external model repositories + HRA services through to the organ->models catalog, reproducibly and without hidden manual steps."
+  - study: kidney-model-simulation
+    behavior: "Every atlas-mapped kidney model is pulled and loaded into its compatible simulator (SBML under COPASI/Tellurium, CellML under its engine), and each model's run outcome (ran / failed-to-load, with cause) is reported — turning an organ's coverage count into actually-executable models."

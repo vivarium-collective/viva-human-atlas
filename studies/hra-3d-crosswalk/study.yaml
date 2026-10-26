@@ -36,9 +36,9 @@ biological_summary: |
   coverage can ever be reported.
 
 readouts:
-  - "count of anatomical-structure rows loaded"
-  - "fraction of rows with a resolvable UBERON: CURIE (vs organizational/empty)"
-  - "count of distinct source-organ GLBs referenced"
+- "count of anatomical-structure rows loaded"
+- "fraction of rows with a resolvable UBERON: CURIE (vs organizational/empty)"
+- "count of distinct source-organ GLBs referenced"
 
 report:
   title: "HRA 3D Crosswalk — full ASCT+B-3D anatomical-structure tree loads"
@@ -69,38 +69,48 @@ report:
     ceiling, not a bug.
 
 baseline:
-  - name: baseline
-    step: local:viva_human_atlas.hra_api.HRACrosswalkStep
-    params:
-      url: "https://cdn.humanatlas.io/digital-objects/ref-organ/asct-b-3d-models-crosswalk/latest/assets/asct-b-3d-models-crosswalk.csv"
+- name: baseline
+  step: local:viva_human_atlas.hra_api.HRACrosswalkStep
+  params:
+    url: "https://cdn.humanatlas.io/digital-objects/ref-organ/asct-b-3d-models-crosswalk/latest/assets/asct-b-3d-models-crosswalk.csv"
 
 embed_visualizations:
-  - name: "AS nodes per organ"
-    url: "/reports/figures/hra-3d-crosswalk/as-per-organ.html"
-    description: "Bar chart of anatomical-structure node counts per source-organ GLB (top 20 of 116 organs) from the live crosswalk fetch: 2,295 rows total, 1,730 with a resolvable Uberon CURIE."
+- name: "AS nodes per organ"
+  url: "/reports/figures/hra-3d-crosswalk/as-per-organ.html"
+  description: "Bar chart of anatomical-structure node counts per source-organ GLB (top 20 of 116 organs) from the live crosswalk fetch: 2,295 rows total, 1,730 with a resolvable Uberon CURIE."
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    crosswalk-loads-full-tree:
+      result: PASS
+      observed: The live ASCT+B-3D crosswalk fetch loads >=2,000 anatomical-structure rows (observed 2,295), well above the ~81 reference-organ GLB floor and the ~1,400+ original estimate.
+    uberon-density:
+      result: PASS
+      observed: At least 75% of loaded crosswalk rows carry a resolvable UBERON CURIE (observed 1,730/2,295 = 75.4%); the remaining organizational grouping nodes are correctly excluded from coverage.
+    organ-span:
+      result: PASS
+      observed: The crosswalk spans >=100 distinct source-organ GLBs (observed 116, both sexes), confirming materially finer granularity than the whole-organ reference models.
 pipeline_gate:
   gate_evaluator:
     result: passed
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure
-      rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%)
-      carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node
-      original estimate and comfortably clearing the ~81-reference-organ
-      floor -- confirming the crosswalk gives materially finer anatomical
-      granularity than the whole-organ GLBs alone.
-    evidence:
-      summary: "2,295 rows loaded, 116 source-organ GLBs; 1,730/2,295 (75.4%) UBERON-keyed (1,410 mesh + 464 surface rows); 419 organizational rows (18.3%) structurally un-keyable."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    The live ASCT+B-3D crosswalk fetch loads 2,295 anatomical-structure
+    rows spanning 116 distinct source-organ GLBs; 1,730/2,295 (75.4%)
+    carry a resolvable UBERON: CURIE, exceeding the ~1,400+ AS-node
+    original estimate and comfortably clearing the ~81-reference-organ
+    floor -- confirming the crosswalk gives materially finer anatomical
+    granularity than the whole-organ GLBs alone.
+  evidence:
+    summary: "2,295 rows loaded, 116 source-organ GLBs; 1,730/2,295 (75.4%) UBERON-keyed (1,410 mesh + 464 surface rows); 419 organizational rows (18.3%) structurally un-keyable."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -111,18 +121,56 @@ conclusion_verdicts:
     basis: "F-01 quantifies the 75.4% Uberon-density ceiling that bounds every downstream organ-granularity coverage computation (model-coverage-3d, corpus-coverage)."
 
 limitations:
-  - "The 18.3% organizational-row fraction is structurally un-keyable (pure grouping nodes, not anatomy), so downstream organ-granularity coverage can never reach 100% of raw crosswalk rows even with a complete model corpus -- a data-model ceiling, not a bug."
+- "The 18.3% organizational-row fraction is structurally un-keyable (pure grouping nodes, not anatomy), so downstream organ-granularity coverage can never reach 100% of raw crosswalk rows even with a complete model corpus -- a data-model ceiling, not a bug."
 
 discovery_implications:
   resolved_uncertainties:
-    - "The crosswalk exceeds the original ~1,400+ AS-node estimate (2,295 rows / 1,730 Uberon-keyed), confirming it gives materially finer granularity than the 81 whole-organ GLBs."
+  - "The crosswalk exceeds the original ~1,400+ AS-node estimate (2,295 rows / 1,730 Uberon-keyed), confirming it gives materially finer granularity than the 81 whole-organ GLBs."
   remaining_uncertainties:
-    - "Can the 18.3% organizational/unkeyed rows ever be resolved to Uberon, or is that a permanent ceiling on organ-granularity coverage?"
+  - "Can the 18.3% organizational/unkeyed rows ever be resolved to Uberon, or is that a permanent ceiling on organ-granularity coverage?"
   followup_study_proposals:
-    - id: fp-resolve-organizational-rows
-      title: "Resolve organizational-row Uberon gap"
-      motivation: "Attempt to Uberon-key the ~18% organizational/un-keyed crosswalk rows (or confirm the ceiling), improving the AS coverage denominator."
-      study_type: analysis
-      proposed_experiment: "For each of the 419 `organizational` crosswalk rows, check whether its `parent`/`label` or an adjacent `mesh`/`surface` sibling node resolves to a Uberon CURIE it could inherit, and report how many of the 18.3% un-keyed rows are recoverable vs a genuine structural-grouping ceiling."
-      expected_information_gain: medium
-      source_trigger: hra-3d-crosswalk
+  - id: fp-resolve-organizational-rows
+    title: "Resolve organizational-row Uberon gap"
+    motivation: "Attempt to Uberon-key the ~18% organizational/un-keyed crosswalk rows (or confirm the ceiling), improving the AS coverage denominator."
+    study_type: analysis
+    proposed_experiment: "For each of the 419 `organizational` crosswalk rows, check whether its `parent`/`label` or an adjacent `mesh`/`surface` sibling node resolves to a Uberon CURIE it could inherit, and report how many of the 18.3% un-keyed rows are recoverable vs a genuine structural-grouping ceiling."
+    expected_information_gain: medium
+    source_trigger: hra-3d-crosswalk
+
+behavior_tests:
+- name: crosswalk-loads-full-tree
+  gate_class: regression_pin
+  description: The live ASCT+B-3D crosswalk fetch loads >=2,000 anatomical-structure rows (observed 2,295), well above the ~81 reference-organ GLB floor and the ~1,400+ original estimate.
+- name: uberon-density
+  gate_class: regression_pin
+  description: At least 75% of loaded crosswalk rows carry a resolvable UBERON CURIE (observed 1,730/2,295 = 75.4%); the remaining organizational grouping nodes are correctly excluded from coverage.
+- name: organ-span
+  gate_class: regression_pin
+  description: The crosswalk spans >=100 distinct source-organ GLBs (observed 116, both sexes), confirming materially finer granularity than the whole-organ reference models.
+
+assumptions:
+- A crosswalk row is coverage-eligible only if it carries a resolvable UBERON CURIE; organizational grouping nodes (no Uberon, 18.3%) are structurally un-keyable and excluded, so organ-granularity coverage can never reach 100% of raw rows.
+- node_type in {mesh, surface} is treated as Uberon-keyable anatomy; node_type=organizational is a non-anatomical grouping node.
+- The live HRA CDN crosswalk CSV is the authoritative anatomical-structure tree; its row count and Uberon density at fetch time set the denominator for every downstream coverage computation.
+
+literature_anchors:
+- expectation: The HRA cuts whole-organ reference models into per-anatomical-structure nodes keyed to Uberon.
+  model_observable: fraction of crosswalk rows with a resolvable UBERON CURIE
+  source: HRA anatomical-structure / Uberon design
+  status_in_workspace: 'confirmed: 1,730/2,295 (75.4%) rows Uberon-keyed'
+  cites:
+  - Boerner2021HRA
+- expectation: Uberon supplies the integrative multi-species anatomy CURIEs the crosswalk keys structures to.
+  model_observable: 'resolvability of each row''s UBERON: CURIE'
+  source: Uberon anatomy ontology
+  status_in_workspace: 'confirmed: Uberon CURIEs resolve for the mesh/surface rows'
+  cites:
+  - Mungall2012Uberon
+
+alternative_hypotheses:
+- claim: The crosswalk might be no finer than the ~81 whole-organ reference GLBs, adding no sub-organ granularity.
+  discriminated_by: the live fetch loads 2,295 AS rows across 116 organ GLBs (~20x more nodes than organs), so the crosswalk is materially finer than whole-organ granularity.
+  status: excluded
+- claim: The 18.3% organizational (un-keyed) rows might be recoverable to Uberon, i.e. not a real ceiling.
+  discriminated_by: not tested here; whether parent/sibling inheritance could key them is the fp-resolve-organizational-rows follow-up.
+  status: untested

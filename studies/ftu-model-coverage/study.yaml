@@ -50,10 +50,10 @@ biological_summary: |
   parameterization targets; it does not yet bind a real CTpop count.
 
 readouts:
-  - "ftu_coverage_summary.n_ftus / n_ftus_covered (curated-FTU-list granularity)"
-  - "ftu_coverage[].n_models / model_ids per FTU"
-  - "ftu_coverage_summary.n_models_matched (distinct corpus models matched to at least one FTU)"
-  - "ctpop_parameter_stub(ftu).cell_types (candidate CTpop-parameterizable inputs for a covered FTU)"
+- "ftu_coverage_summary.n_ftus / n_ftus_covered (curated-FTU-list granularity)"
+- "ftu_coverage[].n_models / model_ids per FTU"
+- "ftu_coverage_summary.n_models_matched (distinct corpus models matched to at least one FTU)"
+- "ctpop_parameter_stub(ftu).cell_types (candidate CTpop-parameterizable inputs for a covered FTU)"
 
 report:
   title: "FTU Model Coverage — 5/11 curated FTUs covered (13 models); islet/crypt/cardiac-muscle best-covered"
@@ -99,43 +99,58 @@ report:
     is `needs_calibration`.
 
 baseline:
-  - name: baseline
-    composite: viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage
-    params:
-      catalog_path: "datasets/biomodel_corpus_catalog.json"
+- name: baseline
+  composite: viva_human_atlas.composites.ftu_coverage_composite.ftu-model-coverage
+  params:
+    catalog_path: "datasets/biomodel_corpus_catalog.json"
 
 embed_visualizations:
-  - name: "Models per FTU"
-    url: "/reports/figures/ftu-model-coverage/models-per-ftu.html"
-    description: "Bar chart of curated-corpus models matched per HRA functional tissue unit: 5/11 FTUs covered (13 distinct models) -- islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 6 FTUs uncovered."
+- name: "Models per FTU"
+  url: "/reports/figures/ftu-model-coverage/models-per-ftu.html"
+  description: "Bar chart of curated-corpus models matched per HRA functional tissue unit: 5/11 FTUs covered (13 distinct models) -- islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 6 FTUs uncovered."
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    ftus-covered:
+      result: PARTIAL
+      observed: Crossing the committed corpus against the curated 11-FTU list by name/synonym match covers 5/11 FTUs by >=1 model -- pancreatic islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 13 distinct models total.
+    ftu-whitespace:
+      result: PARTIAL
+      observed: 6/11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero corpus models at this granularity -- a real modeling white-space, honestly reported.
+    ctpop-seam-is-stub:
+      result: PARTIAL
+      observed: ctpop_parameter_stub identifies a covered FTU's candidate CTpop-parameterizable cell types (islet beta/alpha/delta, CL:0000169/0171/0173) but binds NO real cell-type count to any model parameter -- the seam is stubbed, not implemented.
 pipeline_gate:
   gate_evaluator:
     result: needs_calibration
+  prerequisites:
+  - study: corpus-coverage
+    relation: builds-on
+  - study: ftu-glomerulus
+    relation: builds-on
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      Crossing the full 1,096-model curated BioModels corpus against a
-      curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
-      (45.5%), matching 13 distinct models: pancreatic islet of Langerhans
-      (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
-      Colon Crypt cycle versions), cardiac muscle/myocardium unit (3
-      models, SPARC-heart-relevant), liver lobule (2 models), and skin
-      epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney
-      nephron, lung alveolus, small-intestine crypt-villus axis, ovarian
-      follicle, lymph node follicle) match zero models -- existing
-      BioModels do already model several HRA FTUs, but real modeling
-      white-space remains for the rest.
-    evidence:
-      summary: "5/11 FTUs covered (45.5%), 13 distinct models matched: islet=3 (Jiang2007, Bertram2007, Wierschem2004), colon crypt=4 (Smallbone2013 v0-v3), cardiac muscle=3 (Cooling2007, McDougal2017, Zhou2024), liver lobule=2, skin epidermis=1; 0 for glomerulus/nephron/alveolus/villus/ovarian follicle/lymph node follicle."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    Crossing the full 1,096-model curated BioModels corpus against a
+    curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
+    (45.5%), matching 13 distinct models: pancreatic islet of Langerhans
+    (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
+    Colon Crypt cycle versions), cardiac muscle/myocardium unit (3
+    models, SPARC-heart-relevant), liver lobule (2 models), and skin
+    epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney
+    nephron, lung alveolus, small-intestine crypt-villus axis, ovarian
+    follicle, lymph node follicle) match zero models -- existing
+    BioModels do already model several HRA FTUs, but real modeling
+    white-space remains for the rest.
+  evidence:
+    summary: "5/11 FTUs covered (45.5%), 13 distinct models matched: islet=3 (Jiang2007, Bertram2007, Wierschem2004), colon crypt=4 (Smallbone2013 v0-v3), cardiac muscle=3 (Cooling2007, McDougal2017, Zhou2024), liver lobule=2, skin epidermis=1; 0 for glomerulus/nephron/alveolus/villus/ovarian follicle/lymph node follicle."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -146,23 +161,55 @@ conclusion_verdicts:
     basis: "F-01 directly answers Katy Boerner's question -- yes, existing BioModels do model several HRA FTUs already (5/11, 13 models) -- while also enumerating the six FTUs with zero current coverage, the study's central interpretive claim."
 
 limitations:
-  - "Coverage is name/synonym substring matching against the catalog's `name` field only -- no per-model FTU annotation or model-equation inspection, so both false negatives (FTU-scale models whose title omits the synonym) and false positives (incidental name matches) are possible and unchecked."
-  - "The CTpop parameterization seam (`ctpop_parameter_stub`) is a v1 stub: it identifies which of an FTU's cell types are candidate CTpop-parameterizable inputs, it does not bind any real per-structure CTpop cell-type count to a specific model parameter."
-  - "The curated 11-FTU list (`HRA_FTUS`) is hand-curated, not pulled live from an HRA FTU digital-object registry -- it may omit FTUs the HRA itself catalogs."
+- "Coverage is name/synonym substring matching against the catalog's `name` field only -- no per-model FTU annotation or model-equation inspection, so both false negatives (FTU-scale models whose title omits the synonym) and false positives (incidental name matches) are possible and unchecked."
+- "The CTpop parameterization seam (`ctpop_parameter_stub`) is a v1 stub: it identifies which of an FTU's cell types are candidate CTpop-parameterizable inputs, it does not bind any real per-structure CTpop cell-type count to a specific model parameter."
+- "The curated 11-FTU list (`HRA_FTUS`) is hand-curated, not pulled live from an HRA FTU digital-object registry -- it may omit FTUs the HRA itself catalogs."
 
 discovery_implications:
   resolved_uncertainties:
-    - "Existing BioModels do already model several HRA FTUs at real, named-model granularity -- pancreatic islet (3), colon crypt (4), cardiac muscle/myocardium (3), liver lobule (2), skin epidermis (1) -- directly answering Katy Boerner's question in the affirmative for these five."
-    - "The islet's characteristic cell types (beta/alpha/delta, CL:0000169/0171/0173) are identifiable as candidate CTpop-parameterizable inputs for the covered islet models, confirming the RUI -> CTpop -> model parameterization seam is at least well-defined for a covered FTU."
+  - "Existing BioModels do already model several HRA FTUs at real, named-model granularity -- pancreatic islet (3), colon crypt (4), cardiac muscle/myocardium (3), liver lobule (2), skin epidermis (1) -- directly answering Katy Boerner's question in the affirmative for these five."
+  - "The islet's characteristic cell types (beta/alpha/delta, CL:0000169/0171/0173) are identifiable as candidate CTpop-parameterizable inputs for the covered islet models, confirming the RUI -> CTpop -> model parameterization seam is at least well-defined for a covered FTU."
   remaining_uncertainties:
-    - "Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) have zero matching models at this granularity -- is that a real modeling gap, or a name-matching recall failure?"
-    - "Does binding a REAL HRA CTpop cell-type count (not just identifying candidate cell types) to the Topp2000/Jiang2007/Bertram2007 islet models' beta-cell-mass parameters materially change their calibration?"
+  - "Six FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) have zero matching models at this granularity -- is that a real modeling gap, or a name-matching recall failure?"
+  - "Does binding a REAL HRA CTpop cell-type count (not just identifying candidate cell types) to the Topp2000/Jiang2007/Bertram2007 islet models' beta-cell-mass parameters materially change their calibration?"
   followup_study_proposals:
-    - id: fp-ctpop-parameterize-islet
-      title: "Bind HRA CTpop islet cell counts to the islet-model parameters"
-      motivation: "ctpop_parameter_stub identifies the islet's beta/alpha/delta cell types as candidate CTpop-parameterizable inputs but binds no real count; a real RUI-registered islet's measured cell-type proportions would let the Topp2000/Jiang2007/Bertram2007 islet models be re-parameterized against actual measured tissue composition rather than literature-default beta-cell-mass values."
-      study_type: mechanistic
-      proposed_experiment: "Fetch a real HRA CTpop result for a RUI-registered pancreatic-islet tissue block (per-anatomical-structure beta/alpha/delta-cell counts/proportions), map those counts onto the Topp2000/Jiang2007/Bertram2007 islet models' beta-cell-mass (or equivalent cell-population) parameters, and compare simulated output against the models' literature-default parameterization."
-      expected_information_gain: high
-      source_trigger: ftu-model-coverage
-      seeded_study: ctpop-islet-parameterization
+  - id: fp-ctpop-parameterize-islet
+    title: "Bind HRA CTpop islet cell counts to the islet-model parameters"
+    motivation: "ctpop_parameter_stub identifies the islet's beta/alpha/delta cell types as candidate CTpop-parameterizable inputs but binds no real count; a real RUI-registered islet's measured cell-type proportions would let the Topp2000/Jiang2007/Bertram2007 islet models be re-parameterized against actual measured tissue composition rather than literature-default beta-cell-mass values."
+    study_type: mechanistic
+    proposed_experiment: "Fetch a real HRA CTpop result for a RUI-registered pancreatic-islet tissue block (per-anatomical-structure beta/alpha/delta-cell counts/proportions), map those counts onto the Topp2000/Jiang2007/Bertram2007 islet models' beta-cell-mass (or equivalent cell-population) parameters, and compare simulated output against the models' literature-default parameterization."
+    expected_information_gain: high
+    source_trigger: ftu-model-coverage
+    seeded_study: ctpop-islet-parameterization
+
+behavior_tests:
+- name: ftus-covered
+  gate_class: regression_pin
+  description: Crossing the committed corpus against the curated 11-FTU list by name/synonym match covers 5/11 FTUs by >=1 model -- pancreatic islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 13 distinct models total.
+- name: ftu-whitespace
+  gate_class: regression_pin
+  description: 6/11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero corpus models at this granularity -- a real modeling white-space, honestly reported.
+- name: ctpop-seam-is-stub
+  gate_class: regression_pin
+  description: ctpop_parameter_stub identifies a covered FTU's candidate CTpop-parameterizable cell types (islet beta/alpha/delta, CL:0000169/0171/0173) but binds NO real cell-type count to any model parameter -- the seam is stubbed, not implemented.
+
+assumptions:
+- FTU coverage is name/synonym substring matching against each biomodel-DO's name field only -- no per-model FTU annotation or model-equation inspection, so both false negatives and false positives are possible.
+- The curated 11-FTU list (HRA_FTUS) is hand-curated, not pulled from a live HRA FTU registry, so it may omit FTUs the HRA catalogs.
+- 'The CTpop parameterization seam is a v1 stub: it names candidate cell-type parameters, it does not bind a measured CTpop count, so the study is gated needs_calibration.'
+
+literature_anchors:
+- expectation: Existing mechanistic models should already target some HRA functional tissue units (Katy Boerner's question).
+  model_observable: ftu_coverage_summary.n_ftus_covered / n_models_matched over the 11-FTU list
+  source: HRA functional tissue units
+  status_in_workspace: confirmed for 5/11 FTUs (13 models); 6/11 uncovered
+  cites:
+  - Bidanta2025FTU
+
+alternative_hypotheses:
+- claim: The 6 zero-coverage FTUs might have models the name-match simply misses (recall failure), not a real modeling gap.
+  discriminated_by: not resolved here -- name/synonym matching cannot distinguish a true gap from a recall miss without per-model FTU annotation or equation inspection (the study's stated limitation).
+  status: not-excluded
+- claim: A covered FTU's models might already be CTpop-parameterized.
+  discriminated_by: the CTpop seam is an explicit v1 stub binding no real count; whether a real CTpop count changes calibration is the fp-ctpop-parameterize-islet follow-up (seeded ctpop-islet-parameterization).
+  status: untested

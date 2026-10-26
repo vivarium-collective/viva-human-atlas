@@ -1,6 +1,6 @@
 schema_version: 2
 name: hra-integration
-title: "HRA API Integration — Datasets, Ontology, and BioModel Digital Objects"
+title: "Act 2 · Atlas — Mapping Models to HRA Anatomy"
 created: '2026-07-26'
 status: running
 
@@ -45,10 +45,28 @@ lead: |
   (transparent organ gap-filling for biomodel annotation, now with a visible
   endpoint in the Atlas Browser); see references/sources/dynxr-proposal.md.
 
+biological_story: |
+  The biological problem here is **anatomical grounding**: a BioModel is a set of
+  species and reactions, but it says nothing explicit about *where in the body*
+  its biology lives. The Human Reference Atlas (HRA) provides the anatomical
+  coordinate system — reference organs keyed to Uberon terms, cell types keyed to
+  the Cell Ontology, and anatomical structures — against which a model can be
+  placed. Two biological signals let a model be located: its **name** (a title
+  like "hepatic glucose metabolism" names the liver) and its **curated
+  annotations** (SBML MIRIAM CVTerms and BTO/Uberon/FMA ids the model's authors
+  attached to species and compartments). Name-synonym matching is shallow but
+  precise; annotation matching reads the modeler's own ontology metadata and
+  reaches organs the title never mentions. The mechanism this act builds is the
+  bridge from a model's intrinsic biological description to an HRA organ — the
+  same organ→models index the 3D coverage atlas in Act 3 is built on.
+
 executive:
   what_is_this: |
-    Builds the HRA (Human Reference Atlas) side of the fetch-and-compare
-    spine, then closes the loop into the Atlas Browser: a thin CCF-API
+    **Act 2 of 3** in the viva-human-atlas arc — Trust → **Atlas** → Coverage.
+    Takes the trustworthy models from Act 1 and gives each one an anatomical
+    address. Builds the HRA (Human Reference Atlas) side of the
+    fetch-and-compare spine, then closes the loop into the Atlas Browser: a
+    thin CCF-API
     client (reference organs, cell-type terms, anatomical-structure terms);
     a biomodel Digital Object annotation layer with two complementary organ
     matchers — name-synonym matching over BioModels titles, and
@@ -58,6 +76,7 @@ executive:
     (`studies/hra-atlas-browser/viz/atlas/`) that renders the resulting
     organ->models index as an interactive 3D atlas a user can actually see
     biomodels attached to.
+    ← Prev: **Act 1 · Model Trust** (`glucose-regulation`) · → Next: **Act 3 · Coverage** (`hra-3d`).
   verdict: |
     All three HRA CCF endpoints load real, non-empty, correctly-shaped
     data (81 reference organs 69/81 Uberon-keyed, 149 CL terms, 288
