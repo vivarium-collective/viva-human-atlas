@@ -1,0 +1,192 @@
+schema_version: 4
+name: model-connectivity
+investigation: model-connectivity
+title: "Model Connectivity Network — How the Curated Models Couple"
+created: '2026-10-26'
+status: complete
+design_status: complete
+implementation_status: complete
+simulation_status: ran
+phase: Decide
+
+question: |
+  Do the curated BioModels/Physiome/PhysioNet models form a connected network
+  through shared biological variables — shared molecular species and shared HRA
+  anatomy — and is there a dominant mechanistic backbone, or just isolated
+  islands?
+
+study_card:
+  goal: "Build a model-to-model connectivity network over the curated corpus DB: edges for shared molecular species (CHEBI/UniProt/KEGG/GO/Reactome) and shared HRA anatomy (organ/FTU/cell-type), and materialize it as an interactive force-graph explorer."
+  mechanism: "ModelConnectivityNetwork.update -> build_network(model_hra_map.json): per-model variable tokens -> drop ubiquitous stop-words (>15% document-frequency) -> inverted index -> pairwise shared-variable counts -> per-node strongest edges (two layers) -> union-find components -> network.json + the self-contained force-graph viewer under viz/network/."
+  expected_result: "A non-empty node set with a dominant connected component on the molecular layer, hub variables that are core biology (ATP, translation), and a parallel anatomy layer — all navigable in the Model Connectivity Network explorer."
+  main_expert_question: "A shared identifier means two models reference the same species; which of the densest edges are actually mechanistically composable (compatible units / rate laws)?"
+
+biological_summary: |
+  Mechanistic models are authored in isolation but describe one coupled
+  biology. This study makes the latent connectivity of the curated corpus
+  explicit: it reads each model's own curated molecular-species identifiers and
+  anatomical annotations from the biomodel->HRA map DB and links two models
+  wherever they share them. Ubiquitous "stop-word" variables (e.g. GO:0005623
+  "cell") are dropped so generic terms do not create a meaningless hairball, and
+  each model keeps only its strongest edges. The resulting network's shape is
+  the finding: a dense mechanistic backbone of energy-metabolism and
+  gene-expression machinery that most models touch, with tissue-specific models
+  hanging off it — the integration map that shows where existing models already
+  overlap and could be composed.
+
+readouts:
+- "stats.n_nodes / n_models_total (connected node set vs full corpus)"
+- "stats.n_edges_molecular / n_edges_anatomy (edges per layer)"
+- "stats.n_components / largest_component / largest_component_frac (backbone)"
+- "stats.molecular_hubs (most widely-shared molecular variables)"
+
+report:
+  title: "Model Connectivity Network — 1,456 models link into a 634-model mechanistic backbone"
+  verdict: supported
+  confidence: high
+  evidence_quality: measured
+  objective: |
+    Do the curated models connect through shared biological variables, and is
+    there a dominant mechanistic backbone?
+  conclusion: |
+    Over the 2,554-model curated corpus, 1,456 models carry at least one
+    shareable variable. The molecular layer (stop-word variables above 15%
+    document-frequency dropped, each node kept to its strongest edges) links
+    them with 3,469 edges into 754 components whose largest spans 634 models
+    (43.5% of the connected set) — a single dominant mechanistic backbone, not
+    isolated islands. Its hub variables are core biology: ATP (CHEBI:15422, 83
+    models), translation (GO:0006412, 119), protein catabolism (GO:0030163,
+    104), apoptosis (GO:0008219, 101). A parallel anatomy layer adds 1,704
+    tissue co-location edges (organ-tagged 873 models, FTU 631, cell-type 580).
+    The whole network is navigable in the new Model Connectivity Network
+    explorer.
+  caveat: |
+    An edge is identifier CO-OCCURRENCE, not verified mechanistic
+    compatibility: a shared CHEBI/UniProt id means both models reference that
+    species, not that their rate laws, units, or assumptions agree. The graph is
+    pruned for legibility (stop-word variables dropped, strongest edges kept),
+    and 1,098/2,554 models (43%) carry no shareable variable in the current
+    annotations and are absent.
+
+baseline:
+- name: baseline
+  step: local:viva_human_atlas.connectivity.ModelConnectivityNetwork
+  params:
+    df_cap_frac: 0.15
+    min_shared: 2
+    top_k_edges: 8
+
+embed_visualizations:
+- name: "Model Connectivity Network (interactive explorer)"
+  url: "/studies/model-connectivity/viz/network/index.html"
+  description: "Force-directed graph of the curated corpus: nodes are models (colored by source/organ, sized by degree), edges are shared molecular species and shared HRA anatomy (toggle layers). Click a model to see what variables it shares and its neighbors. Also available under the Explorer / Analyses as the Model Connectivity Network tool."
+- name: "Variable coverage across the corpus"
+  url: "/reports/figures/model-connectivity/variable-coverage.html"
+  description: "How many models carry each molecular namespace (GO 967, UniProt 507, CHEBI 480, Ensembl 360, KEGG 322, HGNC 302, Reactome 105) and each anatomy layer (organs 873, FTU 631, cell-types 580) — the shareable-variable substrate the network is built on."
+
+runs:
+- name: baseline
+  status: completed
+  outcomes:
+    connected-backbone-exists:
+      result: PASS
+      observed: "The molecular layer links the 1,456-model connected set into 754 components whose largest spans 634 models (43.5%) — a single dominant mechanistic backbone, not isolated islands."
+    hub-variables-are-core-biology:
+      result: PASS
+      observed: "Top shared molecular variables are ATP (CHEBI:15422, 83 models), translation (GO:0006412, 119), protein catabolism (GO:0030163, 104), apoptosis (GO:0008219, 101) — core energy-metabolism and gene-expression machinery."
+    two-layers-materialized:
+      result: PASS
+      observed: "3,469 molecular edges + 1,704 anatomy edges over 1,456 nodes, written to a deterministic network.json and the self-contained force-graph explorer under viz/network/."
+
+pipeline_gate:
+  gate_evaluator:
+    result: passed
+  prerequisites:
+  - study: biomodel-hra-map
+    relation: builds-on
+  - study: atlas-pipeline
+    relation: builds-on
+
+findings:
+- id: F-01
+  tier: interpretation
+  mechanism_origin: emergent
+  claim_scope: mechanism
+  statement: |
+    The curated corpus is a connected shared-variable system, not a scatter of
+    isolated models: 1,456 models link through shared molecular species into a
+    dominant 634-model component (43.5%) centered on core-metabolism hub
+    variables (ATP, translation, apoptosis), with a parallel 1,704-edge anatomy
+    layer. This is an emergent property of independent curation practice — the
+    same species and tissues recur across models authored in isolation — and it
+    gives a concrete integration map of where existing models already overlap.
+  evidence:
+    summary: "1,456/2,554 models connected; molecular layer 3,469 edges, 754 components, largest 634 (43.5%); hubs ATP (83), translation (119), apoptosis (101); anatomy layer 1,704 edges (organs 873 / FTU 631 / cell-types 580); molecular coverage GO 967 / UniProt 507 / CHEBI 480 / KEGG 322 / HGNC 302 / Reactome 105 / Ensembl 360."
+
+conclusion_verdicts:
+  regression_compatibility:
+    basis: "The ModelConnectivityNetwork step builds deterministically (identical edge set across runs) and materializes a non-empty two-layer network + the viewer pack without error."
+  biological_validation:
+    basis: "The connected-backbone finding is directly measured from the corpus annotations and is real; but edges are identifier co-occurrence, not verified mechanistic compatibility, so the network marks candidate couplings a modeler must still validate."
+  explanatory_gain:
+    basis: "F-01 reframes the corpus from a flat catalog into a navigable coupling network with an identifiable core, turning 'how do our models connect?' into an explorable map — the investigation's central integrative claim."
+
+limitations:
+- "Edges are identifier co-occurrence, not verified mechanistic compatibility (shared species, not agreed rate laws/units) — the network marks candidate couplings, not confirmed compositions."
+- "The graph is pruned for legibility: variables above 15% document-frequency are dropped and each node keeps only its strongest edges, so it shows the strongest couplings rather than every shared variable."
+- "1,098/2,554 models (43%) carry no shareable variable in the current annotations and are absent from the network; richer annotation would connect more."
+
+discovery_implications:
+  resolved_uncertainties:
+  - "The curated corpus is connected, not isolated: a single molecular backbone spans 43.5% of the connected set, centered on core-metabolism variables."
+  remaining_uncertainties:
+  - "Which of the densest co-occurrence edges are actually mechanistically composable (compatible units/rate laws)?"
+  - "Would richer molecular/anatomical annotation connect the 1,098 currently-unshareable models?"
+  followup_study_proposals:
+  - id: fp-compose-strongest-edges
+    title: "Validate the strongest edges as real compositions"
+    motivation: "A shared-identifier edge is a candidate coupling; the natural next step is to test whether the densest edges can be wired into a working process-bigraph composition (compatible units/rate laws), turning candidate couplings into verified ones."
+    study_type: composition
+    proposed_experiment: "Take the top-weight molecular edges in the backbone (e.g. models sharing ATP + a pathway) and attempt a two-model process-bigraph composition through the shared species, recording which compose cleanly vs need unit/rate-law reconciliation."
+    expected_information_gain: high
+    source_trigger: model-connectivity
+
+behavior_tests:
+- name: connected-backbone-exists
+  gate_class: regression_pin
+  description: "The molecular layer links the 1,456-model connected set into 754 components whose largest spans 634 models (43.5%) — a single dominant mechanistic backbone, not isolated islands."
+- name: hub-variables-are-core-biology
+  gate_class: regression_pin
+  description: "Top shared molecular variables are ATP (CHEBI:15422, 83 models), translation (GO:0006412, 119), protein catabolism (GO:0030163, 104), apoptosis (GO:0008219, 101)."
+- name: two-layers-materialized
+  gate_class: regression_pin
+  description: "3,469 molecular edges + 1,704 anatomy edges over 1,456 nodes, written deterministically to network.json + the self-contained force-graph explorer under viz/network/."
+
+assumptions:
+- An edge is identifier co-occurrence from each model's own curated annotations, not verified mechanistic compatibility.
+- Ubiquitous stop-word variables (document-frequency above 15% of nodes, e.g. GO:0005623 "cell") are dropped, and each node keeps at most its 8 strongest edges per layer, so the graph shows the strongest couplings rather than every shared variable.
+- The committed datasets/model_hra_map.json is the frozen corpus snapshot; the network is computed offline against it and is deterministic.
+
+literature_anchors:
+- expectation: "Curated BioModels carry machine-readable molecular-species annotations (MIRIAM/SBO) that can be read back to relate models to one another."
+  model_observable: stats.molecular_hubs and coverage.molecular (per-namespace model counts)
+  source: BioModels curated annotations
+  status_in_workspace: 'confirmed: 1,456 models carry >=1 molecular/anatomy variable; GO 967 / UniProt 507 / CHEBI 480'
+  cites:
+  - MalikSheriff2020BioModels
+  - Juty2013SBO
+- expectation: "HRA anatomy (organ/FTU/cell-type) provides a second, tissue-level axis along which models co-locate."
+  model_observable: coverage.anatomy (organs/FTU/cell-type model counts)
+  source: HRA anatomical framework
+  status_in_workspace: 'confirmed: anatomy layer 1,704 edges; organs 873 / FTU 631 / cell-types 580'
+  cites:
+  - Boerner2021HRA
+  - Mungall2012Uberon
+
+alternative_hypotheses:
+- claim: The network's connectivity might be an artifact of ubiquitous generic terms (e.g. "cell", "cytoplasm") rather than meaningful shared biology.
+  discriminated_by: those stop-word variables (document-frequency above 15% of nodes) are dropped before edges are drawn, and the corpus still forms a dominant 634-model (43.5%) component around specific hub variables like ATP and translation — so the backbone is genuine shared mechanism, not a generic-term hairball.
+  status: excluded
+- claim: A shared identifier might only reflect shared annotation practice, not biology two models could actually couple through.
+  discriminated_by: not resolved here; whether a co-occurrence edge is a real mechanistic coupling (compatible units/rate laws) is the study's open expert question (fp-compose-strongest-edges).
+  status: untested

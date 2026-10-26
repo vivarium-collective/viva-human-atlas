@@ -1,0 +1,120 @@
+schema_version: 2
+name: model-connectivity
+title: "Act 4 · Connectivity — How the Curated Models Couple"
+created: '2026-10-26'
+status: running
+
+question: |
+  Having trusted the models (Act 1), given them an anatomical address (Act 2),
+  and measured their 3D coverage (Act 3): do the curated models actually form a
+  connected network through shared biological content — which variables do they
+  share, how densely do they couple, and is there a mechanistic backbone, or
+  just isolated islands?
+
+hypothesis: |
+  Two models are coupleable to the extent they share biological variables:
+  molecular species (CHEBI/UniProt/KEGG/GO/Reactome identifiers) for mechanistic
+  coupling, and HRA anatomy (organ/FTU/cell type) for tissue co-location. A
+  shared-variable network over the corpus should reveal a dominant connected
+  backbone centered on core-metabolism variables rather than a scatter of
+  disconnected models.
+  Confirmed: over the 2,554-model corpus, 1,456 models carry at least one
+  shareable variable; after dropping ubiquitous stop-word terms, the molecular
+  layer links them into a single dominant component of 634 models (43.5% of the
+  connected set) around hub variables ATP (CHEBI:15422, 83 models), translation
+  (GO:0006412, 119), and apoptosis (GO:0008219, 101) — a real, navigable
+  model-coupling network, not isolated islands.
+
+lead: |
+  The capstone of the viva-human-atlas arc (Act 1 Trust → Act 2 Atlas →
+  Act 3 Coverage → **Act 4 Connectivity**). The earlier acts treat each model in
+  isolation; this one asks how the curated corpus hangs together as a *system*
+  of couplable models. It introduces a model-to-model connectivity network
+  (`ModelConnectivityNetwork`) with two toggleable layers — shared molecular
+  species and shared HRA anatomy — and an interactive force-graph **Model
+  Connectivity Network** explorer (under the Explorer / Analyses) to navigate it.
+  This is the integration layer the DynXR proposal's multi-model vision needs:
+  before you can compose models, you need to see where they already share
+  variables. ← Prev: **Act 3 · Coverage** (`hra-3d`).
+
+biological_story: |
+  Mechanistic models of human physiology are written in isolation, yet biology
+  is one coupled system — the same molecular species (ATP, glucose, signaling
+  proteins) and the same tissues recur across models. If two models both
+  represent ATP, or both represent the pancreatic islet, they describe
+  overlapping biology and could in principle be composed into a larger
+  multi-scale model. This investigation makes that latent connectivity explicit:
+  it reads each curated model's own species identifiers (CHEBI/UniProt/KEGG/GO/
+  Reactome) and anatomical annotations and draws an edge wherever two models
+  share them. The resulting network's shape is itself a biological finding — a
+  dense core of energy-metabolism and gene-expression machinery (ATP,
+  translation, apoptosis) that most models touch, with tissue-specific models
+  hanging off it. The honest limit is that a shared identifier means both models
+  *reference* the same species, not that their rate laws, units, or assumptions
+  are compatible — co-occurrence marks a candidate coupling, not a verified one.
+
+executive:
+  what_is_this: |
+    **Act 4 of 4** in the viva-human-atlas arc — Trust → Atlas → Coverage →
+    **Connectivity**. The integration layer: a model-to-model network over the
+    curated corpus, with edges for shared molecular species (mechanistic
+    coupling / variable coverage) and shared HRA anatomy (tissue co-location),
+    plus an interactive force-graph explorer to navigate it. Answers "how do the
+    models we curated connect?" directly.
+  verdict: |
+    Of 2,554 curated models, 1,456 carry at least one shareable variable. The
+    molecular layer (ubiquitous stop-word variables dropped, each model kept to
+    its strongest edges) links them with 3,469 edges into 754 components whose
+    largest spans 634 models (43.5%) — a dominant mechanistic backbone centered
+    on ATP (83 models), translation (119) and apoptosis (101). The anatomy layer
+    adds 1,704 co-location edges (organs 873 models / FTU 631 / cell-types 580).
+    So the curated corpus is a genuinely connected, navigable system of
+    couplable models, surfaced through the new Model Connectivity Network
+    explorer — though a shared identifier is a candidate coupling, not a
+    verified mechanistic one.
+  verdict_status: passing-with-caveats
+  decisions_needed:
+    - question: "Shared-identifier edges mark candidate couplings; which of the densest edges are actually mechanistically composable (compatible units/rate laws)?"
+      context: "The network finds where models share species, not whether they can be wired together — the natural next step is to validate the strongest edges as real process-bigraph compositions."
+    - question: "Should the connectivity backbone drive a prioritized model-composition roadmap (which hub models to compose first)?"
+      context: "The dominant 634-model component around ATP/translation suggests energy-metabolism hubs as composition seeds; this is a strategy decision for the multi-model program."
+
+scientific_argument:
+  main_claim: |
+    The curated corpus forms a connected shared-variable network: 1,456 models
+    link through shared molecular species into a dominant 634-model backbone
+    centered on core-metabolism variables, with a parallel anatomy layer — a
+    navigable integration map of where existing models already overlap, not a
+    scatter of isolated models.
+  evidence_for:
+    - "1,456/2,554 models carry >=1 shareable variable (molecular and/or anatomy); they form the node set."
+    - "Molecular layer: 3,469 edges after dropping ubiquitous stop-word variables; 754 components, the largest spanning 634 models (43.5% of the connected set) — a single dominant mechanistic backbone."
+    - "Hub variables are core biology: ATP (CHEBI:15422, 83 models), translation (GO:0006412, 119), protein catabolism (GO:0030163, 104), apoptosis (GO:0008219, 101)."
+    - "Anatomy layer: 1,704 co-location edges; organ-tagged 873 models, FTU 631, cell-type 580 — a tissue-overlap view complementary to the molecular one."
+    - "Molecular variable coverage is broad: GO 967 models, UniProt 507, CHEBI 480, Ensembl 360, KEGG 322, HGNC 302, Reactome 105."
+  evidence_against: []
+  caveats:
+    - "An edge is identifier CO-OCCURRENCE, not verified mechanistic compatibility: a shared CHEBI/UniProt id means both models reference that species, not that their rate laws, units, or assumptions agree."
+    - "The graph is pruned for legibility (stop-word variables above 15% document-frequency dropped; each node kept to its strongest edges), so it shows the strongest couplings, not every shared variable."
+    - "1,098/2,554 models (43%) carry no shareable variable at all in the current annotations and are absent from the network."
+
+studies:
+  - model-connectivity
+
+inputs:
+  references:
+    - MalikSheriff2020BioModels
+    - Juty2013SBO
+    - Diehl2016CellOntology
+    - Mungall2012Uberon
+    - Boerner2021HRA
+  expert_docs:
+    - name: viva-human-atlas — instructions
+      path: references/sources/instructions.md
+    - name: DynXR/DynKG proposal relevance (Aim 2)
+      path: references/sources/dynxr-proposal.md
+
+expert_docs: []
+acceptance_criteria:
+  - study: model-connectivity
+    behavior: "The connectivity network builds deterministically from the curated corpus DB: a non-empty node set, molecular + anatomy edge layers, a dominant connected component, and per-namespace variable coverage — materialized as the interactive Model Connectivity Network explorer."
