@@ -239,6 +239,30 @@ def build_model_harvest_figure() -> None:
     _write("model-harvest", "models-per-source", html)
 
 
+def build_model_connectivity_figure() -> None:
+    from viva_human_atlas.connectivity import build_network
+    net = build_network()
+    cov = net["coverage"]
+    s = net["stats"]
+    # molecular namespaces + anatomy layers, as a single models-per-variable-type bar
+    mol = sorted(cov["molecular"].items(), key=lambda kv: -kv[1]["n_models"])
+    anat = sorted(cov["anatomy"].items(), key=lambda kv: -kv[1]["n_models"])
+    labels = [f"molecular: {k}" for k, _ in mol] + [f"anatomy: {k.replace('_', ' ')}" for k, _ in anat]
+    counts = [v["n_models"] for _, v in mol] + [v["n_models"] for _, v in anat]
+    html = viz.bar_html(
+        labels, counts,
+        title=(
+            f"Shareable-variable coverage across the curated corpus "
+            f"({s['n_nodes']}/{s['n_models_total']} models connected; "
+            f"largest molecular component {s['largest_component']} = "
+            f"{int(s['largest_component_frac'] * 100)}%)"
+        ),
+        xaxis_title="variable namespace / anatomy layer",
+        yaxis_title="models carrying it",
+    )
+    _write("model-connectivity", "variable-coverage", html)
+
+
 def build_blood_vasculature_network_figure() -> None:
     from process_bigraph import Composite
 
@@ -283,6 +307,7 @@ def main() -> None:
     build_annotation_organ_matching_figure()
     build_model_harvest_figure()
     build_blood_vasculature_network_figure()
+    build_model_connectivity_figure()
 
 
 if __name__ == "__main__":

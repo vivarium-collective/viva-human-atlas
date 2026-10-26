@@ -60,7 +60,7 @@ biological_story: |
 
 executive:
   what_is_this: |
-    **Act 3 of 3** in the viva-human-atlas arc — Trust → Atlas → **Coverage**.
+    **Act 3 of 4** in the viva-human-atlas arc — Trust → Atlas → **Coverage** → Connectivity.
     Consumes Act 2's organ→models atlas and asks the payoff question: *which of
     the HRA's anatomical structures actually have a mechanistic model, and where
     is the modeling white-space?* Builds the 3D-anatomy side of the
@@ -70,7 +70,7 @@ executive:
     model->AS->GLB-node spatial linkage, an end-to-end reproducible build
     pipeline (`atlas-pipeline`), a per-organ simulation pass
     (`kidney-model-simulation`), and a materialized three.js viewer pack.
-    ← Prev: **Act 2 · Atlas** (`hra-integration`).
+    ← Prev: **Act 2 · Atlas** (`hra-integration`) · → Next: **Act 4 · Connectivity** (`model-connectivity`).
   verdict: |
     The crosswalk loads 2,295 AS rows (1,730 Uberon-keyed, 75.4%) across
     116 organ GLBs. A single 25-result query covers only 58/1,730 AS nodes

@@ -67,9 +67,42 @@ def _atlas_launch(ws_root, study=None, run=None, ctx=None) -> dict:
     return {"url": f"/studies/{study}/viz/atlas/index.html"}
 
 
+def _studies_with_network(ws_root) -> list:
+    root = Path(ws_root) / "studies"
+    return (
+        sorted(p.parent.parent.parent.name for p in root.glob("*/viz/network/network.json"))
+        if root.exists() else []
+    )
+
+
+def _network_targets(ws_root) -> list:
+    return [
+        {"study": s, "label": f"Model Connectivity Network — {s}",
+         "detail": "force-graph of models linked by shared molecular species + HRA anatomy",
+         "href": f"/studies/{s}/viz/network/index.html"}
+        for s in _studies_with_network(ws_root)
+    ]
+
+
+def _network_launch(ws_root, study=None, run=None, ctx=None) -> dict:
+    """Live-path launcher callback → the materialized `viz/network/index.html`.
+
+    Single global page (the whole-corpus network), so it opens the same place
+    regardless of `study`/`run`; honor `study` only when it actually has a
+    network pack, else fall back to the network-pack study (mirrors
+    `_atlas_launch`)."""
+    network_studies = _studies_with_network(ws_root)
+    if not network_studies:
+        return {"error": "no network pack found", "status": 404}
+    if study not in network_studies:
+        study = network_studies[0]
+    return {"url": f"/studies/{study}/viz/network/index.html"}
+
+
 def get_viewers(ws_root) -> list:
-    """Contribute the HRA Organ Viewer launcher (one target per study with a
-    materialized `viz/hra/` pack)."""
+    """Contribute the Explorer viewer launchers: the HRA Organ Viewer (one
+    target per study with a `viz/hra/` pack) and the Model Connectivity Network
+    explorer (one per study with a `viz/network/` pack)."""
     return [
         {
             "id": "hra-atlas-browser",
@@ -83,5 +116,15 @@ def get_viewers(ws_root) -> list:
             "applies": lambda ws: bool(_studies_with_atlas(ws)),
             "targets": _atlas_targets,
             "launch": _atlas_launch,
+        },
+        {
+            "id": "model-connectivity-network",
+            "title": "Model Connectivity Network",
+            "description": "Force-directed graph of the curated corpus: models linked by shared molecular species (CHEBI/UniProt/KEGG/GO/Reactome) and shared HRA anatomy. Toggle layers, filter, click a model to see what it shares.",
+            "kind": "launcher",
+            "requires": ["network_pack"],
+            "applies": lambda ws: bool(_studies_with_network(ws)),
+            "targets": _network_targets,
+            "launch": _network_launch,
         },
     ]
