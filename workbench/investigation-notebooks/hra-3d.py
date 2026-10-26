@@ -27,7 +27,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # 1,096-model curated-corpus scale — and can we view that coverage/linkage
 # directly on the 3D anatomy?
 #
-# **Act 3 of 3** in the viva-human-atlas arc — Trust → Atlas → **Coverage**.
+# **Act 3 of 4** in the viva-human-atlas arc — Trust → Atlas → **Coverage** → Connectivity.
 # Consumes Act 2's organ→models atlas and asks the payoff question: *which of
 # the HRA's anatomical structures actually have a mechanistic model, and where
 # is the modeling white-space?* Builds the 3D-anatomy side of the
@@ -37,7 +37,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # model->AS->GLB-node spatial linkage, an end-to-end reproducible build
 # pipeline (`atlas-pipeline`), a per-organ simulation pass
 # (`kidney-model-simulation`), and a materialized three.js viewer pack.
-# ← Prev: **Act 2 · Atlas** (`hra-integration`).
+# ← Prev: **Act 2 · Atlas** (`hra-integration`) · → Next: **Act 4 · Connectivity** (`model-connectivity`).
 #
 # ---
 #
@@ -80,8 +80,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--harden-3act').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--harden-3act')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--model-connectivity').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--model-connectivity')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))

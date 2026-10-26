@@ -27,7 +27,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # organ->models index — and, having built that index, actually get the
 # resulting models onto the HRA atlas as something a user can see?
 #
-# **Act 2 of 3** in the viva-human-atlas arc — Trust → **Atlas** → Coverage.
+# **Act 2 of 4** in the viva-human-atlas arc — Trust → **Atlas** → Coverage → Connectivity.
 # Takes the trustworthy models from Act 1 and gives each one an anatomical
 # address. Builds the HRA (Human Reference Atlas) side of the
 # fetch-and-compare spine, then closes the loop into the Atlas Browser: a
@@ -84,8 +84,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--harden-3act').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--harden-3act')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--model-connectivity').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--model-connectivity')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))

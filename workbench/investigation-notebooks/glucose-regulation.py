@@ -24,7 +24,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # **Question.** For BioModels matching "glucose regulation", do COPASI and Tellurium agree on
 # the time-course dynamics — and which models diverge or fail to load in one engine?
 #
-# **Act 1 of 3** in the viva-human-atlas arc — **Trust → Atlas → Coverage**.
+# **Act 1 of 4** in the viva-human-atlas arc — **Trust → Atlas → Coverage → Connectivity**.
 # The foundation: a cross-engine (COPASI vs Tellurium) correctness check on
 # BioModels matching "glucose regulation", establishing a trustworthy
 # fetch-and-compare spine. If two independent engines don't agree on the same
@@ -74,8 +74,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--harden-3act').is_dir():
-    REPO = Path('/Users/eranagmon/code/viva-human-atlas--harden-3act')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--model-connectivity').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--model-connectivity')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
