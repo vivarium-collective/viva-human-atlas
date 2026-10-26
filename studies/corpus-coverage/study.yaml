@@ -35,9 +35,9 @@ biological_summary: |
   informing where new HRA-3D coverage work would have the most impact.
 
 readouts:
-  - "coverage_summary.n_as / n_as_covered (anatomical-structure-node granularity)"
-  - "coverage_summary.n_organs_glb / n_organs_glb_covered (source-organ-GLB granularity)"
-  - "catalog n_ids / n_named / n_tagged (corpus retrieval + organ-tagging yield)"
+- "coverage_summary.n_as / n_as_covered (anatomical-structure-node granularity)"
+- "coverage_summary.n_organs_glb / n_organs_glb_covered (source-organ-GLB granularity)"
+- "catalog n_ids / n_named / n_tagged (corpus retrieval + organ-tagging yield)"
 
 report:
   title: "Corpus Coverage — 635/1,730 AS nodes covered across 31/114 organs, kidney included"
@@ -72,39 +72,52 @@ report:
     sub-structures with no direct model evidence.
 
 baseline:
-  - name: baseline
-    composite: viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage
-    params:
-      catalog_path: "datasets/biomodel_corpus_catalog.json"
+- name: baseline
+  composite: viva_human_atlas.composites.corpus_coverage_composite.corpus-coverage
+  params:
+    catalog_path: "datasets/biomodel_corpus_catalog.json"
 
 embed_visualizations:
-  - name: "Coverage per organ (full corpus)"
-    url: "/reports/figures/corpus-coverage/coverage-per-organ.html"
-    description: "Bar chart of models-per-organ from the full 1,096-model catalog's coverage crossing: 635/1,730 AS nodes covered across 31/114 organ GLBs, including kidney."
+- name: "Coverage per organ (full corpus)"
+  url: "/reports/figures/corpus-coverage/coverage-per-organ.html"
+  description: "Bar chart of models-per-organ from the full 1,096-model catalog's coverage crossing: 635/1,730 AS nodes covered across 31/114 organ GLBs, including kidney."
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    full-corpus-widens-coverage:
+      result: PARTIAL
+      observed: Crossing the full committed 1,096-model catalog with the crosswalk covers materially more than the query-scoped study -- observed 635/1,730 AS nodes (36.7%) across 31/114 organ GLBs, roughly an order of magnitude above the 58/4 of model-co…
+    newly-reaches-kidney:
+      result: PARTIAL
+      observed: Full-corpus coverage reaches kidney (VH_F/M_Kidney_L/_R), which the 25-result glucose query missed entirely -- confirming retrieval breadth, not query choice, is the coverage lever.
+    catalog-retrieval-yield:
+      result: PARTIAL
+      observed: The committed catalog retrieves all 1,096 curated BioModels IDs and organ-tags 82 of them (7.5%); only tagged models contribute coverage.
 pipeline_gate:
   gate_evaluator:
     result: needs_calibration
+  prerequisites:
+  - study: model-coverage-3d
+    relation: builds-on
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      Crossing the full 1,096-model curated BioModels catalog (82/1,096,
-      7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
-      nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
-      magnitude wider than the 25-result glucose-regulation query's 58 AS
-      nodes / 4 organs, and critically newly reaches kidney, confirming
-      full-corpus retrieval finds anatomically relevant models a single
-      search term misses entirely.
-    evidence:
-      summary: "635/1,730 AS nodes covered (36.7%), 31/114 organ GLBs (27.2%), including kidney (VH_F_Kidney_L/_R, VH_M_Kidney_L/_R); catalog 1,096/1,096 retrieved, 82 (7.5%) organ-tagged; vs 58/1,730 AS nodes / 4 organs for the 25-result query (model-coverage-3d)."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    Crossing the full 1,096-model curated BioModels catalog (82/1,096,
+    7.5%, organ-tagged) against the ASCT+B-3D crosswalk covers 635 AS
+    nodes (36.7%) across 31 distinct organ GLBs (27.2%) -- an order of
+    magnitude wider than the 25-result glucose-regulation query's 58 AS
+    nodes / 4 organs, and critically newly reaches kidney, confirming
+    full-corpus retrieval finds anatomically relevant models a single
+    search term misses entirely.
+  evidence:
+    summary: "635/1,730 AS nodes covered (36.7%), 31/114 organ GLBs (27.2%), including kidney (VH_F_Kidney_L/_R, VH_M_Kidney_L/_R); catalog 1,096/1,096 retrieved, 82 (7.5%) organ-tagged; vs 58/1,730 AS nodes / 4 organs for the 25-result query (model-coverage-3d)."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -115,20 +128,52 @@ conclusion_verdicts:
     basis: "F-01 shows full-corpus retrieval, not just query choice, is the coverage bottleneck -- it finds anatomically relevant models a single search term misses entirely (kidney newly covered) -- the study's central interpretive claim."
 
 limitations:
-  - "92.5% of the corpus (1,014/1,096) is untagged -- either genuinely organ-agnostic (pathway/signaling models with no single anatomical site) or organ-specific but missed by the current synonym/reference-organ-name matching."
-  - "Coverage is still organ-granularity, not per-AS-node model matching: a covered organ's Uberon marks every AS node cut from its GLB as covered, which can overstate coverage for anatomically distinct sub-structures with no direct model evidence."
+- "92.5% of the corpus (1,014/1,096) is untagged -- either genuinely organ-agnostic (pathway/signaling models with no single anatomical site) or organ-specific but missed by the current synonym/reference-organ-name matching."
+- "Coverage is still organ-granularity, not per-AS-node model matching: a covered organ's Uberon marks every AS node cut from its GLB as covered, which can overstate coverage for anatomically distinct sub-structures with no direct model evidence."
 
 discovery_implications:
   resolved_uncertainties:
-    - "Full-corpus retrieval materially widens coverage over a single query (635 vs 58 AS nodes) and newly reaches kidney, confirming retrieval breadth is a real, measurable lever independent of query choice."
+  - "Full-corpus retrieval materially widens coverage over a single query (635 vs 58 AS nodes) and newly reaches kidney, confirming retrieval breadth is a real, measurable lever independent of query choice."
   remaining_uncertainties:
-    - "Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models?"
-    - "Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?"
+  - "Does the low 7.5% organ-tagging yield undercount real anatomical relevance among the untagged 1,014 models?"
+  - "Which HRA organs/FTUs have zero mechanistic-model coverage even at full-corpus scale (the modeling white-space)?"
   followup_study_proposals:
-    - id: fp-coverage-gap-analysis
-      title: "Coverage gap analysis"
-      motivation: "Enumerate HRA organs/FTUs with zero mechanistic-model coverage even at full-corpus scale, to prioritize where new modeling work would have the most impact."
-      study_type: analysis
-      proposed_experiment: "Cross the full corpus-coverage organ->models index against the complete 114-organ-GLB / 1,730-AS-node crosswalk to list every organ/AS-node with zero covering models, ranked by AS-node count, as a prioritized modeling-gap report."
-      expected_information_gain: high
-      source_trigger: corpus-coverage
+  - id: fp-coverage-gap-analysis
+    title: "Coverage gap analysis"
+    motivation: "Enumerate HRA organs/FTUs with zero mechanistic-model coverage even at full-corpus scale, to prioritize where new modeling work would have the most impact."
+    study_type: analysis
+    proposed_experiment: "Cross the full corpus-coverage organ->models index against the complete 114-organ-GLB / 1,730-AS-node crosswalk to list every organ/AS-node with zero covering models, ranked by AS-node count, as a prioritized modeling-gap report."
+    expected_information_gain: high
+    source_trigger: corpus-coverage
+
+behavior_tests:
+- name: full-corpus-widens-coverage
+  gate_class: regression_pin
+  description: Crossing the full committed 1,096-model catalog with the crosswalk covers materially more than the query-scoped study -- observed 635/1,730 AS nodes (36.7%) across 31/114 organ GLBs, roughly an order of magnitude above the 58/4 of model-coverage-3d.
+- name: newly-reaches-kidney
+  gate_class: regression_pin
+  description: Full-corpus coverage reaches kidney (VH_F/M_Kidney_L/_R), which the 25-result glucose query missed entirely -- confirming retrieval breadth, not query choice, is the coverage lever.
+- name: catalog-retrieval-yield
+  gate_class: regression_pin
+  description: The committed catalog retrieves all 1,096 curated BioModels IDs and organ-tags 82 of them (7.5%); only tagged models contribute coverage.
+
+assumptions:
+- A model contributes coverage only if the corpus catalog organ-tags it (82/1,096 = 7.5%); the untagged 1,014 are either organ-agnostic pathway/signaling models or organ-specific models the synonym matcher misses.
+- The committed datasets/biomodel_corpus_catalog.json is the frozen full-corpus snapshot; coverage is computed offline against it, not via a live BioModels query.
+- Coverage remains organ-granularity (same propagation rule as model-coverage-3d), so it overstates fine-grained per-AS-node evidence.
+
+literature_anchors:
+- expectation: 'Coverage of the HRA anatomical-structure tree is the payoff metric: how much HRA anatomy has at least one mechanistic model.'
+  model_observable: coverage_summary.n_as_covered / n_organs_glb_covered at full-corpus scale
+  source: HRA anatomical-structure framework
+  status_in_workspace: 'confirmed: 635/1,730 AS nodes, 31/114 organs'
+  cites:
+  - Boerner2021HRA
+
+alternative_hypotheses:
+- claim: The wider full-corpus coverage might be an artifact of looser matching rather than genuine anatomical breadth.
+  discriminated_by: it newly reaches kidney (absent at query scale) via genuine HRA reference-organ tags, showing the added coverage is real organ breadth -- the query scope, not the method, was the limiter.
+  status: excluded
+- claim: The low 7.5% organ-tagging yield might mean coverage is badly undercounted, so 635 is a floor not a ceiling.
+  discriminated_by: not resolved here; whether the untagged 1,014 models hide real anatomical relevance is the study's open expert question (fp-coverage-gap-analysis).
+  status: untested

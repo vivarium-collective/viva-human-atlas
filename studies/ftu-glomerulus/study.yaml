@@ -32,8 +32,8 @@ biological_summary: |
   live-fetchable and asks whether the shape generalizes beyond this one FTU.
 
 readouts:
-  - "ftu.title / ftu.description non-empty"
-  - "ftu.glb_url resolves under the 3d-ftu/glomerulus CDN path"
+- "ftu.title / ftu.description non-empty"
+- "ftu.glb_url resolves under the 3d-ftu/glomerulus CDN path"
 
 report:
   title: "FTU Glomerulus — digital object loads (v1.0, ~143 MB GLB)"
@@ -66,37 +66,47 @@ report:
     question) is not yet checked.
 
 baseline:
-  - name: baseline
-    step: local:viva_human_atlas.hra_api.HRAFtuStep
-    params:
-      slug: "glomerulus"
+- name: baseline
+  step: local:viva_human_atlas.hra_api.HRAFtuStep
+  params:
+    slug: "glomerulus"
 
 embed_visualizations:
-  - name: "Glomerulus FTU metadata"
-    url: "/reports/figures/ftu-glomerulus/ftu-metadata.html"
-    description: "Info table of the live-fetched glomerulus FTU digital-object fields (slug, title, description, glb, glb_url)."
+- name: "Glomerulus FTU metadata"
+  url: "/reports/figures/ftu-glomerulus/ftu-metadata.html"
+  description: "Info table of the live-fetched glomerulus FTU digital-object fields (slug, title, description, glb, glb_url)."
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    ftu-record-loads:
+      result: PASS
+      observed: The glomerulus FTU digital object loads a non-empty ftu record with title/description/version and a resolvable glb_url under the 3d-ftu/glomerulus CDN path.
+    glb-asset-live:
+      result: PASS
+      observed: The glomerulus glb_url resolves live (observed HTTP 200, ~150.4 MB / ~143.4 MiB), confirming the sub-organ-scale asset is real and fetchable.
 pipeline_gate:
   gate_evaluator:
     result: passed
+  prerequisites:
+  - study: hra-3d-crosswalk
+    relation: builds-on
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      The glomerulus 3D FTU digital object loads live: title "glomerulus
-      (v1.0) graph data", version v1.0 (HuBMAP, CC BY 4.0), resolving to a
-      real, confirmed-live (HTTP 200) glb_url of ~150.4 MB -- confirming the
-      sub-organ-scale FTU digital-object shape is real and fetchable, a
-      prerequisite for anchoring finer-than-whole-organ model coverage.
-    evidence:
-      summary: "ftu record loads with non-empty title/description/version; glb_url resolves HTTP 200 at ~150.4 MB (~143.4 MiB); required an Accept:application/json header fix to the client for the live CCF resolver to 200 rather than 404."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    The glomerulus 3D FTU digital object loads live: title "glomerulus
+    (v1.0) graph data", version v1.0 (HuBMAP, CC BY 4.0), resolving to a
+    real, confirmed-live (HTTP 200) glb_url of ~150.4 MB -- confirming the
+    sub-organ-scale FTU digital-object shape is real and fetchable, a
+    prerequisite for anchoring finer-than-whole-organ model coverage.
+  evidence:
+    summary: "ftu record loads with non-empty title/description/version; glb_url resolves HTTP 200 at ~150.4 MB (~143.4 MiB); required an Accept:application/json header fix to the client for the live CCF resolver to 200 rather than 404."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -107,19 +117,44 @@ conclusion_verdicts:
     basis: "F-01 establishes the sub-organ-scale FTU digital-object shape is real and fetchable, directly bearing on whether sub-organ-scale model coverage can generalize beyond whole-organ granularity."
 
 limitations:
-  - "Only one FTU (glomerulus) is exercised here; whether HRA has published others at this same digital-object shape (the study's main expert question) is not yet checked."
-  - "The HRA CCF resolver 404s on a bare Accept:*/* request and only 200s with an explicit Accept:application/json header -- an upstream content-negotiation quirk that required a client fix."
+- "Only one FTU (glomerulus) is exercised here; whether HRA has published others at this same digital-object shape (the study's main expert question) is not yet checked."
+- "The HRA CCF resolver 404s on a bare Accept:*/* request and only 200s with an explicit Accept:application/json header -- an upstream content-negotiation quirk that required a client fix."
 
 discovery_implications:
   resolved_uncertainties:
-    - "The glomerulus FTU digital object is live, correctly shaped, and resolves to a real GLB asset (after the Accept-header fix)."
+  - "The glomerulus FTU digital object is live, correctly shaped, and resolves to a real GLB asset (after the Accept-header fix)."
   remaining_uncertainties:
-    - "Are enough FTUs beyond glomerulus published at this same digital-object shape to generalize sub-organ-scale model coverage?"
+  - "Are enough FTUs beyond glomerulus published at this same digital-object shape to generalize sub-organ-scale model coverage?"
   followup_study_proposals:
-    - id: fp-ftu-scale-coverage
-      title: "FTU-scale model coverage"
-      motivation: "Extend model coverage from whole-organ GLBs down to functional tissue units (glomerulus + other published FTUs) so sub-organ models can be anchored."
-      study_type: analysis
-      proposed_experiment: "Fetch every published HRA FTU digital object (not just glomerulus), cross their sub-organ anatomical structures against the biomodel-DO organ->models index, and report coverage at FTU granularity alongside the existing organ-granularity figures."
-      expected_information_gain: medium
-      source_trigger: ftu-glomerulus
+  - id: fp-ftu-scale-coverage
+    title: "FTU-scale model coverage"
+    motivation: "Extend model coverage from whole-organ GLBs down to functional tissue units (glomerulus + other published FTUs) so sub-organ models can be anchored."
+    study_type: analysis
+    proposed_experiment: "Fetch every published HRA FTU digital object (not just glomerulus), cross their sub-organ anatomical structures against the biomodel-DO organ->models index, and report coverage at FTU granularity alongside the existing organ-granularity figures."
+    expected_information_gain: medium
+    source_trigger: ftu-glomerulus
+
+behavior_tests:
+- name: ftu-record-loads
+  gate_class: regression_pin
+  description: The glomerulus FTU digital object loads a non-empty ftu record with title/description/version and a resolvable glb_url under the 3d-ftu/glomerulus CDN path.
+- name: glb-asset-live
+  gate_class: regression_pin
+  description: The glomerulus glb_url resolves live (observed HTTP 200, ~150.4 MB / ~143.4 MiB), confirming the sub-organ-scale asset is real and fetchable.
+
+assumptions:
+- Only one FTU (glomerulus) is exercised; the digital-object shape ({data:[glb], metadata:{...}}) is assumed to generalize to other FTUs, which is not yet checked.
+- 'The HRA CCF resolver requires an explicit Accept: application/json header to 200 (a bare Accept:*/* 404s); the client was fixed to send it, so a live fetch depends on that upstream content-negotiation behavior.'
+
+literature_anchors:
+- expectation: The HRA publishes sub-organ functional tissue units (e.g. the glomerulus) as 3D digital objects below whole-organ granularity.
+  model_observable: ftu record + resolvable glb_url for slug=glomerulus
+  source: HRA functional tissue units
+  status_in_workspace: 'confirmed: glomerulus FTU v1.0 loads, GLB resolves HTTP 200'
+  cites:
+  - Bidanta2025FTU
+
+alternative_hypotheses:
+- claim: The glomerulus FTU might be a one-off, not representative of a reusable FTU digital-object shape.
+  discriminated_by: not resolved here -- only glomerulus is fetched; whether other FTUs share this shape is the study's main expert question (fp-ftu-scale-coverage).
+  status: untested

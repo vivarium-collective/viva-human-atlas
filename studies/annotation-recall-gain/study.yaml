@@ -35,10 +35,10 @@ biological_summary: |
   all.
 
 readouts:
-  - "gain.name.n_models_total / gain.annotation.n_models_total / gain.union.n_models_total"
-  - "gain.name.organs (10) / gain.annotation.organs (14) / gain.union.organs (14)"
-  - "gain.delta.organs_added / gain.delta.n_models_added"
-  - "gain.summary.pct_corpus_tagged_name / pct_corpus_tagged_annotation"
+- "gain.name.n_models_total / gain.annotation.n_models_total / gain.union.n_models_total"
+- "gain.name.organs (10) / gain.annotation.organs (14) / gain.union.organs (14)"
+- "gain.delta.organs_added / gain.delta.n_models_added"
+- "gain.summary.pct_corpus_tagged_name / pct_corpus_tagged_annotation"
 
 report:
   title: "Annotation Recall Gain — +85 models, +4 organs over name-only matching"
@@ -73,41 +73,61 @@ report:
     downstream multiscale coupling, not either alone.
 
 embed_visualizations:
-  - name: "Recall gain — name-only vs annotation-based organ matching"
-    url: "/reports/figures/annotation-recall-gain/recall-gain.html"
-    description: "Per-organ model counts (name-only vs annotation vs union) across the 1,096-model corpus: annotation matching adds 85 models and 4 whole organs (lymph-node, ovary, spleen, urinary-bladder) that name-only synonym matching misses entirely."
+- name: "Recall gain — name-only vs annotation-based organ matching"
+  url: "/reports/figures/annotation-recall-gain/recall-gain.html"
+  description: "Per-organ model counts (name-only vs annotation vs union) across the 1,096-model corpus: annotation matching adds 85 models and 4 whole organs (lymph-node, ovary, spleen, urinary-bladder) that name-only synonym matching misses entirely."
 
 baseline:
-  - name: baseline
-    composite: viva_human_atlas.composites.annotation_composite.annotation-recall-gain
-    params:
-      name_catalog_path: "datasets/biomodel_corpus_catalog.json"
-      annotation_catalog_path: "datasets/biomodel_annotation_catalog.json"
+- name: baseline
+  composite: viva_human_atlas.composites.annotation_composite.annotation-recall-gain
+  params:
+    name_catalog_path: "datasets/biomodel_corpus_catalog.json"
+    annotation_catalog_path: "datasets/biomodel_annotation_catalog.json"
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    annotation-adds-recall:
+      result: PASS
+      observed: 'Annotation matching adds materially more models and organs than name-only matching (pre-stated expectation): observed +85 models and +4 whole organs (lymph-node, ovary, spleen, urinary-bladder) the name matcher never reaches.'
+    union-still-small-fraction:
+      result: PASS
+      observed: The union of both matchers still leaves most of the corpus untagged (observed union 167/1,096 = 15.2%; 985/1,096 = 89.9% untagged by either).
+    matchers-complementary:
+      result: PASS
+      observed: 'The matchers are complementary, not redundant: annotation reaches organs name-matching never sees, while name-matching tags more pancreas models (36 vs 24; union 47) -- neither is a superset of the other.'
 pipeline_gate:
   gate_evaluator:
     result: passed
+  # The head-to-head: compare_catalogs() measures how much organ/model coverage
+  # the annotation matcher (annotation-organ-matching) adds over the name-synonym
+  # matcher (glucose-biomodel-do). It consumes both matchers' committed catalogs.
+  prerequisites:
+  - study: glucose-biomodel-do
+    relation: builds-on
+    rationale: "Compares against the name-synonym matcher's organ->models catalog (datasets/biomodel_corpus_catalog.json) -- the name matcher glucose-biomodel-do introduces."
+  - study: annotation-organ-matching
+    relation: builds-on
+    rationale: "Compares against the annotation matcher's catalog (datasets/biomodel_annotation_catalog.json) that annotation-organ-matching produces."
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      Annotation-based organ matching reaches 114/1,096 models (10.4%,
-      14 organs) vs name-only matching's 82/1,096 (7.5%, 10 organs) over
-      the same 1,096-model corpus, adding 85 models and 4 whole organs
-      (lymph-node, ovary, spleen, urinary-bladder) the name matcher cannot
-      reach because those organ names never appear verbatim in a BioModels
-      title -- confirming annotation-based matching is a materially
-      higher-recall complement to, not merely a duplicate of, name-synonym
-      matching.
-    evidence:
-      summary: "name: 82 models/10 organs (7.5%); annotation: 114 models/14 organs (10.4%); union: 167 models/14 organs; delta: +85 models, organs_added=[lymph-node, ovary-female-left, spleen, urinary-bladder]."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    Annotation-based organ matching reaches 114/1,096 models (10.4%,
+    14 organs) vs name-only matching's 82/1,096 (7.5%, 10 organs) over
+    the same 1,096-model corpus, adding 85 models and 4 whole organs
+    (lymph-node, ovary, spleen, urinary-bladder) the name matcher cannot
+    reach because those organ names never appear verbatim in a BioModels
+    title -- confirming annotation-based matching is a materially
+    higher-recall complement to, not merely a duplicate of, name-synonym
+    matching.
+  evidence:
+    summary: "name: 82 models/10 organs (7.5%); annotation: 114 models/14 organs (10.4%); union: 167 models/14 organs; delta: +85 models, organs_added=[lymph-node, ovary-female-left, spleen, urinary-bladder]."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -118,19 +138,49 @@ conclusion_verdicts:
     basis: "F-01 quantifies, for the first time, exactly how much of the name-only matcher's recall ceiling (glucose-biomodel-do's central open question) SBML-annotation-based matching closes: +85 models, +4 organs, union coverage of 167/1,096 (15.2%) vs either matcher alone."
 
 limitations:
-  - "985/1,096 models (89.9%) remain untagged by either matcher combined -- the union closes real ground but is still a small fraction of the full corpus."
-  - "Pancreas is the one organ where name-only matching (36 models) outnumbers annotation matching (24 models) individually, though the union (47) still exceeds either -- the two mechanisms are complementary, not strictly ordered."
+- "985/1,096 models (89.9%) remain untagged by either matcher combined -- the union closes real ground but is still a small fraction of the full corpus."
+- "Pancreas is the one organ where name-only matching (36 models) outnumbers annotation matching (24 models) individually, though the union (47) still exceeds either -- the two mechanisms are complementary, not strictly ordered."
 
 discovery_implications:
   resolved_uncertainties:
-    - "SBML MIRIAM/BTO annotation-based matching materially raises organ-tagging recall over name-only synonym matching (+85 models, +4 organs), directly answering glucose-biomodel-do's followup proposal fp-sbml-annotation-tagging."
+  - "SBML MIRIAM/BTO annotation-based matching materially raises organ-tagging recall over name-only synonym matching (+85 models, +4 organs), directly answering glucose-biomodel-do's followup proposal fp-sbml-annotation-tagging."
   remaining_uncertainties:
-    - "Would a combined name+annotation matcher (the union index) change conclusions in downstream studies that currently key off the name-only organ_to_models index (model-coverage-3d, corpus-coverage)?"
+  - "Would a combined name+annotation matcher (the union index) change conclusions in downstream studies that currently key off the name-only organ_to_models index (model-coverage-3d, corpus-coverage)?"
   followup_study_proposals:
-    - id: fp-union-organ-index
-      title: "Union organ->models index for downstream coverage studies"
-      motivation: "model-coverage-3d and corpus-coverage currently key off the name-only organ_to_models index; re-running them against the union (name + annotation) index would widen their AS-node/organ-GLB coverage numbers using the same crosswalk machinery."
-      study_type: method-upgrade
-      proposed_experiment: "Re-run CoverageStep with a catalog built from the union of the name-synonym and annotation catalogs' organ_to_models indices, and compare AS-node/organ-GLB coverage against the current corpus-coverage baseline (635/1,730 AS nodes, 31/114 organs)."
-      expected_information_gain: high
-      source_trigger: annotation-recall-gain
+  - id: fp-union-organ-index
+    title: "Union organ->models index for downstream coverage studies"
+    motivation: "model-coverage-3d and corpus-coverage currently key off the name-only organ_to_models index; re-running them against the union (name + annotation) index would widen their AS-node/organ-GLB coverage numbers using the same crosswalk machinery."
+    study_type: method-upgrade
+    proposed_experiment: "Re-run CoverageStep with a catalog built from the union of the name-synonym and annotation catalogs' organ_to_models indices, and compare AS-node/organ-GLB coverage against the current corpus-coverage baseline (635/1,730 AS nodes, 31/114 organs)."
+    expected_information_gain: high
+    source_trigger: annotation-recall-gain
+
+behavior_tests:
+- name: annotation-adds-recall
+  classification: primary
+  gate_class: acceptance_criterion
+  description: "Annotation matching adds materially more models and organs than name-only matching (pre-stated expectation): observed +85 models and +4 whole organs (lymph-node, ovary, spleen, urinary-bladder) the name matcher never reaches."
+- name: union-still-small-fraction
+  classification: primary
+  gate_class: regression_pin
+  description: "The union of both matchers still leaves most of the corpus untagged (observed union 167/1,096 = 15.2%; 985/1,096 = 89.9% untagged by either)."
+- name: matchers-complementary
+  classification: supporting
+  gate_class: regression_pin
+  description: "The matchers are complementary, not redundant: annotation reaches organs name-matching never sees, while name-matching tags more pancreas models (36 vs 24; union 47) -- neither is a superset of the other."
+
+assumptions:
+- text: "Name matching can only tag a model if its HRA reference-organ name (or a synonym) appears verbatim in the BioModels title; annotation matching instead reads the model's own curated SBML MIRIAM metadata (Uberon/FMA direct, or BTO via the 32-entry crosswalk)."
+- text: "The union de-duplicates models tagged by both matchers (name 82 + annotation 114 = 196 raw, union 167, so 29 models overlap); the 15.2% union is a de-duplicated corpus fraction."
+
+literature_anchors:
+- expectation: "A model's curated SBML MIRIAM metadata encodes anatomical context its title need not spell out, so annotation matching can reach organs a title never names."
+  model_observable: "Annotation matching reaches 4 organs (lymph-node, ovary, spleen, urinary-bladder) name matching never sees; +85 models overall."
+  source: "Juty et al. 2013 (MIRIAM); Malik-Sheriff et al. 2020 (BioModels)."
+  status_in_workspace: "Verified"
+  cites: [Juty2013SBO, MalikSheriff2020BioModels]
+
+alternative_hypotheses:
+- claim: "The annotation matcher is strictly redundant with the name matcher (a superset or subset of it)."
+  discriminated_by: "Annotation adds 85 models and 4 whole organs the name matcher never reaches, yet name-matching tags MORE pancreas models (36 vs 24) -- neither is a superset of the other, so they are complementary; the union (167) exceeds either matcher alone."
+  status: excluded

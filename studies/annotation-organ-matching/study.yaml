@@ -36,10 +36,10 @@ biological_summary: |
   resolve.
 
 readouts:
-  - "annotation_summary.n_ids / n_tagged (catalog envelope: corpus size, organ-tagged count)"
-  - "annotation_summary.n_organs (distinct organs reached)"
-  - "annotation_summary.qualifier_counts (biological CVTerm qualifier -> hit count)"
-  - "annotation_summary.ontology_counts (ontology prefix -> hit count: BTO vs UBERON/FMA)"
+- "annotation_summary.n_ids / n_tagged (catalog envelope: corpus size, organ-tagged count)"
+- "annotation_summary.n_organs (distinct organs reached)"
+- "annotation_summary.qualifier_counts (biological CVTerm qualifier -> hit count)"
+- "annotation_summary.ontology_counts (ontology prefix -> hit count: BTO vs UBERON/FMA)"
 
 report:
   title: "Annotation Organ Matching — 114/1,096 models, 14 organs, driven almost entirely by BTO"
@@ -72,33 +72,50 @@ report:
     raise `annotation-recall-gain`'s coverage numbers further.
 
 baseline:
-  - name: baseline
-    composite: viva_human_atlas.composites.annotation_composite.annotation-organ-matching
-    params:
-      catalog_path: "datasets/biomodel_annotation_catalog.json"
+- name: baseline
+  composite: viva_human_atlas.composites.annotation_composite.annotation-organ-matching
+  params:
+    catalog_path: "datasets/biomodel_annotation_catalog.json"
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    bto-crosswalk-dominates:
+      result: PASS
+      observed: 'BTO-via-crosswalk dominates the organ signal: >=90% of CVTerm hits resolve through the curated BTO->organ crosswalk vs direct Uberon/FMA (observed 156/168 = 92.9% BTO, 12 = 7.1% direct).'
+    corpus-organ-coverage:
+      result: PASS
+      observed: Annotation matching tags ~10% of the corpus across >10 organs (observed 114/1,096 = 10.4% models, 14 distinct organs).
+    occurs-in-is-qualifiers-dominate:
+      result: PASS
+      observed: Occurrence/identity qualifiers dominate over compositional ones (observed BQB_OCCURS_IN 88 + BQB_IS 40 vs BQB_IS_PART_OF 4 + BQB_HAS_PART 1 of 168 hits).
 pipeline_gate:
   gate_evaluator:
     result: passed
+  # The annotation matcher: it scans each model's own SBML MIRIAM/BTO metadata
+  # (datasets/biomodel_annotation_catalog.json) over the same 1,096-model
+  # BioModels corpus that biomodel-hra-map harvests and maps to the HRA.
+  prerequisites:
+  - study: biomodel-hra-map
+    relation: builds-on
+    rationale: "Scans the SBML MIRIAM/BTO annotations of the same 1,096-model BioModels corpus biomodel-hra-map harvests; the BTO->organ crosswalk resolves them to the HRA organ set."
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      Of the 168 CVTerm hits behind the annotation catalog's 114 organ-tagged
-      models, 156 (92.9%) resolve through the curated BTO->organ crosswalk
-      and only 12 (7.1%) through a direct Uberon/FMA MIRIAM match --
-      BTO-via-crosswalk is the dominant, not incidental, organ-matching
-      mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
-      (88 and 40 of 168 hits).
-    evidence:
-      summary: "ontology_counts: BTO 156, UBERON 12; qualifier_counts: BQB_OCCURS_IN 88, BQB_IS 40, BQB_IS_VERSION_OF 35, BQB_IS_PART_OF 4, BQB_HAS_PART 1; 114/1,096 models tagged (10.4%), 14 organs."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    Of the 168 CVTerm hits behind the annotation catalog's 114 organ-tagged
+    models, 156 (92.9%) resolve through the curated BTO->organ crosswalk
+    and only 12 (7.1%) through a direct Uberon/FMA MIRIAM match --
+    BTO-via-crosswalk is the dominant, not incidental, organ-matching
+    mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
+    (88 and 40 of 168 hits).
+  evidence:
+    summary: "ontology_counts: BTO 156, UBERON 12; qualifier_counts: BQB_OCCURS_IN 88, BQB_IS 40, BQB_IS_VERSION_OF 35, BQB_IS_PART_OF 4, BQB_HAS_PART 1; 114/1,096 models tagged (10.4%), 14 organs."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -109,19 +126,61 @@ conclusion_verdicts:
     basis: "F-01 makes the annotation-matching mechanism transparent and falsifiable: the BTO->organ crosswalk, not direct Uberon/FMA annotation, is what does 92.9% of the work, directly motivating crosswalk-extension as the next lever (see annotation-recall-gain)."
 
 limitations:
-  - "The 32-entry BTO->organ crosswalk is curated, not exhaustive -- BTO terms it doesn't cover contribute zero organ signal, so the 92.9% BTO share is a lower bound on BTO's true anatomical relevance in this corpus."
-  - "sample_provenance surfaces only the first 10 organ-tagged models for spot-checking, not a systematic precision audit of every hit."
+- "The 32-entry BTO->organ crosswalk is curated, not exhaustive -- BTO terms it doesn't cover contribute zero organ signal, so the 92.9% BTO share is a lower bound on BTO's true anatomical relevance in this corpus."
+- "sample_provenance surfaces only the first 10 organ-tagged models for spot-checking, not a systematic precision audit of every hit."
 
 discovery_implications:
   resolved_uncertainties:
-    - "BTO-mediated matching (via the curated crosswalk), not direct Uberon/FMA MIRIAM annotation, is the dominant organ-tagging mechanism in this BioModels corpus (156 vs 12 hits)."
+  - "BTO-mediated matching (via the curated crosswalk), not direct Uberon/FMA MIRIAM annotation, is the dominant organ-tagging mechanism in this BioModels corpus (156 vs 12 hits)."
   remaining_uncertainties:
-    - "How much more organ coverage would extending the 32-entry BTO->organ crosswalk unlock, given 278 corpus models carry a BTO term at all vs the 114 that currently resolve to an organ?"
+  - "How much more organ coverage would extending the 32-entry BTO->organ crosswalk unlock, given 278 corpus models carry a BTO term at all vs the 114 that currently resolve to an organ?"
   followup_study_proposals:
-    - id: fp-bto-crosswalk-extension
-      title: "BTO->organ crosswalk extension"
-      motivation: "278 models carry a BTO term but only 114 resolve to an organ through the current 32-entry crosswalk; extending the crosswalk against the remaining BTO terms in the corpus could raise annotation-based organ-tagging recall further."
-      study_type: method-upgrade
-      proposed_experiment: "Enumerate the distinct BTO terms present across all 278 BTO-annotated corpus models, identify which are absent from the current 32-entry crosswalk, and curate organ mappings for the highest-frequency gaps."
-      expected_information_gain: medium
-      source_trigger: annotation-organ-matching
+  - id: fp-bto-crosswalk-extension
+    title: "BTO->organ crosswalk extension"
+    motivation: "278 models carry a BTO term but only 114 resolve to an organ through the current 32-entry crosswalk; extending the crosswalk against the remaining BTO terms in the corpus could raise annotation-based organ-tagging recall further."
+    study_type: method-upgrade
+    proposed_experiment: "Enumerate the distinct BTO terms present across all 278 BTO-annotated corpus models, identify which are absent from the current 32-entry crosswalk, and curate organ mappings for the highest-frequency gaps."
+    expected_information_gain: medium
+    source_trigger: annotation-organ-matching
+
+embed_visualizations:
+- name: "Annotation-matched models per HRA organ"
+  url: "/reports/figures/annotation-organ-matching/models-per-organ.html"
+  description: "Per-organ count of models tagged by SBML MIRIAM/BTO annotation matching across the 14 HRA organs reached (114/1,096 models), the catalog whose organ signal is 92.9% BTO-via-crosswalk."
+
+behavior_tests:
+- name: bto-crosswalk-dominates
+  classification: primary
+  gate_class: regression_pin
+  description: "BTO-via-crosswalk dominates the organ signal: >=90% of CVTerm hits resolve through the curated BTO->organ crosswalk vs direct Uberon/FMA (observed 156/168 = 92.9% BTO, 12 = 7.1% direct)."
+- name: corpus-organ-coverage
+  classification: primary
+  gate_class: regression_pin
+  description: "Annotation matching tags ~10% of the corpus across >10 organs (observed 114/1,096 = 10.4% models, 14 distinct organs)."
+- name: occurs-in-is-qualifiers-dominate
+  classification: supporting
+  gate_class: regression_pin
+  description: "Occurrence/identity qualifiers dominate over compositional ones (observed BQB_OCCURS_IN 88 + BQB_IS 40 vs BQB_IS_PART_OF 4 + BQB_HAS_PART 1 of 168 hits)."
+
+assumptions:
+- text: "The BTO->organ crosswalk is a curated 32-entry mapping, not a complete BTO->Uberon bridge; BTO terms outside it contribute no organ signal, so the 92.9% BTO-hit share measures the crosswalk's reach within the catalog it produced, not BTO's full potential organ signal (278 corpus models carry a BTO term at all)."
+- text: "sample_provenance surfaces only the first 10 organ-tagged models for spot-checking, so provenance is spot-checkable rather than a systematic precision audit of every hit."
+- text: "The organ signal is carried by MIRIAM CVTerms (a biological qualifier plus an ontology resource URI); BTO terms describe the tissue/cell-line context a model was parameterized against."
+  cites: [Juty2013SBO]
+
+literature_anchors:
+- expectation: "BioModels curators annotate SBML elements with MIRIAM CVTerms (biological qualifier + ontology resource URI), far more often with tissue (BTO) than with direct anatomy (Uberon/FMA)."
+  model_observable: "168 CVTerm hits: ontology BTO 156 vs UBERON 12; qualifiers BQB_OCCURS_IN 88, BQB_IS 40, BQB_IS_VERSION_OF 35."
+  source: "Juty et al. 2013 (MIRIAM/SBO qualifiers); Malik-Sheriff et al. 2020 (BioModels curation)."
+  status_in_workspace: "Verified"
+  cites: [Juty2013SBO, MalikSheriff2020BioModels]
+- expectation: "Resolved organ terms map to Uberon anatomy."
+  model_observable: "14 distinct HRA organs reached across 114 tagged models."
+  source: "Mungall et al. 2012, Uberon."
+  status_in_workspace: "Verified"
+  cites: [Mungall2012Uberon]
+
+alternative_hypotheses:
+- claim: "Direct Uberon/FMA MIRIAM annotation is the main organ-tagging signal in BioModels (the BTO crosswalk is incidental)."
+  discriminated_by: "Only 12/168 hits (7.1%) are direct Uberon/FMA; 156 (92.9%) resolve via BTO through the curated crosswalk -- BTO-via-crosswalk is the dominant, not incidental, organ-matching mechanism in BioModels curation practice."
+  status: excluded

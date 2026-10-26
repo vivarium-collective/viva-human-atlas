@@ -57,41 +57,55 @@ report:
     even though it exists as a named 3D structure.
 
 readouts:
-  - "count of distinct anatomical-structure terms loaded"
-  - "top-N anatomical-structure terms by occurrence count"
+- "count of distinct anatomical-structure terms loaded"
+- "top-N anatomical-structure terms by occurrence count"
 
 embed_visualizations:
-  - name: "Top anatomical-structure terms by occurrence count"
-    url: "/reports/figures/hra-anatomical-structures/top-anatomical-structures.html"
-    description: "Bar chart of the top 15 of 288 loaded anatomical-structure terms by HRA occurrence count; the top term (UBERON:0013702) occurs 2,762 times, matching hra-cell-types' top count exactly."
+- name: "Top anatomical-structure terms by occurrence count"
+  url: "/reports/figures/hra-anatomical-structures/top-anatomical-structures.html"
+  description: "Bar chart of the top 15 of 288 loaded anatomical-structure terms by HRA occurrence count; the top term (UBERON:0013702) occurs 2,762 times, matching hra-cell-types' top count exactly."
 
 baseline:
-  - name: baseline
-    step: local:viva_human_atlas.hra_api.HRAAnatomicalStructuresStep
-    params:
-      base_url: "https://apps.humanatlas.io/api"
+- name: baseline
+  step: local:viva_human_atlas.hra_api.HRAAnatomicalStructuresStep
+  params:
+    base_url: "https://apps.humanatlas.io/api"
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    anatomical-terms-nonempty-sorted:
+      result: PASS
+      observed: 'The ontology-term-occurences endpoint loads a non-empty, count-sorted anatomical-structure term list: >=200 distinct terms (observed 288).'
+    cross-endpoint-consistency:
+      result: PASS
+      observed: The top anatomical-structure term's occurrence count equals hra-cell-types' top CL-term count (observed 2,762 for both), consistent with both endpoints counting the same per-record annotations from one HRA dataset corpus.
 pipeline_gate:
   gate_evaluator:
     result: passed
+  # Sibling HRA-API loader, read alongside the reference-organ base. The
+  # usage-weighted anatomical-structure histogram is compared back to the
+  # reference-organ whole-organ scaffold.
+  prerequisites:
+  - study: hra-reference-organs
+    relation: builds-on
+    rationale: "Extends the same HRA CCF-API Step pattern the reference-organ base loader establishes; anatomical-structure terms are compared to that whole-organ set."
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      The HRA ontology-term-occurences endpoint returns 288 distinct
-      anatomical-structure terms, count-sorted; the top term
-      (UBERON:0013702) occurs 2,762 times -- matching hra-cell-types' top
-      CL-term count exactly, confirming both endpoints count the same
-      underlying per-record annotations from the same HRA dataset corpus.
-    evidence:
-      summary: "288 distinct anatomical-structure terms loaded; top term UBERON:0013702 at 2,762 occurrences, matching hra-cell-types' top count exactly; next 9 terms range 231-336 occurrences."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    The HRA ontology-term-occurences endpoint returns 288 distinct
+    anatomical-structure terms, count-sorted; the top term
+    (UBERON:0013702) occurs 2,762 times -- matching hra-cell-types' top
+    CL-term count exactly, confirming both endpoints count the same
+    underlying per-record annotations from the same HRA dataset corpus.
+  evidence:
+    summary: "288 distinct anatomical-structure terms loaded; top term UBERON:0013702 at 2,762 occurrences, matching hra-cell-types' top count exactly; next 9 terms range 231-336 occurrences."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -102,18 +116,45 @@ conclusion_verdicts:
     basis: "F-01's exact match with hra-cell-types' top occurrence count (2,762) confirms both endpoints draw from the same underlying per-record annotation corpus, a cross-endpoint consistency check."
 
 limitations:
-  - "288 terms is well below the ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical-structure nodes (hra-3d-crosswalk) -- this endpoint only surfaces structures that appear in HRA's annotated datasets, so most of the crosswalk's fine-grained 3D anatomy has zero recorded usage here even though it exists as a named 3D structure."
+- "288 terms is well below the ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical-structure nodes (hra-3d-crosswalk) -- this endpoint only surfaces structures that appear in HRA's annotated datasets, so most of the crosswalk's fine-grained 3D anatomy has zero recorded usage here even though it exists as a named 3D structure."
 
 discovery_implications:
   resolved_uncertainties:
-    - "The top occurrence count (2,762) matches hra-cell-types' top CL term exactly, confirming both endpoints draw from the same underlying per-record annotation corpus."
+  - "The top occurrence count (2,762) matches hra-cell-types' top CL term exactly, confirming both endpoints draw from the same underlying per-record annotation corpus."
   remaining_uncertainties:
-    - "Do the top-occurrence anatomical structures correspond to whole organs (matching reference-organs) or finer sub-structures -- has this been checked directly?"
+  - "Do the top-occurrence anatomical structures correspond to whole organs (matching reference-organs) or finer sub-structures -- has this been checked directly?"
   followup_study_proposals:
-    - id: fp-anatomical-term-coverage
-      title: "Anatomical-term x model-coverage cross"
-      motivation: "Cross the HRA anatomical-structure term occurrences with model coverage to find which structures have mechanistic models."
-      study_type: analysis
-      proposed_experiment: "Join the 288 usage-weighted anatomical-structure terms against the corpus-coverage organ->models index (via Uberon CURIE / organ propagation) and report, per term, whether it has >=1 covering model, ranked by occurrence count."
-      expected_information_gain: medium
-      source_trigger: hra-anatomical-structures
+  - id: fp-anatomical-term-coverage
+    title: "Anatomical-term x model-coverage cross"
+    motivation: "Cross the HRA anatomical-structure term occurrences with model coverage to find which structures have mechanistic models."
+    study_type: analysis
+    proposed_experiment: "Join the 288 usage-weighted anatomical-structure terms against the corpus-coverage organ->models index (via Uberon CURIE / organ propagation) and report, per term, whether it has >=1 covering model, ranked by occurrence count."
+    expected_information_gain: medium
+    source_trigger: hra-anatomical-structures
+
+behavior_tests:
+- name: anatomical-terms-nonempty-sorted
+  classification: primary
+  gate_class: regression_pin
+  description: "The ontology-term-occurences endpoint loads a non-empty, count-sorted anatomical-structure term list: >=200 distinct terms (observed 288)."
+- name: cross-endpoint-consistency
+  classification: supporting
+  gate_class: regression_pin
+  description: "The top anatomical-structure term's occurrence count equals hra-cell-types' top CL-term count (observed 2,762 for both), consistent with both endpoints counting the same per-record annotations from one HRA dataset corpus."
+
+assumptions:
+- text: "This histogram is usage-weighted (it counts how often a structure is annotated across HRA datasets), so it surfaces only structures that appear in HRA's annotated datasets, not the full catalog of structures that exist."
+- text: "Anatomical-structure terms are mostly Uberon CURIEs."
+  cites: [Mungall2012Uberon]
+
+literature_anchors:
+- expectation: "HRA records which anatomical structures its datasets sample from, keyed to Uberon anatomy terms."
+  model_observable: "288 distinct anatomical-structure terms; top term UBERON:0013702 at 2,762 occurrences."
+  source: "Boerner et al. 2021 (HRA/CCF); Mungall et al. 2012 (Uberon)."
+  status_in_workspace: "Verified"
+  cites: [Boerner2021HRA, Mungall2012Uberon]
+
+alternative_hypotheses:
+- claim: "The 288 usage-weighted terms cover the HRA's full fine-grained anatomy."
+  discriminated_by: "288 is far below the ASCT+B-3D crosswalk's 1,730 Uberon-keyed anatomical-structure nodes (hra-3d-crosswalk) -- most fine-grained 3D anatomy has zero recorded usage here -- so this endpoint is usage-weighted, not a complete anatomy catalog."
+  status: excluded

@@ -56,42 +56,56 @@ report:
     appear in the top 10 by this measure).
 
 readouts:
-  - "count of distinct CL terms loaded"
-  - "top-N CL terms by occurrence count"
+- "count of distinct CL terms loaded"
+- "top-N CL terms by occurrence count"
 
 embed_visualizations:
-  - name: "Top cell-type (CL) terms by occurrence count"
-    url: "/reports/figures/hra-cell-types/top-cell-types.html"
-    description: "Bar chart of the top 15 of 149 loaded CL terms by HRA occurrence count; the top term (CL:0000000) occurs 2,762 times, ~4x the next tier."
+- name: "Top cell-type (CL) terms by occurrence count"
+  url: "/reports/figures/hra-cell-types/top-cell-types.html"
+  description: "Bar chart of the top 15 of 149 loaded CL terms by HRA occurrence count; the top term (CL:0000000) occurs 2,762 times, ~4x the next tier."
 
 baseline:
-  - name: baseline
-    step: local:viva_human_atlas.hra_api.HRACellTypesStep
-    params:
-      base_url: "https://apps.humanatlas.io/api"
+- name: baseline
+  step: local:viva_human_atlas.hra_api.HRACellTypesStep
+  params:
+    base_url: "https://apps.humanatlas.io/api"
 
 runs:
-  - name: baseline
-    status: completed
+- name: baseline
+  status: completed
 
+  outcomes:
+    cl-terms-nonempty-sorted:
+      result: PASS
+      observed: 'The cell-type-term-occurences endpoint loads a non-empty, count-sorted CL term list: >=100 distinct terms (observed 149).'
+    top-term-dominates:
+      result: PASS
+      observed: The top CL term occurs an order of magnitude above the next tier (observed CL:0000000 at 2,762 occurrences vs an 8-term tier clustered at exactly 266 each).
 pipeline_gate:
   gate_evaluator:
     result: passed
+  # Sibling HRA-API loader, read alongside the reference-organ base. The CL
+  # term-occurrence histogram is interpreted against the organ set the
+  # reference-organ loader establishes.
+  prerequisites:
+  - study: hra-reference-organs
+    relation: builds-on
+    rationale: "Extends the same HRA CCF-API Step pattern the reference-organ base loader establishes; CL terms are read against that organ set."
 
 findings:
-  - id: F-01
-    tier: interpretation
-    mechanism_origin: engineered
-    claim_scope: mechanism
-    statement: |
-      The HRA cell-type-term-occurences endpoint returns 149 distinct Cell
-      Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs
-      2,762 times, an order of magnitude above an 8-term tier that clusters
-      at exactly 266 occurrences each -- consistent with those terms
-      co-occurring as a fixed per-record annotation bundle in whatever HRA
-      datasets contribute them.
-    evidence:
-      summary: "149 distinct CL terms loaded; top term CL:0000000 at 2,762 occurrences; 8 terms tied at exactly 266 occurrences each."
+- id: F-01
+  tier: interpretation
+  mechanism_origin: engineered
+  claim_scope: mechanism
+  statement: |
+    The HRA cell-type-term-occurences endpoint returns 149 distinct Cell
+    Ontology (CL) terms, count-sorted; the top term (CL:0000000) occurs
+    2,762 times, an order of magnitude above an 8-term tier that clusters
+    at exactly 266 occurrences each -- consistent with those terms
+    co-occurring as a fixed per-record annotation bundle in whatever HRA
+    datasets contribute them.
+  evidence:
+    summary: "149 distinct CL terms loaded; top term CL:0000000 at 2,762 occurrences; 8 terms tied at exactly 266 occurrences each."
 
 conclusion_verdicts:
   regression_compatibility:
@@ -102,18 +116,45 @@ conclusion_verdicts:
     basis: "F-01 identifies the top term as a broad/root-level CL annotation, not a glucose-relevant cell type, answering 'which terms are most annotated' rather than 'which cell types matter most for glucose regulation'."
 
 limitations:
-  - "Occurrence count is a proxy for dataset-annotation breadth, not cell abundance in the body or physiological relevance to glucose regulation; pancreatic beta cells, hepatocytes, and adipocytes do not appear in the top 10 by this measure."
+- "Occurrence count is a proxy for dataset-annotation breadth, not cell abundance in the body or physiological relevance to glucose regulation; pancreatic beta cells, hepatocytes, and adipocytes do not appear in the top 10 by this measure."
 
 discovery_implications:
   resolved_uncertainties:
-    - "149 distinct CL terms load cleanly, count-sorted, confirming the endpoint's shape is stable and non-empty."
+  - "149 distinct CL terms load cleanly, count-sorted, confirming the endpoint's shape is stable and non-empty."
   remaining_uncertainties:
-    - "Do any of the 149 terms map to glucose-relevant cell types (beta cells, hepatocytes, adipocytes) further down the occurrence list, and should the study re-rank by relevance rather than raw occurrence?"
+  - "Do any of the 149 terms map to glucose-relevant cell types (beta cells, hepatocytes, adipocytes) further down the occurrence list, and should the study re-rank by relevance rather than raw occurrence?"
   followup_study_proposals:
-    - id: fp-cell-type-coverage
-      title: "Cell-type (CL) model coverage"
-      motivation: "Determine which BioModels represent which HRA cell types (CL terms) via SBML species annotations — extend coverage from organs to cell types."
-      study_type: analysis
-      proposed_experiment: "Parse SBML species/compartment MIRIAM annotations for Cell Ontology (CL) terms across the curated BioModels corpus, cross them against the 149 HRA cell-type term occurrences, and report a cell-type->models index alongside the existing organ-granularity coverage."
-      expected_information_gain: high
-      source_trigger: hra-cell-types
+  - id: fp-cell-type-coverage
+    title: "Cell-type (CL) model coverage"
+    motivation: "Determine which BioModels represent which HRA cell types (CL terms) via SBML species annotations — extend coverage from organs to cell types."
+    study_type: analysis
+    proposed_experiment: "Parse SBML species/compartment MIRIAM annotations for Cell Ontology (CL) terms across the curated BioModels corpus, cross them against the 149 HRA cell-type term occurrences, and report a cell-type->models index alongside the existing organ-granularity coverage."
+    expected_information_gain: high
+    source_trigger: hra-cell-types
+
+behavior_tests:
+- name: cl-terms-nonempty-sorted
+  classification: primary
+  gate_class: regression_pin
+  description: "The cell-type-term-occurences endpoint loads a non-empty, count-sorted CL term list: >=100 distinct terms (observed 149)."
+- name: top-term-dominates
+  classification: supporting
+  gate_class: regression_pin
+  description: "The top CL term occurs an order of magnitude above the next tier (observed CL:0000000 at 2,762 occurrences vs an 8-term tier clustered at exactly 266 each)."
+
+assumptions:
+- text: "A CL term's occurrence count is a proxy for how broadly that cell type has been annotated across HRA datasets, not for its abundance in the body or its physiological relevance to glucose regulation."
+- text: "Cell types are identified by Cell Ontology (CL) CURIEs."
+  cites: [Diehl2016CellOntology]
+
+literature_anchors:
+- expectation: "HRA annotates cell populations across its datasets with Cell Ontology (CL) terms."
+  model_observable: "149 distinct CL terms returned, count-sorted by occurrence."
+  source: "Diehl et al. 2016, Cell Ontology."
+  status_in_workspace: "Verified"
+  cites: [Diehl2016CellOntology]
+
+alternative_hypotheses:
+- claim: "The occurrence histogram ranks cell types by physiological importance, so its top terms are the cell types that matter most for glucose regulation."
+  discriminated_by: "The top term (CL:0000000, a root-level CL class) and an 8-term tier at 266 occurrences dominate, while pancreatic beta cells, hepatocytes and adipocytes are absent from the top 10 -- the ranking reflects dataset-annotation breadth, not glucose relevance."
+  status: excluded
