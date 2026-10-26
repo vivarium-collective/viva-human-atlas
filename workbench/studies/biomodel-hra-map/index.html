@@ -617,12 +617,43 @@ key off, and how much of the corpus does each annotation actually reach?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (3)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Bidanta2025FTU">
+          <b class="ov-src-t">Bidanta 2025</b> <span class="ov-src-k">Bidanta2025FTU</span>
+          <div class="ov-src-t">Functional tissue units in the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Bidanta, Supriya and Börner, Katy and Herr, Bruce W. and Quardokus, Ellen M. and others · 2025 · <a href="https://doi.org/10.1038/s41467-024-54591-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-MalikSheriff2020BioModels">
+          <b class="ov-src-t">Malik-Sheriff 2020</b> <span class="ov-src-k">MalikSheriff2020BioModels</span>
+          <div class="ov-src-t">BioModels---15 years of sharing computational models in life science</div>
+          <div class="ctr-meta-k" style="text-transform:none">Malik-Sheriff, Rahuman S. and Glont, Mihai and Nguyen, Tung V. N. and others · 2020 · <a href="https://doi.org/10.1093/nar/gkz1055" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -641,6 +672,25 @@ Uberon 323 (29%), cell types 363 (33%), organs 264 (24%), FTUs 163
 cell-type populations attach to 112 models (10%).
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">All curated BioModels harvest into one JSON DB, loaded network-free (build_if_missing: false); observed n_models=1,096.</div>
+          <div class="ov-metric-k">full-corpus-harvested</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">&gt;=85% of models carry &gt;=1 molecular id (observed 978/1,096 = 89%; GO 967/88%, MeSH 915/83%, UniProt 507/46%, CHEBI 480/44%).</div>
+          <div class="ov-metric-k">molecular-coverage-dense</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">HRA-anatomy coverage is real but recall-limited and below molecular coverage: ~29% carry a Uberon term (observed 323/1,096), 264 (24%) an HRA organ, 163 (15%) an FTU.</div>
+          <div class="ov-metric-k">hra-anatomy-recall-limited</div>
+        </div>
+        
+      </div>
       
       
       
@@ -1023,6 +1073,58 @@ their own SBML.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The HRA organizes the body as organ -&gt; anatomical structure -&gt; functional tissue unit -&gt; cell type.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>Per-model HRA mapping reaches organs 264 (24%), FTUs 163 (15%), cell types 363 (33%), Uberon 323 (29%).</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Boerner et al. 2021, the Human Reference Atlas.</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Functional tissue units (FTUs) are the HRA&#39;s functional anatomical subunits of an organ.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>163 models (15%) map to an HRA FTU.</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Bidanta et al. 2025, HRA functional tissue units.</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>BioModels curates dense molecular annotations (CHEBI/UniProt/KEGG/GO) in each model&#39;s SBML.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>GO 967 (88%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%); 978 (89%) carry &gt;=1 molecular id.</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Malik-Sheriff et al. 2020, BioModels.</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -1056,11 +1158,128 @@ their own SBML.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-full-corpus-harvested"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="full-corpus-harvested"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">full-corpus-harvested</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">All curated BioModels harvest into one JSON DB, loaded network-free (build_if_missing: false); observed n_models=1,096.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: All curated BioModels harvest into one JSON DB, loaded network-free (build_if_missing: false); observed n_models=1,096.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-molecular-coverage-dense"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="molecular-coverage-dense"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">molecular-coverage-dense</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">&gt;=85% of models carry &gt;=1 molecular id (observed 978/1,096 = 89%; GO 967/88%, MeSH 915/83%, UniProt 507/46%, CHEBI 480/44%).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: &gt;=85% of models carry &gt;=1 molecular id (observed 978/1,096 = 89%; GO 967/88%, MeSH 915/83%, UniProt 507/46%, CHEBI 480/44%).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-hra-anatomy-recall-limited"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="hra-anatomy-recall-limited"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">hra-anatomy-recall-limited</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">HRA-anatomy coverage is real but recall-limited and below molecular coverage: ~29% carry a Uberon term (observed 323/1,096), 264 (24%) an HRA organ, 163 (15%) an FTU.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: HRA-anatomy coverage is real but recall-limited and below molecular coverage: ~29% carry a Uberon term (observed 323/1,096), 264 (24%) an HRA organ, 163 (15%) an FTU.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1218,7 +1437,7 @@ their own SBML.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1246,7 +1465,7 @@ their own SBML.
       </p>
       
       <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
-        <code>{&#39;study&#39;: &#39;glucose-biomodel-do&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;annotation-organ-matching&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+        <code>{&#39;study&#39;: &#39;model-harvest&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;Consumes the harvested model corpus (datasets/model_hra_map.json rows) and enriches each model with HRA anatomy + molecular ids.&#39;}</code> · <code>{&#39;study&#39;: &#39;hra-reference-organs&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#34;Binds each model&#39;s reconstructed Uberon set to the HRA reference-organ set (map_to_hra).&#34;}</code> · <code>{&#39;study&#39;: &#39;hra-cell-types&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;Resolves per-model cell types against the HRA Cell Ontology (CL) term space.&#39;}</code> · <code>{&#39;study&#39;: &#39;hra-anatomical-structures&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;Resolves per-model anatomy against the HRA anatomical-structure (Uberon) term space.&#39;}</code>
       </div>
       
       
@@ -1286,6 +1505,14 @@ their own SBML.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1390,7 +1617,7 @@ their own SBML.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

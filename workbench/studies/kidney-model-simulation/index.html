@@ -592,12 +592,29 @@ them together in one interactive dashboard that shows both the models that run
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (1)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -609,6 +626,25 @@ render as one interactive dashboard where each model is a live timeseries
 or a labeled failure.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">OrganSimulationStep(organ=kidney) selects 24 runnable models (5 SBML, 19 CellML; PhysioNet excluded) and routes each by format to COPASI or OpenCOR, running in isolation so one failure never sinks the batch.</div>
+          <div class="ov-metric-k">models-routed-and-run</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">~9/19 Physiome CellML kidney models run cleanly via the single-file CellML resolver under OpenCOR; SBML models carrying SED-ML run under COPASI.</div>
+          <div class="ov-metric-k">cellml-spike-yield</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Every attempted model renders as a live Plotly timeseries OR a labeled failure card showing why it didn&#39;t run -- no silent drops.</div>
+          <div class="ov-metric-k">no-silent-drops</div>
+        </div>
+        
+      </div>
       
       
       
@@ -671,6 +707,12 @@ or a labeled failure.
       
       
       <div class="ctr-meta ctr-assess">
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Confidence</span>
+          
+          
+          
+        </div>
         
         
         <div class="ctr-meta-row"><span class="ctr-meta-k">Caveat</span> <span class="ctr-meta-item">Live run study (native COPASI + libOpenCOR, PMR/BioModels network): not offline-reproducible; the committed dashboard is a snapshot of one run.</span></div>
@@ -924,6 +966,30 @@ or a labeled failure.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The atlas maps mechanistic models to HRA organs (here kidney), which can then be run.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>select_organ_models(&#39;kidney&#39;) -&gt; 24 runnable models</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA organ-&gt;model atlas (over HRA reference organs)</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -957,11 +1023,128 @@ or a labeled failure.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-models-routed-and-run"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="models-routed-and-run"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">models-routed-and-run</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">OrganSimulationStep(organ=kidney) selects 24 runnable models (5 SBML, 19 CellML; PhysioNet excluded) and routes each by format to COPASI or OpenCOR, running in isolation so one failure never sinks the batch.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: OrganSimulationStep(organ=kidney) selects 24 runnable models (5 SBML, 19 CellML; PhysioNet excluded) and routes each by format to COPASI or OpenCOR, running in isolation so one failure never sinks the batch.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-cellml-spike-yield"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="cellml-spike-yield"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">cellml-spike-yield</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">~9/19 Physiome CellML kidney models run cleanly via the single-file CellML resolver under OpenCOR; SBML models carrying SED-ML run under COPASI.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: ~9/19 Physiome CellML kidney models run cleanly via the single-file CellML resolver under OpenCOR; SBML models carrying SED-ML run under COPASI.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-no-silent-drops"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="no-silent-drops"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">no-silent-drops</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Every attempted model renders as a live Plotly timeseries OR a labeled failure card showing why it didn&#39;t run -- no silent drops.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Every attempted model renders as a live Plotly timeseries OR a labeled failure card showing why it didn&#39;t run -- no silent drops.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1077,7 +1260,7 @@ or a labeled failure.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">OrganSimulationStep(organ=kidney) pulls 24 runnable models, routes each by format (SBML-&gt;COPASI, CellML-&gt;OpenCOR), runs them in isolation, and writes the dashboard without the batch failing on individual model errors.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -1090,7 +1273,7 @@ or a labeled failure.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The runnable subset is honestly bounded by data, not method: ~9/19 Physiome CellML models run via the single-file resolver and the SED-ML-carrying SBML models run under COPASI; failures (no SED-ML, import-heavy CellML, dead exposure pages) are shown as labeled cards, not hidden.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -1103,7 +1286,7 @@ or a labeled failure.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">An organ&#39;s atlas-mapped models become a runnable view -- every model is a live timeseries or a labeled failure in one dashboard -- turning the static atlas into executable models; the machinery is organ-parameterized to any atlas organ.</textarea>
         </label>
       </div>
     </div>
@@ -1119,7 +1302,7 @@ or a labeled failure.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1147,7 +1330,7 @@ or a labeled failure.
       </p>
       
       <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
-        <code>{&#39;study&#39;: &#39;hra-atlas-browser&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+        <code>{&#39;study&#39;: &#39;hra-atlas-browser&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
       </div>
       
       
@@ -1188,6 +1371,14 @@ or a labeled failure.
       
       
       
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
+      
     </div>
     
     
@@ -1216,7 +1407,7 @@ or a labeled failure.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

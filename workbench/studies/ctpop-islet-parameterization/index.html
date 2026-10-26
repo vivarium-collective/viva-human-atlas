@@ -612,12 +612,43 @@ Katy Boerner / Peter Hunter / SPARC describe, for the pancreatic islet FTU
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (3)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-MalikSheriff2020BioModels">
+          <b class="ov-src-t">Malik-Sheriff 2020</b> <span class="ov-src-k">MalikSheriff2020BioModels</span>
+          <div class="ov-src-t">BioModels---15 years of sharing computational models in life science</div>
+          <div class="ctr-meta-k" style="text-transform:none">Malik-Sheriff, Rahuman S. and Glont, Mihai and Nguyen, Tung V. N. and others · 2020 · <a href="https://doi.org/10.1093/nar/gkz1055" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Hucka2003SBML">
+          <b class="ov-src-t">Hucka 2003</b> <span class="ov-src-k">Hucka2003SBML</span>
+          <div class="ov-src-t">The Systems Biology Markup Language (SBML): a medium for representation and exchange of biochemical network models</div>
+          <div class="ctr-meta-k" style="text-transform:none">Hucka, Michael and Finney, Andrew and Sauro, Herbert M. and others · 2003 · <a href="https://doi.org/10.1093/bioinformatics/btg015" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Somogyi2015libRoadRunner">
+          <b class="ov-src-t">Somogyi 2015</b> <span class="ov-src-k">Somogyi2015libRoadRunner</span>
+          <div class="ov-src-t">libRoadRunner: a high performance SBML simulation and analysis library</div>
+          <div class="ctr-meta-k" style="text-transform:none">Somogyi, Endre T. and Bouteiller, Jean-Marie and Glazier, James A. and König, Matthias and Medley, J. Kyle and Swat, Maciej H. and Sauro, Herbert M. · 2015 · <a href="https://doi.org/10.1093/bioinformatics/btv363" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -635,6 +666,25 @@ stable regimes the glucose trajectory lands in, not merely its
 numeric value.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">runs.healthy: glucose G falls from 250 to ~100 mg/dL, beta-cell mass B grows from 37 to ~300, insulin I rises from 2.8 to ~10 -- the model&#39;s normal-fasting-range stable state.</div>
+          <div class="ov-metric-k">healthy_islet_physiological_fixed_point</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">runs.beta_depleted: glucose G rises from 250 to ~600 mg/dL (severe hyperglycemia) while beta-cell mass B (from 20.56) and insulin I collapse toward 0 -- the opposite stable regime from the healthy run.</div>
+          <div class="ov-metric-k">beta_depleted_crosses_bifurcation</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">b_ref = 37 is read from BIOMD0000000341&#39;s SBML, and b_init = b_ref * beta_fraction / 0.54 reproduces 37 exactly at the 54% healthy reference fraction.</div>
+          <div class="ov-metric-k">binding_is_nonhardcoded</div>
+        </div>
+        
+      </div>
       
       
       
@@ -962,6 +1012,58 @@ numeric value.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The Topp2000 beta-cell-mass model is fetched as a curated SBML BioModels entry (BIOMD0000000341).</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>runs.&lt;scenario&gt;.b_ref</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Malik-Sheriff et al. 2020 -- supports BioModels as the curated source of the model this study parameterizes.</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>b_ref (37) is read out of the model&#39;s own SBML declaration, so the composition binding is model-driven, not hardcoded.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>runs.&lt;scenario&gt;.b_ref</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Hucka et al. 2003 -- supports SBML as the machine-readable model encoding b_ref is read from.</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Trajectories are integrated by Tellurium&#39;s libRoadRunner over the model&#39;s DAYS timescale.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>runs.healthy.{time,B,G,I}</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Somogyi et al. 2015 -- supports libRoadRunner as the integrator producing the trajectories.</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -995,11 +1097,136 @@ numeric value.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-healthy_islet_physiological_fixed_point"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="healthy_islet_physiological_fixed_point"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">healthy_islet_physiological_fixed_point</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The healthy islet composition (54% beta, b_init = b_ref = 37) settles
+the Topp2000 model at its physiological fixed point over 4,000
+model-days.
+</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: runs.healthy: glucose G falls from 250 to ~100 mg/dL, beta-cell mass B grows from 37 to ~300, insulin I rises from 2.8 to ~10 -- the model&#39;s normal-fasting-range stable state.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-beta_depleted_crosses_bifurcation"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="beta_depleted_crosses_bifurcation"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">beta_depleted_crosses_bifurcation</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The T2D-relevant beta-depleted composition (30% beta,
+b_init = 37 * 0.30 / 0.54 ~ 20.56) drives the SAME model across
+Topp2000&#39;s bifurcation into its pathological fixed point.
+</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: runs.beta_depleted: glucose G rises from 250 to ~600 mg/dL (severe hyperglycemia) while beta-cell mass B (from 20.56) and insulin I collapse toward 0 -- the opposite stable regime from the healthy run.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-binding_is_nonhardcoded"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="binding_is_nonhardcoded"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">binding_is_nonhardcoded</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The CTpop-fraction -&gt; beta-cell-mass binding reads the model&#39;s own
+default initial B out of the SBML rather than hardcoding it.
+</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: b_ref = 37 is read from BIOMD0000000341&#39;s SBML, and b_init = b_ref * beta_fraction / 0.54 reproduces 37 exactly at the 54% healthy reference fraction.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1157,7 +1384,7 @@ numeric value.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-needs_calibration" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">needs_calibration</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">0/3 passed · 3 skipped</span>
       </div>
       
     </div>
@@ -1185,7 +1412,7 @@ numeric value.
       </p>
       
       <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
-        <code>{&#39;study&#39;: &#39;ftu-model-coverage&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;glucose-regulation&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+        <code>{&#39;study&#39;: &#39;ftu-model-coverage&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;glucose-regulation&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
       </div>
       
       
@@ -1225,6 +1452,14 @@ numeric value.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">0 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span> · <span style="color:#92400e;font-weight:600">3 partial</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1329,7 +1564,7 @@ numeric value.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

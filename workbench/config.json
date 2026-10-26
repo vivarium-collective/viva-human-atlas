@@ -1,7 +1,7 @@
 {
   "mode": "snapshot",
   "smsApiBase": "",
-  "repo": "https://github.com/vivarium-collective/viva-human-atlas",
-  "commit": "7f489c23737739e1457ad53476c6bb594bcf5017",
-  "generated_from_ref": "main"
+  "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
+  "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a",
+  "generated_from_ref": "harden/investigations-3act-arc"
 }

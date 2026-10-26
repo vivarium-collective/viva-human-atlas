@@ -582,12 +582,29 @@ to color/label the right node per model?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (1)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -600,6 +617,25 @@ still a literal placeholder string (&#34;pending time-series&#34;) for every
 link in v1.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">The Uberon-only join produces a non-empty link list -- observed 10 (model, GLB-node) links across 5 distinct biomodels (25-result glucose query).</div>
+          <div class="ov-metric-k">join-produces-links</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">Every linked model maps to exactly 2 GLB scene nodes (one per sex GLB) -- observed 2 links/model, all liver or pancreas, confirming the join is deterministic and reproducible.</div>
+          <div class="ov-metric-k">two-nodes-per-model</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">The per-link readout field is a literal placeholder string (&#39;pending time-series&#39;) for all 10 links in v1 -- NO simulation output is wired to a node yet, so this demonstrates join topology only, not live-data linkage.</div>
+          <div class="ov-metric-k">readout-is-placeholder</div>
+        </div>
+        
+      </div>
       
       
       
@@ -922,6 +958,30 @@ link in v1.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>A model&#39;s organ annotation can be joined to the specific ASCT+B-3D GLB scene node(s) the HRA keys to the same Uberon.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>per-link node_name on shared Uberon CURIE</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA ASCT+B-3D crosswalk / Uberon keying</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -955,11 +1015,128 @@ link in v1.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-join-produces-links"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="join-produces-links"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">join-produces-links</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The Uberon-only join produces a non-empty link list -- observed 10 (model, GLB-node) links across 5 distinct biomodels (25-result glucose query).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The Uberon-only join produces a non-empty link list -- observed 10 (model, GLB-node) links across 5 distinct biomodels (25-result glucose query).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-two-nodes-per-model"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="two-nodes-per-model"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">two-nodes-per-model</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Every linked model maps to exactly 2 GLB scene nodes (one per sex GLB) -- observed 2 links/model, all liver or pancreas, confirming the join is deterministic and reproducible.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Every linked model maps to exactly 2 GLB scene nodes (one per sex GLB) -- observed 2 links/model, all liver or pancreas, confirming the join is deterministic and reproducible.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-readout-is-placeholder"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="readout-is-placeholder"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">readout-is-placeholder</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The per-link readout field is a literal placeholder string (&#39;pending time-series&#39;) for all 10 links in v1 -- NO simulation output is wired to a node yet, so this demonstrates join topology only, not live-data linkage.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The per-link readout field is a literal placeholder string (&#39;pending time-series&#39;) for all 10 links in v1 -- NO simulation output is wired to a node yet, so this demonstrates join topology only, not live-data linkage.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1117,7 +1294,7 @@ link in v1.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-needs_calibration" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">needs_calibration</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">0/3 passed · 3 skipped</span>
       </div>
       
     </div>
@@ -1144,7 +1321,9 @@ link in v1.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;model-coverage-3d&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
+      </div>
       
       
       
@@ -1183,6 +1362,14 @@ link in v1.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">0 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span> · <span style="color:#92400e;font-weight:600">3 partial</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1270,7 +1457,7 @@ link in v1.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

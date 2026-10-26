@@ -579,12 +579,29 @@ Step-driven composite, giving a Cell Ontology (CL) term occurrence list?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">2 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (1)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Diehl2016CellOntology">
+          <b class="ov-src-t">Diehl 2016</b> <span class="ov-src-k">Diehl2016CellOntology</span>
+          <div class="ov-src-t">The Cell Ontology 2016: enhanced content, modularization, and ontology interoperability</div>
+          <div class="ctr-meta-k" style="text-transform:none">Diehl, Alexander D. and Meehan, Terrence F. and Bradford, Yvonne M. and others · 2016 · <a href="https://doi.org/10.1186/s13326-016-0088-7" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -597,6 +614,20 @@ co-occurring as a fixed per-record annotation bundle in whatever HRA
 datasets contribute them.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The cell-type-term-occurences endpoint loads a non-empty, count-sorted CL term list: &gt;=100 distinct terms (observed 149).</div>
+          <div class="ov-metric-k">cl-terms-nonempty-sorted</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The top CL term occurs an order of magnitude above the next tier (observed CL:0000000 at 2,762 occurrences vs an 8-term tier clustered at exactly 266 each).</div>
+          <div class="ov-metric-k">top-term-dominates</div>
+        </div>
+        
+      </div>
       
       
       
@@ -919,6 +950,30 @@ datasets contribute them.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>HRA annotates cell populations across its datasets with Cell Ontology (CL) terms.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>149 distinct CL terms returned, count-sorted by occurrence.</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Diehl et al. 2016, Cell Ontology.</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -952,11 +1007,88 @@ datasets contribute them.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-cl-terms-nonempty-sorted"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="cl-terms-nonempty-sorted"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">cl-terms-nonempty-sorted</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The cell-type-term-occurences endpoint loads a non-empty, count-sorted CL term list: &gt;=100 distinct terms (observed 149).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The cell-type-term-occurences endpoint loads a non-empty, count-sorted CL term list: &gt;=100 distinct terms (observed 149).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-top-term-dominates"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="top-term-dominates"
+        data-classification="supporting"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #3b82f6; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-supporting">supporting</span>
+        <strong style="font-size: 0.9em;">top-term-dominates</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The top CL term occurs an order of magnitude above the next tier (observed CL:0000000 at 2,762 occurrences vs an 8-term tier clustered at exactly 266 each).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The top CL term occurs an order of magnitude above the next tier (observed CL:0000000 at 2,762 occurrences vs an 8-term tier clustered at exactly 266 each).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1114,7 +1246,7 @@ datasets contribute them.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">2/2 passed</span>
       </div>
       
     </div>
@@ -1141,7 +1273,9 @@ datasets contribute them.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;hra-reference-organs&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;Extends the same HRA CCF-API Step pattern the reference-organ base loader establishes; CL terms are read against that organ set.&#39;}</code>
+      </div>
       
       
       
@@ -1180,6 +1314,14 @@ datasets contribute them.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>2</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">2 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1267,7 +1409,7 @@ datasets contribute them.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

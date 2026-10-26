@@ -588,12 +588,36 @@ curated BioModels corpus?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (2)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Juty2013SBO">
+          <b class="ov-src-t">Juty 2013</b> <span class="ov-src-k">Juty2013SBO</span>
+          <div class="ov-src-t">Systems Biology Ontology</div>
+          <div class="ctr-meta-k" style="text-transform:none">Juty, Nick and le Novère, Nicolas · 2013 · <a href="https://doi.org/10.1007/978-1-4419-9863-7_1287" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-MalikSheriff2020BioModels">
+          <b class="ov-src-t">Malik-Sheriff 2020</b> <span class="ov-src-k">MalikSheriff2020BioModels</span>
+          <div class="ov-src-t">BioModels---15 years of sharing computational models in life science</div>
+          <div class="ctr-meta-k" style="text-transform:none">Malik-Sheriff, Rahuman S. and Glont, Mihai and Nguyen, Tung V. N. and others · 2020 · <a href="https://doi.org/10.1093/nar/gkz1055" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -608,6 +632,25 @@ higher-recall complement to, not merely a duplicate of, name-synonym
 matching.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Annotation matching adds materially more models and organs than name-only matching (pre-stated expectation): observed +85 models and +4 whole organs (lymph-node, ovary, spleen, urinary-bladder) the name matcher never reaches.</div>
+          <div class="ov-metric-k">annotation-adds-recall</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The union of both matchers still leaves most of the corpus untagged (observed union 167/1,096 = 15.2%; 985/1,096 = 89.9% untagged by either).</div>
+          <div class="ov-metric-k">union-still-small-fraction</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The matchers are complementary, not redundant: annotation reaches organs name-matching never sees, while name-matching tags more pancreas models (36 vs 24; union 47) -- neither is a superset of the other.</div>
+          <div class="ov-metric-k">matchers-complementary</div>
+        </div>
+        
+      </div>
       
       
       
@@ -937,6 +980,30 @@ matching.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>A model&#39;s curated SBML MIRIAM metadata encodes anatomical context its title need not spell out, so annotation matching can reach organs a title never names.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>Annotation matching reaches 4 organs (lymph-node, ovary, spleen, urinary-bladder) name matching never sees; +85 models overall.</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Juty et al. 2013 (MIRIAM); Malik-Sheriff et al. 2020 (BioModels).</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -970,11 +1037,128 @@ matching.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-annotation-adds-recall"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="annotation-adds-recall"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">annotation-adds-recall</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Annotation matching adds materially more models and organs than name-only matching (pre-stated expectation): observed +85 models and +4 whole organs (lymph-node, ovary, spleen, urinary-bladder) the name matcher never reaches.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Annotation matching adds materially more models and organs than name-only matching (pre-stated expectation): observed +85 models and +4 whole organs (lymph-node, ovary, spleen, urinary-bladder) the name matcher never reaches.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-union-still-small-fraction"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="union-still-small-fraction"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">union-still-small-fraction</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The union of both matchers still leaves most of the corpus untagged (observed union 167/1,096 = 15.2%; 985/1,096 = 89.9% untagged by either).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The union of both matchers still leaves most of the corpus untagged (observed union 167/1,096 = 15.2%; 985/1,096 = 89.9% untagged by either).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-matchers-complementary"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="matchers-complementary"
+        data-classification="supporting"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #3b82f6; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-supporting">supporting</span>
+        <strong style="font-size: 0.9em;">matchers-complementary</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The matchers are complementary, not redundant: annotation reaches organs name-matching never sees, while name-matching tags more pancreas models (36 vs 24; union 47) -- neither is a superset of the other.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The matchers are complementary, not redundant: annotation reaches organs name-matching never sees, while name-matching tags more pancreas models (36 vs 24; union 47) -- neither is a superset of the other.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1132,7 +1316,7 @@ matching.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1159,7 +1343,9 @@ matching.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;glucose-biomodel-do&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#34;Compares against the name-synonym matcher&#39;s organ-&gt;models catalog (datasets/biomodel_corpus_catalog.json) -- the name matcher glucose-biomodel-do introduces.&#34;}</code> · <code>{&#39;study&#39;: &#39;annotation-organ-matching&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#34;Compares against the annotation matcher&#39;s catalog (datasets/biomodel_annotation_catalog.json) that annotation-organ-matching produces.&#34;}</code>
+      </div>
       
       
       
@@ -1198,6 +1384,14 @@ matching.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1285,7 +1479,7 @@ matching.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

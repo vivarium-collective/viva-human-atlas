@@ -589,12 +589,43 @@ that organ signal?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (3)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Juty2013SBO">
+          <b class="ov-src-t">Juty 2013</b> <span class="ov-src-k">Juty2013SBO</span>
+          <div class="ov-src-t">Systems Biology Ontology</div>
+          <div class="ctr-meta-k" style="text-transform:none">Juty, Nick and le Novère, Nicolas · 2013 · <a href="https://doi.org/10.1007/978-1-4419-9863-7_1287" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-MalikSheriff2020BioModels">
+          <b class="ov-src-t">Malik-Sheriff 2020</b> <span class="ov-src-k">MalikSheriff2020BioModels</span>
+          <div class="ov-src-t">BioModels---15 years of sharing computational models in life science</div>
+          <div class="ctr-meta-k" style="text-transform:none">Malik-Sheriff, Rahuman S. and Glont, Mihai and Nguyen, Tung V. N. and others · 2020 · <a href="https://doi.org/10.1093/nar/gkz1055" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Mungall2012Uberon">
+          <b class="ov-src-t">Mungall 2012</b> <span class="ov-src-k">Mungall2012Uberon</span>
+          <div class="ov-src-t">Uberon, an integrative multi-species anatomy ontology</div>
+          <div class="ctr-meta-k" style="text-transform:none">Mungall, Christopher J. and Torniai, Carlo and Gkoutos, Georgios V. and Lewis, Suzanna E. and Haendel, Melissa A. · 2012 · <a href="https://doi.org/10.1186/gb-2012-13-1-r5" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -607,6 +638,25 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
 (88 and 40 of 168 hits).
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">BTO-via-crosswalk dominates the organ signal: &gt;=90% of CVTerm hits resolve through the curated BTO-&gt;organ crosswalk vs direct Uberon/FMA (observed 156/168 = 92.9% BTO, 12 = 7.1% direct).</div>
+          <div class="ov-metric-k">bto-crosswalk-dominates</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Annotation matching tags ~10% of the corpus across &gt;10 organs (observed 114/1,096 = 10.4% models, 14 distinct organs).</div>
+          <div class="ov-metric-k">corpus-organ-coverage</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Occurrence/identity qualifiers dominate over compositional ones (observed BQB_OCCURS_IN 88 + BQB_IS 40 vs BQB_IS_PART_OF 4 + BQB_HAS_PART 1 of 168 hits).</div>
+          <div class="ov-metric-k">occurs-in-is-qualifiers-dominate</div>
+        </div>
+        
+      </div>
       
       
       
@@ -701,6 +751,27 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
 
     <div id="native-gallery-panel" class="figure-mount"><div class="viv-loading"><span class="viv-loading-spin" aria-hidden="true"></span><span>Loading figures…</span></div></div>
 
+    
+    
+    
+    
+    <div class="figure-card embed-viz-card">
+      <iframe src="/viva-human-atlas/workbench/reports/figures/annotation-organ-matching/models-per-organ.html"
+              class="figure-media-frame figure-media-frame--embed"
+              loading="lazy" title="Annotation-matched models per HRA organ"
+              onload="window.__fitFigureFrame&&window.__fitFigureFrame(this)"
+              ></iframe>
+      
+      <p class="figure-desc muted">Per-organ count of models tagged by SBML MIRIAM/BTO annotation matching across the 14 HRA organs reached (114/1,096 models), the catalog whose organ signal is 92.9% BTO-via-crosswalk.</p>
+      
+      <div class="figure-caption-row">
+        <span class="figure-source-chip">embed</span>
+        <span class="figure-title">Annotation-matched models per HRA organ</span>
+        
+        <a href="/viva-human-atlas/workbench/reports/figures/annotation-organ-matching/models-per-organ.html" target="_blank" class="figure-open-link">Open in new tab ↗</a>
+      </div>
+    </div>
+    
     
     
 
@@ -913,6 +984,44 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>BioModels curators annotate SBML elements with MIRIAM CVTerms (biological qualifier + ontology resource URI), far more often with tissue (BTO) than with direct anatomy (Uberon/FMA).</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>168 CVTerm hits: ontology BTO 156 vs UBERON 12; qualifiers BQB_OCCURS_IN 88, BQB_IS 40, BQB_IS_VERSION_OF 35.</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Juty et al. 2013 (MIRIAM/SBO qualifiers); Malik-Sheriff et al. 2020 (BioModels curation).</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Resolved organ terms map to Uberon anatomy.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>14 distinct HRA organs reached across 114 tagged models.</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Mungall et al. 2012, Uberon.</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -946,11 +1055,128 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-bto-crosswalk-dominates"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="bto-crosswalk-dominates"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">bto-crosswalk-dominates</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">BTO-via-crosswalk dominates the organ signal: &gt;=90% of CVTerm hits resolve through the curated BTO-&gt;organ crosswalk vs direct Uberon/FMA (observed 156/168 = 92.9% BTO, 12 = 7.1% direct).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: BTO-via-crosswalk dominates the organ signal: &gt;=90% of CVTerm hits resolve through the curated BTO-&gt;organ crosswalk vs direct Uberon/FMA (observed 156/168 = 92.9% BTO, 12 = 7.1% direct).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-corpus-organ-coverage"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="corpus-organ-coverage"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">corpus-organ-coverage</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Annotation matching tags ~10% of the corpus across &gt;10 organs (observed 114/1,096 = 10.4% models, 14 distinct organs).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Annotation matching tags ~10% of the corpus across &gt;10 organs (observed 114/1,096 = 10.4% models, 14 distinct organs).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-occurs-in-is-qualifiers-dominate"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="occurs-in-is-qualifiers-dominate"
+        data-classification="supporting"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #3b82f6; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-supporting">supporting</span>
+        <strong style="font-size: 0.9em;">occurs-in-is-qualifiers-dominate</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Occurrence/identity qualifiers dominate over compositional ones (observed BQB_OCCURS_IN 88 + BQB_IS 40 vs BQB_IS_PART_OF 4 + BQB_HAS_PART 1 of 168 hits).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Occurrence/identity qualifiers dominate over compositional ones (observed BQB_OCCURS_IN 88 + BQB_IS 40 vs BQB_IS_PART_OF 4 + BQB_HAS_PART 1 of 168 hits).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -999,10 +1225,10 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
         
       </span>
       
-      <span class="status-step  gate-status-passed-with-conditions gate-current">
+      <span class="status-step set gate-status-passed">
         <span class="dot"></span>3 · Evidence
         
-        <span class="gate-current-tag">you are here</span>
+        
       </span>
       
       <span class="status-step set gate-status-passed">
@@ -1017,10 +1243,10 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
         
       </span>
       
-      <span class="status-step  gate-status-not-assessed">
+      <span class="status-step  gate-status-not-assessed gate-current">
         <span class="dot"></span>6 · Release
         
-        
+        <span class="gate-current-tag">you are here</span>
       </span>
       
       
@@ -1108,7 +1334,7 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1135,7 +1361,9 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;biomodel-hra-map&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;Scans the SBML MIRIAM/BTO annotations of the same 1,096-model BioModels corpus biomodel-hra-map harvests; the BTO-&gt;organ crosswalk resolves them to the HRA organ set.&#39;}</code>
+      </div>
       
       
       
@@ -1174,6 +1402,14 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1261,7 +1497,7 @@ mechanism, and `BQB_OCCURS_IN`/`BQB_IS` are the dominant qualifiers
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

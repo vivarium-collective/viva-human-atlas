@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python hra-3d.py
 
-Figures are written to:  reports/notebooks/figures
+Figures are written to:  reports/published/workbench/investigation-notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -17,7 +17,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
     _os.execv(_sys.executable, [_sys.executable, *_sys.argv])
 
 
-# # HRA-3D — Model Coverage on the Human Reference Atlas 3D Anatomy
+# # Act 3 · Coverage — Models on the HRA 3D Anatomy
 #
 # _Investigation `hra-3d` — coder reproduction notebook._
 #
@@ -27,11 +27,17 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # 1,096-model curated-corpus scale — and can we view that coverage/linkage
 # directly on the 3D anatomy?
 #
-# Builds the 3D-anatomy side of the fetch-and-compare spine: the full
-# ASCT+B-3D crosswalk and a glomerulus FTU digital object, organ-
-# granularity model coverage crossed with the biomodel-DO index at both
-# query scale and full-corpus scale, model->AS->GLB-node spatial linkage,
-# and a materialized three.js viewer pack.
+# **Act 3 of 3** in the viva-human-atlas arc — Trust → Atlas → **Coverage**.
+# Consumes Act 2's organ→models atlas and asks the payoff question: *which of
+# the HRA's anatomical structures actually have a mechanistic model, and where
+# is the modeling white-space?* Builds the 3D-anatomy side of the
+# fetch-and-compare spine: the full ASCT+B-3D crosswalk and a glomerulus FTU
+# digital object, organ-granularity model coverage crossed with the
+# biomodel-DO index at both query scale and full-corpus scale,
+# model->AS->GLB-node spatial linkage, an end-to-end reproducible build
+# pipeline (`atlas-pipeline`), a per-organ simulation pass
+# (`kidney-model-simulation`), and a materialized three.js viewer pack.
+# ← Prev: **Act 2 · Atlas** (`hra-integration`).
 #
 # ---
 #
@@ -74,8 +80,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
-    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--harden-3act').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--harden-3act')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -273,6 +279,23 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | crosswalk-loads-full-tree |  |  |
+# | uberon-density |  |  |
+# | organ-span |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The HRA cuts whole-organ reference models into per-anatomical-structure nodes keyed to Uberon. | fraction of crosswalk rows with a resolvable UBERON CURIE | HRA anatomical-structure / Uberon design | confirmed: 1,730/2,295 (75.4%) rows Uberon-keyed |
+# | Uberon supplies the integrative multi-species anatomy CURIEs the crosswalk keys structures to. | resolvability of each row's UBERON: CURIE | Uberon anatomy ontology | confirmed: Uberon CURIEs resolve for the mesh/surface rows |
+
 # ## Study: Model Coverage 3D — AS/Organ Coverage from BioModel-DO Annotations (`model-coverage-3d`)
 #
 # **Question.** Of the HRA ASCT+B-3D crosswalk's 1,400+ anatomical structures (and ~81
@@ -292,6 +315,21 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | query-coverage-fires |  |  |
+# | coverage-matches-query-scope |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | Model coverage is reported over the HRA's Uberon-keyed anatomical structures crossed with the ASCT+B-3D crosswalk. | coverage_summary.n_as_covered / n_as over crosswalk rows | HRA anatomical-structure framework | confirmed at query scope: 58/1,730 AS nodes |
 
 # ## Study: Spatial Linkage — Model -> AS -> GLB Scene-Node Links (`spatial-linkage`)
 #
@@ -313,6 +351,22 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | join-produces-links |  |  |
+# | two-nodes-per-model |  |  |
+# | readout-is-placeholder |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | A model's organ annotation can be joined to the specific ASCT+B-3D GLB scene node(s) the HRA keys to the same Uberon. | per-link node_name on shared Uberon CURIE | HRA ASCT+B-3D crosswalk / Uberon keying | confirmed: 10 links/5 models, Uberon-only join |
+
 # ## Study: FTU Glomerulus — 3D Functional-Tissue-Unit Digital Object (`ftu-glomerulus`)
 #
 # **Question.** Does the HRA CDN's glomerulus 3D functional-tissue-unit (FTU) digital
@@ -333,6 +387,21 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | ftu-record-loads |  |  |
+# | glb-asset-live |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The HRA publishes sub-organ functional tissue units (e.g. the glomerulus) as 3D digital objects below whole-organ granularity. | ftu record + resolvable glb_url for slug=glomerulus | HRA functional tissue units | confirmed: glomerulus FTU v1.0 loads, GLB resolves HTTP 200 |
 
 # ## Study: Corpus Coverage — Full 1,096-Model BioModels Catalog on HRA 3D Anatomy (`corpus-coverage`)
 #
@@ -392,6 +461,22 @@ if RERUN:
 else:
     print("RERUN=False — not re-simulating.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | full-corpus-widens-coverage |  |  |
+# | newly-reaches-kidney |  |  |
+# | catalog-retrieval-yield |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | Coverage of the HRA anatomical-structure tree is the payoff metric: how much HRA anatomy has at least one mechanistic model. | coverage_summary.n_as_covered / n_organs_glb_covered at full-corpus scale | HRA anatomical-structure framework | confirmed: 635/1,730 AS nodes, 31/114 organs |
+
 # ## Study: FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units? (`ftu-model-coverage`)
 #
 # **Question.** Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
@@ -449,6 +534,22 @@ if RERUN:
 else:
     print("RERUN=False — not re-simulating.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | ftus-covered |  |  |
+# | ftu-whitespace |  |  |
+# | ctpop-seam-is-stub |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | Existing mechanistic models should already target some HRA functional tissue units (Katy Boerner's question). | ftu_coverage_summary.n_ftus_covered / n_models_matched over the 11-FTU list | HRA functional tissue units | confirmed for 5/11 FTUs (13 models); 6/11 uncovered |
+
 # ## Study: CTpop -> Topp2000 Islet Parameterization — Beta-Cell Composition Shifts the Glucose Setpoint (`ctpop-islet-parameterization`)
 #
 # **Question.** Does binding HRA CTpop islet cell-type composition to the Topp2000
@@ -470,6 +571,24 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | healthy_islet_physiological_fixed_point |  |  |
+# | beta_depleted_crosses_bifurcation |  |  |
+# | binding_is_nonhardcoded |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The Topp2000 beta-cell-mass model is fetched as a curated SBML BioModels entry (BIOMD0000000341). | runs.<scenario>.b_ref | Malik-Sheriff et al. 2020 -- supports BioModels as the curated source of the model this study parameterizes. |  |
+# | b_ref (37) is read out of the model's own SBML declaration, so the composition binding is model-driven, not hardcoded. | runs.<scenario>.b_ref | Hucka et al. 2003 -- supports SBML as the machine-readable model encoding b_ref is read from. |  |
+# | Trajectories are integrated by Tellurium's libRoadRunner over the model's DAYS timescale. | runs.healthy.{time,B,G,I} | Somogyi et al. 2015 -- supports libRoadRunner as the integrator producing the trajectories. |  |
 
 # ## Study: Blood Vasculature Network — VCCF transport graph to couple organ models (`blood-vasculature-network`)
 #
@@ -529,6 +648,22 @@ if RERUN:
 else:
     print("RERUN=False — not re-simulating.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | closed-circuits |  |  |
+# | graph-size |  |  |
+# | topology-only |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The HRA/VCCF enumerates per-FTU vessel paths that can define a whole-body transport topology. | n_ftus / n_closed_circuits over FTU_Table_S1 | HRA functional tissue units + VCCF vasculature | confirmed: 28 FTU circuits, all closed |
+
 # ## Study: HRA Computational Model Atlas — organ selector + model-count gradient + subregion placement (`hra-atlas-browser`)
 #
 # **Question.** Can we present the full HRA-3D model-coverage picture as an interactive
@@ -551,6 +686,136 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | all-organs-selectable |  |  |
+# | subregion-placement |  |  |
+# | honest-whole-organ-fallback |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | Mechanistic models can be presented on the HRA's 3D reference organs and anatomical-systems partonomy, colored by coverage. | atlas manifest n_organs / n_modeled / n_subregions | HRA reference organs + anatomical-systems partonomy | confirmed: 50 organs / 12 systems / 19 modeled / 52 subregions |
+# | The HRA Knowledge Graph's structured anatomy/enrichment data (ASCT+B gene->Uberon, HRApop) drives model-to-structure placement. | n_anatomy_models / n_cell_type_models placement split | HRA Knowledge Graph | confirmed: 58 anatomy + 6 cell-type placements |
+
+# ## Study: HRA Computational Model Atlas — the end-to-end, reproducible build pipeline (`atlas-pipeline`)
+#
+# **Question.** How is the HRA Computational Model Atlas actually built — end to end, from
+# external model repositories and Human Reference Atlas services down to the
+# atlas.json the 3D viewer renders — and can that whole build be run as ONE
+# connected process-bigraph composite that reproducibly regenerates the same
+# artifact offline, with every stage visible and connectable in the modules tab?
+
+# ### Parameters
+#
+# | simulation | composite | steps | params |
+# | --- | --- | --- | --- |
+# | `baseline` | `viva_human_atlas.composites.atlas_pipeline.hra-atlas-pipeline` | 0 | out_dir=studies/hra-atlas-browser/viz/atlas, live=False |
+
+# ### The model & its parameters
+#
+# Each composite is a process-bigraph *document* — named processes wired by `inputs`/`outputs` ports over shared stores. Below, each composite shows what it does, then a **parameter cell** with its tunable knobs (the current default and what each one means). Edit any value, then re-run the **Run** section to rebuild and re-simulate with your changes.
+
+# **The model — `viva_human_atlas.composites.atlas_pipeline.hra-atlas-pipeline`**
+#
+# End-to-end HRA Computational Model Atlas build: harvest models -> gene/organism enrichment -> HRApop linkage -> atlas pack, wired as a connectable Step DAG. Offline (live=false) it replays the committed datasets and regenerates atlas.json identically.
+
+# === Parameters — edit any value, then re-run from the Run cell below ===
+# Each entry is the composite's current default; the comment explains it.
+ov_viva_human_atlas_composites_atlas_pipeline_hra_atlas_pipeline = {
+    'out_dir': 'studies/hra-atlas-browser/viz/atlas',   # Directory the atlas pack is written to.
+    'live'   : False,   # Re-harvest/re-enrich from external APIs (may drift).
+}
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: atlas-pipeline ===
+STUDY = 'atlas-pipeline'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+# This study has no *recorded* runs yet. RERUN builds its declared
+# composite(s) live and runs them; a composite whose module processes
+# are not implemented yet reports the error instead of crashing.
+STEPS_baseline = 100
+INTERVAL_baseline = 1.0
+
+if RERUN:
+    from process_bigraph import Composite
+    try:
+        with quiet():  # keep per-step stdout out of the notebook
+            _ov = ov_viva_human_atlas_composites_atlas_pipeline_hra_atlas_pipeline if 'ov_viva_human_atlas_composites_atlas_pipeline_hra_atlas_pipeline' in dir() else None  # edits from the panel cell, if any
+            spec_viva_human_atlas_composites_atlas_pipeline_hra_atlas_pipeline = materialize_composite('viva_human_atlas.composites.atlas_pipeline.hra-atlas-pipeline', _ov)
+            _comp = Composite({'state': spec_viva_human_atlas_composites_atlas_pipeline_hra_atlas_pipeline['state']}, core=core)
+            _comp.run(STEPS_baseline)
+        print('ran', 'baseline', f'(viva_human_atlas.composites.atlas_pipeline.hra-atlas-pipeline) for', STEPS_baseline, 'steps')
+    except Exception as _e:
+        print(f"baseline not runnable yet: {type(_e).__name__}: {_e}")
+else:
+    print("RERUN=False — not re-simulating.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | offline-byte-identical |  |  |
+# | connected-step-dag |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The atlas is built over the HRA reference organs and anatomical-systems partonomy. | regenerated atlas manifest n_organs / n_modeled / n_subregions | HRA reference organs + partonomy | confirmed: offline rebuild reproduces 50 organs / 24 modeled / 689 models / 52 subregions |
+# | The pipeline harvests HRA Knowledge Graph data (ASCT+B tables, HRApop populations, gene->Uberon) to enrich and place models. | the 5-Step DAG's ASCT+B / HRApop enrichment stages feeding atlas placement | HRA Knowledge Graph construction/deployment | confirmed: AsctbTablesStep + HRApopEnrichStep wired into the composite |
+
+# ## Study: Kidney model simulation — run every atlas-mapped kidney model in its compatible simulator (`kidney-model-simulation`)
+#
+# **Question.** Can we take the models the atlas maps to an organ — kidney — pull every one,
+# load each into its COMPATIBLE simulator (SBML BioModels under COPASI, CellML
+# Physiome models under OpenCOR), run each to a timeseries, and present all of
+# them together in one interactive dashboard that shows both the models that run
+# (with real trajectories) and the ones that don't (with the reason)?
+
+# ### Parameters
+
+# ### Run
+#
+# _Set `STEPS`, then run. Each composite is built live from its (edited) spec above and run; a composite whose module processes aren't implemented yet reports the error instead of crashing. Set `RERUN = False` to skip re-simulating._
+
+# === Study: kidney-model-simulation ===
+STUDY = 'kidney-model-simulation'
+STUDY_DIR = REPO / 'studies' / STUDY
+STUDY_YAML = str(STUDY_DIR / "study.yaml")
+RUNS_DB = str(STUDY_DIR / "runs.db")
+
+print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | models-routed-and-run |  |  |
+# | cellml-spike-yield |  |  |
+# | no-silent-drops |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The atlas maps mechanistic models to HRA organs (here kidney), which can then be run. | select_organ_models('kidney') -> 24 runnable models | HRA organ->model atlas (over HRA reference organs) | confirmed: 24 kidney models selected and routed |
 
 # ## Open decisions
 # - Which HRA organs/FTUs have ZERO mechanistic models (the modeling white-space)?

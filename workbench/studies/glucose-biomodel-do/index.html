@@ -579,12 +579,36 @@ of treating the whole search-result set as anatomically undifferentiated.
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (2)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-MalikSheriff2020BioModels">
+          <b class="ov-src-t">Malik-Sheriff 2020</b> <span class="ov-src-k">MalikSheriff2020BioModels</span>
+          <div class="ov-src-t">BioModels---15 years of sharing computational models in life science</div>
+          <div class="ctr-meta-k" style="text-transform:none">Malik-Sheriff, Rahuman S. and Glont, Mihai and Nguyen, Tung V. N. and others · 2020 · <a href="https://doi.org/10.1093/nar/gkz1055" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Mungall2012Uberon">
+          <b class="ov-src-t">Mungall 2012</b> <span class="ov-src-k">Mungall2012Uberon</span>
+          <div class="ov-src-t">Uberon, an integrative multi-species anatomy ontology</div>
+          <div class="ctr-meta-k" style="text-transform:none">Mungall, Christopher J. and Torniai, Carlo and Gkoutos, Georgios V. and Lewis, Suzanna E. and Haendel, Melissa A. · 2012 · <a href="https://doi.org/10.1186/gb-2012-13-1-r5" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -599,6 +623,25 @@ buffering), confirming the synonym-match mechanism assigns organs
 correctly when it fires.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">At least one glucose-regulation BioModel maps to &gt;=1 HRA organ (pre-stated expectation; observed 5/25 tagged across 2 organs).</div>
+          <div class="ov-metric-k">at-least-one-organ-tagged</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Pancreas is the dominant tagged organ, as glucose-homeostasis biology predicts (pre-stated expectation; observed pancreas 4 models vs liver 1).</div>
+          <div class="ov-metric-k">pancreas-dominates</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The organ-&gt;models index is inspectable, not a black box: per-organ model IDs are enumerated (pancreas UBERON:0001264 -&gt; 4 model IDs; liver UBERON:0002107 -&gt; 1).</div>
+          <div class="ov-metric-k">organ-index-inspectable</div>
+        </div>
+        
+      </div>
       
       
       
@@ -923,6 +966,30 @@ correctly when it fires.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>A BioModels SBML entry can be given an explicit HRA anatomical address (a Uberon organ).</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>organ_to_models maps pancreas (UBERON:0001264, 4 models) and liver (UBERON:0002107, 1 model).</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Malik-Sheriff et al. 2020 (BioModels); Mungall et al. 2012 (Uberon).</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -956,11 +1023,128 @@ correctly when it fires.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-at-least-one-organ-tagged"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="at-least-one-organ-tagged"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">at-least-one-organ-tagged</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">At least one glucose-regulation BioModel maps to &gt;=1 HRA organ (pre-stated expectation; observed 5/25 tagged across 2 organs).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: At least one glucose-regulation BioModel maps to &gt;=1 HRA organ (pre-stated expectation; observed 5/25 tagged across 2 organs).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-pancreas-dominates"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="pancreas-dominates"
+        data-classification="primary"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #10b981; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-primary">primary</span>
+        <strong style="font-size: 0.9em;">pancreas-dominates</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Pancreas is the dominant tagged organ, as glucose-homeostasis biology predicts (pre-stated expectation; observed pancreas 4 models vs liver 1).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Pancreas is the dominant tagged organ, as glucose-homeostasis biology predicts (pre-stated expectation; observed pancreas 4 models vs liver 1).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-organ-index-inspectable"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="organ-index-inspectable"
+        data-classification="supporting"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #3b82f6; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-supporting">supporting</span>
+        <strong style="font-size: 0.9em;">organ-index-inspectable</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The organ-&gt;models index is inspectable, not a black box: per-organ model IDs are enumerated (pancreas UBERON:0001264 -&gt; 4 model IDs; liver UBERON:0002107 -&gt; 1).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The organ-&gt;models index is inspectable, not a black box: per-organ model IDs are enumerated (pancreas UBERON:0001264 -&gt; 4 model IDs; liver UBERON:0002107 -&gt; 1).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1118,7 +1302,7 @@ correctly when it fires.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1145,7 +1329,9 @@ correctly when it fires.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;hra-reference-organs&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;build_organ_index() keys the synonym matcher off the live HRA reference-organ slugs/synonyms.&#39;}</code> · <code>{&#39;study&#39;: &#39;model-harvest&#39;, &#39;relation&#39;: &#39;builds-on&#39;, &#39;rationale&#39;: &#39;Operates over BioModels glucose-regulation models -- the BioModels corpus model-harvest harvests into the unified DB (this study runs a live 25-result search rather than reading the DB file directly).&#39;}</code>
+      </div>
       
       
       
@@ -1184,6 +1370,14 @@ correctly when it fires.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1271,7 +1465,7 @@ correctly when it fires.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

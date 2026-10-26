@@ -581,12 +581,43 @@ genuinely stiff/edge-case model or an engine-specific SBML-loading gap
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">2 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (3)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Hoops2006COPASI">
+          <b class="ov-src-t">Hoops 2006</b> <span class="ov-src-k">Hoops2006COPASI</span>
+          <div class="ov-src-t">COPASI---a COmplex PAthway SImulator</div>
+          <div class="ctr-meta-k" style="text-transform:none">Hoops, Stefan and Sahle, Sven and Gauges, Ralph and others · 2006 · <a href="https://doi.org/10.1093/bioinformatics/btl485" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Somogyi2015libRoadRunner">
+          <b class="ov-src-t">Somogyi 2015</b> <span class="ov-src-k">Somogyi2015libRoadRunner</span>
+          <div class="ov-src-t">libRoadRunner: a high performance SBML simulation and analysis library</div>
+          <div class="ctr-meta-k" style="text-transform:none">Somogyi, Endre T. and Bouteiller, Jean-Marie and Glazier, James A. and König, Matthias and Medley, J. Kyle and Swat, Maciej H. and Sauro, Herbert M. · 2015 · <a href="https://doi.org/10.1093/bioinformatics/btv363" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-MalikSheriff2020BioModels">
+          <b class="ov-src-t">Malik-Sheriff 2020</b> <span class="ov-src-k">MalikSheriff2020BioModels</span>
+          <div class="ov-src-t">BioModels---15 years of sharing computational models in life science</div>
+          <div class="ctr-meta-k" style="text-transform:none">Malik-Sheriff, Rahuman S. and Glont, Mihai and Nguyen, Tung V. N. and others · 2020 · <a href="https://doi.org/10.1093/nar/gkz1055" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -602,6 +633,20 @@ identically on a missing SED-ML file, a load-time gap rather than a
 numerical disagreement.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">This run measures mean nRMSE 2.05e-07 (bucket &#34;Good (&lt;=1%)&#34;), independently cross-validated by the committed full-corpus dataset&#39;s 1.61e-07 measurement of the same model -- near-perfect agreement, well inside the 1% acceptance bucket.</div>
+          <div class="ov-metric-k">cross_engine_agreement_biomd633</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">4/5 models (the non-curated MODEL* entries) fail identically with &#34;could not find a .sedml file in entry&#34; -- a load-time SED-ML gap, not a numerical-divergence failure.</div>
+          <div class="ov-metric-k">load_failures_attributed</div>
+        </div>
+        
+      </div>
       
       
       
@@ -932,6 +977,58 @@ numerical disagreement.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>COPASI integrates SBML via its LSODA-based deterministic solver, the reference engine this study checks Tellurium against.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>per-model COPASI-vs-Tellurium nRMSE</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Hoops et al. 2006 -- supports COPASI as an established SBML ODE integrator.</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Tellurium&#39;s libRoadRunner (CVODE) is an independent high-performance SBML integrator, so agreement with COPASI is a genuine cross-implementation check, not two runs of the same solver.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>per-model COPASI-vs-Tellurium nRMSE</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Somogyi et al. 2015 -- supports libRoadRunner as an independent SBML integration engine.</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Curated BIOMD* BioModels entries are the SED-ML-complete, trustworthy subset; non-curated MODEL* preprint entries may ship without a simulation protocol and fail to load.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>count of models that fail to load in one engine</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Malik-Sheriff et al. 2020 -- supports the curated-vs-non-curated BioModels distinction behind the load failures.</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -965,11 +1062,93 @@ numerical disagreement.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-cross_engine_agreement_biomd633"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="cross_engine_agreement_biomd633"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">cross_engine_agreement_biomd633</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">BIOMD0000000633 (Bulik2016 hepatic glucose metabolism) loads and
+integrates under BOTH COPASI and Tellurium, and its mean cross-engine
+nRMSE falls in the &#34;Good (&lt;=1%)&#34; bucket across the 30 shared species.
+</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: This run measures mean nRMSE 2.05e-07 (bucket &#34;Good (&lt;=1%)&#34;), independently cross-validated by the committed full-corpus dataset&#39;s 1.61e-07 measurement of the same model -- near-perfect agreement, well inside the 1% acceptance bucket.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-load_failures_attributed"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="load_failures_attributed"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">load_failures_attributed</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Every model that fails is attributed to a specific, named cause rather
+than left as an unexplained engine disagreement.
+</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: 4/5 models (the non-curated MODEL* entries) fail identically with &#34;could not find a .sedml file in entry&#34; -- a load-time SED-ML gap, not a numerical-divergence failure.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1127,7 +1306,7 @@ numerical disagreement.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">2/2 passed</span>
       </div>
       
     </div>
@@ -1193,6 +1372,14 @@ numerical disagreement.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>2</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">2 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1297,7 +1484,7 @@ numerical disagreement.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

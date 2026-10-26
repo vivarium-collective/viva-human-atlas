@@ -618,12 +618,36 @@ rather than distributing every model uniformly across the whole organ?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (2)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Bueckle2025HRAKG">
+          <b class="ov-src-t">Bueckle 2025</b> <span class="ov-src-k">Bueckle2025HRAKG</span>
+          <div class="ov-src-t">Construction, Deployment, and Usage of the Human Reference Atlas Knowledge Graph</div>
+          <div class="ctr-meta-k" style="text-transform:none">Bueckle, Andreas and Herr, Bruce W. and Hardi, Josef and Quardokus, Ellen M. and Musen, Mark A. and Börner, Katy · 2025 · <a href="https://doi.org/10.1038/s41597-025-05183-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -636,6 +660,25 @@ older name/annotation catalogs — a whole-atlas overview of where
 mechanistic modeling exists, each organ linking to its BioModels.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The atlas manifest enumerates all 50 GLB-backed HRA organs in 12 anatomical systems, with 19 carrying &gt;=1 model (256 distinct models, blood 52 max).</div>
+          <div class="ov-metric-k">all-organs-selectable</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Placement driven up from models&#39; anatomy + cell types resolves 64 models onto 52 organ subregions in 9 organs (58 via anatomy, 6 via cell-type enrichment; 219 total placements).</div>
+          <div class="ov-metric-k">subregion-placement</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Models that resolve to no subregion fall back to the whole organ -- including every model in heavily-modeled liver, because the curated FTUs (islet, glomerulus, lobule, alveolus) have no ASCT+B-3D mesh to color -- the honest majority given…</div>
+          <div class="ov-metric-k">honest-whole-organ-fallback</div>
+        </div>
+        
+      </div>
       
       
       
@@ -753,6 +796,12 @@ back to the whole organ elsewhere.
       
       
       <div class="ctr-meta ctr-assess">
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Confidence</span>
+          
+          
+          
+        </div>
         
         
         <div class="ctr-meta-row"><span class="ctr-meta-k">Caveat</span> <span class="ctr-meta-item">The CELL-TYPE placement path is still bounded by HRApop&#39;s coarse anatomical-structure granularity (gross regions, not FTUs) — most cell types are spread evenly across an organ&#39;s structures and enrich in none, so only 6 models place via cell-type enrichment; the 58-model jump came from the gene-derived ASCT+B anatomy path, not from cell types.</span></div>
@@ -1006,6 +1055,44 @@ back to the whole organ elsewhere.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Mechanistic models can be presented on the HRA&#39;s 3D reference organs and anatomical-systems partonomy, colored by coverage.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>atlas manifest n_organs / n_modeled / n_subregions</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA reference organs + anatomical-systems partonomy</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The HRA Knowledge Graph&#39;s structured anatomy/enrichment data (ASCT+B gene-&gt;Uberon, HRApop) drives model-to-structure placement.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>n_anatomy_models / n_cell_type_models placement split</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA Knowledge Graph</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -1039,11 +1126,128 @@ back to the whole organ elsewhere.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-all-organs-selectable"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="all-organs-selectable"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">all-organs-selectable</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The atlas manifest enumerates all 50 GLB-backed HRA organs in 12 anatomical systems, with 19 carrying &gt;=1 model (256 distinct models, blood 52 max).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The atlas manifest enumerates all 50 GLB-backed HRA organs in 12 anatomical systems, with 19 carrying &gt;=1 model (256 distinct models, blood 52 max).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-subregion-placement"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="subregion-placement"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">subregion-placement</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Placement driven up from models&#39; anatomy + cell types resolves 64 models onto 52 organ subregions in 9 organs (58 via anatomy, 6 via cell-type enrichment; 219 total placements).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Placement driven up from models&#39; anatomy + cell types resolves 64 models onto 52 organ subregions in 9 organs (58 via anatomy, 6 via cell-type enrichment; 219 total placements).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-honest-whole-organ-fallback"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="honest-whole-organ-fallback"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">honest-whole-organ-fallback</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Models that resolve to no subregion fall back to the whole organ -- including every model in heavily-modeled liver, because the curated FTUs (islet, glomerulus, lobule, alveolus) have no ASCT+B-3D mesh to color -- the honest majority given the data.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Models that resolve to no subregion fall back to the whole organ -- including every model in heavily-modeled liver, because the curated FTUs (islet, glomerulus, lobule, alveolus) have no ASCT+B-3D mesh to color -- the honest majority given…</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1159,7 +1363,7 @@ back to the whole organ elsewhere.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">The baseline atlas-manifest build (ComputationalModelAtlas over model_hra_map.json) completed without error, enumerating all 50 GLB-backed organs.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -1172,7 +1376,7 @@ back to the whole organ elsewhere.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The manifest reproduces the real coverage picture -- 19/50 organs modeled (256 distinct models, blood 52 max) and 64 models resolved onto 52 subregions in 9 organs (58 via anatomy, 6 via cell type) -- a measured rendering of where modeling exists, not a calibrated biological prediction.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -1185,7 +1389,7 @@ back to the whole organ elsewhere.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">Subregion placement replaces uniform within-organ distribution with per-anatomical-structure coloring where the data supports it, while heavily-modeled liver honestly stays whole-organ because its FTUs have no 3D-crosswalk mesh -- the browser makes both coverage and its limits legible.</textarea>
         </label>
       </div>
     </div>
@@ -1201,7 +1405,7 @@ back to the whole organ elsewhere.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1229,7 +1433,7 @@ back to the whole organ elsewhere.
       </p>
       
       <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
-        <code>{&#39;study&#39;: &#39;biomodel-hra-map&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;annotation-recall-gain&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+        <code>{&#39;study&#39;: &#39;biomodel-hra-map&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;annotation-recall-gain&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;corpus-coverage&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code> · <code>{&#39;study&#39;: &#39;spatial-linkage&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
       </div>
       
       
@@ -1269,6 +1473,14 @@ back to the whole organ elsewhere.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1373,7 +1585,7 @@ back to the whole organ elsewhere.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

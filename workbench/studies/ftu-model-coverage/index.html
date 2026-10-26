@@ -603,12 +603,29 @@ RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (1)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Bidanta2025FTU">
+          <b class="ov-src-t">Bidanta 2025</b> <span class="ov-src-k">Bidanta2025FTU</span>
+          <div class="ov-src-t">Functional tissue units in the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Bidanta, Supriya and Börner, Katy and Herr, Bruce W. and Quardokus, Ellen M. and others · 2025 · <a href="https://doi.org/10.1038/s41467-024-54591-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -626,6 +643,25 @@ BioModels do already model several HRA FTUs, but real modeling
 white-space remains for the rest.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">Crossing the committed corpus against the curated 11-FTU list by name/synonym match covers 5/11 FTUs by &gt;=1 model -- pancreatic islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 13 distinct models total.</div>
+          <div class="ov-metric-k">ftus-covered</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">6/11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero corpus models at this granularity -- a real modeling white-space, honestly reported.</div>
+          <div class="ov-metric-k">ftu-whitespace</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">ctpop_parameter_stub identifies a covered FTU&#39;s candidate CTpop-parameterizable cell types (islet beta/alpha/delta, CL:0000169/0171/0173) but binds NO real cell-type count to any model parameter -- the seam is stubbed, not implemented.</div>
+          <div class="ov-metric-k">ctpop-seam-is-stub</div>
+        </div>
+        
+      </div>
       
       
       
@@ -958,6 +994,30 @@ white-space remains for the rest.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Existing mechanistic models should already target some HRA functional tissue units (Katy Boerner&#39;s question).</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>ftu_coverage_summary.n_ftus_covered / n_models_matched over the 11-FTU list</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA functional tissue units</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -991,11 +1051,128 @@ white-space remains for the rest.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-ftus-covered"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="ftus-covered"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">ftus-covered</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Crossing the committed corpus against the curated 11-FTU list by name/synonym match covers 5/11 FTUs by &gt;=1 model -- pancreatic islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 13 distinct models total.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Crossing the committed corpus against the curated 11-FTU list by name/synonym match covers 5/11 FTUs by &gt;=1 model -- pancreatic islet (3), colon crypt (4), cardiac muscle (3), liver lobule (2), skin epidermis (1); 13 distinct models total.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-ftu-whitespace"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="ftu-whitespace"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">ftu-whitespace</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">6/11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero corpus models at this granularity -- a real modeling white-space, honestly reported.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: 6/11 curated FTUs (kidney glomerulus, kidney nephron, lung alveolus, small-intestine crypt-villus axis, ovarian follicle, lymph node follicle) match zero corpus models at this granularity -- a real modeling white-space, honestly reported.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-ctpop-seam-is-stub"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="ctpop-seam-is-stub"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">ctpop-seam-is-stub</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">ctpop_parameter_stub identifies a covered FTU&#39;s candidate CTpop-parameterizable cell types (islet beta/alpha/delta, CL:0000169/0171/0173) but binds NO real cell-type count to any model parameter -- the seam is stubbed, not implemented.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: ctpop_parameter_stub identifies a covered FTU&#39;s candidate CTpop-parameterizable cell types (islet beta/alpha/delta, CL:0000169/0171/0173) but binds NO real cell-type count to any model parameter -- the seam is stubbed, not implemented.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1153,7 +1330,7 @@ white-space remains for the rest.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-needs_calibration" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">needs_calibration</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">0/3 passed · 3 skipped</span>
       </div>
       
     </div>
@@ -1180,7 +1357,9 @@ white-space remains for the rest.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;corpus-coverage&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code> · <code>{&#39;study&#39;: &#39;ftu-glomerulus&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
+      </div>
       
       
       
@@ -1219,6 +1398,14 @@ white-space remains for the rest.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">0 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span> · <span style="color:#92400e;font-weight:600">3 partial</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1306,7 +1493,7 @@ white-space remains for the rest.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

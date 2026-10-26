@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python glucose-regulation.py
 
-Figures are written to:  reports/notebooks/figures
+Figures are written to:  reports/published/workbench/investigation-notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -17,17 +17,21 @@ if _os.environ.get("PYTHONUTF8") != "1":
     _os.execv(_sys.executable, [_sys.executable, *_sys.argv])
 
 
-# # Glucose Regulation — COPASI vs Tellurium
+# # Act 1 · Model Trust — COPASI vs Tellurium
 #
 # _Investigation `glucose-regulation` — coder reproduction notebook._
 #
 # **Question.** For BioModels matching "glucose regulation", do COPASI and Tellurium agree on
 # the time-course dynamics — and which models diverge or fail to load in one engine?
 #
-# The first investigation in viva-human-atlas: a cross-engine (COPASI vs
-# Tellurium) correctness check on BioModels matching "glucose regulation",
-# establishing a trustworthy fetch-and-compare spine before ontology
-# linking and the 3D-spatial connection build on top of it.
+# **Act 1 of 3** in the viva-human-atlas arc — **Trust → Atlas → Coverage**.
+# The foundation: a cross-engine (COPASI vs Tellurium) correctness check on
+# BioModels matching "glucose regulation", establishing a trustworthy
+# fetch-and-compare spine. If two independent engines don't agree on the same
+# model, nothing built on top of those models can be trusted — so this act
+# earns that trust before Act 2 maps models onto HRA anatomy and Act 3
+# measures 3D coverage.
+# → Next: **Act 2 · Atlas** (investigation `hra-integration`).
 #
 # ---
 #
@@ -70,8 +74,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
-    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--harden-3act').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--harden-3act')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -305,6 +309,23 @@ if RERUN:
 else:
     print("RERUN=False — not re-simulating.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | cross_engine_agreement_biomd633 |  |  |
+# | load_failures_attributed |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | COPASI integrates SBML via its LSODA-based deterministic solver, the reference engine this study checks Tellurium against. | per-model COPASI-vs-Tellurium nRMSE | Hoops et al. 2006 -- supports COPASI as an established SBML ODE integrator. |  |
+# | Tellurium's libRoadRunner (CVODE) is an independent high-performance SBML integrator, so agreement with COPASI is a genuine cross-implementation check, not two runs of the same solver. | per-model COPASI-vs-Tellurium nRMSE | Somogyi et al. 2015 -- supports libRoadRunner as an independent SBML integration engine. |  |
+# | Curated BIOMD* BioModels entries are the SED-ML-complete, trustworthy subset; non-curated MODEL* preprint entries may ship without a simulation protocol and fail to load. | count of models that fail to load in one engine | Malik-Sheriff et al. 2020 -- supports the curated-vs-non-curated BioModels distinction behind the load failures. |  |
+
 # ## Study: CTpop -> Topp2000 Islet Parameterization — Beta-Cell Composition Shifts the Glucose Setpoint (`ctpop-islet-parameterization`)
 #
 # **Question.** Does binding HRA CTpop islet cell-type composition to the Topp2000
@@ -326,6 +347,24 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | healthy_islet_physiological_fixed_point |  |  |
+# | beta_depleted_crosses_bifurcation |  |  |
+# | binding_is_nonhardcoded |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The Topp2000 beta-cell-mass model is fetched as a curated SBML BioModels entry (BIOMD0000000341). | runs.<scenario>.b_ref | Malik-Sheriff et al. 2020 -- supports BioModels as the curated source of the model this study parameterizes. |  |
+# | b_ref (37) is read out of the model's own SBML declaration, so the composition binding is model-driven, not hardcoded. | runs.<scenario>.b_ref | Hucka et al. 2003 -- supports SBML as the machine-readable model encoding b_ref is read from. |  |
+# | Trajectories are integrated by Tellurium's libRoadRunner over the model's DAYS timescale. | runs.healthy.{time,B,G,I} | Somogyi et al. 2015 -- supports libRoadRunner as the integrator producing the trajectories. |  |
 
 # ## Open decisions
 # - Why do most curated glucose models fail to load in both engines (missing SED-ML)? Recover them?

@@ -4,7 +4,7 @@
 Run from anywhere with the workspace's virtualenv, e.g.:
     .venv/bin/python hra-integration.py
 
-Figures are written to:  reports/notebooks/figures
+Figures are written to:  reports/published/workbench/investigation-notebooks/figures
 Set RERUN = False (below) to render the committed runs.db without re-simulating.
 """
 import os as _os
@@ -17,7 +17,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
     _os.execv(_sys.executable, [_sys.executable, *_sys.argv])
 
 
-# # HRA API Integration — Datasets, Ontology, and BioModel Digital Objects
+# # Act 2 · Atlas — Mapping Models to HRA Anatomy
 #
 # _Investigation `hra-integration` — coder reproduction notebook._
 #
@@ -27,8 +27,11 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # organ->models index — and, having built that index, actually get the
 # resulting models onto the HRA atlas as something a user can see?
 #
-# Builds the HRA (Human Reference Atlas) side of the fetch-and-compare
-# spine, then closes the loop into the Atlas Browser: a thin CCF-API
+# **Act 2 of 3** in the viva-human-atlas arc — Trust → **Atlas** → Coverage.
+# Takes the trustworthy models from Act 1 and gives each one an anatomical
+# address. Builds the HRA (Human Reference Atlas) side of the
+# fetch-and-compare spine, then closes the loop into the Atlas Browser: a
+# thin CCF-API
 # client (reference organs, cell-type terms, anatomical-structure terms);
 # a biomodel Digital Object annotation layer with two complementary organ
 # matchers — name-synonym matching over BioModels titles, and
@@ -38,6 +41,7 @@ if _os.environ.get("PYTHONUTF8") != "1":
 # (`studies/hra-atlas-browser/viz/atlas/`) that renders the resulting
 # organ->models index as an interactive 3D atlas a user can actually see
 # biomodels attached to.
+# ← Prev: **Act 1 · Model Trust** (`glucose-regulation`) · → Next: **Act 3 · Coverage** (`hra-3d`).
 #
 # ---
 #
@@ -80,8 +84,8 @@ if _env and Path(_env).is_dir():
     REPO = Path(_env)
 if REPO is None:
     REPO = _find_repo_root(Path.cwd().resolve())
-if REPO is None and Path('/home/runner/work/viva-human-atlas/viva-human-atlas').is_dir():
-    REPO = Path('/home/runner/work/viva-human-atlas/viva-human-atlas')
+if REPO is None and Path('/Users/eranagmon/code/viva-human-atlas--harden-3act').is_dir():
+    REPO = Path('/Users/eranagmon/code/viva-human-atlas--harden-3act')
 if REPO is None:
     REPO = Path.cwd()
 sys.path.insert(0, str(REPO))
@@ -277,6 +281,23 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | reference-organs-nonempty _(primary)_ |  |  |
+# | uberon-keyed-majority _(primary)_ |  |  |
+# | per-sex-split _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The HRA provides a per-sex, Uberon-keyed whole-organ reference set as the spatial scaffold of the atlas. | 81 reference-organ entries loaded; 69 UBERON-keyed; split 45 female-specific / 36 male-specific. | Boerner et al. 2021, the Human Reference Atlas / Common Coordinate Framework. | Verified |
+# | Whole organs are identified by Uberon anatomy CURIEs. | 69/81 entries resolve to a UBERON: CURIE (the remainder to FMA). | Mungall et al. 2012, Uberon integrated anatomy ontology. | Verified |
+
 # ## Study: HRA Cell-Type Term Occurrences (`hra-cell-types`)
 #
 # **Question.** Does the HRA CCF API's cell-type-term-occurences endpoint load into a
@@ -295,6 +316,21 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | cl-terms-nonempty-sorted _(primary)_ |  |  |
+# | top-term-dominates _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | HRA annotates cell populations across its datasets with Cell Ontology (CL) terms. | 149 distinct CL terms returned, count-sorted by occurrence. | Diehl et al. 2016, Cell Ontology. | Verified |
 
 # ## Study: HRA Anatomical-Structure Term Occurrences (`hra-anatomical-structures`)
 #
@@ -315,6 +351,21 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | anatomical-terms-nonempty-sorted _(primary)_ |  |  |
+# | cross-endpoint-consistency _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | HRA records which anatomical structures its datasets sample from, keyed to Uberon anatomy terms. | 288 distinct anatomical-structure terms; top term UBERON:0013702 at 2,762 occurrences. | Boerner et al. 2021 (HRA/CCF); Mungall et al. 2012 (Uberon). | Verified |
+
 # ## Study: Glucose BioModel Digital Objects — Uberon Organ Annotation (`glucose-biomodel-do`)
 #
 # **Question.** Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
@@ -333,6 +384,22 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | at-least-one-organ-tagged _(primary)_ |  |  |
+# | pancreas-dominates _(primary)_ |  |  |
+# | organ-index-inspectable _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | A BioModels SBML entry can be given an explicit HRA anatomical address (a Uberon organ). | organ_to_models maps pancreas (UBERON:0001264, 4 models) and liver (UBERON:0002107, 1 model). | Malik-Sheriff et al. 2020 (BioModels); Mungall et al. 2012 (Uberon). | Partial (name-only matching, 5/25 tagged). |
 
 # ## Study: Annotation-Based Organ Matching — SBML MIRIAM + BTO Crosswalk Provenance (`annotation-organ-matching`)
 #
@@ -390,6 +457,23 @@ if RERUN:
         print(f"baseline not runnable yet: {type(_e).__name__}: {_e}")
 else:
     print("RERUN=False — not re-simulating.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | bto-crosswalk-dominates _(primary)_ |  |  |
+# | corpus-organ-coverage _(primary)_ |  |  |
+# | occurs-in-is-qualifiers-dominate _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | BioModels curators annotate SBML elements with MIRIAM CVTerms (biological qualifier + ontology resource URI), far more often with tissue (BTO) than with direct anatomy (Uberon/FMA). | 168 CVTerm hits: ontology BTO 156 vs UBERON 12; qualifiers BQB_OCCURS_IN 88, BQB_IS 40, BQB_IS_VERSION_OF 35. | Juty et al. 2013 (MIRIAM/SBO qualifiers); Malik-Sheriff et al. 2020 (BioModels curation). | Verified |
+# | Resolved organ terms map to Uberon anatomy. | 14 distinct HRA organs reached across 114 tagged models. | Mungall et al. 2012, Uberon. | Verified |
 
 # ## Study: Annotation Recall Gain — Annotation-Matching vs Name-Only Organ Tagging (`annotation-recall-gain`)
 #
@@ -449,6 +533,22 @@ if RERUN:
 else:
     print("RERUN=False — not re-simulating.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | annotation-adds-recall _(primary)_ |  |  |
+# | union-still-small-fraction _(primary)_ |  |  |
+# | matchers-complementary _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | A model's curated SBML MIRIAM metadata encodes anatomical context its title need not spell out, so annotation matching can reach organs a title never names. | Annotation matching reaches 4 organs (lymph-node, ovary, spleen, urinary-bladder) name matching never sees; +85 models overall. | Juty et al. 2013 (MIRIAM); Malik-Sheriff et al. 2020 (BioModels). | Verified |
+
 # ## Study: BioModels → HRA Map — Harvesting the Curated Corpus into the Human Reference Atlas (`biomodel-hra-map`)
 #
 # **Question.** Can we harvest the entire curated BioModels corpus into a single, reusable
@@ -472,6 +572,24 @@ RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
 
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | full-corpus-harvested _(primary)_ |  |  |
+# | molecular-coverage-dense _(primary)_ |  |  |
+# | hra-anatomy-recall-limited _(primary)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | The HRA organizes the body as organ -> anatomical structure -> functional tissue unit -> cell type. | Per-model HRA mapping reaches organs 264 (24%), FTUs 163 (15%), cell types 363 (33%), Uberon 323 (29%). | Boerner et al. 2021, the Human Reference Atlas. | Partial (recall-limited anatomy). |
+# | Functional tissue units (FTUs) are the HRA's functional anatomical subunits of an organ. | 163 models (15%) map to an HRA FTU. | Bidanta et al. 2025, HRA functional tissue units. | Partial |
+# | BioModels curates dense molecular annotations (CHEBI/UniProt/KEGG/GO) in each model's SBML. | GO 967 (88%), UniProt 507 (46%), CHEBI 480 (44%), KEGG 322 (29%); 978 (89%) carry >=1 molecular id. | Malik-Sheriff et al. 2020, BioModels. | Verified |
+
 # ## Study: Unified Model Harvest — BioModels + PhysioNet into the HRA Model DB (`model-harvest`)
 #
 # **Question.** Can a single Step reproduce/refresh the unified HRA model DB
@@ -493,6 +611,22 @@ STUDY_YAML = str(STUDY_DIR / "study.yaml")
 RUNS_DB = str(STUDY_DIR / "runs.db")
 
 print("No baseline composite declared for this study — nothing to build.")
+
+# ### Acceptance criteria
+#
+# _Pre-registered checks (criteria/thresholds only — run the cells above to evaluate them)._
+#
+# | test | measures | passes if |
+# | --- | --- | --- |
+# | per-source-counts-sum _(primary)_ |  |  |
+# | incremental-non-destructive _(primary)_ |  |  |
+# | network-free-baseline _(supporting)_ |  |  |
+
+# ### Literature anchors
+#
+# | expectation | model observable | source | status |
+# | --- | --- | --- | --- |
+# | BioModels is the curated repository of published quantitative systems-biology models. | 1,096 BioModels rows harvested into the unified HRA model DB (repository=biomodels). | Malik-Sheriff et al. 2020, BioModels. | Verified |
 
 # ## Open decisions
 # - Resolved: SBML MIRIAM/BTO annotation matching (annotation-organ-matching, annotation-recall-gain) raised full-corpus recall from 82/1,096 (7.5%) to a 167/1,096 (15.2%) union across 14 organs. Should the union (not name-only) become the default organ->models index the Atlas Browser and downstream coverage studies key off?

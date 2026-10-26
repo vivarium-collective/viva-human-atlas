@@ -589,12 +589,36 @@ and source-organ GLB names?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (2)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Mungall2012Uberon">
+          <b class="ov-src-t">Mungall 2012</b> <span class="ov-src-k">Mungall2012Uberon</span>
+          <div class="ov-src-t">Uberon, an integrative multi-species anatomy ontology</div>
+          <div class="ctr-meta-k" style="text-transform:none">Mungall, Christopher J. and Torniai, Carlo and Gkoutos, Georgios V. and Lewis, Suzanna E. and Haendel, Melissa A. · 2012 · <a href="https://doi.org/10.1186/gb-2012-13-1-r5" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -607,6 +631,25 @@ floor -- confirming the crosswalk gives materially finer anatomical
 granularity than the whole-organ GLBs alone.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The live ASCT+B-3D crosswalk fetch loads &gt;=2,000 anatomical-structure rows (observed 2,295), well above the ~81 reference-organ GLB floor and the ~1,400+ original estimate.</div>
+          <div class="ov-metric-k">crosswalk-loads-full-tree</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">At least 75% of loaded crosswalk rows carry a resolvable UBERON CURIE (observed 1,730/2,295 = 75.4%); the remaining organizational grouping nodes are correctly excluded from coverage.</div>
+          <div class="ov-metric-k">uberon-density</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The crosswalk spans &gt;=100 distinct source-organ GLBs (observed 116, both sexes), confirming materially finer granularity than the whole-organ reference models.</div>
+          <div class="ov-metric-k">organ-span</div>
+        </div>
+        
+      </div>
       
       
       
@@ -929,6 +972,44 @@ granularity than the whole-organ GLBs alone.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The HRA cuts whole-organ reference models into per-anatomical-structure nodes keyed to Uberon.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>fraction of crosswalk rows with a resolvable UBERON CURIE</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA anatomical-structure / Uberon design</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Uberon supplies the integrative multi-species anatomy CURIEs the crosswalk keys structures to.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>resolvability of each row&#39;s UBERON: CURIE</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> Uberon anatomy ontology</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -962,11 +1043,128 @@ granularity than the whole-organ GLBs alone.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-crosswalk-loads-full-tree"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="crosswalk-loads-full-tree"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">crosswalk-loads-full-tree</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The live ASCT+B-3D crosswalk fetch loads &gt;=2,000 anatomical-structure rows (observed 2,295), well above the ~81 reference-organ GLB floor and the ~1,400+ original estimate.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The live ASCT+B-3D crosswalk fetch loads &gt;=2,000 anatomical-structure rows (observed 2,295), well above the ~81 reference-organ GLB floor and the ~1,400+ original estimate.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-uberon-density"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="uberon-density"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">uberon-density</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">At least 75% of loaded crosswalk rows carry a resolvable UBERON CURIE (observed 1,730/2,295 = 75.4%); the remaining organizational grouping nodes are correctly excluded from coverage.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: At least 75% of loaded crosswalk rows carry a resolvable UBERON CURIE (observed 1,730/2,295 = 75.4%); the remaining organizational grouping nodes are correctly excluded from coverage.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-organ-span"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="organ-span"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">organ-span</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The crosswalk spans &gt;=100 distinct source-organ GLBs (observed 116, both sexes), confirming materially finer granularity than the whole-organ reference models.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The crosswalk spans &gt;=100 distinct source-organ GLBs (observed 116, both sexes), confirming materially finer granularity than the whole-organ reference models.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1124,7 +1322,7 @@ granularity than the whole-organ GLBs alone.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">3/3 passed</span>
       </div>
       
     </div>
@@ -1190,6 +1388,14 @@ granularity than the whole-organ GLBs alone.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">3 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1277,7 +1483,7 @@ granularity than the whole-organ GLBs alone.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

@@ -595,12 +595,36 @@ artifact offline, with every stage visible and connectable in the modules tab?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">2 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (2)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+        
+        <div class="ov-src" id="sref-Bueckle2025HRAKG">
+          <b class="ov-src-t">Bueckle 2025</b> <span class="ov-src-k">Bueckle2025HRAKG</span>
+          <div class="ov-src-t">Construction, Deployment, and Usage of the Human Reference Atlas Knowledge Graph</div>
+          <div class="ctr-meta-k" style="text-transform:none">Bueckle, Andreas and Herr, Bruce W. and Hardi, Josef and Quardokus, Ellen M. and Musen, Mark A. and Börner, Katy · 2025 · <a href="https://doi.org/10.1038/s41597-025-05183-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -614,6 +638,20 @@ scripts — is now a first-class Step visible and connectable in the modules
 tab / Composite Explorer.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">Two offline runs of the hra-atlas-pipeline composite regenerate atlas.json byte-identically, and the offline run reproduces the committed atlas readouts exactly (50 organs, 24 modeled, 689 distinct models, 52 subregions in 9 organs).</div>
+          <div class="ov-metric-k">offline-byte-identical</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-pass">
+          <div class="ov-metric-v">The build is ONE connected Step DAG (ModelHarvest + AsctbTables -&gt; GeneEnrich + HRApopEnrich -&gt; ComputationalModelAtlas), every stage a first-class Step in the modules tab -- not a pile of loose scripts.</div>
+          <div class="ov-metric-k">connected-step-dag</div>
+        </div>
+        
+      </div>
       
       
       
@@ -727,6 +765,12 @@ the frozen snapshot; live=true re-harvests from the source APIs.
       
       
       <div class="ctr-meta ctr-assess">
+        
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Confidence</span>
+          
+          
+          
+        </div>
         
         
         <div class="ctr-meta-row"><span class="ctr-meta-k">Caveat</span> <span class="ctr-meta-item">Reproducibility is offline-replay of the committed datasets; a live re-harvest (live=true) drifts with the upstream BioModels/Physiome/PhysioNet repositories, HRA services, UniProt/ENA, and the LLM literature extraction, and is not bit-identical run-to-run.</span></div>
@@ -985,6 +1029,44 @@ the frozen snapshot; live=true re-harvests from the source APIs.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The atlas is built over the HRA reference organs and anatomical-systems partonomy.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>regenerated atlas manifest n_organs / n_modeled / n_subregions</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA reference organs + partonomy</div>
+        
+      </li>
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>The pipeline harvests HRA Knowledge Graph data (ASCT+B tables, HRApop populations, gene-&gt;Uberon) to enrich and place models.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>the 5-Step DAG&#39;s ASCT+B / HRApop enrichment stages feeding atlas placement</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA Knowledge Graph construction/deployment</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -1018,11 +1100,88 @@ the frozen snapshot; live=true re-harvests from the source APIs.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-offline-byte-identical"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="offline-byte-identical"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">offline-byte-identical</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Two offline runs of the hra-atlas-pipeline composite regenerate atlas.json byte-identically, and the offline run reproduces the committed atlas readouts exactly (50 organs, 24 modeled, 689 distinct models, 52 subregions in 9 organs).</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Two offline runs of the hra-atlas-pipeline composite regenerate atlas.json byte-identically, and the offline run reproduces the committed atlas readouts exactly (50 organs, 24 modeled, 689 distinct models, 52 subregions in 9 organs).</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-connected-step-dag"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="connected-step-dag"
+        data-classification="unclassified"
+        data-result="PASS"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #d1fae5; color: #065f46">✓ PASS</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">connected-step-dag</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The build is ONE connected Step DAG (ModelHarvest + AsctbTables -&gt; GeneEnrich + HRApopEnrich -&gt; ComputationalModelAtlas), every stage a first-class Step in the modules tab -- not a pile of loose scripts.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The build is ONE connected Step DAG (ModelHarvest + AsctbTables -&gt; GeneEnrich + HRApopEnrich -&gt; ComputationalModelAtlas), every stage a first-class Step in the modules tab -- not a pile of loose scripts.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1138,7 +1297,7 @@ the frozen snapshot; live=true re-harvests from the source APIs.
           <span class="narrative-label">Regression basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.regression_compatibility.basis"
-                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged."></textarea>
+                    placeholder="e.g. Builds cleanly; tests pass; pyproject deps unchanged.">Two offline runs of the hra-atlas-pipeline composite regenerate atlas.json byte-identically, and the offline run reproduces the committed atlas readouts exactly (50 organs, 24 modeled, 689 distinct models, 52 subregions).</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Empirical validation</span>
@@ -1151,7 +1310,7 @@ the frozen snapshot; live=true re-harvests from the source APIs.
           <span class="narrative-label">Empirical basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.biological_validation.basis"
-                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5]."></textarea>
+                    placeholder="e.g. atp_fraction = 0.997, outside Boesen 2024 band [0.2, 0.5].">The study adds no new biological finding -- the subregion-placement science and coverage numbers are inherited from hra-atlas-browser; it validates the BUILD (connected Step DAG, offline-replay determinism), not new biology.</textarea>
         </label>
         <label class="narrative-row">
           <span class="narrative-label">Explanatory gain</span>
@@ -1164,7 +1323,7 @@ the frozen snapshot; live=true re-harvests from the source APIs.
           <span class="narrative-label">Explanatory basis</span>
           <textarea class="narrative-input narrative-textarea" rows="2"
                     data-narrative-path="conclusion_verdicts.explanatory_gain.basis"
-                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed."></textarea>
+                    placeholder="e.g. Three findings worth keeping; design_pivot_required closed.">The full multi-source build is one connected process-bigraph composite with every stage a first-class Step in the modules tab, so the interactive pipeline and the CLIs share a core and cannot diverge -- the reproducibility and presentation gain.</textarea>
         </label>
       </div>
     </div>
@@ -1180,7 +1339,7 @@ the frozen snapshot; live=true re-harvests from the source APIs.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-passed" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">passed</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">2/2 passed</span>
       </div>
       
     </div>
@@ -1208,7 +1367,7 @@ the frozen snapshot; live=true re-harvests from the source APIs.
       </p>
       
       <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
-        <code>{&#39;study&#39;: &#39;model-harvest&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;biomodel-hra-map&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code> · <code>{&#39;study&#39;: &#39;hra-atlas-browser&#39;, &#39;relation&#39;: &#39;leads-to&#39;}</code>
+        <code>{&#39;study&#39;: &#39;model-harvest&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code> · <code>{&#39;study&#39;: &#39;biomodel-hra-map&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code> · <code>{&#39;study&#39;: &#39;hra-atlas-browser&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
       </div>
       
       
@@ -1249,6 +1408,14 @@ the frozen snapshot; live=true re-harvests from the source APIs.
       
       
       
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>2</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">2 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
+      
     </div>
     
     
@@ -1277,7 +1444,7 @@ the frozen snapshot; live=true re-harvests from the source APIs.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>

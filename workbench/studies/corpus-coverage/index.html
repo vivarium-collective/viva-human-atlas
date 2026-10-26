@@ -590,12 +590,29 @@ misses (e.g. kidney)?
       <div class="ctr-meta">
         <div class="ctr-meta-row"><span class="ctr-meta-k">Model</span> <code>baseline</code><a class="ov-tablink" href="#" onclick="_setStudyTab('compose');return false;">model →</a></div>
         
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Measures</span> <span class="ctr-meta-item">3 behavior tests</span><a class="ov-tablink" href="#" onclick="_setStudyTab('audit');return false;">see Tests →</a></div>
+        
       </div>
     </div>
 
     
     
     
+    
+    <div class="ctr-block ov-prov">
+      <h2 class="overview-label ctr-h">Provenance &amp; sources</h2>
+      <div class="ctr-meta-k" style="margin-top:12px">Sources (1)</div>
+      <div class="ov-sources">
+      
+        
+        <div class="ov-src" id="sref-Boerner2021HRA">
+          <b class="ov-src-t">Börner 2021</b> <span class="ov-src-k">Boerner2021HRA</span>
+          <div class="ov-src-t">Anatomical structures, cell types and biomarkers of the Human Reference Atlas</div>
+          <div class="ctr-meta-k" style="text-transform:none">Börner, Katy and Teichmann, Sarah A. and Quardokus, Ellen M. and others · 2021 · <a href="https://doi.org/10.1038/s41556-021-00788-6" target="_blank" rel="noopener">source ↗</a></div>
+        </div>
+      
+      </div>
+    </div>
     
 
     <div class="ctr-block">
@@ -609,6 +626,25 @@ full-corpus retrieval finds anatomically relevant models a single
 search term misses entirely.
 </p>
       
+      
+      <div class="ov-metrics">
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">Crossing the full committed 1,096-model catalog with the crosswalk covers materially more than the query-scoped study -- observed 635/1,730 AS nodes (36.7%) across 31/114 organ GLBs, roughly an order of magnitude above the 58/4 of model-co…</div>
+          <div class="ov-metric-k">full-corpus-widens-coverage</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">Full-corpus coverage reaches kidney (VH_F/M_Kidney_L/_R), which the 25-result glucose query missed entirely -- confirming retrieval breadth, not query choice, is the coverage lever.</div>
+          <div class="ov-metric-k">newly-reaches-kidney</div>
+        </div>
+        
+        <div class="ov-metric ov-metric-warn">
+          <div class="ov-metric-v">The committed catalog retrieves all 1,096 curated BioModels IDs and organ-tags 82 of them (7.5%); only tagged models contribute coverage.</div>
+          <div class="ov-metric-k">catalog-retrieval-yield</div>
+        </div>
+        
+      </div>
       
       
       
@@ -937,6 +973,30 @@ search term misses entirely.
 
   
   
+  
+  <div class="overview-section expectations-band" id="expectations-band">
+    <h3 class="section-title">Expectations
+      <span class="muted" style="font-size:0.85em;font-weight:normal">— from literature, mapped to the model observable that measures each</span>
+    </h3>
+    <ul class="literature-anchor-list" style="list-style:none;padding-left:0">
+    
+      
+      <li class="literature-anchor-card expectation-item">
+        <div class="anchor-expectation" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span>Coverage of the HRA anatomical-structure tree is the payoff metric: how much HRA anatomy has at least one mechanistic model.</span>
+          
+        </div>
+        <div class="anchor-observable">
+          <em>Model observable:</em> <code>coverage_summary.n_as_covered / n_organs_glb_covered at full-corpus scale</code>
+        </div>
+        
+        <div class="anchor-source"><em>Source:</em> HRA anatomical-structure framework</div>
+        
+      </li>
+    
+    </ul>
+  </div>
+  
 
   
   
@@ -970,11 +1030,128 @@ search term misses entirely.
   
   
   
-  <ul class="tests-list" id="tests-list" style="margin-top: 12px;">
-    <li class="placeholder">No <code>expected_behavior:</code> entries declared in study.yaml yet.
-      Add some to see them appear here as test rows. Click "Run tests" to discover and
-      execute additional <code>studies/&lt;slug&gt;/tests/test_*.py</code> files alongside
-      the auto-generated assertions.</li>
+  <ul class="expected-behavior-list" id="tests-list" style="list-style:none; padding-left:0; margin-top: 12px;">
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-full-corpus-widens-coverage"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="full-corpus-widens-coverage"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">full-corpus-widens-coverage</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Crossing the full committed 1,096-model catalog with the crosswalk covers materially more than the query-scoped study -- observed 635/1,730 AS nodes (36.7%) across 31/114 organ GLBs, roughly an order of magnitude above the 58/4 of model-coverage-3d.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Crossing the full committed 1,096-model catalog with the crosswalk covers materially more than the query-scoped study -- observed 635/1,730 AS nodes (36.7%) across 31/114 organ GLBs, roughly an order of magnitude above the 58/4 of model-co…</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-newly-reaches-kidney"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="newly-reaches-kidney"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">newly-reaches-kidney</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">Full-corpus coverage reaches kidney (VH_F/M_Kidney_L/_R), which the 25-result glucose query missed entirely -- confirming retrieval breadth, not query choice, is the coverage lever.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: Full-corpus coverage reaches kidney (VH_F/M_Kidney_L/_R), which the 25-result glucose query missed entirely -- confirming retrieval breadth, not query choice, is the coverage lever.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
+    
+    
+    
+    
+    
+    
+    
+    <li class="expected-behavior-item" id="bt-catalog-retrieval-yield"
+        data-test-kind="behavioral"
+        
+        data-pytest-node="catalog-retrieval-yield"
+        data-classification="unclassified"
+        data-result="PARTIAL"
+        style="margin: 0 0 10px 0; padding: 10px 12px; border-left: 4px solid #cbd5e1; background: #f8fafc; border-radius: 4px;">
+      
+        
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+        <span class="bt-result" style="font-size: 0.75em; font-family: monospace; padding: 2px 8px; border-radius: 9999px; background: #fde68a; color: #92400e">◐ partial</span>
+        <span class="classification-pill classification-unclassified">unclassified</span>
+        <strong style="font-size: 0.9em;">catalog-retrieval-yield</strong>
+        
+      </div>
+      <div style="margin-top: 6px; font-size: 0.95em;">The committed catalog retrieves all 1,096 curated BioModels IDs and organ-tags 82 of them (7.5%); only tagged models contribute coverage.</div>
+      
+      <div style="margin-top:6px;font-size:0.85em;padding:6px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:3px">
+        <strong>Latest result:</strong>
+        
+        
+          
+          <code style="font-family:ui-monospace,monospace;color:#475569;margin-right:8px">observed: The committed catalog retrieves all 1,096 curated BioModels IDs and organ-tags 82 of them (7.5%); only tagged models contribute coverage.</code>
+          
+        
+      </div>
+      
+      
+      
+      
+      
+    </li>
+    
   </ul>
   
   </div>
@@ -1132,7 +1309,7 @@ search term misses entirely.
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span class="gate-status-needs_calibration" style="padding:2px 12px;border-radius:9999px;font-weight:700;font-size:0.85em">needs_calibration</span>
         
-        <span class="muted small">0/0 passed</span>
+        <span class="muted small">0/3 passed · 3 skipped</span>
       </div>
       
     </div>
@@ -1159,7 +1336,9 @@ search term misses entirely.
         Each study is a model-building gate: it answers <em>"Can we safely build the next layer?"</em>
       </p>
       
-      <div style="margin-bottom:6px"><strong>Prerequisites:</strong> <em class="muted">none (root study)</em></div>
+      <div style="margin-bottom:6px"><strong>Prerequisites:</strong>
+        <code>{&#39;study&#39;: &#39;model-coverage-3d&#39;, &#39;relation&#39;: &#39;builds-on&#39;}</code>
+      </div>
       
       
       
@@ -1198,6 +1377,14 @@ search term misses entirely.
       </div>
       
       
+      
+      <p class="muted" style="margin:0;font-size:0.9em">
+        <strong>3</strong> test outcomes
+        — <span style="color:#065f46;font-weight:600">0 PASS</span> ·
+        <span style="color:#991b1b;font-weight:600">0 FAIL</span> · <span style="color:#92400e;font-weight:600">3 partial</span>.
+        Per-test outcomes (measured value · evaluator · band) are canonical on the
+        <a onclick="_setStudyTab('audit')" style="cursor:pointer;color:#3b82f6;text-decoration:underline">Tests (in Audit) →</a>.
+      </p>
       
     </div>
     
@@ -1285,7 +1472,7 @@ search term misses entirely.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "7f489c23737739e1457ad53476c6bb594bcf5017", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/7f489c23737739e1457ad53476c6bb594bcf5017", "branch": "main", "generated_at": "2026-10-25 23:39 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/harden/investigations-3act-arc", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "f19f6a57e4cd9659806356a1019e73b553ed5a3a", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/f19f6a57e4cd9659806356a1019e73b553ed5a3a", "branch": "harden/investigations-3act-arc", "generated_at": "2026-10-26 02:39 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>
