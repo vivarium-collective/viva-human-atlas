@@ -70,6 +70,19 @@ for pack in "$WS_ROOT"/studies/*/viz/atlas; do
   echo "copied viewer pack: studies/$slug/viz/atlas"
 done
 
+# Same for the self-contained Model Connectivity Network packs (studies/*/viz/
+# network): the d3 force-graph explorer + its network.json. Committed, but the
+# static publisher doesn't copy arbitrary viz/ trees, so the viewer (and the
+# baked Explore/Analyses `model-connectivity-network` launcher that points at
+# /studies/<slug>/viz/network/index.html) would 404 without this.
+for pack in "$WS_ROOT"/studies/*/viz/network; do
+  [ -d "$pack" ] || continue
+  slug=$(basename "$(dirname "$(dirname "$pack")")")
+  dest="$OUT/studies/$slug/viz/network"
+  mkdir -p "$dest"; cp -R "$pack"/. "$dest/"
+  echo "copied viewer pack: studies/$slug/viz/network"
+done
+
 # Self-contained study dashboards written directly under studies/*/viz/ (e.g.
 # the kidney-model-simulation dashboard: studies/<slug>/viz/index.html). Same
 # reason as above — the static publisher doesn't copy arbitrary viz/ trees, so a
