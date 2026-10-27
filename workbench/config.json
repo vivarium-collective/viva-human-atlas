@@ -1,7 +1,7 @@
 {
   "mode": "snapshot",
   "smsApiBase": "",
-  "repo": "https://github.com/vivarium-collective/viva-human-atlas.git",
-  "commit": "a3c8bf3b58c8a674773235e3576509a017e69e7d",
-  "generated_from_ref": "feat/model-connectivity"
+  "repo": "https://github.com/vivarium-collective/viva-human-atlas",
+  "commit": "57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4",
+  "generated_from_ref": "main"
 }
