@@ -7,7 +7,7 @@ name: Publish read-only workbench
 # (A legacy /dashboard/ path is kept as a redirect to /workbench/.)
 #
 # Scaffolded by `vivarium-workbench add-dashboard`. DEPLOY job; it writes
-# workbench/ (+ a dashboard/ redirect) on gh-pages.
+# workbench/ (+ a dashboard/ stub and a 404.html deep-link redirect) on gh-pages.
 #
 # MANUAL-ONLY (workflow_dispatch), NOT auto-on-push. Unlike a pure-spec
 # workspace, viva-human-atlas cannot be built on a clean CI runner:
@@ -149,11 +149,35 @@ jobs:
           <script>location.replace('./workbench/' + location.search + location.hash)</script>
           <a href="./workbench/">viva-human-atlas read-only workbench →</a>
           HTML
+          # Catch-all for DEEP legacy links: the dashboard/index.html stub above
+          # only covers the bare /dashboard/ root. GitHub Pages serves 404.html
+          # for any path it can't find, so this forwards old deep links like
+          # /viva-human-atlas/dashboard/studies/<slug>/viz/atlas/index.html to the
+          # matching /workbench/… path (sub-path, query, and hash preserved).
+          cat > 404.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>Redirecting… — viva-human-atlas</title>
+          <meta name="robots" content="noindex">
+          <script>
+          (function () {
+            var OLD = "/viva-human-atlas/dashboard/";
+            var NEW = "/viva-human-atlas/workbench/";
+            var path = location.pathname;
+            if (path.indexOf(OLD) === 0) {
+              location.replace(NEW + path.slice(OLD.length) + location.search + location.hash);
+            } else {
+              location.replace(NEW);
+            }
+          })();
+          </script>
+          <p>Redirecting to the <a href="/viva-human-atlas/workbench/">viva-human-atlas read-only workbench</a>…</p>
+          HTML
           git add -A
           if git diff --cached --quiet; then
             echo "read-only workbench snapshot unchanged; skipping commit"
           else
             git commit -m "gh-pages: republish read-only workbench (automated, ${GITHUB_SHA::7})"
             git push origin gh-pages
-            echo "published read-only workbench to gh-pages:workbench/ (+ dashboard/ redirect)"
+            echo "published read-only workbench to gh-pages:workbench/ (+ dashboard/ + 404 deep-link redirects)"
           fi
