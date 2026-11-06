@@ -20,7 +20,7 @@
   <div style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
   <div style="display:flex; align-items:center; gap:12px; min-width:0; flex-wrap:wrap">
   <h1 class="study-title" style="margin:0">
-    <span class="study-name" id="study-name" data-slug="model-harvest" data-study-kind="computational" title="model-harvest">Unified Model Harvest — BioModels + PhysioNet into the HRA Model DB</span>
+    <span class="study-name" id="study-name" data-slug="model-harvest" data-study-kind="computational" title="model-harvest" data-edit-kind="study" data-edit-field="title" data-edit-value="Unified Model Harvest — BioModels + PhysioNet into the HRA Model DB" data-edit-label="Title">Unified Model Harvest — BioModels + PhysioNet into the HRA Model DB</span>
     
   </h1>
     
@@ -240,6 +240,9 @@ not just a read of a static file?
 /* findings */
 .findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
 .finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
+/* Brief highlight when an item is reached via a ?ev= evidence deep-link. */
+.ev-flash{animation:ev-flash-kf 1.9s ease-out;scroll-margin-top:12px}
+@keyframes ev-flash-kf{0%{box-shadow:0 0 0 3px #fbbf24}70%{box-shadow:0 0 0 3px rgba(251,191,36,0.45)}100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}}
 .finding-card.finding-status-confirms{border-left-color:#10b981}
 .finding-card.finding-status-partial{border-left-color:#f59e0b}
 .finding-card.finding-status-contradicts{border-left-color:#dc2626}
@@ -598,7 +601,12 @@ follow-up (see PR #50 and docs/REPRODUCIBILITY.md).
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Background</h2>
       <div class="ctr-meta">
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item">Can a single Step reproduce/refresh the unified HRA model DB
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item" data-edit-kind="study" data-edit-field="question" data-edit-value="Can a single Step reproduce/refresh the unified HRA model DB
+(datasets/model_hra_map.json) across every registered model source --
+BioModels and, newly, PhysioNet -- incrementally and non-destructively, so
+that running this study *is* the reproducibility hook for the whole DB,
+not just a read of a static file?
+" data-edit-multiline data-edit-label="Question">Can a single Step reproduce/refresh the unified HRA model DB
 (datasets/model_hra_map.json) across every registered model source --
 BioModels and, newly, PhysioNet -- incrementally and non-destructively, so
 that running this study *is* the reproducibility hook for the whole DB,
@@ -642,7 +650,20 @@ not just a read of a static file?
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Result</h2>
-      <p class="ctr-text">The baseline (build_if_missing: false) loads the committed
+      
+      <p class="ctr-text" data-edit-kind="study" data-edit-field="result" data-edit-value="The baseline (build_if_missing: false) loads the committed
+datasets/model_hra_map.json network-free through the two-source
+registry and reports it exactly as stored: 1,576 models -- 1,096
+repository=biomodels + 480 repository=physionet, now that the
+PhysioNet harvest has run against the committed DB. The BioModels-only
+coverage stats are unchanged from biomodel-hra-map&#39;s
+(n_with_molecular=978, n_with_hrapop=112), confirming PhysioNet rows
+carry no molecular/HRApop annotations of their own; n_with_uberon rose
+from 323 (BioModels alone) to 447 (323 BioModels + 124 PhysioNet,
+offline keyword-mapped), showing the ModelHarvestStep&#39;s load path is a
+pure superset wrapper over the existing BioModels DB plus the
+newly-upserted PhysioNet rows, not a reinterpretation of either.
+" data-edit-multiline data-edit-label="Result">The baseline (build_if_missing: false) loads the committed
 datasets/model_hra_map.json network-free through the two-source
 registry and reports it exactly as stored: 1,576 models -- 1,096
 repository=biomodels + 480 repository=physionet, now that the
@@ -689,11 +710,23 @@ newly-upserted PhysioNet rows, not a reinterpretation of either.
       
       
       
-      <div class="finding-card finding-kind-other finding-status-novel">
+      <div class="finding-card finding-kind-other finding-status-novel" id="finding-F-01">
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">The baseline (build_if_missing: false) loads the committed
+            <span class="finding-claim finding-statement" data-edit-kind="study" data-edit-field="findings[F-01].statement" data-edit-value="The baseline (build_if_missing: false) loads the committed
+datasets/model_hra_map.json network-free through the two-source
+registry and reports it exactly as stored: 1,576 models -- 1,096
+repository=biomodels + 480 repository=physionet, now that the
+PhysioNet harvest has run against the committed DB. The BioModels-only
+coverage stats are unchanged from biomodel-hra-map&#39;s
+(n_with_molecular=978, n_with_hrapop=112), confirming PhysioNet rows
+carry no molecular/HRApop annotations of their own; n_with_uberon rose
+from 323 (BioModels alone) to 447 (323 BioModels + 124 PhysioNet,
+offline keyword-mapped), showing the ModelHarvestStep&#39;s load path is a
+pure superset wrapper over the existing BioModels DB plus the
+newly-upserted PhysioNet rows, not a reinterpretation of either.
+" data-edit-multiline data-edit-label="Finding F-01">The baseline (build_if_missing: false) loads the committed
 datasets/model_hra_map.json network-free through the two-source
 registry and reports it exactly as stored: 1,576 models -- 1,096
 repository=biomodels + 480 repository=physionet, now that the
@@ -745,11 +778,19 @@ newly-upserted PhysioNet rows, not a reinterpretation of either.
       
       
       
-      <div class="finding-card finding-kind-other finding-status-novel">
+      <div class="finding-card finding-kind-other finding-status-novel" id="finding-F-02">
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">The harvest is source-registry-driven and identifier-keyed, so it is
+            <span class="finding-claim finding-statement" data-edit-kind="study" data-edit-field="findings[F-02].statement" data-edit-value="The harvest is source-registry-driven and identifier-keyed, so it is
+structurally incremental and non-destructive: should_process skips
+anything already in the DB (a plain rerun only fetches newly-posted
+models), and each source&#39;s entry_fn only ever upserts its own rows
+under its own identifier scheme (BioModels IRIs vs. PhysioNet content
+URLs), so a PhysioNet refresh cannot touch a BioModels row and vice
+versa. That is what lets this one study stand in for &#34;refresh the
+whole unified DB&#34; rather than needing a separate study per source.
+" data-edit-multiline data-edit-label="Finding F-02">The harvest is source-registry-driven and identifier-keyed, so it is
 structurally incremental and non-destructive: should_process skips
 anything already in the DB (a plain rerun only fetches newly-posted
 models), and each source&#39;s entry_fn only ever upserts its own rows
@@ -995,6 +1036,12 @@ whole unified DB&#34; rather than needing a separate study per source.
 <div class="overview-section" id="results-section">
   
   <div id="results-summary" data-study="model-harvest" style="margin:0 0 16px"></div>
+
+  
+  <div id="gate-results-section" data-study="model-harvest" style="margin:0 0 22px" hidden>
+    <h4>Gate results <span class="muted" style="font-size:0.8em;font-weight:normal">— each acceptance test's value, graded from run data</span></h4>
+    <div id="gate-results"></div>
+  </div>
 
   <h4>Latest run preview <span class="muted" style="font-size:0.8em;font-weight:normal">— downsampled sparkline + first/last/min/max per store</span></h4>
   <div id="results-preview" data-study="model-harvest">
@@ -1552,11 +1599,12 @@ whole unified DB&#34; rather than needing a separate study per source.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4", "branch": "main", "generated_at": "2026-10-27 12:49 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "ec65131a43f5ffcef2a9ce31f57888d30b88e54b", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/ec65131a43f5ffcef2a9ce31f57888d30b88e54b", "branch": "main", "generated_at": "2026-11-06 15:36 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>
 window._studyName = "model-harvest";
+window.__STUDY_INVESTIGATION__ = "hra-integration";  // owning investigation (feedback save routing)
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
@@ -1685,6 +1733,8 @@ window._seedFollowupProposal = _seedFollowupProposal;
 <script src="/viva-human-atlas/workbench/assets/progress-track.js"></script>
 <script src="/viva-human-atlas/workbench/assets/comparison-view.js"></script>
 <script src="/viva-human-atlas/workbench/assets/study-detail.js"></script>
+<script src="/viva-human-atlas/workbench/assets/study-feedback.js"></script>
+<script src="/viva-human-atlas/workbench/assets/inline-edit.js"></script>
 <script>
 // Re-assert the refresh-aware seed handlers AFTER study-detail.js (which
 // defines its own navigate-away _seedFollowupStudy). The embedded

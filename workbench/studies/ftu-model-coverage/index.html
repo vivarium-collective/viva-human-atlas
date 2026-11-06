@@ -20,7 +20,7 @@
   <div style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
   <div style="display:flex; align-items:center; gap:12px; min-width:0; flex-wrap:wrap">
   <h1 class="study-title" style="margin:0">
-    <span class="study-name" id="study-name" data-slug="ftu-model-coverage" data-study-kind="computational" title="ftu-model-coverage">FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units?</span>
+    <span class="study-name" id="study-name" data-slug="ftu-model-coverage" data-study-kind="computational" title="ftu-model-coverage" data-edit-kind="study" data-edit-field="title" data-edit-value="FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units?" data-edit-label="Title">FTU Model Coverage — Do Existing BioModels Model HRA Functional Tissue Units?</span>
     
   </h1>
     
@@ -239,6 +239,9 @@ RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?
 /* findings */
 .findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
 .finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
+/* Brief highlight when an item is reached via a ?ev= evidence deep-link. */
+.ev-flash{animation:ev-flash-kf 1.9s ease-out;scroll-margin-top:12px}
+@keyframes ev-flash-kf{0%{box-shadow:0 0 0 3px #fbbf24}70%{box-shadow:0 0 0 3px rgba(251,191,36,0.45)}100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}}
 .finding-card.finding-status-confirms{border-left-color:#10b981}
 .finding-card.finding-status-partial{border-left-color:#f59e0b}
 .finding-card.finding-status-contradicts{border-left-color:#dc2626}
@@ -587,7 +590,11 @@ parameterization targets; it does not yet bind a real CTpop count.
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Background</h2>
       <div class="ctr-meta">
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item">Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item" data-edit-kind="study" data-edit-field="question" data-edit-value="Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
+Boerner&#39;s question -- and, for the FTUs that already have models, can HRA
+CTpop (Cell Type Populations) cell-type counts parameterize them, per the
+RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?
+" data-edit-multiline data-edit-label="Question">Do existing BioModels model HRA functional tissue units (FTUs) -- Katy
 Boerner&#39;s question -- and, for the FTUs that already have models, can HRA
 CTpop (Cell Type Populations) cell-type counts parameterize them, per the
 RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?
@@ -630,7 +637,19 @@ RUI -&gt; CTpop -&gt; model vision Peter Hunter and SPARC-heart describe?
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Result</h2>
-      <p class="ctr-text">Crossing the full 1,096-model curated BioModels corpus against a
+      
+      <p class="ctr-text" data-edit-kind="study" data-edit-field="result" data-edit-value="Crossing the full 1,096-model curated BioModels corpus against a
+curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
+(45.5%), matching 13 distinct models: pancreatic islet of Langerhans
+(3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
+Colon Crypt cycle versions), cardiac muscle/myocardium unit (3
+models, SPARC-heart-relevant), liver lobule (2 models), and skin
+epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney
+nephron, lung alveolus, small-intestine crypt-villus axis, ovarian
+follicle, lymph node follicle) match zero models -- existing
+BioModels do already model several HRA FTUs, but real modeling
+white-space remains for the rest.
+" data-edit-multiline data-edit-label="Result">Crossing the full 1,096-model curated BioModels corpus against a
 curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
 (45.5%), matching 13 distinct models: pancreatic islet of Langerhans
 (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
@@ -676,11 +695,22 @@ white-space remains for the rest.
       
       
       
-      <div class="finding-card finding-kind-other finding-status-novel">
+      <div class="finding-card finding-kind-other finding-status-novel" id="finding-F-01">
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">Crossing the full 1,096-model curated BioModels corpus against a
+            <span class="finding-claim finding-statement" data-edit-kind="study" data-edit-field="findings[F-01].statement" data-edit-value="Crossing the full 1,096-model curated BioModels corpus against a
+curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
+(45.5%), matching 13 distinct models: pancreatic islet of Langerhans
+(3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
+Colon Crypt cycle versions), cardiac muscle/myocardium unit (3
+models, SPARC-heart-relevant), liver lobule (2 models), and skin
+epidermis unit (1 model). Six FTUs (kidney glomerulus, kidney
+nephron, lung alveolus, small-intestine crypt-villus axis, ovarian
+follicle, lymph node follicle) match zero models -- existing
+BioModels do already model several HRA FTUs, but real modeling
+white-space remains for the rest.
+" data-edit-multiline data-edit-label="Finding F-01">Crossing the full 1,096-model curated BioModels corpus against a
 curated 11-FTU list by name/synonym substring match covers 5/11 FTUs
 (45.5%), matching 13 distinct models: pancreatic islet of Langerhans
 (3 models), colon crypt of Lieberkuhn (4 models, all Smallbone2013
@@ -934,6 +964,12 @@ white-space remains for the rest.
 <div class="overview-section" id="results-section">
   
   <div id="results-summary" data-study="ftu-model-coverage" style="margin:0 0 16px"></div>
+
+  
+  <div id="gate-results-section" data-study="ftu-model-coverage" style="margin:0 0 22px" hidden>
+    <h4>Gate results <span class="muted" style="font-size:0.8em;font-weight:normal">— each acceptance test's value, graded from run data</span></h4>
+    <div id="gate-results"></div>
+  </div>
 
   <h4>Latest run preview <span class="muted" style="font-size:0.8em;font-weight:normal">— downsampled sparkline + first/last/min/max per store</span></h4>
   <div id="results-preview" data-study="ftu-model-coverage">
@@ -1493,11 +1529,12 @@ white-space remains for the rest.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4", "branch": "main", "generated_at": "2026-10-27 12:49 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "ec65131a43f5ffcef2a9ce31f57888d30b88e54b", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/ec65131a43f5ffcef2a9ce31f57888d30b88e54b", "branch": "main", "generated_at": "2026-11-06 15:36 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>
 window._studyName = "ftu-model-coverage";
+window.__STUDY_INVESTIGATION__ = "hra-3d";  // owning investigation (feedback save routing)
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
@@ -1626,6 +1663,8 @@ window._seedFollowupProposal = _seedFollowupProposal;
 <script src="/viva-human-atlas/workbench/assets/progress-track.js"></script>
 <script src="/viva-human-atlas/workbench/assets/comparison-view.js"></script>
 <script src="/viva-human-atlas/workbench/assets/study-detail.js"></script>
+<script src="/viva-human-atlas/workbench/assets/study-feedback.js"></script>
+<script src="/viva-human-atlas/workbench/assets/inline-edit.js"></script>
 <script>
 // Re-assert the refresh-aware seed handlers AFTER study-detail.js (which
 // defines its own navigate-away _seedFollowupStudy). The embedded

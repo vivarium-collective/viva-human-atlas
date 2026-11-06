@@ -20,7 +20,7 @@
   <div style="display:flex; align-items:center; gap:14px; justify-content:space-between;">
   <div style="display:flex; align-items:center; gap:12px; min-width:0; flex-wrap:wrap">
   <h1 class="study-title" style="margin:0">
-    <span class="study-name" id="study-name" data-slug="glucose-biomodel-do" data-study-kind="computational" title="glucose-biomodel-do">Glucose BioModel Digital Objects — Uberon Organ Annotation</span>
+    <span class="study-name" id="study-name" data-slug="glucose-biomodel-do" data-study-kind="computational" title="glucose-biomodel-do" data-edit-kind="study" data-edit-field="title" data-edit-value="Glucose BioModel Digital Objects — Uberon Organ Annotation" data-edit-label="Title">Glucose BioModel Digital Objects — Uberon Organ Annotation</span>
     
   </h1>
     
@@ -237,6 +237,9 @@
 /* findings */
 .findings-section{padding:14px 16px;background:#fafbff;border:1px solid #c7d2fe;border-radius:8px}
 .finding-card{padding:12px 14px;margin:10px 0;border:1px solid #e2e8f0;border-left:5px solid #6366f1;border-radius:6px;background:#fff}
+/* Brief highlight when an item is reached via a ?ev= evidence deep-link. */
+.ev-flash{animation:ev-flash-kf 1.9s ease-out;scroll-margin-top:12px}
+@keyframes ev-flash-kf{0%{box-shadow:0 0 0 3px #fbbf24}70%{box-shadow:0 0 0 3px rgba(251,191,36,0.45)}100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}}
 .finding-card.finding-status-confirms{border-left-color:#10b981}
 .finding-card.finding-status-partial{border-left-color:#f59e0b}
 .finding-card.finding-status-contradicts{border-left-color:#dc2626}
@@ -565,7 +568,9 @@ of treating the whole search-result set as anatomically undifferentiated.
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Background</h2>
       <div class="ctr-meta">
-        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item">Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
+        <div class="ctr-meta-row"><span class="ctr-meta-k">Question</span> <span class="ctr-meta-item" data-edit-kind="study" data-edit-field="question" data-edit-value="Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
+(via transparent synonym matching) and inverted into an organ-&gt;models index?
+" data-edit-multiline data-edit-label="Question">Can glucose-regulation BioModels be annotated with HRA Uberon organ terms
 (via transparent synonym matching) and inverted into an organ-&gt;models index?
 </span></div>
         
@@ -613,7 +618,16 @@ of treating the whole search-result set as anatomically undifferentiated.
 
     <div class="ctr-block">
       <h2 class="overview-label ctr-h">Result</h2>
-      <p class="ctr-text">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+      
+      <p class="ctr-text" data-edit-kind="study" data-edit-field="result" data-edit-value="Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+BioModels to an HRA organ, correctly concentrating on pancreas (4
+models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
+insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
+glucose metabolism) -- exactly the two organs glucose-homeostasis
+biology predicts (insulin/glucagon secretion + hepatic glucose
+buffering), confirming the synonym-match mechanism assigns organs
+correctly when it fires.
+" data-edit-multiline data-edit-label="Result">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
 BioModels to an HRA organ, correctly concentrating on pancreas (4
 models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
 insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
@@ -656,11 +670,19 @@ correctly when it fires.
       
       
       
-      <div class="finding-card finding-kind-other finding-status-novel">
+      <div class="finding-card finding-kind-other finding-status-novel" id="finding-F-01">
         <details class="finding-details">
           <summary class="finding-row">
             <span class="finding-status-glyph">◆</span>
-            <span class="finding-claim finding-statement">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+            <span class="finding-claim finding-statement" data-edit-kind="study" data-edit-field="findings[F-01].statement" data-edit-value="Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
+BioModels to an HRA organ, correctly concentrating on pancreas (4
+models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
+insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
+glucose metabolism) -- exactly the two organs glucose-homeostasis
+biology predicts (insulin/glucagon secretion + hepatic glucose
+buffering), confirming the synonym-match mechanism assigns organs
+correctly when it fires.
+" data-edit-multiline data-edit-label="Finding F-01">Synonym-based organ tagging matched 5/25 (20%) glucose-regulation
 BioModels to an HRA organ, correctly concentrating on pancreas (4
 models -- Topp beta-cell-mass, Silber IV-glucose, Sturis and Tolic
 insulin-glucose oscillators) and liver (1 model, Bulik2016 hepatic
@@ -906,6 +928,12 @@ correctly when it fires.
 <div class="overview-section" id="results-section">
   
   <div id="results-summary" data-study="glucose-biomodel-do" style="margin:0 0 16px"></div>
+
+  
+  <div id="gate-results-section" data-study="glucose-biomodel-do" style="margin:0 0 22px" hidden>
+    <h4>Gate results <span class="muted" style="font-size:0.8em;font-weight:normal">— each acceptance test's value, graded from run data</span></h4>
+    <div id="gate-results"></div>
+  </div>
 
   <h4>Latest run preview <span class="muted" style="font-size:0.8em;font-weight:normal">— downsampled sparkline + first/last/min/max per store</span></h4>
   <div id="results-preview" data-study="glucose-biomodel-do">
@@ -1465,11 +1493,12 @@ correctly when it fires.
 </section>
 
 </main>
-<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/57bcfa9ca1f705b17e9b97a3ed2b3fe514bac7e4", "branch": "main", "generated_at": "2026-10-27 12:49 UTC"} };</script>
+<script>window.__DASH_CONFIG__ = { mode: "snapshot", interactiveUrl: "https://github.com/vivarium-collective/viva-human-atlas", basePath: "/viva-human-atlas/workbench", inputsDownloadBase: "https://github.com/vivarium-collective/viva-human-atlas/raw/main", provenance: {"repo_slug": "vivarium-collective/viva-human-atlas", "repo_url": "https://github.com/vivarium-collective/viva-human-atlas", "commit": "ec65131a43f5ffcef2a9ce31f57888d30b88e54b", "commit_url": "https://github.com/vivarium-collective/viva-human-atlas/commit/ec65131a43f5ffcef2a9ce31f57888d30b88e54b", "branch": "main", "generated_at": "2026-11-06 15:36 UTC"} };</script>
 <script src="/viva-human-atlas/workbench/assets/data-source.js"></script>
 <script src="/viva-human-atlas/workbench/assets/toast.js"></script>
 <script>
 window._studyName = "glucose-biomodel-do";
+window.__STUDY_INVESTIGATION__ = "hra-integration";  // owning investigation (feedback save routing)
 window._study = null;  // populated by _bootstrapStudy() in study-detail.js
 
 // Save handler for the Conditions → Model settings editable rows.
@@ -1598,6 +1627,8 @@ window._seedFollowupProposal = _seedFollowupProposal;
 <script src="/viva-human-atlas/workbench/assets/progress-track.js"></script>
 <script src="/viva-human-atlas/workbench/assets/comparison-view.js"></script>
 <script src="/viva-human-atlas/workbench/assets/study-detail.js"></script>
+<script src="/viva-human-atlas/workbench/assets/study-feedback.js"></script>
+<script src="/viva-human-atlas/workbench/assets/inline-edit.js"></script>
 <script>
 // Re-assert the refresh-aware seed handlers AFTER study-detail.js (which
 // defines its own navigate-away _seedFollowupStudy). The embedded
